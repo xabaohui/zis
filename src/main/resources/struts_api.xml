@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.3//EN" "http://struts.apache.org/dtds/struts-2.3.dtd">
+<struts>
+	<package name="default2" extends="struts-default" abstract="/">
+		<!-- 图书查询接口 -->
+		<action name="queryBookInfo" class="interfaceBookinfoAction"
+			method="queryBookInfo">
+			<result name="success" type="plainText">
+				<param name="charSet">UTF-8</param>
+				<param name="location">index.jsp</param>
+			</result>
+		</action>
+		<!-- 图书新增接口 -->
+		<action name="addBookInfo" class="InterfaceBooksToMoblieinfoAction"
+			method="addBookInfo">
+			<result name="success" type="plainText">
+				<param name="charSet">UTF-8</param>
+				<param name="location">index.jsp</param>
+			</result>
+		</action>
+		<!-- 教材使用量保存接口 -->
+		<action name="addBookRequirement" class="addBookRequirement"
+			method="addBookAmount">
+			<result name="success" type="plainText">
+				<param name="charSet">UTF-8</param>
+				<param name="location">index.jsp</param>
+			</result>
+		</action>
+		<!-- 院校信息API查询接口 -->
+		<action name="queryAllCollege" class="apiDepartmentInfoQueryAction"
+			method="queryCollege">
+			<result name="success" type="plainText">
+				<param name="charSet">UTF-8</param>
+				<param name="location">index.jsp</param>
+			</result>
+		</action>
+		<action name="queryInstitute" class="apiDepartmentInfoQueryAction"
+			method="queryInstitute">
+			<result name="success" type="plainText">
+				<param name="charSet">UTF-8</param>
+				<param name="location">index.jsp</param>
+			</result>
+		</action>
+		<action name="queryDepartment" class="apiDepartmentInfoQueryAction"
+			method="queryDepartmentInfo">
+			<result name="success" type="plainText">
+				<param name="charSet">UTF-8</param>
+				<param name="location">index.jsp</param>
+			</result>
+		</action>
+		<!-- 查询采购需求量接口 -->
+		<action name="queryPurchaseAmount" class="apiPurchasedAmountQueryAction"
+			method="queryRequiredAmount">
+			<result name="success" type="plainText">
+				<param name="charSet">UTF-8</param>
+				<param name="location">index.jsp</param>
+			</result>
+		</action>
+		<!-- 添加采购量接口 -->
+		<action name="addPurchasedAmount" class="apiPurchasedAmountAddAction"
+			method="addRequirementAmount">
+			<result name="success" type="plainText">
+				<param name="charSet">UTF-8</param>
+				<param name="location">index.jsp</param>
+			</result>
+		</action>
+		<!-- token获取接口 -->
+		<action name="getToken" class="apiSubmitTokenAction"
+			method="getToken">
+			<result name="success" type="plainText">
+				<param name="charSet">UTF-8</param>
+				<param name="location">index.jsp</param>
+			</result>
+		</action>
+	</package>
+
+</struts>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.3//EN" "http://struts.apache.org/dtds/struts-2.3.dtd">
+<struts>
+	<package name="toolkit" extends="struts-default" namespace="/toolkit">
+		<!-- 批量修复书名：删除多余内容 -->
+		<action name="batchFixBookName" class="bookNameFixAction" method="fixBookName">
+			<result name="input">toolkit.jsp</result>
+			<result name="success">toolkit.jsp</result>
+		</action>
+		<!-- 修复书名：批量替换 -->
+		<action name="batchReplaceBookName" class="bookNameReplaceAction" method="batchReplaceBookName">
+			<result name="input">toolkit.jsp</result>
+			<result name="success">toolkit.jsp</result>
+		</action>
+		<!-- 批量修复作者 -->
+		<action name="fixBookAuthor" class="bookAuthorFixAction" method="fixBookAuthor">
+			<result name="input">toolkit.jsp</result>
+			<result name="success">toolkit.jsp</result>
+		</action>
+		<!-- 批量修复版次：删除书名中“修订版”、“修订本”，并追加到版次最后 -->
+		<action name="batchFixEditionByBookName" class="bookEditionFixAction" method="batchFixEditionByBookName">
+			<result name="input">toolkit.jsp</result>
+			<result name="success">toolkit.jsp</result>
+		</action>
+		<!-- 批量修复版次：使用书名中的“第X版”代替版次的值 -->
+		<action name="batchReplaceEditionByBookName" class="bookEditionFixAction" method="batchReplaceEditionByBookName">
+			<result name="input">toolkit.jsp</result>
+			<result name="success">toolkit.jsp</result>
+		</action>
+		<action name="batchAddIntoBlackList" class="doPurchaseAction" method="batchAddIntoBlackList">
+			<result name="input">toolkit.jsp</result>
+			<result name="success">/success.jsp</result>
+		</action>
+	</package>
+</struts>

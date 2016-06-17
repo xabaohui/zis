@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx-2.0.xsd 
+	http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+
+	<bean id="bookblacklistDAO"
+		class="com.zis.purchase.daoImpl.BookblacklistDAOImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="purchasePlanDao"
+		class="com.zis.purchase.daoImpl.PurchasePlanDaoImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="purchaseDetailDao"
+		class="com.zis.purchase.daoImpl.PurchaseDetailDaoImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="storeSalesDao"
+		class="com.zis.purchase.daoImpl.StoresalesDAOImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="bookwhitelistDAO"
+		class="com.zis.purchase.daoImpl.BookwhitelistDAOImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="sysVarDao" class="com.zis.requirement.daoImpl.SysVarDAOImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="tempImportTaskDao"
+		class="com.zis.purchase.daoImpl.TempImportTaskDaoImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="tempImportDetailDao"
+		class="com.zis.purchase.daoImpl.TempImportDetailDaoImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="inwarehouseDetailDao"
+		class="com.zis.purchase.daoImpl.InwarehouseDetailDaoImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="inwarehouseDao"
+		class="com.zis.purchase.daoImpl.InwarehouseDaoImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="inwarehousePositionDao"
+		class="com.zis.purchase.daoImpl.InwarehousePositionDaoImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	
+	<!-- 系统变量缓存 -->
+	<bean id="sysVarCache" class="com.zis.common.cache.SysVarCache">
+		<property name="sysVarDao" ref="sysVarDao"/>
+	</bean>
+	
+	<!-- ////////////////////////////////
+		采购管理：需求量算法start
+		///////////////////////////////// -->
+	<!-- 销售定量 -->
+	<bean id="salesCalculater" class="com.zis.purchase.calculate.SalesCalculater">
+		<property name="storeSalesDao" ref="storeSalesDao"></property>
+		<property name="sysVarCache" ref="sysVarCache"></property>
+	</bean>
+	<!-- 需求定量 -->
+	<bean id="requirementCalculater" class="com.zis.purchase.calculate.RequirementCalculater"> 
+		<property name="sysVarCache" ref="sysVarCache"></property>
+		<property name="bookAmountDao" ref="bookamountDAO"></property>
+		<property name="bookService" ref="bookService"/>
+	</bean>
+	<!-- 混合定量 -->
+	<bean id="mixedCalculater" class="com.zis.purchase.calculate.MixedCalculater">
+		<property name="sysVarCache" ref="sysVarCache"></property>
+		<property name="requirementCalculater" ref="requirementCalculater"></property>
+		<property name="salesCalculater" ref="salesCalculater"></property>
+	</bean>
+	<!-- 默认定量 -->
+	<bean id="defaultCalculater" class="com.zis.purchase.calculate.DefaultCalculater">
+		<property name="sysVarCache" ref="sysVarCache"/>
+	</bean>
+	
+	<!-- 销售优先 -->
+	<bean id="salesFirst" class="com.zis.purchase.calcMode.SalesFirstMode">
+		<property name="requirementCalculater" ref="requirementCalculater"></property>
+		<property name="salesCalculater" ref="salesCalculater"></property>
+		<property name="defaultCalculate" ref="defaultCalculater"></property>
+	</bean>
+	<!-- 需求优先 -->
+	<bean id="requirementFirst" class="com.zis.purchase.calcMode.RequirementFirstMode">
+		<property name="requirementCalculater" ref="requirementCalculater"></property>
+		<property name="salesCalculater" ref="salesCalculater"></property>
+		<property name="defaultCalculate" ref="defaultCalculater"></property>
+	</bean>
+	<!-- 混合优先 -->
+	<bean id="mixedFirst" class="com.zis.purchase.calcMode.MixedFirstMode">
+		<property name="mixedCalculater" ref="mixedCalculater"></property>
+		<property name="defaultCalculate" ref="defaultCalculater"></property>
+	</bean>
+	<!-- modeFactory的map配置 -->
+	<bean id="modeFactory" class="com.zis.purchase.calcMode.CalcModeFactory">
+		<property name="map">
+			<bean class="java.util.HashMap">
+				<constructor-arg>
+					<map>
+						<entry key="1" value-ref="requirementFirst"></entry>
+						<entry key="2" value-ref="salesFirst"></entry>
+						<entry key="3" value-ref="mixedFirst"></entry>
+					</map>
+				</constructor-arg>
+			</bean>
+		</property>
+	</bean>
+	<!-- ////////////////////////////////
+		采购管理：需求量算法end
+		///////////////////////////////// -->
+	
+	<bean id="purchaseBO" class="com.zis.purchase.biz.PurchaseBO">
+		<property name="bookblacklistDao" ref="bookblacklistDAO"></property>
+		<property name="bookwhitelistDao" ref="bookwhitelistDAO"/>
+		<property name="purchaseDetailDao" ref="purchaseDetailDao"></property>
+		<property name="purchasePlanDao" ref="purchasePlanDao"></property>
+		<property name="sysVarCache" ref="sysVarCache"></property>
+		<property name="taskExecutor" ref="taskExecutor" />
+		<property name="bookService" ref="bookService" />
+	</bean>
+	<bean id="tempImportBO" class="com.zis.purchase.biz.TempImportBO">
+		<property name="tempImportTaskDao" ref="tempImportTaskDao"/>
+		<property name="tempImportDetailDao" ref="tempImportDetailDao"/>
+		<property name="bookService" ref="bookService" />
+	</bean>
+	<bean id="inwarehouseBO" class="com.zis.purchase.biz.InwarehouseBO">
+		<property name="inwarehouseDao" ref="inwarehouseDao"/>
+		<property name="inwarehouseDetailDao" ref="inwarehouseDetailDao"/>
+		<property name="inwarehousePositionDao" ref="inwarehousePositionDao"/>
+		<property name="purchasePlanDao" ref="purchasePlanDao"/>
+	</bean>
+	<bean id="purchaseInwarehouseBO" class="com.zis.purchase.biz.PurchaseInwarehouseBO">
+		<property name="inwarehouseDao" ref="inwarehouseDao"/>
+		<property name="inwarehouseDetailDao" ref="inwarehouseDetailDao"/>
+		<property name="inwarehousePositionDao" ref="inwarehousePositionDao"/>
+		<property name="purchasePlanDao" ref="purchasePlanDao"/>
+		<property name="purchaseDetailDao" ref="purchaseDetailDao"/>
+	</bean>
+	<bean id="doPurchaseService" class="com.zis.purchase.biz.DoPurchaseService">
+		<property name="inwarehouseDao" ref="inwarehouseDao"/>
+		<property name="inwarehousePositionDao" ref="inwarehousePositionDao"/>
+		<property name="inwarehouseDetailDao" ref="inwarehouseDetailDao"/>
+		<property name="purchaseBO" ref="purchaseBO"/>
+		<property name="tempImportBO" ref="tempImportBO" />
+		<property name="inwarehouseBO" ref="inwarehouseBO"/>
+		<property name="purchaseInwarehouseBO" ref="purchaseInwarehouseBO"/>
+		<property name="bookService" ref="bookService" />
+	</bean>
+	
+	
+	<bean id="purchasePlanViewAction" class="com.zis.purchase.action.PurchasePlanViewAction" scope="prototype">
+		<property name="bookService" ref="bookService"/>
+		<property name="doPurchaseService" ref="doPurchaseService"/>
+	</bean>
+	<bean id="purchaseDetailViewAction" class="com.zis.purchase.action.PurchaseDetailViewAction" scope="prototype">
+		<property name="bookService" ref="bookService"/>
+	</bean>
+	<!-- 采购需求量查询接口 -->
+	<bean id="apiPurchasedAmountQueryAction" class="com.zis.api.ApiPurchasedAmountQueryAction" scope="prototype">
+		<property name="doPurchaseService" ref="doPurchaseService"></property>
+	</bean>
+	<!-- 采购量添加接口 -->
+	<bean id="apiPurchasedAmountAddAction" class="com.zis.api.ApiPurchasedAmountAddAction" scope="prototype">
+		<property name="doPurchaseService" ref="doPurchaseService"></property>
+	</bean>
+	<!-- 采购黑名单 -->
+	<bean id="blackListViewAction" class="com.zis.purchase.action.BlackListViewAction" scope="prototype">
+	</bean>
+	<bean id="whiteListViewAction" class="com.zis.purchase.action.WhiteListViewAction" scope="prototype">
+	</bean>
+	<!-- 系统常量操作 -->
+	<bean id="sysVarAction" class="com.zis.purchase.action.SysVarAction" scope="prototype">
+		<property name="sysVarCache" ref="sysVarCache"/>
+		<property name="doPurchaseService" ref="doPurchaseService"/>
+	</bean>
+	<!-- 修改系统常量 -->
+	<bean id="updateSysVarAction" class="com.zis.purchase.action.SysVarUpdateAction" scope="prototype">
+		<property name="sysVarCache" ref="sysVarCache"></property>
+	</bean>
+	<bean id="doPurchaseAction" class="com.zis.purchase.action.DoPurchaseAction" scope="prototype">
+		<property name="doPurchaseService" ref="doPurchaseService"/>
+		<property name="bookService" ref="bookService"/>
+	</bean>
+	<!-- 导入库存或者采购数据 -->
+	<bean id="tempImportUploadAction" class="com.zis.purchase.action.TempImportUploadAction" scope="prototype">
+		<property name="doPurchaseService" ref="doPurchaseService"/>
+	</bean>
+	<bean id="tempImportViewAction" class="com.zis.purchase.action.TempImportViewAction" scope="prototype">
+		<property name="doPurchaseService" ref="doPurchaseService"/>
+	</bean>
+	<bean id="tempImportDetailViewAction" class="com.zis.purchase.action.TempImportDetailViewAction" scope="prototype">
+		<property name="bookService" ref="bookService"/>
+		<property name="doPurchaseService" ref="doPurchaseService"/>
+	</bean>
+	<bean id="tempImportDetailTransferAction" class="com.zis.purchase.action.TempImportDetailTransferAction" scope="prototype">
+		<property name="bookService" ref="bookService"/>
+		<property name="doPurchaseService" ref="doPurchaseService"/>
+	</bean>
+	<!-- 导出数据 -->
+	<bean id="wangqubaoItemExportAction" class="com.zis.purchase.action.WangqubaoItemExportAction" scope="prototype">
+		<property name="doPurchaseService" ref="doPurchaseService"/>
+	</bean>
+	<bean id="taobaoItemCsvExportAction" class="com.zis.purchase.action.TaobaoItemCsvExportAction" scope="prototype">
+		<property name="doPurchaseService" ref="doPurchaseService"/>
+	</bean>
+	<!-- 入库相关Action -->
+	<bean id="inwarehouseCreateAction" class="com.zis.purchase.action.InwarehouseCreateAction" scope="prototype">
+		<property name="doPurchaseService" ref="doPurchaseService"/>
+	</bean>
+	<bean id="inwarehouseScannerAction" class="com.zis.purchase.action.InwarehouseScannerAction" scope="prototype">
+		<property name="doPurchaseService" ref="doPurchaseService"/>
+	</bean>
+	<bean id="inwarehouseBOAction" class="com.zis.purchase.action.InwarehouseBOAction" scope="prototype">
+		<property name="doPurchaseService" ref="doPurchaseService"/>
+	</bean>
+	<bean id="inwarehouseViewAction" class="com.zis.purchase.action.InwarehouseViewAction" scope="prototype">
+	</bean>
+	<bean id="inwarehouseDetailAction" class="com.zis.purchase.action.InwarehouseDetailAction" scope="prototype">
+		<property name="bookService" ref="bookService"/>
+		<property name="doPurchaseService" ref="doPurchaseService"/>
+	</bean>
+	<bean id="inwarehouseDataExportDispatcherAction" class="com.zis.purchase.action.InwarehouseDataExportDispatcherAction" scope="prototype">
+	</bean>
+	<bean id="bookInfoExportAction" class="com.zis.purchase.action.BookInfoExportAction" scope="prototype">
+		<property name="doPurchaseService" ref="doPurchaseService"/>
+	</bean>
+	<bean id="wangqubaoInwarehouseExportAction" class="com.zis.purchase.action.WangqubaoInwarehouseExportAction" scope="prototype">
+		<property name="doPurchaseService" ref="doPurchaseService"/>
+		<property name="bookService" ref="bookService"/>
+	</bean>
+	<bean id="wangqubaoItemExportByInwarehouseAction" class="com.zis.purchase.action.WangqubaoItemExportByInwarehouseAction" scope="prototype">
+		<property name="doPurchaseService" ref="doPurchaseService"/>
+		<property name="bookService" ref="bookService"/>
+	</bean>
+	<bean id="taobaoItemCsvExportByInwarehouseAction" class="com.zis.purchase.action.TaobaoItemCsvExportByInwarehouseAction" scope="prototype">
+		<property name="doPurchaseService" ref="doPurchaseService"/>
+		<property name="bookService" ref="bookService"/>
+	</bean>
+	<bean id="soldOutItemExportByInwarehouseAction" class="com.zis.purchase.action.SoldOutItemExportByInwarehouseAction" scope="prototype">
+		<property name="doPurchaseService" ref="doPurchaseService"/>
+		<property name="bookService" ref="bookService"/>
+	</bean>
+	<!-- 配置参与事务的类 -->
+      <aop:config>
+         <!-- 设置切点 -->
+      <aop:pointcut id="purchaseServiceMethod" expression="execution(* com.zis.purchase.service.*.*(..))"/> 
+         <!-- 通知  和 切点 -->	
+      <aop:advisor advice-ref="TestAdvice" pointcut-ref="purchaseServiceMethod"  />
+      </aop:config>
+</beans>

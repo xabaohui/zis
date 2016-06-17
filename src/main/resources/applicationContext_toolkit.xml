@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx" 
+	xmlns:aop="http://www.springframework.org/schema/aop" 
+	xsi:schemaLocation="
+	
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+	    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+	    
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<bean id="bookInfoToolkit" class="com.zis.toolkit.service.BookInfoToolkit">
+		<property name="bookService" ref="bookService"/>
+	</bean>
+	
+	<bean id="bookNameFixAction" class="com.zis.toolkit.action.BookNameFixAction" scope="prototype">
+		<property name="bookInfoToolkit" ref="bookInfoToolkit"/>
+	</bean>
+	<bean id="bookNameReplaceAction" class="com.zis.toolkit.action.BookNameReplaceAction" scope="prototype">
+		<property name="bookInfoToolkit" ref="bookInfoToolkit"/>
+	</bean>
+	<bean id="bookAuthorFixAction" class="com.zis.toolkit.action.BookAuthorFixAction" scope="prototype">
+		<property name="bookInfoToolkit" ref="bookInfoToolkit"/>
+	</bean>
+	<bean id="bookEditionFixAction" class="com.zis.toolkit.action.BookEditionFixAction" scope="prototype">
+		<property name="bookInfoToolkit" ref="bookInfoToolkit"/>
+	</bean>
+	<!-- 【临时】库位校准 -->
+	<bean id="stockPosCheckBOAction" class="com.zis.toolkit.action.StockPosCheckBOAction" scope="prototype">
+		<property name="bookService" ref="bookService"/>
+		<property name="doPurchaseService" ref="doPurchaseService"/>
+	</bean>
+	
+	  <!-- 配置参与事务的类 -->
+      <aop:config>
+         <!-- 设置切点 -->
+      <aop:pointcut id="toolkitServiceMethod" expression="execution(* com.zis.toolkit.service.*.*(..))"/> 
+         <!-- 通知  和 切点 -->	
+      <aop:advisor advice-ref="TestAdvice" pointcut-ref="toolkitServiceMethod"  />
+      </aop:config>
+	</beans>

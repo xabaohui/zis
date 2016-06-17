@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.3//EN" "http://struts.apache.org/dtds/struts-2.3.dtd">
+<struts>
+	<package name="bookinfo" extends="struts-default" namespace="/bookinfo">
+		<!-- 批量增加有路网数据 -->
+		<action name="addYouLuData" class="addYouLuDataAction" method="addYouLuData">
+			<result name="input">/error.jsp</result>
+			<result name="success">addYouLuData.jsp</result>	
+		</action>
+		<action name="addYouLuSalesData" class="addYouLuDataAction" method="addYouLuData">
+			<result name="input">/error.jsp</result>
+			<result name="success">addYouLuData.jsp</result>	
+		</action>
+		
+		<!-- 待审核图书页面 -->
+		<action name="getWaitCheckList" class="bookAction" method="getWaitCheckList">
+			<result name="input">/error.jsp</result>
+			<result name="success">dealWaitCheck.jsp</result>	
+		</action>
+	
+		<!-- 图书管理 -->
+		<!--增加修改图书  -->
+		<action name="saveOrUpdateBook" class="bookSaveOrUpdateAction" method="saveOrUpdate">
+			<result name="input">/error.jsp</result>
+			<result name="success">/success.jsp</result>
+			<result name="error">/error.jsp</result>
+			<result name="showRelated" type="chain">getAllBooks</result>
+		</action>
+		<!-- getAllBooks -->
+		<action name="getAllBooks" class="bookAction" method="getAllBooks">
+		      <result name="success">main.jsp</result>	
+		</action>
+		<!-- 单查图书 -->
+		<action name="findBookById" class="bookAction" method="findBookById">
+		      <result name="success">alterBook.jsp</result>	
+		</action>
+		<!-- 调整一码多书和变版 -->
+		<action name="adjustBooks" class="bookAction" method="adjustBooks">
+		      <result name="success">/success.jsp</result>	
+		</action>
+		<!-- 批量编辑 -->
+        <action name="batchOperateBooks" class="bookAction" method="batchOperate">
+           <result name="success">/success.jsp</result>	
+           <result name="error">/error.jsp</result>	
+        </action>
+       <!-- 设置查找关联组 -->
+        <action name="showGroupList" class="bookAction" method="showGroupList">
+           <result name="success">RelateList.jsp</result>	
+           <result name="error">/error.jsp</result>	
+        </action>
+        
+         <!-- 设置移除单个关联 -->
+            <action name="removeRelateId" class="bookAction" method="removeRelateId">
+           <result name="success">/success.jsp</result>	
+           <result name="error">/error.jsp</result>	
+        </action>
+        <!-- 设置移除所有关联 -->
+        <action name="removeAll" class="bookAction" method="removeAll">
+           <result name="success">/success.jsp</result>	
+           <result name="error">/error.jsp</result>	
+        </action>
+        <!-- 智能分析相同图书 -->
+        <action name="analysisSameBook" class="bookAction" method="analysisSameBook">
+           <result name="success">/success.jsp</result>	
+           <result name="error">/error.jsp</result>	
+        </action>
+        <!-- 疑似相同图书列表页 -->
+        <action name="showSameBooksList" class="bookAction" method="showSameBookList">
+           <result name="success">sameBook.jsp</result>
+           <result name="error">/error.jsp</result>
+        </action>
+        <!-- 疑似相同图书详情页 -->
+        <action name="showSameBooks" class="bookAction" method="showSameBooks">
+           <result name="success">sameBookList.jsp</result>	
+           <result name="error">/error.jsp</result>
+        </action>
+	</package>
+</struts>    

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+	
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+	    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+	    
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<bean id="bookinfoDao" class="com.zis.bookinfo.dao.impl.BookinfoDAOImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="bookinfoAidDao" class="com.zis.bookinfo.dao.impl.BookinfoAidDaoImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="YouluSalesDao" class="com.zis.bookinfo.dao.impl.YouluSalesDAOImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="shopItemInfoDao"
+		class="com.zis.bookinfo.dao.impl.ShopItemInfoDaoImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	
+	<bean id="similarityBookAnalysisBO" class="com.zis.bookinfo.bo.SimilarityBookAnalysisBO">
+		<property name="bookinfoDao" ref="bookinfoDao"/>
+		<property name="bookinfoAidDao" ref="bookinfoAidDao"/>
+		<property name="bookAmountDao" ref="bookamountDAO"/>
+	</bean>
+	<bean id="sameBookAnalysisBO" class="com.zis.bookinfo.bo.SameBookAnalysisBO">
+		<property name="bookinfoDao" ref="bookinfoDao"/>
+	</bean>
+	<bean id="repeatIsbnAnalysisBO" class="com.zis.bookinfo.bo.RepeatIsbnAnalysisBO">
+		<property name="bookinfoDao" ref="bookinfoDao"/>
+	</bean>
+
+	<!-- service 配置 -->
+	<bean id="bookService" class="com.zis.bookinfo.service.BookService">
+		<property name="bookinfoDao" ref="bookinfoDao" />
+		<property name="YouluSalesDao" ref="YouluSalesDao"/>
+		<property name="youLuNetDetailCapture" ref="youLuNetDetailCapture"></property>
+		<property name="taskExecutor" ref="taskExecutor" />
+		<property name="similarityBookAnalysisBO" ref="similarityBookAnalysisBO"/>
+		<property name="sameBookAnalysisBO" ref="sameBookAnalysisBO"/>
+		<property name="repeatIsbnAnalysisBO" ref="repeatIsbnAnalysisBO"/>
+		<property name="bookAmountDao" ref="bookamountDAO"/>
+		<property name="shopItemInfoDao" ref="shopItemInfoDao"/>
+	</bean>
+
+	<!-- action 配置 -->
+	<bean id="bookAction" class="com.zis.bookinfo.action.BookAction"
+		scope="prototype">
+		<property name="bookService" ref="bookService" />
+		<property name="doPurchaseService" ref="doPurchaseService" />
+	</bean>
+	<bean id="bookSaveOrUpdateAction" class="com.zis.bookinfo.action.BookSaveOrUpdateAction"
+		scope="prototype">
+		<property name="bookService" ref="bookService" />
+	</bean>
+	<bean id="addYouLuDataAction" class="com.zis.bookinfo.action.AddYouLuDataAction"
+		scope="prototype">
+		<property name="bookService" ref="bookService"></property>
+	</bean>
+	<bean id="interfaceBookinfoAction" class="com.zis.api.InterfaceBookinfoAction"
+		scope="prototype">
+		<property name="bookService" ref="bookService"></property>
+		<property name="youLuNetDetailCapture" ref="youLuNetDetailCapture"></property>
+	</bean>
+	<bean id="InterfaceBooksToMoblieinfoAction" class="com.zis.api.InterfaceBooksToMoblieinfoAction"
+		scope="prototype">
+		<property name="bookService" ref="bookService"></property>
+	</bean>
+	<bean id="apiSubmitTokenAction" class="com.zis.api.ApiSubmitTokenAction" scope="prototype"/>
+
+	<!-- util -->
+	<!-- 有路网数据抓取工具 -->
+	<bean id="youLuNetDetailCapture" class="com.zis.bookinfo.util.YouLuNetDetailCapture"
+		scope="prototype">
+	</bean>
+
+
+
+	<!-- 配置参与事务的类 -->
+	<aop:config>
+		<!-- 设置切点 -->
+		<aop:pointcut id="bookInfoServiceMethod"
+			expression="execution(* com.zis.bookinfo.service.*.*(..))" />
+		<!-- 通知 和 切点 -->
+		<aop:advisor advice-ref="TestAdvice" pointcut-ref="bookInfoServiceMethod" />
+	</aop:config>
+
+</beans>

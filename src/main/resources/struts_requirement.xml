@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.3//EN" "http://struts.apache.org/dtds/struts-2.3.dtd">
+<struts>
+	<package name="requirement" extends="struts-default" namespace="/requirement">
+		<!-- 添加院校信息 -->
+		<action name="addSchoolAction" class="addSchoolAction" method="addSchool">
+			<result name="success" type="redirectAction">updateSchoolPre</result>
+			<result name="input">/error.jsp</result>
+		</action>
+		<!-- 修改前回显院校信息 -->
+		<action name="updateSchoolPre" class="updateSchoolPre" method="getInfo"> 
+			<result name="success">addSchoolInfo.jsp</result>
+			<result name="input">/error.jsp</result>
+		</action>
+		
+		
+		<!-- 查询院校信息 -->
+		<action name="findSchoolInfo" class="findSchoolAction" method="findInfo">
+			<result name="success">schoolInfo.jsp</result>
+			<result name="input">/error.jsp</result>
+		</action>
+		<!-- 查询教材使用量 -->
+		<action name="getAmountAction" class="getAmountAction" method="getAmount">
+			<result name="success">getAmount.jsp</result>
+			<result name="input">/error.jsp</result>
+		</action>
+		<action name="getAmountForStu" class="getAmountAction" method="getAmountForStu">
+			<result name="success">getAmountForStu.jsp</result>
+			<result name="input">/error.jsp</result>
+		</action>
+		<!-- 添加教材使用量前的回显院校信息 -->
+		<action name="addAmountPreAction" class="addAmountPre" method="amountPre">
+			<result name="success">amountInfo.jsp</result>
+			<result name="input">/error.jsp</result>
+		</action>
+		<!-- 添加教材使用量 -->
+		<action name="addAmount" class="addAmountAction" method="addAmount">
+			<result name="success">/success.jsp</result>
+			<result name="input">/error.jsp</result>
+		</action>
+		<!-- 导出需求采集进度 -->
+		<action name="exportRequirementCollectSchedule" class="requirementCollectScheduleAction" method="exportSchedule">
+			<result name="success">/success.jsp</result>
+		</action>
+		<!-- 导入书单 -->
+		<action name="importRequirement" class="requirementImportAction" method="upload">
+			<result name="success">/success.jsp</result>
+			<result name="input">/error.jsp</result>
+		</action>
+<!-- 		<action name="uploadBookRequirement" class="bookRequireUploadAction" method="upload"> -->
+<!-- 			<result name="success" type="redirectAction">viewBookRequireImportTask</result> -->
+<!-- 			<result name="input">/error.jsp</result> -->
+<!-- 		</action> -->
+<!-- 		<action name="viewBookRequireImportTask" class="bookRequireImportTaskViewAction" method="executeQuery"> -->
+<!-- 			<result name="success">bookRequireImportTaskList.jsp</result> -->
+<!-- 			<result name="input">/error.jsp</result> -->
+<!-- 		</action> -->
+<!-- 		<action name="viewBookRequireImportDetailForBookNotMatched" class="bookRequireImportDetailViewAction" method="executeQuery"> -->
+<!-- 			<result name="success">bookRequireImportDetailForBookNotMatched.jsp</result> -->
+<!-- 			<result name="input">/error.jsp</result> -->
+<!-- 		</action> -->
+<!-- 		<action name="viewBookRequireImportDetailForDepartmentNotMatched" class="bookRequireImportDetailViewAction" method="executeQuery"> -->
+<!-- 			<result name="success">bookRequireImportDetailForDepartmentNotMatched.jsp</result> -->
+<!-- 			<result name="input">/error.jsp</result> -->
+<!-- 		</action> -->
+<!-- 		<action name="viewBookRequireImportDetailForMatched" class="bookRequireImportDetailViewAction" method="executeQuery"> -->
+<!-- 			<result name="success">bookRequireImportDetailForMatched.jsp</result> -->
+<!-- 			<result name="input">/error.jsp</result> -->
+<!-- 		</action> -->
+	</package>
+</struts>    

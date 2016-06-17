@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx-2.0.xsd 
+	http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+
+	<bean id="departmentinfoDAO" class="com.zis.requirement.daoImpl.DepartmentinfoDAOImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="bookamountDAO"
+		class="com.zis.requirement.daoImpl.BookamountDAOImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+<!-- 	<bean id="bookRequireImportTaskDao" -->
+<!-- 		class="com.zis.requirement.daoImpl.BookRequireImportTaskDaoImpl"> -->
+<!-- 		<property name="sessionFactory"> -->
+<!-- 			<ref bean="sessionFactory" /> -->
+<!-- 		</property> -->
+<!-- 	</bean> -->
+<!-- 	<bean id="bookRequireImportDetailDao" -->
+<!-- 		class="com.zis.requirement.daoImpl.BookRequireImportDetailDaoImpl"> -->
+<!-- 		<property name="sessionFactory"> -->
+<!-- 			<ref bean="sessionFactory" /> -->
+<!-- 		</property> -->
+<!-- 	</bean> -->
+	
+<!-- 	<bean id="bookRequireImportBO" class="com.zis.requirement.biz.BookRequireImportBO"> -->
+<!-- 		<property name="bookRequireImportTaskDao" ref="bookRequireImportTaskDao"/> -->
+<!-- 		<property name="bookRequireImportDetailDao" ref="bookRequireImportDetailDao"/> -->
+<!-- 		<property name="bookService" ref="bookService"/> -->
+<!-- 	</bean> -->
+	<bean id="bookAmountService" class="com.zis.requirement.biz.BookAmountService">
+		<property name="bookAmountDao" ref="bookamountDAO"></property>
+		<property name="bookinfoDao" ref="bookinfoDao"></property>
+		<property name="departmentInfoDao" ref="departmentinfoDAO"/>
+<!-- 		<property name="bookRequireImportBO" ref="bookRequireImportBO"/> -->
+	</bean>
+	<!-- 添加院校信息 -->
+	<bean id="schoolBiz" class="com.zis.requirement.biz.SchoolBiz">
+		<property name="departmentInfoDao" ref="departmentinfoDAO"></property>
+		<property name="bookamountDao" ref="bookamountDAO"></property>
+	</bean>
+	
+	
+	<!-- 教材使用量保存接口 -->
+	<bean id="addBookRequirement" class="com.zis.api.AddBookAmountAction" scope="prototype">
+		<property name="addAmountBiz" ref="bookAmountService"></property>
+		<property name="schoolBiz" ref="schoolBiz"></property>
+		<property name="bookService" ref="bookService"></property>
+	</bean>
+	<!-- 查询院校信息接口 -->
+	<bean id="apiDepartmentInfoQueryAction" class="com.zis.api.ApiDepartmentInfoQueryAction" scope="prototype">
+		<property name="schoolBiz" ref="schoolBiz"/>
+	</bean>
+	
+	
+	<bean id="addSchoolAction" class="com.zis.requirement.action.DepartmentInfoAddAction" scope="prototype">
+		<property name="schoolBiz" ref="schoolBiz"></property>
+	</bean>
+	<bean id="updateSchoolPre" class="com.zis.requirement.action.DepartmentInfoUpdatePreAction" scope="prototype">
+		<property name="schoolBiz" ref="schoolBiz"></property>
+	</bean>
+	<!-- 条件查询 -->
+	<bean id="findSchoolAction" class="com.zis.requirement.action.DepartmentInfoQueryAction" scope="prototype"/>
+	
+	<!-- 查询教材使用量 -->
+	<bean id="getAmountAction" class="com.zis.requirement.action.BookAmountQueryAction" scope="prototype" />
+	
+	<!-- 添加教材使用量前的回显 -->
+	<bean id="addAmountPre" class="com.zis.requirement.action.BookAmountAddPreAction" scope="prototype">
+		<property name="schoolBiz" ref="schoolBiz"></property>
+	</bean>
+	<bean id="addAmountAction" class="com.zis.requirement.action.BookAmountAddAction" scope="prototype">
+		<property name="addAmountBiz" ref="bookAmountService"></property>
+		<property name="schoolBiz" ref="schoolBiz"></property>
+	</bean>
+	
+	<!-- 需求采集进度Action -->
+	<bean id="requirementCollectScheduleAction" class="com.zis.requirement.action.RequirementCollectScheduleAction" scope="prototype">
+		<property name="bookAmountService" ref="bookAmountService"/>
+	</bean>
+	
+	<!-- 书单导入Action -->
+	<bean id="requirementImportAction" class="com.zis.requirement.action.RequirementImportAction" scope="prototype">
+		<property name="bookAmountService" ref="bookAmountService"/>
+		<property name="schoolBiz" ref="schoolBiz"/>
+		<property name="bookService" ref="bookService"/>
+	</bean>
+<!-- 	<bean id="bookRequireUploadAction" class="com.zis.requirement.action.BookRequireUploadAction" scope="prototype"> -->
+<!-- 		<property name="bookAmountService" ref="bookAmountService"/> -->
+<!-- 	</bean> -->
+<!-- 	<bean id="bookRequireImportTaskViewAction" class="com.zis.requirement.action.BookRequireImportTaskViewAction" scope="prototype"> -->
+<!-- 	</bean> -->
+<!-- 	<bean id="bookRequireImportDetailViewAction" class="com.zis.requirement.action.BookRequireImportDetailViewAction" scope="prototype"> -->
+<!-- 	</bean> -->
+	
+	<!--  配置参与事务的类 -->
+	<aop:config proxy-target-class="true">
+		<aop:pointcut id="RequirementServiceMethod" expression="execution(* com.zis.requirement.biz.*.*(..))"/>
+		<aop:advisor pointcut-ref="RequirementServiceMethod" advice-ref="TestAdvice" />
+	</aop:config>
+	
+	</beans>

@@ -1,0 +1,37 @@
+//1.创建表zis_sequence，用来存放sequence值：
+
+create table zis_sequence(
+	name varchar(50) not null,
+	current_value int not null,
+	_increment int not null default 1,
+	_start_val int not null default 1000,
+	_end_val int not null default 9999,
+	primary key(name)
+);
+
+//2.手动插入数据：
+insert into zis_sequence values('book_group_id',1000,1,1000,9999);
+insert into zis_sequence values('book_relate_id',1000,1,1000,9999);
+
+
+3、定义函数 _nextval：
+
+DELIMITER //
+
+create function _nextval(n varchar(50)) returns integer   
+begin  
+	declare _cur int;  
+	set _cur=(select current_value from zis_sequence where name= n);
+	update zis_sequence  
+	 set current_value = if(_cur >= _end_val, _start_val, _cur + _increment)  
+	 where name=n ;
+	return _cur;  
+end; 
+
+
+4、恢复默认的语句结束符：
+DELIMITER ;
+
+
+5. 执行测试
+select _nextval('book_relate_id');
