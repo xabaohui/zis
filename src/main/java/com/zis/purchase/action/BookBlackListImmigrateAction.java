@@ -5,6 +5,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.core.task.TaskRejectedException;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.opensymphony.xwork2.ActionSupport;
 import com.zis.common.util.Page;
@@ -29,6 +31,7 @@ public class BookBlackListImmigrateAction extends ActionSupport {
 	private DoPurchaseService doPurchaseService;
 	private BookblacklistDao bookblacklistDao;
 	private BookwhitelistDao bookwhitelistDao;
+	private ThreadPoolTaskExecutor executor;
 	
 	private static final Logger logger = Logger.getLogger(BookBlackListImmigrateAction.class);
 
@@ -47,12 +50,34 @@ public class BookBlackListImmigrateAction extends ActionSupport {
 				@SuppressWarnings("unchecked")
 				List<PurchasePlan> list = PaginationQueryUtil.paginationQuery(dc,
 						page);
-				processBatch(list);
+				addToTaskExecutor(list);
 			} catch (Exception e) {
 				logger.error("执行采购计划过程中出错" + e);
 			}
 		}
 		return SUCCESS;
+	}
+	
+	private void addToTaskExecutor(final List<PurchasePlan> list) {
+		Thread t = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				processBatch(list);
+			}
+		});
+		// 添加任务，如果遇到新的任务被拒绝，则稍后重试
+		while (true) {
+			try {
+				executor.execute(t);
+				break;
+			} catch (TaskRejectedException e) {
+				logger.info("new task reject, wait a moment...");
+				try {
+					Thread.sleep(300000);
+				} catch (InterruptedException e1) {
+				}
+			}
+		}
 	}
 
 	private void processBatch(List<PurchasePlan> list) {
@@ -65,7 +90,6 @@ public class BookBlackListImmigrateAction extends ActionSupport {
 			} else {
 				this.doPurchaseService.deleteBlackOrWhiteList(plan.getBookId());
 			}
-			
 		}
 	}
 
@@ -100,5 +124,9 @@ public class BookBlackListImmigrateAction extends ActionSupport {
 
 	public void setBookwhitelistDao(BookwhitelistDao bookwhitelistDao) {
 		this.bookwhitelistDao = bookwhitelistDao;
+	}
+	
+	public void setExecutor(ThreadPoolTaskExecutor executor) {
+		this.executor = executor;
 	}
 }
