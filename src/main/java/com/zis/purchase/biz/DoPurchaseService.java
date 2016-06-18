@@ -54,28 +54,50 @@ public class DoPurchaseService {
 	 * 录入黑名单
 	 * 
 	 * @param bookId
+	 * @return 操作失败原因，如果成功，返回空字符串
 	 */
-	public void addBlackList(Integer bookId) {
-		purchaseBO.addBlackList(this.bookService.findNormalBookById(bookId));
+	public String addBlackList(Integer bookId) {
+		try {
+			purchaseBO.addBlackList(bookId);
+			return "";
+		} catch (Exception e) {
+			String msg = "加入黑名单失败," + e.getMessage();
+			logger.error(msg, e);
+			return msg;
+		}
 	}
 	
 	/**
 	 * 录入白名单
 	 * 
-	 * @param bookId
+	 * @return 操作失败原因，如果成功，返回空字符串
 	 */
-	public void addWhiteList(Integer bookId) {
-		purchaseBO.addWhiteList(this.bookService.findNormalBookById(bookId));
+	public String addWhiteList(Integer bookId) {
+		try {
+			purchaseBO.addWhiteList(bookId);
+			return "";
+		} catch (Exception e) {
+			String msg = "加入白名单失败," + e.getMessage();
+			logger.error(msg, e);
+			return msg;
+		}
 	}
 	
 	/**
 	 * 删除黑名单或白名单
 	 * 
-	 * @param id
-	 * @param flag
+	 * @param bookId
+	 * @return 操作失败原因，如果成功，返回空字符串
 	 */
-	public void deleteBlackOrWhiteList(Integer id, String flag) {
-		purchaseBO.deleteBlackOrWhiteList(id, flag);
+	public String deleteBlackOrWhiteList(Integer bookId) {
+		try {
+			purchaseBO.deleteBlackOrWhiteList(bookId);
+			return "";
+		} catch (Exception e) {
+			String msg = "删除黑名单或白名单失败," + e.getMessage();
+			logger.error(msg, e);
+			return msg;
+		}
 	}
 	
 	/**
@@ -138,6 +160,40 @@ public class DoPurchaseService {
 	 */
 	public String addManualDecision(Integer bookId, Integer amount) {
 		return purchaseBO.addManualDecision(bookId, amount);
+	}
+	
+	/**
+	 * 去除人工定量
+	 * 
+	 * @param bookId
+	 *            图书ID
+	 * @return 操作失败原因，如果成功，返回空字符串
+	 */
+	public String removeManualDecision(Integer bookId) {
+		try {
+			purchaseBO.removeManualDecision(bookId);
+			return "";
+		} catch (Exception e) {
+			String msg = "去除人工定量失败," + e.getMessage();
+			logger.error(msg, e);
+			return msg;
+		}
+	}
+	
+	/**
+	 * 重新计算计划采购量
+	 * @param bookId
+	 * @return 操作失败原因，如果成功，返回空字符串
+	 */
+	public String recalculateRequireAmount(Integer bookId) {
+		try {
+			purchaseBO.recalculateRequireAmount(bookId);
+			return "";
+		} catch (Exception e) {
+			String msg = "重新计算计划采购量失败," + e.getMessage();
+			logger.error(msg, e);
+			return msg;
+		}
 	}
 	
 	/**

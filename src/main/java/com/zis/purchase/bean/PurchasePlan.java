@@ -22,6 +22,7 @@ public class PurchasePlan implements java.io.Serializable {
 	private Integer stockAmount; // 库存量
 	private Integer purchasedAmount; // 在途库存量（已采购未入库）
 	private String status;
+	private String flag; // 标记：black黑名单，white白名单，normal正常
 	private Timestamp gmtCreate;
 	private Timestamp gmtModify;
 	private Integer version;
@@ -170,5 +171,13 @@ public class PurchasePlan implements java.io.Serializable {
 
 	public void setManualDecision(Integer manualDecision) {
 		this.manualDecision = manualDecision;
+	}
+
+	public String getFlag() {
+		return flag;
+	}
+
+	public void setFlag(String flag) {
+		this.flag = flag;
 	}
 }

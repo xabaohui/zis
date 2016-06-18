@@ -44,8 +44,6 @@
 				<value>com/zis/requirement/bean/Bookamount.hbm.xml</value>
 				<value>com/zis/requirement/bean/Departmentinfo.hbm.xml</value>
 				<value>com/zis/requirement/bean/SysVar.hbm.xml</value>
-				<value>com/zis/purchase/bean/Bookblacklist.hbm.xml</value>
-				<value>com/zis/purchase/bean/Bookwhitelist.hbm.xml</value>
 				<value>com/zis/purchase/bean/PurchaseDetail.hbm.xml</value>
 				<value>com/zis/purchase/bean/PurchasePlan.hbm.xml</value>
 				<value>com/zis/purchase/bean/Storesales.hbm.xml</value>
@@ -54,6 +52,9 @@
 				<value>com/zis/purchase/bean/InwarehouseDetail.hbm.xml</value>
 				<value>com/zis/purchase/bean/Inwarehouse.hbm.xml</value>
 				<value>com/zis/purchase/bean/InwarehousePosition.hbm.xml</value>
+				
+				<value>com/zis/purchase/bean/Bookblacklist.hbm.xml</value>
+				<value>com/zis/purchase/bean/Bookwhitelist.hbm.xml</value>
 			</list>
 		</property>
 	</bean>

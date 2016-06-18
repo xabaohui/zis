@@ -85,10 +85,7 @@
 				<td><a
 					href="bookinfo/findBookById?bookId=<s:property value="id"/>"
 					target="_blank">修改</a></td>
-				<td><a
-					href="purchase/addBlackList?bookId=<s:property value="id"/>"
-					target="_blank">拉黑</a></td>
-				<td><a href="#"
+					<td><a href="#"
 					onclick="return immigrate(<s:property value="id"/>)">迁移</a></td>
 			</tr>
 		</s:iterator>

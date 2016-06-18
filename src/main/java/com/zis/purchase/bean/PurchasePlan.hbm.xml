@@ -43,6 +43,9 @@
         <property name="status" type="java.lang.String">
             <column name="status" length="32" />
         </property>
+        <property name="flag" type="java.lang.String">
+            <column name="flag" length="32" />
+        </property>
         <property name="gmtCreate" type="java.sql.Timestamp">
             <column name="GMT_CREATE" length="19" />
         </property>

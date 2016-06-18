@@ -18,16 +18,13 @@ import com.zis.common.cache.SysVarCache;
 import com.zis.common.cache.SysVarConstant;
 import com.zis.common.util.AlterEditionPurchaseStrategyEnum;
 import com.zis.common.util.ZisUtils;
-import com.zis.purchase.bean.Bookblacklist;
-import com.zis.purchase.bean.Bookwhitelist;
 import com.zis.purchase.bean.PurchaseDetail;
 import com.zis.purchase.bean.PurchaseDetailStatus;
 import com.zis.purchase.bean.PurchasePlan;
+import com.zis.purchase.bean.PurchasePlanFlag;
 import com.zis.purchase.bean.PurchasePlanStatus;
 import com.zis.purchase.calcMode.CalcModeFactory;
 import com.zis.purchase.calcMode.CalculateModeInterface;
-import com.zis.purchase.dao.BookblacklistDao;
-import com.zis.purchase.dao.BookwhitelistDao;
 import com.zis.purchase.dao.PurchaseDetailDao;
 import com.zis.purchase.dao.PurchasePlanDao;
 
@@ -40,8 +37,6 @@ import com.zis.purchase.dao.PurchasePlanDao;
 public class PurchaseBO {
 
 	private SysVarCache sysVarCache;
-	private BookblacklistDao bookblacklistDao;
-	private BookwhitelistDao bookwhitelistDao;
 	private PurchaseDetailDao purchaseDetailDao;
 	private PurchasePlanDao purchasePlanDao;
 
@@ -91,7 +86,7 @@ public class PurchaseBO {
 			}
 		}
 	}
-
+	
 	/**
 	 * 添加/更新采购计划
 	 */
@@ -120,9 +115,9 @@ public class PurchaseBO {
 	// 状态为“正式”的记录，新增/更新采购计划
 	private void dealPurchasePlanForNormal(Bookinfo bi) {
 		// 计算需求量
-		Integer requireAmount = calculateRequireAmount(bi);
-		// 如果没有图书对应的采购计划，则新增
 		PurchasePlan plan = this.findPurchasePlanByBookId(bi.getId());
+		Integer requireAmount = calculateRequireAmount(bi, plan);
+		// 如果没有图书对应的采购计划，则新增
 		if (plan == null) {
 			plan = new PurchasePlan();
 			BeanUtils.copyProperties(bi, plan);
@@ -175,8 +170,9 @@ public class PurchaseBO {
 	 * @param bi
 	 * @return
 	 */
-	private Integer calculateRequireAmount(Bookinfo bi) {
-		if (StringUtils.isNotBlank(isUsefulBook(bi))) {
+	private Integer calculateRequireAmount(Bookinfo bi, PurchasePlan plan) {
+		// 定性：参考黑名单、白名单、过期等多方面因素，判断图书是否需要采购
+		if (StringUtils.isNotBlank(isUsefulBook(bi, plan))) {
 			return 0;
 		}
 		// 计算采购计划量：根据系统预设的策略
@@ -193,10 +189,11 @@ public class PurchaseBO {
 	/**
 	 * 判断图书是否有用
 	 * 
-	 * @param bookId
+	 * @param bi 图书信息
+	 * @param plan 采购计划
 	 * @return 不可用原因，返回空表示可用
 	 */
-	private String isUsefulBook(Bookinfo bi) {
+	private String isUsefulBook(Bookinfo bi, PurchasePlan plan) {
 		if (bi == null) {
 			return "参数图书为空";
 		}
@@ -205,7 +202,7 @@ public class PurchaseBO {
 			return "图书" + bi.getId() + "状态不是“正式”";
 		}
 		// 黑名单，false
-		if (isBookInBlackList(bi.getId())) {
+		if (isBookInBlackList(plan)) {
 			return "图书" + bi.getId() + "已加入黑名单";
 		}
 		// 如果是最新版，true
@@ -224,7 +221,7 @@ public class PurchaseBO {
 		case GET_NONE:// 全不要
 			return "系统不允许使用过期图书" + bi.getId();
 		case GET_WHITE_LIST:// 只要白名单里的
-			return isBookInWhiteList(bi.getId()) ? StringUtils.EMPTY
+			return isBookInWhiteList(plan) ? StringUtils.EMPTY
 					: "系统不允许使用此图书" + bi.getId();
 		default:
 			return "系统错误";
@@ -234,31 +231,19 @@ public class PurchaseBO {
 	/**
 	 * 检查图书是否在黑名单里
 	 * 
-	 * @param bookId
 	 * @return
 	 */
-	private boolean isBookInBlackList(int bookId) {
-		Bookblacklist example = new Bookblacklist();
-		example.setBookId(bookId);
-		example.setStatus(ConstantString.STATUS_VALID);
-		@SuppressWarnings("unchecked")
-		List<Bookblacklist> blackList = bookblacklistDao.findByExample(example);
-		return blackList != null && !blackList.isEmpty();
+	private boolean isBookInBlackList(PurchasePlan plan) {
+		return plan != null && PurchasePlanFlag.BLACK.equals(plan.getFlag());
 	}
 
 	/**
 	 * 检查图书是否在白名单里
 	 * 
-	 * @param bookId
 	 * @return
 	 */
-	private boolean isBookInWhiteList(int bookId) {
-		Bookwhitelist example = new Bookwhitelist();
-		example.setBookId(bookId);
-		example.setStatus(ConstantString.STATUS_VALID);
-		@SuppressWarnings("unchecked")
-		List<Bookwhitelist> whiteList = bookwhitelistDao.findByExample(example);
-		return whiteList != null && !whiteList.isEmpty();
+	private boolean isBookInWhiteList(PurchasePlan plan) {
+		return plan != null && PurchasePlanFlag.WHITE.equals(plan.getFlag());
 	}
 
 	// /**
@@ -322,43 +307,57 @@ public class PurchaseBO {
 				- plan.getPurchasedAmount();
 		return still > 0 ? still : 0;
 	}
-
+	
 	/**
 	 * 录入黑名单
 	 * 
 	 * @param bookId
 	 */
-	public void addBlackList(Bookinfo bookinfo) {
-		if (bookinfo == null) {
+	public void addBlackList(int bookId) {
+//		if (bookinfo == null) {
+//			return;
+//		}
+//		// 如果黑名单已有该记录，则不再重复添加
+//		if (!this.isBookInBlackList(bookinfo.getId())) {
+//			Bookblacklist bl = new Bookblacklist();
+//			bl.setBookId(bookinfo.getId());
+//			bl.setIsbn(bookinfo.getIsbn());
+//			bl.setBookAuthor(bookinfo.getBookAuthor());
+//			bl.setBookEdition(bookinfo.getBookEdition());
+//			bl.setBookName(bookinfo.getBookName());
+//			bl.setBookPublisher(bookinfo.getBookPublisher());
+//			bl.setGmtCreate(ZisUtils.getTS());
+//			bl.setGmtModify(ZisUtils.getTS());
+//			bl.setStatus("valid");
+//			bl.setVersion(0);
+//			bookblacklistDao.save(bl);
+//			logger.info("add bookInfo to blackList, bookId=" + bookinfo.getId());
+//		}
+		PurchasePlan plan = this.findPurchasePlanByBookId(bookId);
+		if(plan == null) {
+			throw new RuntimeException("采购计划不存在，bookId=" + bookId);
+		}
+		// 如果已经在黑名单里，直接返回
+		if(isBookInBlackList(plan)) {
 			return;
 		}
-		// 如果黑名单已有该记录，则不再重复添加
-		if (!this.isBookInBlackList(bookinfo.getId())) {
-			Bookblacklist bl = new Bookblacklist();
-			bl.setBookId(bookinfo.getId());
-			bl.setIsbn(bookinfo.getIsbn());
-			bl.setBookAuthor(bookinfo.getBookAuthor());
-			bl.setBookEdition(bookinfo.getBookEdition());
-			bl.setBookName(bookinfo.getBookName());
-			bl.setBookPublisher(bookinfo.getBookPublisher());
-			bl.setGmtCreate(ZisUtils.getTS());
-			bl.setGmtModify(ZisUtils.getTS());
-			bl.setStatus("valid");
-			bl.setVersion(0);
-			bookblacklistDao.save(bl);
-			logger.info("add bookInfo to blackList, bookId=" + bookinfo.getId());
-		}
-		// 更新采购计划，需求量（系统和人工）都设置成0
-		PurchasePlan plan = this.findPurchasePlanByBookId(bookinfo.getId());
-		if (plan != null) {
-			plan.setRequireAmount(0);
-			plan.setManualDecision(0);
-			plan.setGmtModify(ZisUtils.getTS());
-			plan.setVersion(plan.getVersion() + 1);
-			purchasePlanDao.update(plan);
-			logger.info("update purchasePlan, for clear requireAmount, bookId="
-					+ bookinfo.getId());
-		}
+		// 设置为黑名单记录，清空计划采购量(系统和人工)
+		plan.setFlag(PurchasePlanFlag.BLACK);
+		plan.setRequireAmount(0);
+		plan.setManualDecision(0);
+		plan.setGmtModify(ZisUtils.getTS());
+		plan.setVersion(plan.getVersion() + 1);
+		purchasePlanDao.update(plan);
+		logger.info("update purchasePlan, for clear requireAmount, bookId=" + bookId);
+//		if (plan != null) {
+//			plan.setRequireAmount(0);
+//			plan.setManualDecision(0);
+//			plan.setGmtModify(ZisUtils.getTS());
+//			plan.setVersion(plan.getVersion() + 1);
+//			purchasePlanDao.update(plan);
+//			logger.info("update purchasePlan, for clear requireAmount, bookId="
+//					+ bookinfo.getId());
+//		}
 	}
 
 	/**
@@ -366,28 +365,49 @@ public class PurchaseBO {
 	 * 
 	 * @param bookId
 	 */
-	public void addWhiteList(Bookinfo bookinfo) {
-		if (bookinfo == null) {
+	public void addWhiteList(int bookId) {
+		PurchasePlan plan = this.findPurchasePlanByBookId(bookId);
+		if(plan == null) {
+			throw new RuntimeException("采购计划不存在，bookId=" + bookId);
+		}
+		// 如果已经在黑名单里，直接返回
+		if(isBookInWhiteList(plan)) {
 			return;
 		}
-		// 如果白名单已有该记录，直接返回
-		if (isBookInWhiteList(bookinfo.getId())) {
-			return;
+		// 设置为白名单记录，重新计算计划采购量(系统)
+		Bookinfo bi = this.bookService.findBookById(bookId);
+		if(bi == null) {
+			throw new RuntimeException("图书信息不存在，bookId=" + bookId);
 		}
-		Bookwhitelist bl = new Bookwhitelist();
-		bl.setBookId(bookinfo.getId());
-		bl.setIsbn(bookinfo.getIsbn());
-		bl.setBookAuthor(bookinfo.getBookAuthor());
-		bl.setBookEdition(bookinfo.getBookEdition());
-		bl.setBookName(bookinfo.getBookName());
-		bl.setBookPublisher(bookinfo.getBookPublisher());
-		bl.setGmtCreate(ZisUtils.getTS());
-		bl.setGmtModify(ZisUtils.getTS());
-		bl.setStatus("valid");
-		bl.setVersion(0);
-		bookwhitelistDao.save(bl);
-		logger.info("add bookInfo to whiteList, bookId=" + bookinfo.getId());
+		plan.setFlag(PurchasePlanFlag.WHITE);
+		plan.setRequireAmount(calculateRequireAmount(bi, plan));
+		plan.setGmtModify(ZisUtils.getTS());
+		plan.setVersion(plan.getVersion() + 1);
+		purchasePlanDao.update(plan);
+		logger.info("add bookInfo to whiteList, bookId=" + bookId);
+//		if (bookinfo == null) {
+//			return;
+//		}
+//		// 如果白名单已有该记录，直接返回
+//		if (isBookInWhiteList(bookinfo.getId())) {
+//			return;
+//		}
+//		Bookwhitelist bl = new Bookwhitelist();
+//		bl.setBookId(bookinfo.getId());
+//		bl.setIsbn(bookinfo.getIsbn());
+//		bl.setBookAuthor(bookinfo.getBookAuthor());
+//		bl.setBookEdition(bookinfo.getBookEdition());
+//		bl.setBookName(bookinfo.getBookName());
+//		bl.setBookPublisher(bookinfo.getBookPublisher());
+//		bl.setGmtCreate(ZisUtils.getTS());
+//		bl.setGmtModify(ZisUtils.getTS());
+//		bl.setStatus("valid");
+//		bl.setVersion(0);
+//		bookwhitelistDao.save(bl);
+//		logger.info("add bookInfo to whiteList, bookId=" + bookinfo.getId());
 	}
+	
+	
 
 	/**
 	 * 删除黑名单或白名单
@@ -395,20 +415,39 @@ public class PurchaseBO {
 	 * @param id
 	 * @param flag
 	 */
-	public void deleteBlackOrWhiteList(Integer id, String flag) {
-		if ("white".equals(flag)) {
-			Bookwhitelist wl = bookwhitelistDao.findById(id);
-			wl.setStatus(ConstantString.STATUS_INVALID);
-			wl.setGmtModify(ZisUtils.getTS());
-			wl.setVersion(wl.getVersion() + 1);
-			bookwhitelistDao.update(wl);
-		} else {
-			Bookblacklist bl = bookblacklistDao.findById(id);
-			bl.setStatus(ConstantString.STATUS_INVALID);
-			bl.setGmtModify(ZisUtils.getTS());
-			bl.setVersion(bl.getVersion() + 1);
-			bookblacklistDao.update(bl);
+	public void deleteBlackOrWhiteList(Integer bookId) {
+		PurchasePlan plan = this.findPurchasePlanByBookId(bookId);
+		if(plan == null) {
+			throw new RuntimeException("采购计划不存在，bookId=" + bookId);
 		}
+		// 没有黑白名单标记的记录不处理
+		if(PurchasePlanFlag.NORMAL.equals(plan.getFlag())) {
+			return;
+		}
+		// 取消标记，重新计算计划采购量
+		Bookinfo bi = this.bookService.findBookById(bookId);
+		if(bi == null) {
+			throw new RuntimeException("图书信息不存在，bookId=" + bookId);
+		}
+		plan.setFlag(PurchasePlanFlag.NORMAL);
+		plan.setRequireAmount(calculateRequireAmount(bi, plan));
+		plan.setGmtModify(ZisUtils.getTS());
+		plan.setVersion(plan.getVersion() + 1);
+		purchasePlanDao.update(plan);
+		logger.info("cancel while or black flag for purchasePlan, bookId=" + bookId);
+//		if ("white".equals(flag)) {
+//			Bookwhitelist wl = bookwhitelistDao.findById(id);
+//			wl.setStatus(ConstantString.STATUS_INVALID);
+//			wl.setGmtModify(ZisUtils.getTS());
+//			wl.setVersion(wl.getVersion() + 1);
+//			bookwhitelistDao.update(wl);
+//		} else {
+//			Bookblacklist bl = bookblacklistDao.findById(id);
+//			bl.setStatus(ConstantString.STATUS_INVALID);
+//			bl.setGmtModify(ZisUtils.getTS());
+//			bl.setVersion(bl.getVersion() + 1);
+//			bookblacklistDao.update(bl);
+//		}
 	}
 
 	/**
@@ -453,13 +492,13 @@ public class PurchaseBO {
 			return "不允许手动设置采购量";
 		}
 		// 检查图书是否有用
+		PurchasePlan plan = this.findPurchasePlanByBookId(bookId);
 		String uselessReason = isUsefulBook(this.bookService
-				.findBookById(bookId));
+				.findBookById(bookId), plan);
 		if (StringUtils.isNotBlank(uselessReason)) {
 			return uselessReason;
 		}
 		// 检查采购计划是否存在
-		PurchasePlan plan = this.findPurchasePlanByBookId(bookId);
 		if (plan == null) {
 			return "没有可用的采购计划,bookId=" + bookId;
 		}
@@ -471,6 +510,43 @@ public class PurchaseBO {
 		logger.info("update PurchasePlan by manual, bookId=" + bookId
 				+ ",manualDecision=" + amount);
 		return StringUtils.EMPTY;
+	}
+	
+	/**
+	 * 去除人工定量
+	 * @param bookId
+	 */
+	public void removeManualDecision(Integer bookId) {
+		PurchasePlan plan = this.findPurchasePlanByBookId(bookId);
+		if(plan == null) {
+			throw new RuntimeException("采购计划不存在，bookId=" + bookId);
+		}
+		plan.setManualDecision(0);
+		plan.setGmtModify(ZisUtils.getTS());
+		plan.setVersion(plan.getVersion() + 1);
+		this.purchasePlanDao.update(plan);
+		logger.info("remove manual decision successfully, bookId=" + bookId);
+	}
+	
+	/**
+	 * 重新计算计划采购量
+	 * @param bookId
+	 */
+	public void recalculateRequireAmount(Integer bookId) {
+		Bookinfo bi = this.bookService.findBookById(bookId);
+		if(bi == null) {
+			throw new RuntimeException("图书信息不存在，bookId=" + bookId);
+		}
+		PurchasePlan plan = this.findPurchasePlanByBookId(bookId);
+		if(plan == null) {
+			throw new RuntimeException("采购计划不存在，bookId=" + bookId);
+		}
+		int planAmt = this.calculateRequireAmount(bi, plan);
+		plan.setRequireAmount(planAmt);
+		plan.setGmtModify(ZisUtils.getTS());
+		plan.setVersion(plan.getVersion() + 1);
+		this.purchasePlanDao.update(plan);
+		logger.info("recalculate purchasePlan successfully, bookId=" + bookId);
 	}
 
 	/**
@@ -623,14 +699,6 @@ public class PurchaseBO {
 
 	public void setSysVarCache(SysVarCache sysVarCache) {
 		this.sysVarCache = sysVarCache;
-	}
-
-	public void setBookblacklistDao(BookblacklistDao bookblacklistDao) {
-		this.bookblacklistDao = bookblacklistDao;
-	}
-
-	public void setBookwhitelistDao(BookwhitelistDao bookwhitelistDao) {
-		this.bookwhitelistDao = bookwhitelistDao;
 	}
 
 	public void setPurchaseDetailDao(PurchaseDetailDao purchaseDetailDao) {

@@ -6,35 +6,57 @@ function editPurchasePlanManualDecision(bookId) {
 		alert('未输入');
 		return false;
 	}
-	purchaseService.addManualDecision(bookId, plan, showManualDecisionResult);
-	//document.getElementById("bookItemRequireAmount_" + bookId).innerHTML = plan;
+	purchaseService.addManualDecision(bookId, plan, showPurchasePlanOperateResult);
 	return false;
 }
 
-function showManualDecisionResult(result) {
-	if (result == '') {
-		location.reload();
-	} else {
-		alert('设置失败，请联系管理员:' + result);
-	}
+//去除人工定量
+function removeManualDecision(bookId) {
+	purchaseService.removeManualDecision(bookId, showPurchasePlanOperateResult);
+	return false;
 }
 
+// 重新计算计划采购量
+function recalculatePurchasePlan(bookId) {
+	purchaseService.recalculateRequireAmount(bookId, showPurchasePlanOperateResult);
+	return false;
+}
+
+// 手动设置库存量
 function editPurchasePlanStock(bookId) {
 	var stock = prompt('请输入库存量');
 	if (stock === false || stock == null) {
 		alert('未输入');
 		return false;
 	}
-	purchaseService.updateBookStock(bookId, stock, showUpdateStockResult);
-	//document.getElementById("bookItemStockAmount_" + bookId).innerHTML = stock;
+	purchaseService.updateBookStock(bookId, stock, showPurchasePlanOperateResult);
 	return false;
 }
 
-function showUpdateStockResult(result) {
+// 加入黑名单
+function addToBlackList(bookId) {
+	purchaseService.addBlackList(bookId, showPurchasePlanOperateResult);
+	return false;
+}
+
+// 加入白名单
+function addToWhiteList(bookId) {
+	purchaseService.addWhiteList(bookId, showPurchasePlanOperateResult);
+	return false;
+}
+
+// 去除黑名单和白名单标记
+function removePurchasePlanFlag(bookId) {
+	purchaseService.deleteBlackOrWhiteList(bookId, showPurchasePlanOperateResult);
+	return false;
+}
+
+// 展示采购计划相关操作的处理结果，成功则刷新页面，失败则提示原因
+function showPurchasePlanOperateResult(result) {
 	if (result == '') {
 		location.reload();
 	} else {
-		alert('设置失败，请联系管理员:' + result);
+		alert('操作失败，请联系管理员:' + result);
 	}
 }
 

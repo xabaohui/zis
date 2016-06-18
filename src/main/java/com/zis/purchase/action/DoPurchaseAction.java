@@ -63,6 +63,10 @@ public class DoPurchaseAction extends ActionSupport {
 		return SUCCESS;
 	}
 	
+	/**
+	 * 清理在途库存
+	 * @return
+	 */
 	public String clearOnwayStock() {
 		this.doPurchaseService.deleteOnwayStock(purchaseOperator);
 		return SUCCESS;

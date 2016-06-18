@@ -6,6 +6,9 @@
 		<action name="batchUpdatePurchasePlanForPurchaseAmount" class="doPurchaseAction" method="batchUpdatePurchasePlanForPurchaseAmount">
 			<result name="success">/success.jsp</result>
 		</action>
+		<action name="immigrateBlackList" class="immigrateAction" method="immigrate">
+			<result name="success">/success.jsp</result>
+		</action>
 		<!-- 临时工具 end-->
 		<!-- 查询采购量 -->
 		<action name="queryPurchasePlan" class="purchasePlanViewAction" method="executeQuery">
@@ -38,34 +41,7 @@
 			<result name="success" type="redirectAction">querySysVarAction</result>
 			<result name="input">/error.jsp</result>
 		</action>
-		<!-- 添加黑名单 -->
-		<action name="addBlackList" class="sysVarAction" method="addBlackList">
-			<result name="success">/success.jsp</result>
-		</action>
-		<!-- 添加白名单 -->
-		<action name="addWhiteList" class="sysVarAction" method="addWhiteList">
-			<result name="success">/success.jsp</result>
-		</action>
-		<!-- 查看黑名单 -->
-		<action name="queryBlackList" class="blackListViewAction" method="executeQuery">
-			<result name="success">blackList.jsp</result>
-			<result name="input">/error.jsp</result>
-		</action>
-		<!-- 查看白名单 -->
-		<action name="queryWhiteList" class="whiteListViewAction" method="executeQuery">
-			<result name="success">whiteList.jsp</result>
-			<result name="input">/error.jsp</result>
-		</action>
-		<!-- 删除白名单 -->
-		<action name="deleteWhiteListAction" class="sysVarAction" method="deleteWhiteOrBlackList"> 
-			<result name="success" type="redirectAction">queryWhiteList</result>
-			<result name="input">/error.jsp</result>
-		</action>
-		<!-- 删除黑名单 -->
-		<action name="deleteBlackListAction" class="sysVarAction" method="deleteWhiteOrBlackList"> 
-			<result name="success" type="redirectAction">queryBlackList</result>
-			<result name="input">/error.jsp</result>
-		</action>
+
 		<!-- 导入采购或库存数据 -->
 		<action name="uploadTempRecord" class="tempImportUploadAction" method="upload">
 			<result name="success" type="redirectAction">viewTempImportTask</result>

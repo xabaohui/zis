@@ -11,13 +11,25 @@
 	http://www.springframework.org/schema/tx/spring-tx-2.0.xsd 
 	http://www.springframework.org/schema/aop 
 	http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
-
-	<bean id="bookblacklistDAO"
-		class="com.zis.purchase.daoImpl.BookblacklistDAOImpl">
+	
+	<!-- 临时，可删除 -->
+	<bean id="bookblacklistDao" class="com.zis.purchase.daoImpl.BookblacklistDAOImpl">
 		<property name="sessionFactory">
 			<ref bean="sessionFactory" />
 		</property>
 	</bean>
+	<bean id="bookwhitelistDao" class="com.zis.purchase.daoImpl.BookwhitelistDAOImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="immigrateAction" class="com.zis.purchase.action.BookBlackListImmigrateAction">
+		<property name="doPurchaseService" ref="doPurchaseService" />
+		<property name="bookblacklistDao" ref="bookblacklistDao" />
+		<property name="bookwhitelistDao" ref="bookwhitelistDao" />
+	</bean>
+	<!-- 临时表，可删除 -->
+
 	<bean id="purchasePlanDao"
 		class="com.zis.purchase.daoImpl.PurchasePlanDaoImpl">
 		<property name="sessionFactory">
@@ -32,12 +44,6 @@
 	</bean>
 	<bean id="storeSalesDao"
 		class="com.zis.purchase.daoImpl.StoresalesDAOImpl">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>
-	<bean id="bookwhitelistDAO"
-		class="com.zis.purchase.daoImpl.BookwhitelistDAOImpl">
 		<property name="sessionFactory">
 			<ref bean="sessionFactory" />
 		</property>
@@ -144,8 +150,6 @@
 		///////////////////////////////// -->
 	
 	<bean id="purchaseBO" class="com.zis.purchase.biz.PurchaseBO">
-		<property name="bookblacklistDao" ref="bookblacklistDAO"></property>
-		<property name="bookwhitelistDao" ref="bookwhitelistDAO"/>
 		<property name="purchaseDetailDao" ref="purchaseDetailDao"></property>
 		<property name="purchasePlanDao" ref="purchasePlanDao"></property>
 		<property name="sysVarCache" ref="sysVarCache"></property>
@@ -197,15 +201,9 @@
 	<bean id="apiPurchasedAmountAddAction" class="com.zis.api.ApiPurchasedAmountAddAction" scope="prototype">
 		<property name="doPurchaseService" ref="doPurchaseService"></property>
 	</bean>
-	<!-- 采购黑名单 -->
-	<bean id="blackListViewAction" class="com.zis.purchase.action.BlackListViewAction" scope="prototype">
-	</bean>
-	<bean id="whiteListViewAction" class="com.zis.purchase.action.WhiteListViewAction" scope="prototype">
-	</bean>
 	<!-- 系统常量操作 -->
 	<bean id="sysVarAction" class="com.zis.purchase.action.SysVarAction" scope="prototype">
 		<property name="sysVarCache" ref="sysVarCache"/>
-		<property name="doPurchaseService" ref="doPurchaseService"/>
 	</bean>
 	<!-- 修改系统常量 -->
 	<bean id="updateSysVarAction" class="com.zis.purchase.action.SysVarUpdateAction" scope="prototype">
