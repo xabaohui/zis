@@ -6,9 +6,6 @@
 		<action name="batchUpdatePurchasePlanForPurchaseAmount" class="doPurchaseAction" method="batchUpdatePurchasePlanForPurchaseAmount">
 			<result name="success">/success.jsp</result>
 		</action>
-		<action name="immigrateBlackList" class="immigrateAction" method="immigrate">
-			<result name="success">/success.jsp</result>
-		</action>
 		<!-- 临时工具 end-->
 		<!-- 查询采购量 -->
 		<action name="queryPurchasePlan" class="purchasePlanViewAction" method="executeQuery">

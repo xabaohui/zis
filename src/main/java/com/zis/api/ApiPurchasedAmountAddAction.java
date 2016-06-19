@@ -69,7 +69,7 @@ public class ApiPurchasedAmountAddAction extends BaseApiAction {
 				return SUCCESS;
 			} else {
 				renderResponse(BaseApiResponse.CODE_SUCCESS, StringUtils.EMPTY);
-				logger.error("api.ApiPurchasedAmountAddAction invoke successfully");
+				logger.info("api.ApiPurchasedAmountAddAction invoke successfully");
 			}
 			return SUCCESS;
 		} catch (Exception e) {

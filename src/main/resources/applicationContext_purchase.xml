@@ -12,25 +12,6 @@
 	http://www.springframework.org/schema/aop 
 	http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
 	
-	<!-- 临时，可删除 -->
-	<bean id="bookblacklistDao" class="com.zis.purchase.daoImpl.BookblacklistDAOImpl">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>
-	<bean id="bookwhitelistDao" class="com.zis.purchase.daoImpl.BookwhitelistDAOImpl">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>
-	<bean id="immigrateAction" class="com.zis.purchase.action.BookBlackListImmigrateAction">
-		<property name="doPurchaseService" ref="doPurchaseService" />
-		<property name="bookblacklistDao" ref="bookblacklistDao" />
-		<property name="bookwhitelistDao" ref="bookwhitelistDao" />
-		<property name="executor" ref="taskExecutor"/>
-	</bean>
-	<!-- 临时表，可删除 -->
-
 	<bean id="purchasePlanDao"
 		class="com.zis.purchase.daoImpl.PurchasePlanDaoImpl">
 		<property name="sessionFactory">

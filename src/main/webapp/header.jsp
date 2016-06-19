@@ -133,14 +133,6 @@
 				<br />
 				<br />
 				&nbsp;
-				<a href="<%=basePath%>/purchase/queryBlackList">采购黑名单</a>
-				<br />
-				<br />
-				&nbsp;
-				<a href="<%=basePath%>/purchase/queryWhiteList">采购白名单</a>
-				<br />
-				<br />
-				&nbsp;
 				<a href="<%=basePath%>/purchase/viewTempImportTask">数据导入</a>
 				<br />
 				<br />

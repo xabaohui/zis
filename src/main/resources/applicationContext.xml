@@ -52,9 +52,6 @@
 				<value>com/zis/purchase/bean/InwarehouseDetail.hbm.xml</value>
 				<value>com/zis/purchase/bean/Inwarehouse.hbm.xml</value>
 				<value>com/zis/purchase/bean/InwarehousePosition.hbm.xml</value>
-				
-				<value>com/zis/purchase/bean/Bookblacklist.hbm.xml</value>
-				<value>com/zis/purchase/bean/Bookwhitelist.hbm.xml</value>
 			</list>
 		</property>
 	</bean>
