@@ -153,6 +153,10 @@
 				<br />
 				&nbsp;
 				<a href="<%=basePath%>/toolkit/toolkit.jsp">内容修复</a>
+				<br />
+				<br />
+				&nbsp;
+				<a href="https://github.com/xabaohui/zis/issues" target="_blank" onclick="alert('账户名：zisuser，密码：hello1234')">提个建议</a>
 
 			</p>
 		</div>
