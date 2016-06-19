@@ -6,18 +6,21 @@ function editPurchasePlanManualDecision(bookId) {
 		alert('未输入');
 		return false;
 	}
+	document.getElementById("float-to-be-show").style.display = "block";
 	purchaseService.addManualDecision(bookId, plan, showPurchasePlanOperateResult);
 	return false;
 }
 
 //去除人工定量
 function removeManualDecision(bookId) {
+	document.getElementById("float-to-be-show").style.display = "block";
 	purchaseService.removeManualDecision(bookId, showPurchasePlanOperateResult);
 	return false;
 }
 
 // 重新计算计划采购量
 function recalculatePurchasePlan(bookId) {
+	document.getElementById("float-to-be-show").style.display = "block";
 	purchaseService.recalculateRequireAmount(bookId, showPurchasePlanOperateResult);
 	return false;
 }
@@ -29,24 +32,28 @@ function editPurchasePlanStock(bookId) {
 		alert('未输入');
 		return false;
 	}
+	document.getElementById("float-to-be-show").style.display = "block";
 	purchaseService.updateBookStock(bookId, stock, showPurchasePlanOperateResult);
 	return false;
 }
 
 // 加入黑名单
 function addToBlackList(bookId) {
+	document.getElementById("float-to-be-show").style.display = "block";
 	purchaseService.addBlackList(bookId, showPurchasePlanOperateResult);
 	return false;
 }
 
 // 加入白名单
 function addToWhiteList(bookId) {
+	document.getElementById("float-to-be-show").style.display = "block";
 	purchaseService.addWhiteList(bookId, showPurchasePlanOperateResult);
 	return false;
 }
 
 // 去除黑名单和白名单标记
 function removePurchasePlanFlag(bookId) {
+	document.getElementById("float-to-be-show").style.display = "block";
 	purchaseService.deleteBlackOrWhiteList(bookId, showPurchasePlanOperateResult);
 	return false;
 }
@@ -56,6 +63,7 @@ function showPurchasePlanOperateResult(result) {
 	if (result == '') {
 		location.reload();
 	} else {
+		document.getElementById("float-to-be-show").style.display = "none";
 		alert('操作失败，请联系管理员:' + result);
 	}
 }

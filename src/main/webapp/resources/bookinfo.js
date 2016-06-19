@@ -39,6 +39,7 @@ function immigrate(oldBookId) {
 	if(newBookId == null) {
 		return false;
 	}
+	document.getElementById("float-to-be-show").style.display = "block";
 	addAmountBiz.updateForImmigrateBookRequirement(oldBookId, newBookId, showImmigrateResult);
 	return false;
 }
@@ -47,6 +48,7 @@ function showImmigrateResult(result) {
 	if(result == null) {
 		alert('操作成功');
 	} else {
+		document.getElementById("float-to-be-show").style.display = "none";
 		alert(result);
 	}
 }
@@ -68,6 +70,7 @@ function batchOperate(operateType) {
 	}
 	var userInput = confirm('确定执行操作【' + tips + '】吗？');
 	if(userInput == true) {
+		document.getElementById("float-to-be-show").style.display = "block";
 		document.getElementById("operateType").value = operateType;
 		document.getElementById("form_checkBox").submit();
 	}

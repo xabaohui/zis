@@ -90,5 +90,9 @@
 			</tr>
 		</s:iterator>
 	</table>
+	
+	<div id="float-to-be-show">
+		<h2>处理中，请稍后...</h2>
+	</div>
 
 </s:form>

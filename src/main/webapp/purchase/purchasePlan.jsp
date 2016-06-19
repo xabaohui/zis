@@ -133,6 +133,9 @@ function showOperate(bookId) {
 			
 		</s:iterator>
 	</table>
+	<div id="float-to-be-show">
+		<h2>处理中，请稍后...</h2>
+	</div>
 	<!-- 分页查询start -->
 	<%@ include file="/common/pagination.jsp"%>
 	<!-- 分页查询end -->
