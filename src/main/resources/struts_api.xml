@@ -48,9 +48,17 @@
 				<param name="location">index.jsp</param>
 			</result>
 		</action>
-		<!-- 查询采购需求量接口 -->
+		<!-- 查询采购需求量接口(已废弃) -->
 		<action name="queryPurchaseAmount" class="apiPurchasedAmountQueryAction"
 			method="queryRequiredAmount">
+			<result name="success" type="plainText">
+				<param name="charSet">UTF-8</param>
+				<param name="location">index.jsp</param>
+			</result>
+		</action>
+		<!-- 查询采购需求量接口v2 -->
+		<action name="queryPurchaseAmountV2" class="apiPurchasedAmountQueryAction"
+			method="queryRequiredAmountV2">
 			<result name="success" type="plainText">
 				<param name="charSet">UTF-8</param>
 				<param name="location">index.jsp</param>

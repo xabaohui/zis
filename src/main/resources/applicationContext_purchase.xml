@@ -177,7 +177,8 @@
 	</bean>
 	<!-- 采购需求量查询接口 -->
 	<bean id="apiPurchasedAmountQueryAction" class="com.zis.api.ApiPurchasedAmountQueryAction" scope="prototype">
-		<property name="doPurchaseService" ref="doPurchaseService"></property>
+		<property name="doPurchaseService" ref="doPurchaseService" />
+		<property name="bookService" ref="bookService"/>
 	</bean>
 	<!-- 采购量添加接口 -->
 	<bean id="apiPurchasedAmountAddAction" class="com.zis.api.ApiPurchasedAmountAddAction" scope="prototype">

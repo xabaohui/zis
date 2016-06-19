@@ -23,7 +23,10 @@
 /api/queryDepartment.action?id=XXX
 
 <p>采购计划查询接口</p>
-/api/queryPurchaseAmount.action?isbn=XXX
+/api/queryPurchaseAmount?isbn=XXX
+
+<p>采购计划查询接口V2(包含库存量和是否最新版)</p>
+/api/queryPurchaseAmountV2?isbn=XXX
 
 <p>采购数量保存接口</p>
 /api/addPurchasedAmount.action?bookId=XXX&purchasedAmount=X&operator=XXX&position=XXXX&memo=XXXXXX&<font color="red">token=XXX</font>
