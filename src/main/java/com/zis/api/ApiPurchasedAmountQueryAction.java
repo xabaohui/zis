@@ -69,11 +69,6 @@ public class ApiPurchasedAmountQueryAction extends ActionSupport {
 			for (PurchasePlan plan : list) {
 				RequiredAmountQueryData dq = new RequiredAmountQueryData();
 				BeanUtils.copyProperties(plan, dq);
-				// Integer requireAmount = plan.getRequireAmount()
-				// - plan.getPurchasedAmount();
-				// if (requireAmount < 0) {
-				// requireAmount = 0;
-				// }
 				dq.setRequireAmount(doPurchaseService.calculateStillRequireAmount(plan));
 				resultList.add(dq);
 			}
@@ -133,9 +128,6 @@ public class ApiPurchasedAmountQueryAction extends ActionSupport {
 
 	private void renderResult(Object obj) {
 		// json序列化
-//		JSONObject jsonObj = JSONObject.fromObject(obj);
-//		String content = jsonObj.toString();
-		// FIXME fastjson
 		String content = JSON.toJSONString(obj);
 		ServletActionContext.getResponse().setContentType(
 				"text/html;charset=utf-8");

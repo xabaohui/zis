@@ -20,7 +20,8 @@
 	    classpath:applicationContext_requirement.xml,
 	    classpath:applicationContext_bookinfo.xml,
 	    classpath:applicationContext_purchase.xml,
-	    classpath:applicationContext_toolkit.xml
+	    classpath:applicationContext_toolkit.xml,
+	    classpath:applicationContext_timer.xml
     </param-value>
   </context-param>
   

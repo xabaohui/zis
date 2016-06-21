@@ -9,7 +9,6 @@ import org.apache.log4j.Logger;
 import org.apache.struts2.ServletActionContext;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
 import com.zis.api.response.BaseApiResponse;
@@ -100,9 +99,6 @@ public abstract class BaseApiAction extends ActionSupport {
 
 	protected void renderResult(Object obj) {
 		// json序列化
-//		JSONObject jsonObj = JSONObject.fromObject(obj);
-//		String content = jsonObj.toString();
-		// FIXME FASTJSON
 		String content = JSON.toJSONString(obj);
 		// 输出结果
 		ServletActionContext.getResponse().setContentType(

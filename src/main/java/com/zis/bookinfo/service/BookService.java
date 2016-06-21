@@ -57,10 +57,7 @@ public class BookService {
 				bookAuthor, ISBN);
 		List<Bookinfo> list = bookinfoDao
 				.findByCriteriaLimitCount(criteria, 20);
-		// FIXME fastjson
 		return JSON.toJSONString(list);
-		// String str = JSONSerializer.toJSON(list).toString();
-		// return str;
 	}
 
 	private DetachedCriteria buildBookInfoCriteria(String bookName,
@@ -537,10 +534,6 @@ public class BookService {
 		dc.add(Restrictions.ne("bookStatus", ConstantString.ABANDON));// FIXME 中文会产生乱码
 		return bookinfoDao.findByCriteria(dc);
 	}
-
-	// public void update(Bookinfo book) {
-	// bookinfoDao.update(book);
-	// }
 
 	public List<Bookinfo> getWaitCheckList() {
 		List<Bookinfo> list = bookinfoDao

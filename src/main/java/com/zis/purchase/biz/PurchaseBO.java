@@ -57,7 +57,6 @@ public class PurchaseBO {
 				if (bookList == null || bookList.isEmpty()) {
 					return;
 				}
-				// Date now = new Date();
 				for (Bookinfo book : bookList) {
 					try {
 						addPurchasePlan(book);
@@ -65,11 +64,6 @@ public class PurchaseBO {
 						logger.error("采购计划初始化失败, bookId=" + book.getId(), e);
 					}
 				}
-				// int firstBookId = bookList.get(0).getId();
-				// int lastBookId = bookList.get(bookList.size() - 1).getId();
-				// int clearCount = updatePurchasePlanClearRequireAmount(now,
-				// firstBookId, lastBookId);
-				// logger.info("采购计划部分更新完成，清空 " + clearCount + " 条无用记录");
 			}
 		});
 		// 添加任务，如果遇到新的任务被拒绝，则稍后重试

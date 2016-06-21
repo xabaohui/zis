@@ -122,9 +122,6 @@ public class InterfaceBookinfoAction extends ActionSupport {
 	 */
 	private void renderResult(Object obj) {
 		// json序列化
-//		JSONObject jsonObj = JSONObject.fromObject(obj);
-//		String content = jsonObj.toString();
-		// FIXME FASTJSON
 		String content = JSON.toJSONString(obj);
 		//
 		ServletActionContext.getResponse().setContentType(
