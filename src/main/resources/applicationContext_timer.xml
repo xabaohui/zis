@@ -24,7 +24,8 @@
 	</bean>
 	<bean id="purchasePlanBuildAllTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail" ref="purchasePlanBuildAllJob" />
-		<property name="cronExpression" value="0 26 * * * ?" /><!-- 每隔5秒钟触发一次 -->
+		<!-- 每天凌晨3:00 触发一次 -->
+		<property name="cronExpression" value="0 0 3 * * ?" />
 	</bean>
 	
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
