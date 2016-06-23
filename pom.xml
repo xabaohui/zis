@@ -8,7 +8,7 @@
   <name>zis1.1 Maven Webapp</name>
   <url>http://maven.apache.org</url>
   
-  <properties>
+    <properties>
 		<org.springframework.version>3.1.2.RELEASE</org.springframework.version>
 	</properties>
 
