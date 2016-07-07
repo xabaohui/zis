@@ -39,6 +39,7 @@
 			<list>
 				<value>com/zis/bookinfo/bean/Bookinfo.hbm.xml</value>
 				<value>com/zis/bookinfo/bean/BookinfoAid.hbm.xml</value>
+				<value>com/zis/bookinfo/bean/BookinfoDetail.hbm.xml</value>
 				<value>com/zis/bookinfo/bean/YouluSales.hbm.xml</value>
 				<value>com/zis/bookinfo/bean/ShopItemInfo.hbm.xml</value>
 				<value>com/zis/requirement/bean/Bookamount.hbm.xml</value>

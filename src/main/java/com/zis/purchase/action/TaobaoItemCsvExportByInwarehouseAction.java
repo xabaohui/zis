@@ -24,9 +24,11 @@ import com.zis.purchase.biz.DoPurchaseService;
 
 /**
  * 导出淘宝商品csv文件--根据扫描入库，会自动过滤已发布的商品
+ * @deprecated 已废弃，请使用  TaobaoCsvDataExportActionInwarehouseImpl
  * @author yz
  *
  */
+@Deprecated
 public class TaobaoItemCsvExportByInwarehouseAction extends
 		CommonCsvExportAction<InwarehouseDetail> {
 
@@ -56,7 +58,7 @@ public class TaobaoItemCsvExportByInwarehouseAction extends
 			try {
 				BookMetadata metadata = capture.getBookInfo(book.getOutId() + "");
 				content = String.format(describFmt, metadata.getSummary(),
-						metadata.getCatelog());
+						metadata.getCatalog());
 			} catch (Exception e) {
 				logger.error("有路网抓取数据失败", e);
 				content = getBookContentOffline(book);

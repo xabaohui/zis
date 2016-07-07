@@ -40,7 +40,7 @@
                 <comment>出版时间</comment>
             </column>
         </property>
-        <property name="bookPrice" type="java.lang.Float">
+        <property name="bookPrice" type="java.lang.Double">
             <column name="bookPrice" precision="12" scale="0" not-null="true">
                 <comment>图书价格</comment>
             </column>

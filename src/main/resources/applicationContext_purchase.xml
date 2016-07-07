@@ -215,8 +215,10 @@
 	<bean id="wangqubaoItemExportAction" class="com.zis.purchase.action.WangqubaoItemExportAction" scope="prototype">
 		<property name="doPurchaseService" ref="doPurchaseService"/>
 	</bean>
-	<bean id="taobaoItemCsvExportAction" class="com.zis.purchase.action.TaobaoItemCsvExportAction" scope="prototype">
+	<bean id="taobaoCsvDataExportActionTempRecord" class="com.zis.purchase.action.TaobaoCsvDataExportActionTempRecordImpl" scope="prototype">
 		<property name="doPurchaseService" ref="doPurchaseService"/>
+		<property name="bookService" ref="bookService"/>
+		<property name="taskExecutor" ref="taskExecutor"/>
 	</bean>
 	<!-- 入库相关Action -->
 	<bean id="inwarehouseCreateAction" class="com.zis.purchase.action.InwarehouseCreateAction" scope="prototype">
@@ -247,9 +249,10 @@
 		<property name="doPurchaseService" ref="doPurchaseService"/>
 		<property name="bookService" ref="bookService"/>
 	</bean>
-	<bean id="taobaoItemCsvExportByInwarehouseAction" class="com.zis.purchase.action.TaobaoItemCsvExportByInwarehouseAction" scope="prototype">
+	<bean id="taobaoCsvDataExportActionInwarehouse" class="com.zis.purchase.action.TaobaoCsvDataExportActionInwarehouseImpl" scope="prototype">
 		<property name="doPurchaseService" ref="doPurchaseService"/>
 		<property name="bookService" ref="bookService"/>
+		<property name="taskExecutor" ref="taskExecutor"/>
 	</bean>
 	<bean id="soldOutItemExportByInwarehouseAction" class="com.zis.purchase.action.SoldOutItemExportByInwarehouseAction" scope="prototype">
 		<property name="doPurchaseService" ref="doPurchaseService"/>

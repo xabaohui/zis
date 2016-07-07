@@ -67,7 +67,7 @@
 		<action name="exportBookInfoByTempImport" class="bookInfoExportAction" method="export">
 			<result name="success">/success.jsp</result>
 		</action>
-		<action name="exportTaobaoItemDataByTempImport" class="taobaoItemCsvExportAction" method="export">
+		<action name="exportTaobaoItemDataByTempImport" class="taobaoCsvDataExportActionTempRecord" method="export">
 			<result name="success">/success.jsp</result>
 		</action>
 		
@@ -106,7 +106,7 @@
 			<result name="success">/success.jsp</result>
 			<result name="input">/error.jsp</result>
 		</action>
-		<action name="exportTaobaoItemDataByInwarehouse" class="taobaoItemCsvExportByInwarehouseAction" method="export">
+		<action name="exportTaobaoItemDataByInwarehouse" class="taobaoCsvDataExportActionInwarehouse" method="export">
 			<result name="success">/success.jsp</result>
 			<result name="input">/error.jsp</result>
 		</action>

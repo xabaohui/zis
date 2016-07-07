@@ -61,7 +61,7 @@ public class InterfaceBooksToMoblieinfoAction extends BaseApiAction {
 		// 准备数据
 		try {
 			Bookinfo book = buildBookInfo();
-			bookService.addBook(book);
+			bookService.addBook(book, null); // XXX 暂时不处理图书详情
 			// 清理token
 			clearSessionToken();
 		} catch (Exception e) {
@@ -92,9 +92,9 @@ public class InterfaceBooksToMoblieinfoAction extends BaseApiAction {
 			throw new RuntimeException("日期格式错误" + publishDate);
 		}
 
-		Float bookPrice = null;
+		Double bookPrice = null;
 		try {
-			bookPrice = Float.parseFloat(price);
+			bookPrice = Double.parseDouble(price);
 		} catch (NumberFormatException e1) {
 			logger.error("价格转换异常", e1);
 		}

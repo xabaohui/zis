@@ -3,11 +3,7 @@ package com.zis.bookinfo.util;
 import java.util.Date;
 
 /**
- * 
- */
-
-/**
- * ͼ����Ϣ
+ * 图书元数据，描述图书基本属性的所有字段
  * 
  * @author lvbin 2015-7-23
  */
@@ -15,19 +11,19 @@ public class BookMetadata {
 
 	private String name;
 	private String publisher;
-	private String publishDate;
+	private Date publishDate;
 	private String edition;
 	private String author;
-	private Double price; // 标价
+	private Double price; // 定价
 	private String isbnCode;
-	private String bookIntro;
 	private String summary;
-	private String catelog;
+	private String catalog;
+	private String imageUrl;
 	private Integer stock;
-	private Double salesPrice; // 有路网售价
-	private Integer sales;
-	private String outId;
-	private Date captureDate;
+	private Double salesPrice; // 售价
+	private Integer sales; // 销量
+	private String outId; // 商品Id
+	private String source; // 商品来源
 
 	public String getName() {
 		return name;
@@ -45,11 +41,11 @@ public class BookMetadata {
 		this.publisher = publisher;
 	}
 
-	public String getPublishDate() {
+	public Date getPublishDate() {
 		return publishDate;
 	}
 
-	public void setPublishDate(String publishDate) {
+	public void setPublishDate(Date publishDate) {
 		this.publishDate = publishDate;
 	}
 
@@ -85,14 +81,6 @@ public class BookMetadata {
 		this.isbnCode = isbnCode;
 	}
 
-	public String getBookIntro() {
-		return bookIntro;
-	}
-
-	public void setBookIntro(String bookIntro) {
-		this.bookIntro = bookIntro;
-	}
-
 	public String getSummary() {
 		return summary;
 	}
@@ -101,12 +89,13 @@ public class BookMetadata {
 		this.summary = summary;
 	}
 
-	public String getCatelog() {
-		return catelog;
+
+	public String getCatalog() {
+		return catalog;
 	}
 
-	public void setCatelog(String catelog) {
-		this.catelog = catelog;
+	public void setCatalog(String catalog) {
+		this.catalog = catalog;
 	}
 
 	public Integer getStock() {
@@ -141,12 +130,20 @@ public class BookMetadata {
 		this.outId = outId;
 	}
 
-	public Date getCaptureDate() {
-		return captureDate;
+	public String getSource() {
+		return source;
 	}
 
-	public void setCaptureDate(Date captureDate) {
-		this.captureDate = captureDate;
+	public void setSource(String source) {
+		this.source = source;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 
 	@Override
@@ -154,9 +151,8 @@ public class BookMetadata {
 		return "BookMetadata [name=" + name + ", publisher=" + publisher
 				+ ", publishDate=" + publishDate + ", edition=" + edition
 				+ ", author=" + author + ", price=" + price + ", isbnCode="
-				+ isbnCode + ", bookIntro=" + bookIntro + ", summary="
-				+ summary + ", catelog=" + catelog + ", stock=" + stock
+				+ isbnCode + ", imageUrl=" + imageUrl + ", stock=" + stock
 				+ ", salesPrice=" + salesPrice + ", sales=" + sales
-				+ ", outId=" + outId + "]";
+				+ ", outId=" + outId + ", source=" + source + "]";
 	}
 }

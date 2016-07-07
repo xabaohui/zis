@@ -11,6 +11,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 import com.zis.bookinfo.util.BookMetadata;
+import com.zis.common.util.ZisUtils;
 
 /**
  * @author lvbin 2015-7-23
@@ -85,18 +86,18 @@ public class TaobaoItemCsvWriter {
 		title = appendIfAllow(title, bi.getIsbnCode());
 		title = appendIfAllow(title, bi.getPublisher());
 		String content = String.format(describFmt, bi.getSummary(), bi
-				.getCatelog());
+				.getCatalog());
 		StringBuilder builder = new StringBuilder();
 		//\"46602357,46398806,2043189,2043183,122216620,1636953,2043193\"	
 		//\"%2$s,%3$s,%4$s,%2$s,%5$s,%6$s,%7$s\"
 		// 书名，price，作者，书名，出版社，isbn，出版日
 		String author = StringUtils.isBlank(bi.getAuthor()) ? " " : bi.getAuthor();
 		String publisher = StringUtils.isBlank(bi.getPublisher()) ? " " : bi.getPublisher();
-		String pubDate = StringUtils.isBlank(bi.getPublishDate()) ? " " : bi.getPublishDate();
+		String pubDate = bi.getPublishDate() == null ? " " : ZisUtils.getDateString("yyyy年MM月", bi.getPublishDate());
 		
 		String data = String.format(dataFmt, title, bi.getName(),
 				bi.getPrice(), author, publisher, bi
-						.getIsbnCode(), pubDate, content, bi.getBookIntro());
+						.getIsbnCode(), pubDate, content, bi.getSummary());
 		builder.append(data);
 		return builder.toString().getBytes();
 	}

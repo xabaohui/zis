@@ -14,12 +14,17 @@
 			<ref bean="sessionFactory" />
 		</property>
 	</bean>
+	<bean id="bookinfoDetailDao" class="com.zis.bookinfo.dao.impl.BookinfoDetailDaoImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
 	<bean id="bookinfoAidDao" class="com.zis.bookinfo.dao.impl.BookinfoAidDaoImpl">
 		<property name="sessionFactory">
 			<ref bean="sessionFactory" />
 		</property>
 	</bean>
-	<bean id="YouluSalesDao" class="com.zis.bookinfo.dao.impl.YouluSalesDAOImpl">
+	<bean id="youluSalesDao" class="com.zis.bookinfo.dao.impl.YouluSalesDAOImpl">
 		<property name="sessionFactory">
 			<ref bean="sessionFactory" />
 		</property>
@@ -42,16 +47,21 @@
 	<bean id="repeatIsbnAnalysisBO" class="com.zis.bookinfo.bo.RepeatIsbnAnalysisBO">
 		<property name="bookinfoDao" ref="bookinfoDao"/>
 	</bean>
+	<bean id="taobaoCsvDataGenerateBO" class="com.zis.bookinfo.bo.TaobaoCsvDataGenerateBO">
+		<property name="baseDir" value="D:/var/tmp/zis/taobaoCsv/"/>
+	</bean>
 
 	<!-- service 配置 -->
 	<bean id="bookService" class="com.zis.bookinfo.service.BookService">
 		<property name="bookinfoDao" ref="bookinfoDao" />
-		<property name="YouluSalesDao" ref="YouluSalesDao"/>
-		<property name="youLuNetDetailCapture" ref="youLuNetDetailCapture"></property>
+		<property name="bookinfoDetailDao" ref="bookinfoDetailDao" />
+		<property name="youluSalesDao" ref="youluSalesDao"/>
+		<property name="bookMetadataCapture" ref="defaultBookMetadataCapture"/>
 		<property name="taskExecutor" ref="taskExecutor" />
 		<property name="similarityBookAnalysisBO" ref="similarityBookAnalysisBO"/>
 		<property name="sameBookAnalysisBO" ref="sameBookAnalysisBO"/>
 		<property name="repeatIsbnAnalysisBO" ref="repeatIsbnAnalysisBO"/>
+		<property name="taobaoCsvDataGenerateBO" ref="taobaoCsvDataGenerateBO"/>
 		<property name="bookAmountDao" ref="bookamountDAO"/>
 		<property name="shopItemInfoDao" ref="shopItemInfoDao"/>
 	</bean>
@@ -86,7 +96,16 @@
 	<bean id="youLuNetDetailCapture" class="com.zis.bookinfo.util.YouLuNetDetailCapture"
 		scope="prototype">
 	</bean>
-
+	<bean id="youluBookMetadataCapture" class="com.zis.common.capture.YouluBookMetadataCapture"/>
+	<bean id="dangdangBookMetadataCapture" class="com.zis.common.capture.DangDangBookMetadataCapture"/>
+	<bean id="defaultBookMetadataCapture" class="com.zis.common.capture.DefaultBookMetadataCaptureHandler">
+		<property name="captureMap">
+			<map>
+				<entry key="dangdang" value-ref="dangdangBookMetadataCapture"/>
+				<entry key="youlu" value-ref="youluBookMetadataCapture"/>
+			</map>
+		</property>
+	</bean>
 
 
 	<!-- 配置参与事务的类 -->

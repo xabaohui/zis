@@ -29,7 +29,7 @@ public class BookSaveOrUpdateAction extends ActionSupport {
 	private String bookAuthor;
 	private String bookPublisher;
 	private Date publishDate;
-	private Float bookPrice;
+	private Double bookPrice;
 	private String bookEdition;
 	private Boolean isNewEdition;
 	private Boolean repeatIsbn;
@@ -105,7 +105,7 @@ public class BookSaveOrUpdateAction extends ActionSupport {
 				book = buildBook(new Bookinfo());
 				book.setOutId(outId);
 				book.setBookStatus(ConstantString.USEFUL);
-				bookService.addBook(book);
+				bookService.addBook(book, null);// XXX 暂时不处理图书详情
 				// 检查系统中是否存在相似记录
 				DetachedCriteria dc = DetachedCriteria.forClass(Bookinfo.class);
 				dc.add(Restrictions.like("bookAuthor", "%" + book.getBookAuthor() + "%"));
@@ -189,11 +189,11 @@ public class BookSaveOrUpdateAction extends ActionSupport {
 		this.publishDate = publishDate;
 	}
 
-	public Float getBookPrice() {
+	public Double getBookPrice() {
 		return bookPrice;
 	}
 
-	public void setBookPrice(Float bookPrice) {
+	public void setBookPrice(Double bookPrice) {
 		this.bookPrice = bookPrice;
 	}
 

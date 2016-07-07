@@ -1,13 +1,16 @@
 package com.zis.bookinfo.util;
 
+import com.zis.common.util.ZisUtils;
+
 /**
  * 
  */
 
 
+@Deprecated
 /**
- * 有路网图书详情页信息抓取工具
- * 
+ * 有路网图书详情页信息抓取工具<p/>
+ * 已经废弃，使用YouluBookMetadataCapture
  * @author lvbin 2015-5-21
  */
 public class YouLuNetDetailCapture extends AbstractNetCapture {
@@ -67,10 +70,10 @@ public class YouLuNetDetailCapture extends AbstractNetCapture {
 		bi.setIsbnCode(isbnCode);
 		bi.setName(bookName);
 		bi.setPrice(Double.valueOf(tagPrice));
-		bi.setPublishDate(publishDate);
+		bi.setPublishDate(ZisUtils.stringToDate(publishDate, "yyyy年MM月"));
 		bi.setPublisher(publisher);
 		bi.setSummary(summary);
-		bi.setCatelog(catelog);
+		bi.setCatalog(catelog);
 		bi.setStock(Integer.valueOf(stock));
 		bi.setSalesPrice(Double.valueOf(salePrice));
 		logger.info("获取有路网数据成功, youluId=" + id);

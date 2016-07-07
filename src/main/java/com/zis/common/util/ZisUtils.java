@@ -132,4 +132,15 @@ public class ZisUtils {
 		}
 		return date;
 	}
+	
+	/**
+	 * 线程休眠一段时间
+	 * @param millis 休眠时间，单位是毫秒
+	 */
+	public static void sleepQuietly(int millis) {
+		try {
+			Thread.sleep(millis);
+		} catch (InterruptedException e) {
+		}
+	}
 }

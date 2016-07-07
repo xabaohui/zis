@@ -2,6 +2,8 @@ package com.zis.common.util;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.zis.bookinfo.bean.Bookinfo;
+
 /**
  * 整理文本工具类
  * 
@@ -232,5 +234,48 @@ public class TextClearUtils {
 		}
 		return text;
 	}
+	
+	/**
+	 * 构造淘宝标题
+	 * @param book
+	 * @return
+	 */
+	public static String buildTaobaoTitle(Bookinfo book) {
+		if(book == null) {
+			throw new IllegalArgumentException("构造淘宝标题失败，参数不能为空。");
+		}
+		String fmt = "二手%s %s %s %s";
+		String bookEdition = getBookEdition(book);
+		String bookAuthor = getShortestBookAuthor(book.getBookAuthor());
+		String title = String.format(fmt, book.getBookName(),
+				bookEdition, bookAuthor, book.getIsbn());
+		return title;
+	}
 
+	// 第一版且是最新版，版次不出现在标题里
+	private static String getBookEdition(Bookinfo book) {
+		String bookEdition = book.getBookEdition();
+		if (("第一版".equals(bookEdition) || "第1版".equals(bookEdition))
+				&& book.getIsNewEdition() == true) {
+			return "";
+		} else {
+			return "(" + bookEdition + ")";
+		}
+	}
+
+	// 截取最短的作者名，最多保留两位作者，如果单一作者名称超过10个字符，则不展示
+	private static String getShortestBookAuthor(String bookAuthor) {
+		// FIXME break没有停止整个循环
+		final String splitChar = " ";
+		final int maxLen = 8;
+		// 多个作者用空格分隔
+		String[] authors = bookAuthor.split(splitChar);
+		// 逐个追加作者，直到超过长度限制
+		StringBuilder tmpStr = new StringBuilder(authors[0]);
+		for (int i = 1; i < authors.length; i++) {
+			if (tmpStr.length() + authors[i].length() > maxLen) break;
+			tmpStr.append(splitChar).append(authors[i++]);
+		}
+		return tmpStr.length() > maxLen ? "" : tmpStr.toString();
+	}
 }

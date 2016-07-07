@@ -11,6 +11,7 @@ public class Bookinfo implements java.io.Serializable {
 
 	// Fields
 
+	private static final long serialVersionUID = -5701295820763705669L;
 	private Integer id;
 	private Integer outId;
 	private String isbn;
@@ -18,7 +19,7 @@ public class Bookinfo implements java.io.Serializable {
 	private String bookAuthor;
 	private String bookPublisher;
 	private Date publishDate;
-	private Float bookPrice;
+	private Double bookPrice;
 	private String bookEdition;
 	private Boolean isNewEdition;
 	private String groupId;
@@ -37,7 +38,7 @@ public class Bookinfo implements java.io.Serializable {
 
 	/** minimal constructor */
 	public Bookinfo(String isbn, String bookName, String bookAuthor,
-			String bookPublisher, Float bookPrice) {
+			String bookPublisher, Double bookPrice) {
 		this.isbn = isbn;
 		this.bookName = bookName;
 		this.bookAuthor = bookAuthor;
@@ -48,7 +49,7 @@ public class Bookinfo implements java.io.Serializable {
 	/** full constructor */
 	public Bookinfo(Integer outId, String isbn, String bookName,
 			String bookAuthor, String bookPublisher, Date publishDate,
-			Float bookPrice, String bookEdition, Boolean isNewEdition,
+			Double bookPrice, String bookEdition, Boolean isNewEdition,
 			String groupId, String relateId, Boolean repeatIsbn,
 			Timestamp gmtCreate, Timestamp gmtModify, Integer version,
 			String bookStatus) {
@@ -128,11 +129,11 @@ public class Bookinfo implements java.io.Serializable {
 		this.publishDate = publishDate;
 	}
 
-	public Float getBookPrice() {
+	public Double getBookPrice() {
 		return this.bookPrice;
 	}
 
-	public void setBookPrice(Float bookPrice) {
+	public void setBookPrice(Double bookPrice) {
 		this.bookPrice = bookPrice;
 	}
 

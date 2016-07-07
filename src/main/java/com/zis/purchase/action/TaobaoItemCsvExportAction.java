@@ -16,12 +16,14 @@ import com.zis.purchase.dto.TempImportDetailView;
 
 /**
  * 导出淘宝商品csv文件
+ * @deprecated 已废弃，请使用  TaobaoCsvDataExportActionTempRecordImpl
  * @author yz
- *
  */
+@Deprecated
 public class TaobaoItemCsvExportAction extends
 		CommonCsvExportAction<TempImportDetailView> {
 
+	private static final long serialVersionUID = -8161316925115818174L;
 	private static final String dataFmt = "\"%1$s\"	50050324	\"\"	1	\"陕西\"	\"西安\"	1	%3$s	\"0.00\"	%11$s	7	1	0	0	0	0	0	1	0	\"\"	\"%8$s\"	\"46602357:311354894;46398806:10448865;122216620:16405245;2043193:10285019;2043189:129253040;2043183:311354894;1636953:126199908\"	10638168	0	\"2015-07-22 21:25:47\"	\"200\"	\"1;\"	0	\"6d0070032957e5af9ffeb5879ebaf8d6:1:0:|http://img.alicdn.com/imgextra/i1/543527737/TB2GBTfeVXXXXapXpXXXXXXXXXX_!!543527737.jpg;411cab5cd91f5cb45b1b780986ad37fa:1:1:|;\"	\"\"	\"\"	\"46602357,46398806,2043189,2043183,122216620,1636953,2043193\"	\"%2$s,%3$s,%4$s,%2$s,%5$s,%6$s,%7$s\"	\"%10$s\"	\"\"	0	520810592067	0	3	tech_天地	1	156	248		tags:32642	0	-1		2			1		\"\"	%6$s		1	\"%9$s\"\n";
 	private static final String describFmt = "<P><font color=\"blue\">内容提要（在见书城·高质量二手书）</font></P><P><span>%1$s</span></P><P><font color=\"blue\">目录（在见书城·高质量二手书）</font></P><P><span>%2$s</span></P>";
 
@@ -44,7 +46,7 @@ public class TaobaoItemCsvExportAction extends
 			try {
 				BookMetadata metadata = capture.getBookInfo(book.getOutId() + "");
 				content = String.format(describFmt, metadata.getSummary(),
-						metadata.getCatelog());
+						metadata.getCatalog());
 			} catch (Exception e) {
 				logger.error("有路网抓取数据失败", e);
 				content = getBookContentOffline(book);

@@ -6,36 +6,43 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.alibaba.fastjson.JSON;
 import com.zis.bookinfo.bean.Bookinfo;
+import com.zis.bookinfo.bean.BookinfoDetail;
 import com.zis.bookinfo.bean.BookinfoStatus;
 import com.zis.bookinfo.bean.ShopItemInfo;
 import com.zis.bookinfo.bean.YouluSales;
 import com.zis.bookinfo.bo.RepeatIsbnAnalysisBO;
 import com.zis.bookinfo.bo.SameBookAnalysisBO;
 import com.zis.bookinfo.bo.SimilarityBookAnalysisBO;
+import com.zis.bookinfo.bo.TaobaoCsvDataGenerateBO;
 import com.zis.bookinfo.dao.BookinfoDao;
+import com.zis.bookinfo.dao.BookinfoDetailDao;
 import com.zis.bookinfo.dao.ShopItemInfoDao;
 import com.zis.bookinfo.dao.YouluSalesDao;
+import com.zis.bookinfo.dto.BookInfoAndDetailDTO;
 import com.zis.bookinfo.dto.ShopItemInfoDTO;
 import com.zis.bookinfo.util.BookMetadata;
+import com.zis.bookinfo.util.BookMetadataSource;
 import com.zis.bookinfo.util.ConstantString;
-import com.zis.bookinfo.util.YouLuNetDetailCapture;
+import com.zis.common.capture.DefaultBookMetadataCaptureHandler;
 import com.zis.common.util.ZisUtils;
 import com.zis.requirement.bean.Bookamount;
 import com.zis.requirement.dao.BookAmountDao;
 
 public class BookService {
-	private static Logger logger = Logger.getLogger(BookService.class);
+	private static Logger logger = LoggerFactory.getLogger(BookService.class);
 
 	private BookinfoDao bookinfoDao;
+	private BookinfoDetailDao bookinfoDetailDao;
 	private YouluSalesDao youluSalesDao;
-	private YouLuNetDetailCapture youLuNetDetailCapture;
+	private DefaultBookMetadataCaptureHandler bookMetadataCapture;
 	private ThreadPoolTaskExecutor taskExecutor;
 	private BookAmountDao bookAmountDao;
 	private ShopItemInfoDao shopItemInfoDao;
@@ -43,6 +50,7 @@ public class BookService {
 	private SimilarityBookAnalysisBO similarityBookAnalysisBO;
 	private SameBookAnalysisBO sameBookAnalysisBO;
 	private RepeatIsbnAnalysisBO repeatIsbnAnalysisBO;
+	private TaobaoCsvDataGenerateBO taobaoCsvDataGenerateBO;
 
 	/**
 	 * dwr获得书的信息，只显示前20条记录
@@ -97,9 +105,10 @@ public class BookService {
 	/**
 	 * 新增图书
 	 * @param book
+	 * @param detail 图书详细信息
 	 * @return
 	 */
-	public int addBook(Bookinfo book) {
+	public int addBook(Bookinfo book, BookinfoDetail detail) {
 		checkForCreateBook(book);
 		// 检查图书是否存在
 		if (ifBookInfoExist(book)) {
@@ -114,6 +123,10 @@ public class BookService {
 		book.setGmtModify(ZisUtils.getTS());
 		book.setVersion(0);
 		bookinfoDao.save(book);
+		if(detail != null) {
+			detail.setBookid(book.getId());
+			bookinfoDetailDao.save(detail);
+		}
 		logger.info("bookinfo.action.checkBook--添加图书成功");
 		
 		// 处理一码多书和不同版本图书
@@ -149,6 +162,9 @@ public class BookService {
 		if(book.getBookPublisher().length() > 50) {
 			throw new IllegalArgumentException("出版社长度不能超过50个字符");
 		}
+		if(book.getPublishDate() == null) {
+			throw new IllegalArgumentException("出版社日期不能为空");
+		}
 		if(StringUtils.isBlank(book.getBookEdition())) {
 			throw new IllegalArgumentException("版次不能为空");
 		}
@@ -159,7 +175,7 @@ public class BookService {
 			throw new IllegalArgumentException("条形码不能为空");
 		}
 		if(book.getIsbn().length() > 15) {
-			throw new IllegalArgumentException("版次长度不能超过15个字符");
+			throw new IllegalArgumentException("条形码长度不能超过15个字符");
 		}
 		if(book.getBookPrice() == null || book.getBookPrice() <= 0) {
 			throw new IllegalArgumentException("图书价格不能为空且必须大于0");
@@ -175,7 +191,7 @@ public class BookService {
 	public List<Bookinfo> findBookByCriteria(DetachedCriteria criteria) {
 		return bookinfoDao.findByCriteria(criteria);
 	}
-
+	
 	/**
 	 * 修改图书-审核通过
 	 */
@@ -439,22 +455,27 @@ public class BookService {
 			return list.get(0);
 		}
 		// 从有路网抓取数据
-		BookMetadata bi = youLuNetDetailCapture.getBookInfo(id + "");
+		BookMetadata bi = bookMetadataCapture.captureDetailPage(id +"", BookMetadataSource.YOU_LU);
 		if (bi == null) {
 			return null;
 		}
+		// 构造图书基本信息
 		Bookinfo book = new Bookinfo();
 		book.setOutId(id);
 		book.setBookName(bi.getName());
 		book.setBookAuthor(bi.getAuthor());
 		book.setIsbn(bi.getIsbnCode());
-		book.setBookPrice(Float.parseFloat(bi.getPrice().toString()));
+		book.setBookPrice(bi.getPrice());
 		book.setBookEdition(bi.getEdition());
 		book.setBookStatus(ConstantString.USEFUL);
 		book.setBookPublisher(bi.getPublisher());
-		book.setPublishDate(ZisUtils.youluNet(bi.getPublishDate(), logger));
+		book.setPublishDate(bi.getPublishDate());
+		// 构造图书附加信息
+		BookinfoDetail detail = buildBookinfoDetail(bi);
+		//XXX保存阶段直接生成标题或许不太好，请考虑采用其他策略
+		// detail.setTaobaoTitle(TextClearUtils.buildTaobaoTitle(book));
 		// 保存到数据库
-		addBook(book);
+		addBook(book, detail);
 		return book;
 	}
 
@@ -464,7 +485,7 @@ public class BookService {
 	 * @param id
 	 */
 	private void saveYouluBookSales(int id) {
-		BookMetadata bi = youLuNetDetailCapture.getBookInfo(id + "");
+		BookMetadata bi = bookMetadataCapture.captureDetailPage(id + "", BookMetadataSource.YOU_LU);
 		if (bi == null) {
 			return;
 		}
@@ -623,18 +644,94 @@ public class BookService {
 		}
 		return list.get(0);
 	}
+	
+	/**
+	 * 从网上采集图书信息(补偿图书详情)<p/>
+	 * 采集到数据之后会自动入库
+	 * @param bookId
+	 * @return
+	 */
+	public BookinfoDetail captureBookInfoDetailFromNet(Integer bookId) {
+		if(bookId == null) {
+			throw new IllegalArgumentException("采集数据失败，bookId不能为空");
+		}
+		Bookinfo book = this.findBookById(bookId);
+		if(book == null) {
+			throw new RuntimeException("无此图书，bookId=" + bookId);
+		}
+		BookMetadata meta = null;
+		BookinfoDetail detail = this.bookinfoDetailDao.findByBookId(bookId);
+		
+		// 如果outId不为空，则去原网站采集
+		if(book.getOutId() != null) {
+			// 兼容早期没有bookinfoDetail的记录，基本上都是有路网采集的
+			String source = (detail == null) ? BookMetadataSource.YOU_LU : detail.getSource();
+			meta = bookMetadataCapture.captureDetailPage(book.getOutId() + "", source);
+		}
+		// 没有outId，则从网上采集
+		else {
+			meta = bookMetadataCapture.captureListPage(book.getIsbn());
+		}
+		// 如果没有采集到数据，则直接返回
+		if(meta == null) {
+			return null;
+		}
+		// 采集到数据，并且DB中没有对应的bookinfoDetail，则予以录入
+		if(detail == null) {
+			detail = buildBookinfoDetail(meta);
+			detail.setBookid(book.getId());
+			this.bookinfoDetailDao.save(detail);
+			logger.info("[数据采集] 保存图书详情到数据库 bookId={}", bookId);
+		}
+		return detail;
+	}
+	
+	private BookinfoDetail buildBookinfoDetail(BookMetadata meta) {
+		BookinfoDetail detail = new BookinfoDetail();
+		detail.setCatalog(meta.getCatalog());
+		detail.setSummary(meta.getSummary());
+		detail.setImageUrl(meta.getImageUrl());
+		detail.setSource(meta.getSource());
+		detail.setOutId(Integer.valueOf(meta.getOutId()));
+		detail.setGmtCreate(ZisUtils.getTS());
+		detail.setGmtModify(ZisUtils.getTS());
+		detail.setVersion(0);
+		return detail;
+	}
+
+	/**
+	 * 查询图书详情
+	 * @param bookId
+	 * @return
+	 */
+	public BookinfoDetail findBookInfoDetailByBookId(Integer bookId) {
+		return this.bookinfoDetailDao.findByBookId(bookId);
+	}
+	
+	/**
+	 * 生成淘宝数据包，以邮件形式发送
+	 * @param bookList
+	 * @param emails
+	 */
+	public void generateTaobaoCsvDataFile(List<BookInfoAndDetailDTO> list, String[] emails) {
+		taobaoCsvDataGenerateBO.generate(list, emails);
+	}
 
 	public void setBookinfoDao(BookinfoDao bookinfoDao) {
 		this.bookinfoDao = bookinfoDao;
+	}
+	
+	public void setBookinfoDetailDao(BookinfoDetailDao bookinfoDetailDao) {
+		this.bookinfoDetailDao = bookinfoDetailDao;
 	}
 
 	public void setYouluSalesDao(YouluSalesDao youluSalesDao) {
 		this.youluSalesDao = youluSalesDao;
 	}
 
-	public void setYouLuNetDetailCapture(
-			YouLuNetDetailCapture youLuNetDetailCapture) {
-		this.youLuNetDetailCapture = youLuNetDetailCapture;
+	public void setBookMetadataCapture(
+			DefaultBookMetadataCaptureHandler bookMetadataCapture) {
+		this.bookMetadataCapture = bookMetadataCapture;
 	}
 
 	public void setTaskExecutor(ThreadPoolTaskExecutor taskExecutor) {
@@ -653,6 +750,11 @@ public class BookService {
 	public void setRepeatIsbnAnalysisBO(
 			RepeatIsbnAnalysisBO repeatIsbnAnalysisBO) {
 		this.repeatIsbnAnalysisBO = repeatIsbnAnalysisBO;
+	}
+	
+	public void setTaobaoCsvDataGenerateBO(
+			TaobaoCsvDataGenerateBO taobaoCsvDataGenerateBO) {
+		this.taobaoCsvDataGenerateBO = taobaoCsvDataGenerateBO;
 	}
 	
 	public void setBookAmountDao(BookAmountDao bookAmountDao) {
