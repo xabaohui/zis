@@ -3,6 +3,8 @@ package com.zis.purchase.action;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
 import com.zis.bookinfo.bean.Bookinfo;
@@ -22,6 +24,8 @@ public class TaobaoCsvDataExportActionTempRecordImpl extends TaobaoCsvDataExport
 	private static final long serialVersionUID = 1L;
 	private Integer taskId;
 	private DoPurchaseService doPurchaseService;
+	
+	private static final Logger logger = LoggerFactory.getLogger(TaobaoCsvDataExportActionTempRecordImpl.class);
 
 	@Override
 	protected List<BookInfoAndDetailDTO> queryBookInfoAndDetails() {
@@ -34,7 +38,12 @@ public class TaobaoCsvDataExportActionTempRecordImpl extends TaobaoCsvDataExport
 			BookinfoDetail detail = bookService.findBookInfoDetailByBookId(book.getId());
 			// 如果没有图书详情，则从网上采集
 			if(detail == null) {
-				detail = bookService.captureBookInfoDetailFromNet(book.getId());
+				try {
+					detail = bookService.captureBookInfoDetailFromNet(book.getId());
+				} catch (Exception e) {
+					// 单条错误不能影响全部记录
+					logger.error("[数据采集] 采集过程中发生错误，bookId=", book.getId(), e);
+				}
 			}
 			// 如果没有采集到图书详情，则跳过此条记录
 			if(detail == null) {

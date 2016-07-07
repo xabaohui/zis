@@ -37,7 +37,7 @@ public abstract class TaobaoCsvDataExportAction extends ActionSupport {
 		taskExecutor.execute(task);
 		
 		// 预估操作时间
-		int seconds = list.size() / 5;
+		int seconds = list.size() / 30;
 		if(seconds < 2) {
 			seconds = 2;
 		}

@@ -48,7 +48,7 @@
 		<property name="bookinfoDao" ref="bookinfoDao"/>
 	</bean>
 	<bean id="taobaoCsvDataGenerateBO" class="com.zis.bookinfo.bo.TaobaoCsvDataGenerateBO">
-		<property name="baseDir" value="D:/var/tmp/zis/taobaoCsv/"/>
+		<property name="baseDir" value="/var/tmp/zis/taobaoCsv/"/>
 	</bean>
 
 	<!-- service 配置 -->
