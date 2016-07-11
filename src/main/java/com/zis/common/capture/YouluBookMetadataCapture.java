@@ -201,21 +201,12 @@ public class YouluBookMetadataCapture extends AbstractBookMetadataCapture {
 	}
 
 	private String parseImageUrl(Document doc) {
-//		Elements elements = doc.getElementsByClass("info3");
-//		if (elements.isEmpty()) {
-//			throw new BookMetadataCaptureException(
-//					"[数据抓取-有路网]操作失败，解析图片URL时没有找到<div class=\"info3\">");
-//		}
-//		if (elements.size() > 1) {
-//			throw new BookMetadataCaptureException(
-//					"[数据抓取-有路网]操作失败，解析图片URL时找到多个<div class=\"info3\">");
-//		}
 		Element info3 = getUniqueElementByClass(doc, "info3");
 		if(info3 == null) {
 			return null;
 		}
 		Element node = info3.child(0).child(0).child(0);
-		String imageUrl = node.attr("src");
+		String imageUrl = node.attr("src").replace("jpg-n", "jpg").replace("jpg-s", "jpg");
 		// 有路网无此图片是通过重定向到noPhoto页面实现的（很古怪的逻辑）
 		String realImageUrl = super.getRedirectUrl(imageUrl);
 		return URL_NO_PHOTO.equals(realImageUrl) ? null : imageUrl;

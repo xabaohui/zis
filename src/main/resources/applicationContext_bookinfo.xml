@@ -99,6 +99,7 @@
 	<bean id="youluBookMetadataCapture" class="com.zis.common.capture.YouluBookMetadataCapture"/>
 	<bean id="dangdangBookMetadataCapture" class="com.zis.common.capture.DangDangBookMetadataCapture"/>
 	<bean id="defaultBookMetadataCapture" class="com.zis.common.capture.DefaultBookMetadataCaptureHandler">
+		<property name="baseDir" value="/var/tmp/zis/img/"/>
 		<property name="captureMap">
 			<map>
 				<entry key="dangdang" value-ref="dangdangBookMetadataCapture"/>

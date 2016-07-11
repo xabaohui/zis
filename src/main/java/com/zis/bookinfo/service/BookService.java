@@ -667,6 +667,7 @@ public class BookService {
 			// 兼容早期没有bookinfoDetail的记录，基本上都是有路网采集的
 			String source = (detail == null) ? BookMetadataSource.YOU_LU : detail.getSource();
 			meta = bookMetadataCapture.captureDetailPage(book.getOutId() + "", source);
+			// XXX 原站点采集，图片质量不一定是最优的
 		}
 		// 没有outId，则从网上采集
 		else {

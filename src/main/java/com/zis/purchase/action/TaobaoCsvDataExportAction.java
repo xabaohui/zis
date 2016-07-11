@@ -5,7 +5,6 @@ import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
 import com.zis.bookinfo.dto.BookInfoAndDetailDTO;
 import com.zis.bookinfo.service.BookService;
@@ -19,7 +18,7 @@ public abstract class TaobaoCsvDataExportAction extends ActionSupport {
 
 	private static final long serialVersionUID = 4950321328483465534L;
 
-	protected String[] emails = {"lvbin0502@126.com", "290479238@qq.com"};
+	protected String[] emails = {"lvbin0502@126.com", "tech_tiandi@163.com"};
 	
 	protected BookService bookService;
 	protected ThreadPoolTaskExecutor taskExecutor;
@@ -37,7 +36,7 @@ public abstract class TaobaoCsvDataExportAction extends ActionSupport {
 		taskExecutor.execute(task);
 		
 		// 预估操作时间
-		int seconds = list.size() / 30;
+		int seconds = list.size() / 60;
 		if(seconds < 2) {
 			seconds = 2;
 		}

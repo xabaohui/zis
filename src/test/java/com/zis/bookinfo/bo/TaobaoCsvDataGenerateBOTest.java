@@ -3,14 +3,22 @@ package com.zis.bookinfo.bo;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Resource;
+
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.zis.bookinfo.dto.BookInfoAndDetailDTO;
 import com.zis.common.util.ZisUtils;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"classpath:applicationContext.xml", "classpath:applicationContext_bookinfo.xml", "classpath:applicationContext_requirement.xml"})
 public class TaobaoCsvDataGenerateBOTest {
 	
-	TaobaoCsvDataGenerateBO gen = new TaobaoCsvDataGenerateBO();
+	@Resource
+	TaobaoCsvDataGenerateBO gen;
 
 	@Test
 	public void testGenerate() {

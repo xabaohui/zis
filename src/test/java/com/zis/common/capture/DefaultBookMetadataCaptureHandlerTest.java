@@ -29,7 +29,7 @@ public class DefaultBookMetadataCaptureHandlerTest {
 	
 	@Test
 	public void testCaptureListPage() {
-		BookMetadata meta = defaultBookMetadataCapture.captureListPage("9787300166636");
+		BookMetadata meta = defaultBookMetadataCapture.captureListPage("9787301140314");
 		System.out.println(meta);
 		Assert.assertNotNull(meta);
 	}

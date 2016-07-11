@@ -396,6 +396,7 @@ public class InwarehouseBO {
 		in.setStatus(InwarehouseStatus.CANCEL);
 		in.setGmtModify(ZisUtils.getTS());
 		in.setVersion(in.getVersion() + 1);
+		//FIXME 入库单置为无效，但是没有修改库存
 		this.inwarehouseDao.save(in);
 	}
 	

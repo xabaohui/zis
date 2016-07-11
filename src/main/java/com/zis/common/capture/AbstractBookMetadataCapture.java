@@ -202,4 +202,15 @@ public abstract class AbstractBookMetadataCapture implements
 		}
 		return elements.get(0);
 	}
+	
+	// 如果出版社结尾没有“出版社”三个字，则自动加上
+	protected String formatPublisher(String publisher) {
+		if (StringUtils.isBlank(publisher)) {
+			return publisher;
+		}
+		if (!publisher.endsWith("出版社")) {
+			return publisher + "出版社";
+		}
+		return publisher;
+	}
 }

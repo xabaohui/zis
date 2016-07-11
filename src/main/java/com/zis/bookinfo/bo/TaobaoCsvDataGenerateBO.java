@@ -75,7 +75,7 @@ public class TaobaoCsvDataGenerateBO {
 		basicCheck();
 		// 创建临时文件夹
 		try {
-			String batchId = ZisUtils.getDateString("yyyyMMddHHmmss");
+			String batchId = ZisUtils.getDateString("yyyy-MM-dd_HH:mm:ss");
 			String tmpDir = baseDir + batchId;
 			String picDir = tmpDir + "/data/";
 			FileUtils.forceMkdir(new File(tmpDir));
@@ -156,7 +156,28 @@ public class TaobaoCsvDataGenerateBO {
 			builder.append("出版日期：").append(ZisUtils.getDateString("yyyy年MM月", book.getPublishDate())).append("<br/>");
 			return builder.toString();
 		}
-		return String.format(DESCRIPTION_FMT, book.getSummary(), book.getCatalog());
+		String summary = formatContent(book.getSummary());
+		String catalog = formatContent(book.getCatalog());
+		return String.format(DESCRIPTION_FMT, summary, catalog);
+	}
+
+	/**
+	 * 格式化文本内容<p/>
+	 * 1. 替换回车\r、换行\n<br/>
+	 * 2. 替换制表符\t<br/>
+	 * 3. 替换双引号"
+	 * @param content
+	 * @return
+	 */
+	private String formatContent(String content) {
+		if(StringUtils.isBlank(content)) {
+			return ""; 
+		}
+		content = content.replaceAll("\\r", "<br/>");
+		content = content.replaceAll("\\n", "<br/>");
+		content = content.replaceAll("\\t", "&nbsp;");
+		content = content.replaceAll("\"", "&quot;");
+		return content;
 	}
 
 	private String genUniqueIsbn(Bookinfo book) {
@@ -174,11 +195,14 @@ public class TaobaoCsvDataGenerateBO {
 	private void downloadImage(List<BookInfoAndDetailDTO> bookList,
 			String picDir) {
 		for (BookInfoAndDetailDTO book : bookList) {
+			if(StringUtils.isBlank(book.getImageUrl())) {
+				continue;//跳过无图片的记录
+			}
 			String imageFileName = genImageName(book) + ".tbi";
 			try {
 				ImageUtils.downloadImg(book.getImageUrl(), picDir, imageFileName);
-				// 休眠2000毫秒，防止被对方系统拉黑
-				ZisUtils.sleepQuietly(2000);
+				// 休眠100毫秒，防止被对方系统拉黑
+				ZisUtils.sleepQuietly(100);
 				logger.debug("[生成文件-淘宝csv] 成功下载图片 {}，保存到 {}", book.getImageUrl(), picDir);
 			} catch (Exception e) {
 				logger.error("[生成文件-淘宝csv] 下载图片过程出错", e);

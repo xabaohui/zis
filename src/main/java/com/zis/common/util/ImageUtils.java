@@ -7,9 +7,20 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class ImageUtils {
 
 	public static void downloadImg(String urlString, String savePath, String filename) throws Exception {
+		if(StringUtils.isBlank(urlString)) {
+			throw new IllegalArgumentException("urlString不能为空");
+		}
+		if(StringUtils.isBlank(savePath)) {
+			throw new IllegalArgumentException("savePath不能为空");
+		}
+		if(StringUtils.isBlank(filename)) {
+			throw new IllegalArgumentException("filename不能为空");
+		}
 		// 构造URL
 		URL url = new URL(urlString);
 		// 打开连接
@@ -36,14 +47,5 @@ public class ImageUtils {
 		// 完毕，关闭所有链接
 		os.close();
 		is.close();
-	}
-	
-	public static void main(String[] args) {
-		try {
-			downloadImg("http://haitaoad.nosdn.127.net/ad.bid.material_21bf332c8ed64756a6b76a139a76ee2d?imageView&thumbnail=240x240&quality=85", "D:/", "aaa.jpg");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 }

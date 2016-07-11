@@ -24,11 +24,12 @@ import com.zis.purchase.biz.DoPurchaseService;
  * @author yz
  * 
  */
+@Deprecated
 public class StockPosCheckBOAction {
 
 	private static final String SESSION_KEY_RECORDS = "stockPosCheck.InputRecords";
 	private static final String SESSION_KEY_POS = "stockPosCheck.StockPos";
-	private static final Integer taskId = 39;//FIXME 
+	private static final Integer taskId = 39;
 
 	private DoPurchaseService doPurchaseService;
 	private BookService bookService;

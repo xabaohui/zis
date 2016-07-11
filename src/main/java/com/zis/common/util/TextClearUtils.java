@@ -244,7 +244,7 @@ public class TextClearUtils {
 		if(book == null) {
 			throw new IllegalArgumentException("构造淘宝标题失败，参数不能为空。");
 		}
-		String fmt = "二手%s %s %s %s";
+		String fmt = "二手%s%s %s %s";
 		String bookEdition = getBookEdition(book);
 		String bookAuthor = getShortestBookAuthor(book.getBookAuthor());
 		String title = String.format(fmt, book.getBookName(),
@@ -263,9 +263,8 @@ public class TextClearUtils {
 		}
 	}
 
-	// 截取最短的作者名，最多保留两位作者，如果单一作者名称超过10个字符，则不展示
+	// 截取最短的作者名，最多保留两位作者，如果单一作者名称超过8个字符，则不展示
 	private static String getShortestBookAuthor(String bookAuthor) {
-		// FIXME break没有停止整个循环
 		final String splitChar = " ";
 		final int maxLen = 8;
 		// 多个作者用空格分隔
@@ -274,7 +273,7 @@ public class TextClearUtils {
 		StringBuilder tmpStr = new StringBuilder(authors[0]);
 		for (int i = 1; i < authors.length; i++) {
 			if (tmpStr.length() + authors[i].length() > maxLen) break;
-			tmpStr.append(splitChar).append(authors[i++]);
+			tmpStr.append(splitChar).append(authors[i]);
 		}
 		return tmpStr.length() > maxLen ? "" : tmpStr.toString();
 	}
