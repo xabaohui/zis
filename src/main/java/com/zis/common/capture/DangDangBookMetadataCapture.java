@@ -81,6 +81,10 @@ public class DangDangBookMetadataCapture extends AbstractBookMetadataCapture {
 
 	@Override
 	protected BookMetadata parseMetadata(Document doc) {
+		// 跳过电子书
+		if(doc.title().contains("当当电子书")) {
+			return null;
+		}
 		// 是否是当当直营（直营和入驻店铺详情页不同）
 		boolean isDirect = false;
 		if(doc.html().contains("自营图书 详情页")) {

@@ -23,6 +23,8 @@
         <convert match="com.zis.requirement.dto.AddBookToDepartmentResult" converter="bean" />
         <convert match="com.zis.bookinfo.bean.Bookinfo" converter="bean"/>
         <convert match="com.zis.purchase.dto.InwarehouseDealtResult" converter="bean" />
-        <convert match="com.zis.toolkit.action.StockPosCheckResult" converter="bean" />
+        <convert match="com.zis.bookinfo.dto.BookInfoSearchResult" converter="bean" />
+        <convert match="com.zis.bookinfo.dto.BookInfoAndDetailDTO" converter="bean" />
+        <convert match="com.zis.bookinfo.util.BookMetadata" converter="bean" />
     </allow>
 </dwr>

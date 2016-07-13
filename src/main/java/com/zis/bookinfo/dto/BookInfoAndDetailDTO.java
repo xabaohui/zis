@@ -15,6 +15,7 @@ public class BookInfoAndDetailDTO extends Bookinfo {
 	private Integer taobaoCatagoryId;
 	private String summary;
 	private String catalog;
+	private String source;
 
 	public String getImageUrl() {
 		return imageUrl;
@@ -54,5 +55,13 @@ public class BookInfoAndDetailDTO extends Bookinfo {
 
 	public void setCatalog(String catalog) {
 		this.catalog = catalog;
+	}
+
+	public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
 	}
 }

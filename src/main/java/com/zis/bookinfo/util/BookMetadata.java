@@ -1,5 +1,6 @@
 package com.zis.bookinfo.util;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -12,6 +13,7 @@ public class BookMetadata {
 	private String name;
 	private String publisher;
 	private Date publishDate;
+	private String publishDateStr;
 	private String edition;
 	private String author;
 	private Double price; // 定价
@@ -47,6 +49,7 @@ public class BookMetadata {
 
 	public void setPublishDate(Date publishDate) {
 		this.publishDate = publishDate;
+		this.publishDateStr = new SimpleDateFormat("yyyy-MM-dd").format(publishDate);
 	}
 
 	public String getEdition() {
@@ -146,10 +149,18 @@ public class BookMetadata {
 		this.imageUrl = imageUrl;
 	}
 
+	public String getPublishDateStr() {
+		return publishDateStr;
+	}
+
+	public void setPublishDateStr(String publishDateStr) {
+		this.publishDateStr = publishDateStr;
+	}
+
 	@Override
 	public String toString() {
 		return "BookMetadata [name=" + name + ", publisher=" + publisher
-				+ ", publishDate=" + publishDate + ", edition=" + edition
+				+ ", publishDate=" + publishDateStr + ", edition=" + edition
 				+ ", author=" + author + ", price=" + price + ", isbnCode="
 				+ isbnCode + ", imageUrl=" + imageUrl + ", stock=" + stock
 				+ ", salesPrice=" + salesPrice + ", sales=" + sales

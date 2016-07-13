@@ -118,6 +118,7 @@ public class BookSaveOrUpdateAction extends ActionSupport {
 					return "showRelated";
 				}
 			}
+			this.addActionMessage(bookName + "已保存");
 			return SUCCESS;
 		} catch (Exception e) {
 			this.addActionError("操作失败:" + e.getMessage());

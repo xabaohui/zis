@@ -1,36 +1,65 @@
-// 检查系统中是否存在相同记录
+// 检查系统中是否存在相同记录，如果没有，则从网络采集数据，辅助录入信息
 function checkExistBook() {
 	var isbn = document.getElementById('isbn').value;
 	isbn = trim(isbn);
 	if(isbn == '') {
 		return;
 	}
-	bookService.findBookByISBN(isbn, showCheckExistBookResult);
+	$("showExistBook").style="display:none";
+	// 增加遮罩，提示用户系统处理中
+	document.getElementById("float-to-be-show").style.display = "block";
+	bookService.findAndCaptureBookByISBN(isbn, showCheckExistBookResult);
 }
 
 function showCheckExistBookResult(data) {
-	if (data != null && data.length > 0) {
-		var json = {
-			"options" : data
-		};
-		json = eval(json.options);
-		var str = "系统中的记录有：<p/><ul>";
-		for ( var j = 0; j < json.length; j++) {
-			var isbn = json[j].isbn;
-			var bookName = json[j].bookName;
-			var bookId = json[j].id;
-			var bookPublisher = json[j].bookPublisher;
-			var bookAuthor = json[j].bookAuthor;
-			var bookEdition = json[j].bookEdition;
-			var line = '<li>' + isbn + " / " + bookName + " (" + bookEdition + ") / "
-					+ bookAuthor + " / " + bookPublisher
-					+ "</li>";
-			str += line;
+	// 去除遮罩
+	document.getElementById("float-to-be-show").style.display = "none";
+	// 处理结果
+	if(data != null) {
+		if(data.sysData) {
+			showExistSysData(data);
+		} else {
+			showCapturedData(data.bookCaptured);
 		}
-		alert('系统里已存在相同条码的记录');
-		$("showExistBook").innerHTML = str + "</ul>";
-		$("showExistBook").style="color:red";
 	}
+}
+
+// 展示系统中已存在的记录
+function showExistSysData(data) {
+	var json = {
+		"options" : data.booksExist
+	};
+	json = eval(json.options);
+	var str = "系统中的记录有：<p/><ul>";
+	for ( var j = 0; j < json.length; j++) {
+		var isbn = json[j].isbn;
+		var bookName = json[j].bookName;
+		var bookId = json[j].id;
+		var bookPublisher = json[j].bookPublisher;
+		var bookAuthor = json[j].bookAuthor;
+		var bookEdition = json[j].bookEdition;
+		var line = '<li>' + isbn + " / " + bookName + " (" + bookEdition + ") / "
+				+ bookAuthor + " / " + bookPublisher
+				+ "</li>";
+		str += line;
+	}
+	alert('系统里已存在相同条码的记录');
+	$("showExistBook").innerHTML = str + "</ul>";
+	$("showExistBook").style="color:red";
+}
+
+// 展示网络采集到的数据
+function showCapturedData(bookCaptured) {
+	if(bookCaptured == null) {
+		// 未采集到任何记录，不做任何操作
+		return;
+	}
+	$("bookName").value = bookCaptured.name;
+	$("bookAuthor").value = bookCaptured.author;
+	$("bookPublisher").value = bookCaptured.publisher;
+	$("publishDate").value = bookCaptured.publishDateStr;
+	$("bookPrice").value = bookCaptured.price;
+	$("bookEdition").value = bookCaptured.edition;
 }
 
 // 迁移图书使用量

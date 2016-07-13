@@ -10,6 +10,7 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.alibaba.fastjson.JSON;
@@ -27,6 +28,7 @@ import com.zis.bookinfo.dao.BookinfoDetailDao;
 import com.zis.bookinfo.dao.ShopItemInfoDao;
 import com.zis.bookinfo.dao.YouluSalesDao;
 import com.zis.bookinfo.dto.BookInfoAndDetailDTO;
+import com.zis.bookinfo.dto.BookInfoSearchResult;
 import com.zis.bookinfo.dto.ShopItemInfoDTO;
 import com.zis.bookinfo.util.BookMetadata;
 import com.zis.bookinfo.util.BookMetadataSource;
@@ -554,6 +556,33 @@ public class BookService {
 		dc.add(Restrictions.eq("isbn", isbn));
 		dc.add(Restrictions.ne("bookStatus", ConstantString.ABANDON));// FIXME 中文会产生乱码
 		return bookinfoDao.findByCriteria(dc);
+	}
+	
+	/**
+	 * 查找系统中的图书信息，如果系统中没有记录，则从网上采集
+	 * @param isbn
+	 * @return
+	 */
+	public BookInfoSearchResult findAndCaptureBookByISBN(String isbn) {
+		List<Bookinfo> list = this.findBookByISBN(isbn);
+		// 系统中已经存在相关记录，直接保存
+		if(list != null && !list.isEmpty()) {
+			BookInfoSearchResult result = new BookInfoSearchResult();
+			result.setSysData(true);
+			for (Bookinfo book : list) {
+				BookinfoDetail detail = this.findBookInfoDetailByBookId(book.getId());
+				result.addBookExist(book, detail);
+			}
+			return result;
+		}
+		// 系统中没有记录，从网络采集
+		else {
+			BookInfoSearchResult result = new BookInfoSearchResult();
+			result.setSysData(false);
+			BookMetadata meta = bookMetadataCapture.captureListPage(isbn);
+			result.setBookCaptured(meta);
+			return result;
+		}
 	}
 
 	public List<Bookinfo> getWaitCheckList() {

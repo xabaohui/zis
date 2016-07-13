@@ -22,7 +22,7 @@
 		<!--增加修改图书  -->
 		<action name="saveOrUpdateBook" class="bookSaveOrUpdateAction" method="saveOrUpdate">
 			<result name="input">/error.jsp</result>
-			<result name="success">/success.jsp</result>
+			<result name="success">addBook.jsp</result>
 			<result name="error">/error.jsp</result>
 			<result name="showRelated" type="chain">getAllBooks</result>
 		</action>
