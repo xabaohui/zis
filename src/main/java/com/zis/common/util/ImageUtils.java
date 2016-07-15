@@ -39,7 +39,7 @@ public class ImageUtils {
 		if (!sf.exists()) {
 			sf.mkdirs();
 		}
-		OutputStream os = new FileOutputStream(sf.getPath() + "\\" + filename);
+		OutputStream os = new FileOutputStream(sf.getPath() + "/" + filename);
 		// 开始读取
 		while ((len = is.read(bs)) != -1) {
 			os.write(bs, 0, len);

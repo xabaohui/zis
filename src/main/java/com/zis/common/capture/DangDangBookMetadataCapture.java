@@ -195,8 +195,10 @@ public class DangDangBookMetadataCapture extends AbstractBookMetadataCapture {
 		if(isDirect) {
 			// <div id="content" class="section">
 			Element summaryElement = doc.getElementById("content");
-			summary = summaryElement.child(1).text();
-			logger.debug("[数据抓取-当当网] 摘要={}", summary);
+			if(summaryElement != null) {
+				summary = summaryElement.child(1).text();
+				logger.debug("[数据抓取-当当网] 摘要={}", summary);
+			}
 		}
 		
 		// 目录
@@ -204,8 +206,10 @@ public class DangDangBookMetadataCapture extends AbstractBookMetadataCapture {
 		if(isDirect) {
 			// <div id="catalog" class="section">
 			Element catalogElement = doc.getElementById("catalog");
-			catalog = catalogElement.child(1).child(2).text();
-			logger.debug("[数据抓取-当当网] 目录={}", catalog);
+			if(catalogElement != null) {
+				catalog = catalogElement.child(1).child(2).text();
+				logger.debug("[数据抓取-当当网] 目录={}", catalog);
+			}
 		}
 		
 		BookMetadata meta = new BookMetadata();
