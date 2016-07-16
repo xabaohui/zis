@@ -268,7 +268,8 @@ public class InwarehouseBO {
 				.forClass(InwarehousePosition.class);
 		criteria.add(Restrictions.eq("inwarehouseId", inwarehouseId));
 		criteria.add(Restrictions.eq("isFull", false));
-		criteria.addOrder(Order.asc("gmtCreate"));
+		//按照ID排序，由于是同一时间创建的，如果按照时间排序会导致库位顺序错乱的bug
+		criteria.addOrder(Order.asc("id"));
 		List<InwarehousePosition> posList = this.inwarehousePositionDao
 				.findByCriteria(criteria);
 		if (posList == null || posList.isEmpty()) {
