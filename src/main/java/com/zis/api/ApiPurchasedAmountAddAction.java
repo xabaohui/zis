@@ -114,6 +114,7 @@ public class ApiPurchasedAmountAddAction extends BaseApiAction {
 			return "操作员不能为空";
 		}
 		// 操作员名称中带回车不允许提交
+		operator = operator.trim();
 		if(operator.contains("\n")) {
 			return "操作员名称中不能含有回车等特殊符号";
 		}
