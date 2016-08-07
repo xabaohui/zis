@@ -14,6 +14,7 @@ public class BookinfoDetail implements java.io.Serializable {
 	private String imageUrl;
 	private String taobaoTitle;
 	private Integer taobaoCatagoryId;
+	private Boolean taobaoForbidden; // 禁止在淘宝网发布
 	private String summary;
 	private String catalog;
 	private Integer outId;
@@ -84,6 +85,14 @@ public class BookinfoDetail implements java.io.Serializable {
 
 	public void setTaobaoCatagoryId(Integer taobaoCatagoryId) {
 		this.taobaoCatagoryId = taobaoCatagoryId;
+	}
+
+	public Boolean getTaobaoForbidden() {
+		return taobaoForbidden;
+	}
+
+	public void setTaobaoForbidden(Boolean taobaoForbidden) {
+		this.taobaoForbidden = taobaoForbidden;
 	}
 
 	public String getSummary() {

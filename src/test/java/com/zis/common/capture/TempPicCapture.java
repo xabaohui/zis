@@ -41,7 +41,8 @@ public class TempPicCapture {
 				return;
 			}
 			String imgUrl = meta.getImageUrl();
-			ImageUtils.downloadImg(imgUrl, savePath, isbn + ".tbi");
+//			ImageUtils.downloadImg(imgUrl, savePath, isbn + ".tbi");
+			ImageUtils.downloadImg(imgUrl, savePath, isbn);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -70,6 +71,12 @@ public class TempPicCapture {
 					asynchCapture(isbn);
 				}
 			} while(isbn != null);
+			try {
+				Thread.sleep(50000);// 等待足够长时间，以便其他线程完成图片下载
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -15,8 +15,6 @@
 	enctype="multipart/form-data">
 	<s:file name="excelFile" label="导入Excel文件" labelposition="left"
 		required="true" />
-	<s:radio name="bizType" label="业务类型" required="true"
-		list="%{#{'bookinfo':'图书基本信息', 'stock_import':'库存导入', 'purchase':'采购入库'}}"/>
 	<s:textfield name="memo" label="备注" />
 	<s:submit value="导入" onclick="showShadow();" />
 </s:form>
@@ -24,7 +22,7 @@
 <table border="1px">
 	<tr>
 		<td>条形码</td>
-		<td>数量</td>
+		<td>库存量/店铺状态/标题/类目ID/禁止发布（5选1）</td>
 		<td>附加信息(可选)</td>
 	</tr>
 	<tr>
@@ -33,6 +31,13 @@
 		<td>&nbsp;</td>
 	</tr>
 </table>
+<p/>
+<h3>说明：</h3>
+<ul>
+<li>库存量：直接填写数字；</li>
+<li>店铺状态：请填写“on_sales”或“sold_out”；</li>
+<li>禁止发布：请填写“是”或“否”；</li>
+</ul>
 <script type="text/javascript">
 	document.getElementsByName('bizType')[0].checked = true;
 </script>

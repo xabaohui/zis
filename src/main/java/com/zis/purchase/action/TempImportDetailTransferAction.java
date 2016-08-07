@@ -11,6 +11,8 @@ import com.zis.bookinfo.bean.ShopItemInfoStatus;
 import com.zis.bookinfo.dto.ShopItemInfoDTO;
 import com.zis.bookinfo.service.BookService;
 import com.zis.purchase.bean.TempImportDetailStatus;
+import com.zis.purchase.bean.TempImportTask;
+import com.zis.purchase.bean.TempImportTaskBizTypeEnum;
 import com.zis.purchase.biz.DoPurchaseService;
 import com.zis.purchase.dto.StockDTO;
 import com.zis.purchase.dto.TempImportDetailView;
@@ -25,12 +27,7 @@ public class TempImportDetailTransferAction extends ActionSupport {
 
 	private static final long serialVersionUID = 2684805789435711703L;
 	private Integer taskId;
-	private String operateType;
 	
-	/** 更新商品快照 */
-	public static final String OPERATE_TYPE_SHOP_ITEM = "shopItem";
-	/** 更新商品库存 */
-	public static final String OPERATE_TYPE_BOOK_STOCK = "bookStock";
 	private Logger logger = Logger.getLogger(TempImportDetailTransferAction.class);
 
 	private BookService bookService;
@@ -41,11 +38,31 @@ public class TempImportDetailTransferAction extends ActionSupport {
 	 * @return
 	 */
 	public String transfer() {
+		TempImportTask task = doPurchaseService.findTempImportTaskByTaskId(taskId);
+		if(task == null) {
+			logger.error("临时导入记录转换成其他类型时发成错误，无此记录，taskId=" + taskId);
+			this.addActionError("系统错误，无此记录，taskId=" + taskId);
+			return INPUT;
+		}
 		try {
-			if(OPERATE_TYPE_SHOP_ITEM.equals(operateType)) {
-				transferToShopItem();
-			} else if(OPERATE_TYPE_BOOK_STOCK.equals(operateType)) {
-				transferToBookStock();
+			switch(TempImportTaskBizTypeEnum.parseEnum(task.getBizType())) {
+				case STOCK:
+					transferToBookStock();
+					break;
+				case SHOP_STATUS:
+					transferToShopItem();
+					break;
+				case SHOP_TITLE:
+					updateShopItemInfo(true, false, false);
+					break;
+				case SHOP_CATEGORY_ID:
+					updateShopItemInfo(false, true, false);
+					break;
+				case TAOBAO_FORBIDDEN:
+					updateShopItemInfo(false, false, true);
+					break;
+				default:
+					throw new RuntimeException("不支持的业务类型：" + task.getBizType());
 			}
 			return SUCCESS;
 		} catch (Exception e) {
@@ -55,13 +72,16 @@ public class TempImportDetailTransferAction extends ActionSupport {
 		}
 	}
 
+	/**
+	 * 更新库存
+	 */
 	private void transferToBookStock() {
 		List<TempImportDetailView> list = this.doPurchaseService.findTempImportDetail(taskId, TempImportDetailStatus.MATCHED);
 		List<StockDTO> stockList = new ArrayList<StockDTO>();
 		for (TempImportDetailView view : list) {
 			StockDTO stock = new StockDTO();
 			stock.setBookId(view.getBookId());
-			stock.setStockBalance(view.getAmount());
+			stock.setStockBalance(Integer.valueOf(view.getData()));
 			stockList.add(stock);
 		}
 		this.doPurchaseService.addBookStock(stockList);
@@ -85,21 +105,37 @@ public class TempImportDetailTransferAction extends ActionSupport {
 		}
 		this.bookService.saveShopItemForBatch(itemList);
 	}
-
+	
+	/**
+	 * 更新网店标题\类目ID，或设置禁止发布
+	 * @param updateTitle 是否更新标题
+	 */
+	private void updateShopItemInfo(boolean updateTitle, boolean updateCategoryId, boolean updateForbidden) {
+		List<TempImportDetailView> list = this.doPurchaseService.findTempImportDetail(taskId, TempImportDetailStatus.MATCHED);
+		List<ShopItemInfoDTO> detailList = new ArrayList<ShopItemInfoDTO>();
+		for (TempImportDetailView view : list) {
+			ShopItemInfoDTO detail = new ShopItemInfoDTO();
+			detail.setBookId(view.getBookId());
+			if(updateTitle) {
+				detail.setTaobaoTitle(view.getData());
+			}
+			if(updateCategoryId){
+				detail.setTaobaoCatagoryId(Integer.valueOf(view.getData()));
+			}
+			if(updateForbidden) {
+				detail.setTaobaoForbidden("是".equals(view.getData()));
+			}
+			detailList.add(detail);
+		}
+		this.bookService.updateTitleAndCategoryForBatch(detailList);
+	}
+	
 	public Integer getTaskId() {
 		return taskId;
 	}
 
 	public void setTaskId(Integer taskId) {
 		this.taskId = taskId;
-	}
-
-	public String getOperateType() {
-		return operateType;
-	}
-
-	public void setOperateType(String operateType) {
-		this.operateType = operateType;
 	}
 
 	public void setBookService(BookService bookService) {

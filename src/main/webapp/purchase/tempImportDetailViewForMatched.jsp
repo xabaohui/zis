@@ -10,8 +10,7 @@
 	|&nbsp;<a href="purchase/exportBookInfoByTempImport?taskId=<s:property value="#task.id"/>" target="_blank">导出基本信息</a>&nbsp;
 	|&nbsp;<a href="purchase/exportTaobaoItemDataByTempImport?taskId=<s:property value="#task.id"/>" target="_blank">导出淘宝数据包</a>&nbsp;
 	|&nbsp;<a href="purchase/exportWangqubaoItemDataByTempImport?taskId=<s:property value="#task.id"/>" target="_blank">导出网渠宝商品资料</a>&nbsp;
-	|&nbsp;<a href="purchase/transferTempImportDetailForMatched?operateType=<%=TempImportDetailTransferAction.OPERATE_TYPE_BOOK_STOCK %>&taskId=<s:property value="#task.id"/>">转为更新库存</a>&nbsp;
-	|&nbsp;<a href="purchase/transferTempImportDetailForMatched?operateType=<%=TempImportDetailTransferAction.OPERATE_TYPE_SHOP_ITEM %>&taskId=<s:property value="#task.id"/>">更新网店快照</a>&nbsp;</h3>
+	|&nbsp;<a href="purchase/transferTempImportDetailForMatched?taskId=<s:property value="#task.id"/>"><s:property value="#task.bizTypeDisplay"/></a>&nbsp;</h3>
 	<div align="left">
 	&nbsp;&nbsp;
 	业务类型：<s:property value="#task.bizTypeDisplay"/>&nbsp;&nbsp;
@@ -28,7 +27,7 @@
 			<th>版次</th>
 			<th>作者</th>
 			<th>出版社</th>
-			<th>数量</th>
+			<th>数据项</th>
 			<th>附加信息</th>
 		</tr>
 		<s:iterator value="resultList" var="detail" status="index">
@@ -39,7 +38,7 @@
 				<td><s:property value="associateBook.bookEdition" /></td>
 				<td><s:property value="associateBook.bookAuthor" /></td>
 				<td><s:property value="associateBook.bookPublisher" /></td>
-				<td><s:property value="amount" /></td>
+				<td><s:property value="data" /></td>
 				<td><s:property value="additionalInfo" /></td>
 			</tr>
 		</s:iterator>

@@ -11,11 +11,14 @@ import org.apache.struts2.interceptor.RequestAware;
 import org.apache.struts2.interceptor.SessionAware;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.beans.BeanUtils;
 
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.bean.BookinfoAid;
+import com.zis.bookinfo.bean.BookinfoDetail;
+import com.zis.bookinfo.dto.BookInfoAndDetailDTO;
 import com.zis.bookinfo.service.BookService;
 import com.zis.bookinfo.util.ConstantString;
 import com.zis.common.util.Page;
@@ -204,12 +207,19 @@ public class BookAction extends ActionSupport implements SessionAware,
 	 */
 	public String findBookById() {
 		int id = Integer.parseInt(bookId);//
-		ActionContext ctx = ActionContext.getContext();
 		Bookinfo book = bookService.findBookById(id);
 		if (book == null) {
+			this.addActionError("无此图书, bookId=" + bookId);
 			return ERROR;
 		}
-		ctx.put("book", book);
+		BookinfoDetail detail = bookService.findBookInfoDetailByBookId(id);
+		BookInfoAndDetailDTO infoAndDetail = new BookInfoAndDetailDTO();
+		BeanUtils.copyProperties(book, infoAndDetail);
+		if(detail != null) {
+			BeanUtils.copyProperties(detail, infoAndDetail);
+		}
+		ActionContext ctx = ActionContext.getContext();
+		ctx.put("book", infoAndDetail);
 		ctx.put("bookId", book.getId());
 		ctx.put("isNewEdition", book.getIsNewEdition());
 		ctx.put("repeatIsbn", book.getRepeatIsbn());

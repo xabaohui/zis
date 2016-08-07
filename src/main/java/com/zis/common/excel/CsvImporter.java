@@ -77,4 +77,10 @@ public class CsvImporter<T> extends FileImporter<T>{
 		return null;
 	}
 
+	@Override
+	public List<String> loadFactHeader() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

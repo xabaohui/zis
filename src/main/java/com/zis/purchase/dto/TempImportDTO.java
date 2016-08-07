@@ -9,7 +9,7 @@ package com.zis.purchase.dto;
 public class TempImportDTO {
 
 	private String isbn;
-	private Integer amount;
+	private String data;
 	private String additionalInfo;
 
 	public String getIsbn() {
@@ -19,13 +19,13 @@ public class TempImportDTO {
 	public void setIsbn(String isbn) {
 		this.isbn = isbn;
 	}
-
-	public Integer getAmount() {
-		return amount;
+	
+	public String getData() {
+		return data;
 	}
 
-	public void setAmount(Integer amount) {
-		this.amount = amount;
+	public void setData(String data) {
+		this.data = data;
 	}
 
 	public String getAdditionalInfo() {

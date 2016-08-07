@@ -24,7 +24,7 @@ public abstract class FileImporter<T> {
 
 	protected static final String basePath = "com/zis/common/excel/";
 	protected Integer headerRowNums = 1;// ��ͷ��������
-	protected String templateName;
+	protected String templateName = null;
 	protected InputStream inputStream;
 
 	/**
@@ -69,6 +69,10 @@ public abstract class FileImporter<T> {
 	 * @return ���ؿձ�ʾ��֤ͨ����򷵻ش���ԭ��
 	 */
 	public String validate() throws IOException {
+		// 如果未指定模板，则不进行检查
+		if(templateName == null) {
+			return null;
+		}
 		// 加载预设模板
 		ResourceLoader loader = new DefaultResourceLoader();
 		Resource r = loader.getResource(basePath + templateName);
@@ -77,10 +81,13 @@ public abstract class FileImporter<T> {
 		}
 		List<String> headerTpl = loadFileFormat(r.getInputStream());
 
-		// �����û�������
+		// 加载导入的文件表头
+		List<String> factList = loadFactHeader();
+		
+		// 检验文件格式
 		for (int i = 0; i < headerTpl.size(); i++) {
 			String expect = headerTpl.get(i);
-			String fact = getString(headerRowNums - 1, i);
+			String fact = factList.get(i);
 			if (!expect.equals(fact)) {
 				String fmt = "文件不合法，第%1$s列应该为%2$s，而导入文件是%3$s。";
 				return String.format(fmt, (i + 1), expect, fact);
@@ -88,6 +95,8 @@ public abstract class FileImporter<T> {
 		}
 		return null;
 	}
+
+	public abstract List<String> loadFactHeader();
 
 	protected abstract List<String> loadFileFormat(InputStream input)
 			throws IOException;

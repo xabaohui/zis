@@ -240,11 +240,25 @@ public class BookService {
 	
 	/**
 	 * 修改图书
+	 * @param book
 	 */
 	public void updateBook(Bookinfo book) {
+		this.updateBook(book, null);
+	}
+	
+	/**
+	 * 修改图书
+	 */
+	public void updateBook(Bookinfo book, BookinfoDetail detail) {
 		book.setGmtModify(ZisUtils.getTS());
 		book.setVersion(book.getVersion() + 1);
 		bookinfoDao.update(book);
+		if(detail != null) {
+			detail.setBookid(book.getId());
+			detail.setGmtModify(ZisUtils.getTS());
+			detail.setVersion(detail.getVersion() + 1);
+			bookinfoDetailDao.update(detail);
+		}
 	}
 
 	/**
@@ -433,12 +447,12 @@ public class BookService {
 			if (ConstantString.PAGEGROUP.equals(operateType)) {
 				bookinfo.setGroupId(null);
 				bookinfo.setIsNewEdition(true);
-				this.updateBook(bookinfo);
+				this.updateBook(bookinfo, null);
 			}
 			// 相关性分组
 			else if (ConstantString.PAGEGRELATE.equals(operateType)) {
 				bookinfo.setRelateId(null);
-				this.updateBook(bookinfo);
+				this.updateBook(bookinfo, null);
 			}
 		}
 	}
@@ -474,7 +488,7 @@ public class BookService {
 		book.setPublishDate(bi.getPublishDate());
 		// 构造图书附加信息
 		BookinfoDetail detail = buildBookinfoDetail(bi);
-		//XXX保存阶段直接生成标题或许不太好，请考虑采用其他策略
+		//XXX 保存阶段直接生成标题或许不太好，请考虑采用其他策略
 		// detail.setTaobaoTitle(TextClearUtils.buildTaobaoTitle(book));
 		// 保存到数据库
 		addBook(book, detail);
@@ -647,6 +661,41 @@ public class BookService {
 			saveShopItem(shopItemInfoDTO);
 		}
 	}
+	
+	/**
+	 * 批量更新图书标题或者类目ID
+	 * @param list
+	 */
+	public void updateTitleAndCategoryForBatch(List<ShopItemInfoDTO> list) {
+		if(list == null || list.isEmpty()) {
+			return;
+		}
+		for (ShopItemInfoDTO info : list) {
+			BookinfoDetail detail = this.bookinfoDetailDao.findByBookId(info.getBookId());
+			// 没有detail记录，立刻生成一条
+			if (detail == null) {
+				this.captureBookInfoDetailFromNet(info.getBookId());
+			}
+			if (detail == null) {
+				continue;
+			}
+			// 更新标题或者类目ID
+			if(StringUtils.isNotBlank(info.getTaobaoTitle())) {
+				detail.setTaobaoTitle(info.getTaobaoTitle());
+			}
+			// 更新淘宝黑名单标记
+			if(info.getTaobaoForbidden() != null) {
+				detail.setTaobaoForbidden(info.getTaobaoForbidden());
+			}
+			if(info.getTaobaoCatagoryId() != null) {
+				detail.setTaobaoCatagoryId(info.getTaobaoCatagoryId());
+			}
+			detail.setGmtModify(ZisUtils.getTS());
+			detail.setVersion(detail.getVersion() + 1);
+			this.bookinfoDetailDao.update(detail);
+		}
+	}
+	
 	
 	/**
 	 * 查询网店商品-按照bookId和网店名称

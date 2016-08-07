@@ -30,7 +30,7 @@
 		<action name="getAllBooks" class="bookAction" method="getAllBooks">
 		      <result name="success">main.jsp</result>	
 		</action>
-		<!-- 单查图书 -->
+		<!-- 修改图书 -->
 		<action name="findBookById" class="bookAction" method="findBookById">
 		      <result name="success">alterBook.jsp</result>	
 		</action>

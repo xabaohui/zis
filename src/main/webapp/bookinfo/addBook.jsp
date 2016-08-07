@@ -50,7 +50,29 @@
 			<td><input type="text" name="bookEdition" id="bookEdition"/>
 			</td>
 		</tr>
-
+		<tr>
+		<td colspan="2"><b>以下内容选填</b></td>
+		</tr>
+		<tr>
+			<td>图片网址</td>
+			<td><input type="text" name="imageUrl" value="${book.imageUrl }" /></td>
+		</tr>
+		<tr>
+			<td>网店标题</td>
+			<td><input type="text" name="taobaoTitle" value="${book.taobaoTitle }" /></td>
+		</tr>
+		<tr>
+			<td>淘宝类目ID</td>
+			<td><input type="text" name="taobaoCatagoryId" value="${book.taobaoCatagoryId }" /></td>
+		</tr>
+		<tr>
+			<td>内容摘要</td>
+			<td><textarea name="summary" cols="25" rows="5">${book.summary }</textarea></td>
+		</tr>
+		<tr>
+			<td>目录</td>
+			<td><textarea name="catalog" cols="25" rows="5">${book.catalog }</textarea></td>
+		</tr>
 	</table>
 	<br>
 	<br>

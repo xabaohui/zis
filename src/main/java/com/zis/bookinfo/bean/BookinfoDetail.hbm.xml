@@ -25,6 +25,11 @@
                 <comment>淘宝类目ID</comment>
             </column>
         </property>
+        <property name="taobaoForbidden" type="java.lang.Boolean">
+            <column name="taobao_forbidden">
+                <comment>禁止在淘宝网发布</comment>
+            </column>
+        </property>
         <property name="summary" type="java.lang.String">
             <column name="summary" length="8192">
                 <comment>内容摘要</comment>

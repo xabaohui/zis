@@ -19,6 +19,7 @@ import com.zis.purchase.bean.InwarehouseStatus;
 import com.zis.purchase.bean.PurchasePlan;
 import com.zis.purchase.bean.TempImportDetail;
 import com.zis.purchase.bean.TempImportTask;
+import com.zis.purchase.bean.TempImportTaskBizTypeEnum;
 import com.zis.purchase.dao.InwarehouseDao;
 import com.zis.purchase.dao.InwarehouseDetailDao;
 import com.zis.purchase.dao.InwarehousePositionDao;
@@ -231,11 +232,20 @@ public class DoPurchaseService {
 	}
 	
 	/**
+	 * 查询采购计划
+	 * @param bookId
+	 * @return
+	 */
+	public PurchasePlan findPurchasePlanByBookId(int bookId) {
+		return purchaseBO.findPurchasePlanByBookId(bookId);
+	}
+	
+	/**
 	 * 添加库存或者采购记录到临时表
 	 */
 	public void addTempImportTask(List<TempImportDTO> list,
-			String tempImportTaskBizType, String memo) {
-		tempImportBO.addTempImportTask(list, tempImportTaskBizType, memo);
+			TempImportTaskBizTypeEnum bizType, String memo) {
+		tempImportBO.addTempImportTask(list, bizType, memo);
 	}
 
 	/**

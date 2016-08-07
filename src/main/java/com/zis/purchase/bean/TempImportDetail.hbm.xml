@@ -16,8 +16,8 @@
         <property name="origIsbn" type="java.lang.String">
             <column name="orig_isbn" length="32" not-null="true" />
         </property>
-        <property name="amount" type="java.lang.Integer">
-            <column name="amount" not-null="true" />
+        <property name="data" type="java.lang.String">
+            <column name="data" not-null="true" />
         </property>
         <property name="bookId" type="java.lang.Integer">
             <column name="book_id" />

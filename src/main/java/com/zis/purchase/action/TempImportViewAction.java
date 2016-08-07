@@ -8,7 +8,7 @@ import org.springframework.beans.BeanUtils;
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
 import com.zis.purchase.bean.TempImportTask;
-import com.zis.purchase.bean.TempImportTaskBizType;
+import com.zis.purchase.bean.TempImportTaskBizTypeEnum;
 import com.zis.purchase.bean.TempImportTaskStatus;
 import com.zis.purchase.biz.DoPurchaseService;
 import com.zis.purchase.dto.TempImportTaskView;
@@ -48,8 +48,7 @@ public class TempImportViewAction extends ActionSupport {
 	private TempImportTaskView buildTaskView(TempImportTask task) {
 		TempImportTaskView view = new TempImportTaskView();
 		BeanUtils.copyProperties(task, view);
-		view.setBizTypeDisplay(TempImportTaskBizType.getBizTypeDisplay(task
-				.getBizType()));
+		view.setBizTypeDisplay(TempImportTaskBizTypeEnum.parseEnum(task.getBizType()).getDisplayValue());
 		view.setStatusDisplay(TempImportTaskStatus.getDisplay(task.getStatus()));
 		return view;
 	}

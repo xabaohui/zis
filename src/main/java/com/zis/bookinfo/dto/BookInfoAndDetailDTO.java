@@ -16,6 +16,8 @@ public class BookInfoAndDetailDTO extends Bookinfo {
 	private String summary;
 	private String catalog;
 	private String source;
+	private Integer stockBalance;
+	private Boolean taobaoForbidden; // 禁止在淘宝网发布
 
 	public String getImageUrl() {
 		return imageUrl;
@@ -63,5 +65,21 @@ public class BookInfoAndDetailDTO extends Bookinfo {
 
 	public void setSource(String source) {
 		this.source = source;
+	}
+
+	public Integer getStockBalance() {
+		return stockBalance;
+	}
+
+	public void setStockBalance(Integer stockBalance) {
+		this.stockBalance = stockBalance;
+	}
+
+	public Boolean getTaobaoForbidden() {
+		return taobaoForbidden;
+	}
+
+	public void setTaobaoForbidden(Boolean taobaoForbidden) {
+		this.taobaoForbidden = taobaoForbidden;
 	}
 }

@@ -138,8 +138,10 @@ public class TaobaoCsvDataGenerateBO {
 		String deliveryFeeId = "7838769160";// XXX 运费模板ID可以考虑和店铺关联
 		String imageName = genImageName(book);
 		String publishDateStr = ZisUtils.getDateString("yyyy-MM", book.getPublishDate());
+		// 使用系统中的库存量，如果不存在/为零，则使用默认值
+		Integer stockBalance = (book.getStockBalance() != null && book.getStockBalance() > 0) ? book.getStockBalance() : DEFAULT_SOLD_COUNT;
 		return String.format(T_ROW,
-				title, categoryId, DEFAULT_SOLD_TYPE, book.getBookPrice(), DEFAULT_SOLD_COUNT,
+				title, categoryId, DEFAULT_SOLD_TYPE, book.getBookPrice(), stockBalance,
 				DEFAULT_ON_SALES, description, deliveryFeeId, imageName, merchantNo,
 				book.getBookName(), book.getBookPrice(), book.getBookAuthor(), book.getBookPublisher(), book.getIsbn(),
 				publishDateStr);

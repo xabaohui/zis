@@ -135,4 +135,15 @@ public class ExcelImporter<T> extends FileImporter<T> {
 		return cell == null ? null : cell.getNumericCellValue();
 	}
 
+	@Override
+	public List<String> loadFactHeader() {
+		int headRowIndex = headerRowNums - 1;
+		int columns = sheet.getRow(headRowIndex).getLastCellNum();
+		List<String> factList = new ArrayList<String>();
+		for (int i = 0; i < columns; i++) {
+			factList.add(getString(headerRowNums - 1, i));
+		}
+		return factList;
+	}
+
 }

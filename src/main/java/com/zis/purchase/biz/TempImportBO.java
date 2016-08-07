@@ -13,12 +13,11 @@ import org.springframework.beans.BeanUtils;
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.service.BookService;
 import com.zis.bookinfo.util.ConstantString;
-import com.zis.common.util.Page;
-import com.zis.common.util.PaginationQueryUtil;
 import com.zis.common.util.ZisUtils;
 import com.zis.purchase.bean.TempImportDetail;
 import com.zis.purchase.bean.TempImportDetailStatus;
 import com.zis.purchase.bean.TempImportTask;
+import com.zis.purchase.bean.TempImportTaskBizTypeEnum;
 import com.zis.purchase.bean.TempImportTaskStatus;
 import com.zis.purchase.dao.TempImportDetailDao;
 import com.zis.purchase.dao.TempImportTaskDao;
@@ -43,9 +42,9 @@ public class TempImportBO {
 	 * 添加库存或者采购记录到临时表
 	 */
 	public void addTempImportTask(List<TempImportDTO> list,
-			String tempImportTaskBizType, String memo) {
+			TempImportTaskBizTypeEnum bizType, String memo) {
 		TempImportTask task = new TempImportTask();
-		task.setBizType(tempImportTaskBizType);
+		task.setBizType(bizType.getValue());
 		task.setMemo(memo);
 		task.setStatus(TempImportTaskStatus.IMPORT_COMPLETE);
 		task.setTotalCount(list.size());
@@ -55,7 +54,7 @@ public class TempImportBO {
 		this.tempImportTaskDao.save(task);
 		for (TempImportDTO tmp : list) {
 			TempImportDetail detail = new TempImportDetail();
-			detail.setAmount(tmp.getAmount());
+			detail.setData(tmp.getData());
 			detail.setTaskId(task.getId());
 			detail.setOrigIsbn(tmp.getIsbn());
 			detail.setStatus(TempImportDetailStatus.NOT_MATCHED);

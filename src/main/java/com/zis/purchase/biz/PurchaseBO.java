@@ -606,7 +606,7 @@ public class PurchaseBO {
 	 * @param bookId
 	 * @return
 	 */
-	private PurchasePlan findPurchasePlanByBookId(int bookId) {
+	public PurchasePlan findPurchasePlanByBookId(int bookId) {
 		PurchasePlan example = new PurchasePlan();
 		example.setStatus(PurchasePlanStatus.NORMAL);
 		example.setBookId(bookId);

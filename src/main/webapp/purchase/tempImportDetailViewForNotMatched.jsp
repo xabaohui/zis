@@ -30,7 +30,7 @@
 		<tr>
 			<td><s:property value="#index.count"/></td>
 			<td>
-				<a href="bookinfo/getAllBooks?bookISBN=<s:property value="isbn"/>" target="_blank"><s:property value="isbn"/></a>&nbsp;/&nbsp;<s:property value="amount"/>本&nbsp;/&nbsp;<s:property value="additionalInfo"/>
+				<a href="bookinfo/getAllBooks?bookISBN=<s:property value="isbn"/>" target="_blank"><s:property value="isbn"/></a>&nbsp;/&nbsp;<s:property value="data"/>&nbsp;/&nbsp;<s:property value="additionalInfo"/>
 				[<a href="https://s.taobao.com/search?q=<s:property value="isbn"/>" target="_blank">淘</a>]
 				[<a href="http://search.dangdang.com/?key=<s:property value="isbn"/>" target="_blank">当</a>]
 			</td>

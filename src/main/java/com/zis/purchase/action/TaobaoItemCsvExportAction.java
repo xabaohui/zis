@@ -70,7 +70,7 @@ public class TaobaoItemCsvExportAction extends
 		String data = String.format(dataFmt, title, book.getBookName(),
 				book.getBookPrice(), book.getBookAuthor(),
 				book.getBookPublisher(), book.getIsbn(), pubDate, content,
-				bookIntro, uniqueIsbn, record.getAmount());
+				bookIntro, uniqueIsbn, record.getData());
 		return data;
 	}
 	
@@ -133,7 +133,8 @@ public class TaobaoItemCsvExportAction extends
 			// 如果已经处理过，则跳过
 			if(uniqueIsbnDealt.containsKey(uniqueIsbn)) {
 				TempImportDetailView exist = uniqueIsbnDealt.get(uniqueIsbn);
-				exist.setAmount(exist.getAmount() + record.getAmount());
+				Integer amount = Integer.valueOf(exist.getData()) + Integer.valueOf(record.getData());
+				exist.setData(amount.toString());
 			} else {
 				uniqueIsbnDealt.put(uniqueIsbn, record);
 			}

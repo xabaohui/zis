@@ -3,6 +3,8 @@ package com.zis.bookinfo.action;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import org.apache.log4j.Logger;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
@@ -14,9 +16,12 @@ import com.opensymphony.xwork2.validator.annotations.RequiredStringValidator;
 import com.opensymphony.xwork2.validator.annotations.StringLengthFieldValidator;
 import com.opensymphony.xwork2.validator.annotations.Validations;
 import com.zis.bookinfo.bean.Bookinfo;
+import com.zis.bookinfo.bean.BookinfoDetail;
 import com.zis.bookinfo.bean.BookinfoStatus;
 import com.zis.bookinfo.service.BookService;
+import com.zis.bookinfo.util.BookMetadataSource;
 import com.zis.bookinfo.util.ConstantString;
+import com.zis.common.util.ZisUtils;
 
 public class BookSaveOrUpdateAction extends ActionSupport {
 	private static final long serialVersionUID = 1L;
@@ -35,6 +40,12 @@ public class BookSaveOrUpdateAction extends ActionSupport {
 	private Boolean repeatIsbn;
 	private String bookStatus;
 	private String operateType;
+	// 图书详情
+	private String imageUrl;
+	private String taobaoTitle;
+	private Integer taobaoCatagoryId;
+	private String summary;
+	private String catalog;
 
 	private BookService bookService;
 
@@ -83,6 +94,7 @@ public class BookSaveOrUpdateAction extends ActionSupport {
 		}
 		try {
 			Bookinfo book;
+			BookinfoDetail detail;
 			if (id != null) {
 				Bookinfo bi = bookService.findBookById(id);
 				book = buildBook(bi);
@@ -96,16 +108,18 @@ public class BookSaveOrUpdateAction extends ActionSupport {
 				}
 				// 修改
 				else {
+					detail = buildBookInfoDetail();
 					book.setBookStatus(bi.getBookStatus());
-					bookService.updateBook(book);
+					bookService.updateBook(book, detail);
 				}
 			} 
 			// 新增
 			else {
 				book = buildBook(new Bookinfo());
+				detail = buildBookInfoDetail();
 				book.setOutId(outId);
 				book.setBookStatus(ConstantString.USEFUL);
-				bookService.addBook(book, null);// XXX 暂时不处理图书详情
+				bookService.addBook(book, detail);// XXX 暂时不处理图书详情
 				// 检查系统中是否存在相似记录
 				DetachedCriteria dc = DetachedCriteria.forClass(Bookinfo.class);
 				dc.add(Restrictions.like("bookAuthor", "%" + book.getBookAuthor() + "%"));
@@ -127,12 +141,49 @@ public class BookSaveOrUpdateAction extends ActionSupport {
 		}
 	}
 
-//	// 检查图书是否已经和院校信息关联
-//	private boolean checkBookinfoInUse(Integer bookId) {
-//		List<Bookamount> list = this.bookAmountService
-//				.findBookAmountByBookId(bookId);
-//		return list != null && !list.isEmpty();
-//	}
+	private BookinfoDetail buildBookInfoDetail() {
+		// 如果页面中未填写任何信息，返回null（业务层不会对detail做任何处理）
+		if(isBlank(imageUrl) && isBlank(taobaoTitle) && isBlank(summary) && isBlank(catalog) && taobaoCatagoryId == null) {
+			return null;
+		}
+		BookinfoDetail detail = null;
+		if(id != null) {
+			detail = bookService.findBookInfoDetailByBookId(id);
+		}
+		// DB中无记录，并且页面中未填写任何信息，返回null
+		if (detail == null) {
+			detail = new BookinfoDetail();
+			detail.setBookid(id);
+			detail.setImageUrl(imageUrl);
+			detail.setCatalog(catalog);
+			detail.setSummary(summary);
+			detail.setTaobaoForbidden(false);
+			detail.setTaobaoTitle(taobaoTitle);
+			detail.setTaobaoCatagoryId(taobaoCatagoryId);
+			detail.setSource(BookMetadataSource.USER);
+			detail.setGmtCreate(ZisUtils.getTS());
+			detail.setGmtModify(ZisUtils.getTS());
+			detail.setVersion(0);
+			return detail;
+		} else {
+			if(!isBlank(imageUrl)) {
+				detail.setImageUrl(imageUrl);
+			}
+			if(!isBlank(taobaoTitle)) {
+				detail.setTaobaoTitle(taobaoTitle);
+			}
+			if(!isBlank(summary)) {
+				detail.setSummary(summary);
+			}
+			if(!isBlank(catalog)) {
+				detail.setCatalog(catalog);
+			}
+			if(taobaoCatagoryId != null) {
+				detail.setTaobaoCatagoryId(taobaoCatagoryId);
+			}
+			return detail;
+		}
+	}
 
 	public BookService getBookService() {
 		return bookService;
@@ -244,5 +295,45 @@ public class BookSaveOrUpdateAction extends ActionSupport {
 
 	public void setRepeatIsbn(Boolean repeatIsbn) {
 		this.repeatIsbn = repeatIsbn;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
+
+	public String getTaobaoTitle() {
+		return taobaoTitle;
+	}
+
+	public void setTaobaoTitle(String taobaoTitle) {
+		this.taobaoTitle = taobaoTitle;
+	}
+
+	public Integer getTaobaoCatagoryId() {
+		return taobaoCatagoryId;
+	}
+
+	public void setTaobaoCatagoryId(Integer taobaoCatagoryId) {
+		this.taobaoCatagoryId = taobaoCatagoryId;
+	}
+
+	public String getSummary() {
+		return summary;
+	}
+
+	public void setSummary(String summary) {
+		this.summary = summary;
+	}
+
+	public String getCatalog() {
+		return catalog;
+	}
+
+	public void setCatalog(String catalog) {
+		this.catalog = catalog;
 	}
 }

@@ -19,7 +19,7 @@ import com.zis.common.excel.ExcelImporter;
 import com.zis.common.excel.FileImporter;
 
 /**
- * 临时数据（商品信息、库存、采购等）导入Action
+ * 通用数据导入Action
  * 
  * @author lvbin 2014-10-25
  */
@@ -58,6 +58,11 @@ public abstract class CommonImportAction<T> extends ActionSupport {
 				this.addActionError(errMsg);
 				return INPUT;
 			}
+			String subCheck = subCheckFileFormat(im.loadFactHeader());
+			if(StringUtils.isNotBlank(subCheck)) {
+				this.addActionError(subCheck);
+				return INPUT;
+			}
 
 			// 解析文件并入库
 			Map<String, Integer> propMapping = initPropMapping();
@@ -84,6 +89,15 @@ public abstract class CommonImportAction<T> extends ActionSupport {
 			logger.error(e.getMessage(), e);
 			return INPUT;
 		}
+	}
+
+	/**
+	 * 检查文件格式，由子类进行扩展
+	 * @param factHeader
+	 * @return 返回错误原因，如果检验通过，返回null
+	 */
+	protected String subCheckFileFormat(List<String> factHeader) {
+		return null;
 	}
 
 	/**

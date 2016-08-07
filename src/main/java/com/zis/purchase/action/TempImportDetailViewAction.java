@@ -15,7 +15,7 @@ import com.zis.common.actiontemplate.PaginationQueryAction;
 import com.zis.purchase.bean.TempImportDetail;
 import com.zis.purchase.bean.TempImportDetailStatus;
 import com.zis.purchase.bean.TempImportTask;
-import com.zis.purchase.bean.TempImportTaskBizType;
+import com.zis.purchase.bean.TempImportTaskBizTypeEnum;
 import com.zis.purchase.bean.TempImportTaskStatus;
 import com.zis.purchase.biz.DoPurchaseService;
 import com.zis.purchase.dto.TempImportDetailView;
@@ -53,11 +53,12 @@ public class TempImportDetailViewAction extends PaginationQueryAction<TempImport
 	protected void doBeforeReturn() {
 		TempImportTask task = this.doPurchaseService.findTempImportTaskByTaskId(taskId);
 		// 给下一个页面准备参数
-		ActionContext context = ActionContext.getContext();
 		TempImportTaskView view = new TempImportTaskView();
 		BeanUtils.copyProperties(task, view);
-		view.setBizTypeDisplay(TempImportTaskBizType.getBizTypeDisplay(task.getBizType()));
+		view.setBizTypeDisplay(TempImportTaskBizTypeEnum.parseEnum(task.getBizType()).getDisplayValue());
 		view.setStatusDisplay(TempImportTaskStatus.getDisplay(task.getStatus()));
+
+		ActionContext context = ActionContext.getContext();
 		context.put("task", view);
 	}
 

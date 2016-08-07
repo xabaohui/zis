@@ -10,6 +10,7 @@ import org.springframework.beans.BeanUtils;
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.bean.BookinfoDetail;
 import com.zis.bookinfo.dto.BookInfoAndDetailDTO;
+import com.zis.purchase.bean.PurchasePlan;
 import com.zis.purchase.bean.TempImportDetailStatus;
 import com.zis.purchase.biz.DoPurchaseService;
 import com.zis.purchase.dto.TempImportDetailView;
@@ -49,9 +50,21 @@ public class TaobaoCsvDataExportActionTempRecordImpl extends TaobaoCsvDataExport
 			if(detail == null) {
 				continue;
 			}
+			// 过滤淘宝黑名单记录
+			if(detail.getTaobaoForbidden() !=null && detail.getTaobaoForbidden() == true) {
+				continue;
+			}
 			BookInfoAndDetailDTO infoAndDetail = new BookInfoAndDetailDTO();
 			BeanUtils.copyProperties(book, infoAndDetail);
 			BeanUtils.copyProperties(detail, infoAndDetail);
+			// 查询库存量
+			PurchasePlan plan = this.doPurchaseService.findPurchasePlanByBookId(book.getId());
+			if (plan == null || plan.getStockAmount() == null || plan.getStockAmount() <= 0) {
+				continue; //跳过没有库存的记录
+			}
+			if (plan != null) {
+				infoAndDetail.setStockBalance(plan.getStockAmount());
+			}
 			resultList.add(infoAndDetail);
 		}
 		return resultList;

@@ -14,7 +14,7 @@ public class TempImportDetail implements java.io.Serializable {
 	private Integer id;
 	private String isbn;
 	private String origIsbn;
-	private Integer amount;
+	private String data;
 	private Integer bookId;
 	private Integer taskId;
 	private String status;
@@ -55,20 +55,20 @@ public class TempImportDetail implements java.io.Serializable {
 		this.origIsbn = origIsbn;
 	}
 
-	public Integer getAmount() {
-		return this.amount;
-	}
-
-	public void setAmount(Integer amount) {
-		this.amount = amount;
-	}
-
 	public Integer getBookId() {
 		return this.bookId;
 	}
 
 	public void setBookId(Integer bookId) {
 		this.bookId = bookId;
+	}
+
+	public String getData() {
+		return data;
+	}
+
+	public void setData(String data) {
+		this.data = data;
 	}
 
 	public Integer getTaskId() {
