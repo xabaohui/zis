@@ -163,7 +163,7 @@ public class DangDangBookMetadataCapture extends AbstractBookMetadataCapture {
 		Double tagPrice = null;
 		if(isDirect) {
 			// <span class="price_m">&yen;99.00</span>
-			Element priceElement = getUniqueElementByClass(doc, "price_info").child(0).child(1);
+			Element priceElement = getUniqueElementByClass(doc, "d15_price_info").child(0).child(2);
 			logger.debug("[数据抓取-当当网] 定价相关数据={}", priceElement.text());
 			tagPrice = Double.valueOf(priceElement.text().substring(1));
 		} else {

@@ -40,6 +40,7 @@ import com.zis.requirement.dao.BookAmountDao;
 
 public class BookService {
 	private static Logger logger = LoggerFactory.getLogger(BookService.class);
+	private static final int MAX_CONTENT_LENGTH = 8192;
 
 	private BookinfoDao bookinfoDao;
 	private BookinfoDetailDao bookinfoDetailDao;
@@ -674,7 +675,7 @@ public class BookService {
 			BookinfoDetail detail = this.bookinfoDetailDao.findByBookId(info.getBookId());
 			// 没有detail记录，立刻生成一条
 			if (detail == null) {
-				this.captureBookInfoDetailFromNet(info.getBookId());
+				detail = this.captureBookInfoDetailFromNet(info.getBookId());
 			}
 			if (detail == null) {
 				continue;
@@ -767,8 +768,16 @@ public class BookService {
 	
 	private BookinfoDetail buildBookinfoDetail(BookMetadata meta) {
 		BookinfoDetail detail = new BookinfoDetail();
-		detail.setCatalog(meta.getCatalog());
-		detail.setSummary(meta.getSummary());
+		String catalog = meta.getCatalog();
+		if(StringUtils.isNotBlank(catalog) && catalog.length() > MAX_CONTENT_LENGTH) {
+			catalog = catalog.substring(0, MAX_CONTENT_LENGTH);
+		}
+		detail.setCatalog(catalog);
+		String summary = meta.getSummary();
+		if(StringUtils.isNotBlank(summary) && summary.length() > MAX_CONTENT_LENGTH) {
+			summary = summary.substring(0, MAX_CONTENT_LENGTH);
+		}
+		detail.setSummary(summary);
 		detail.setImageUrl(meta.getImageUrl());
 		detail.setSource(meta.getSource());
 		detail.setOutId(Integer.valueOf(meta.getOutId()));

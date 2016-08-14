@@ -93,7 +93,7 @@ public class YouluBookMetadataCapture extends AbstractBookMetadataCapture {
 	protected BookMetadata parseMetadata(Document doc) {
 		// 有路网标题
 		Element h1 = getUniqueElementByTag(doc, "h1");
-		String title = h1.text(); // TODO 书名中剔除不必要内容
+		String title = h1.ownText(); // TODO 书名中剔除不必要内容
 		String bookName = null;
 		String edition = null;
 		logger.debug("[数据抓取-有路网] 标题\t{}", title);
