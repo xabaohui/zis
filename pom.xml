@@ -9,7 +9,7 @@
   <url>http://maven.apache.org</url>
   
     <properties>
-		<org.springframework.version>3.1.2.RELEASE</org.springframework.version>
+		<org.springframework.version>3.2.9.RELEASE</org.springframework.version>
 	</properties>
 
 
@@ -40,11 +40,13 @@
 			<version>${org.springframework.version}</version>
 		</dependency>
 		<!-- spring-beans依赖cglib，如果缺少，编译过程通过，但是运行会报错 -->
+		<!-- 
 		<dependency>
 		    <groupId>cglib</groupId>
 		    <artifactId>cglib-nodep</artifactId>
 		    <version>2.2</version>
 		</dependency>
+		 -->
 		<!-- Aspect Oriented Programming (AOP) Framework (depends on spring-core, 
 			spring-beans) Define this if you use Spring AOP APIs (org.springframework.aop.*) -->
 		<dependency>
@@ -107,12 +109,31 @@
 			<artifactId>spring-web</artifactId>
 			<version>${org.springframework.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
 		<!--aspectjweaver包 -->
 		<dependency>
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjweaver</artifactId>
 			<version>1.8.5</version>
 		</dependency>
+		
+		<!-- Tag libs support for view layer -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.2</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>taglibs</groupId>
+            <artifactId>standard</artifactId>
+            <version>1.1.2</version>
+            <scope>runtime</scope>
+        </dependency>
 		
 		<!--struts2 -->
 		<dependency>
@@ -128,11 +149,6 @@
 		    <groupId>org.apache.struts</groupId>
 		    <artifactId>struts2-dojo-plugin</artifactId>
 		    <version>2.3.16</version>
-		</dependency>
-		<dependency>
-		    <groupId>jstl</groupId>
-		    <artifactId>jstl</artifactId>
-		    <version>1.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.struts</groupId>
