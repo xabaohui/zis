@@ -34,6 +34,6 @@
 				<ref bean="purchasePlanBuildAllTrigger" />
 			</list>
 		</property>
-		<property name="autoStartup" value="true" />
+		<property name="autoStartup" value="false" />
 	</bean>
 </beans>

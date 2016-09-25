@@ -27,5 +27,14 @@ public class MailSenderFactory {
 		}
 		return serviceSms;
 	}
+	
+	public static void main(String[] args) {
+		try {
+			getSender().send(new String[] { "lvbin0502@126.com" }, "test", "testshangde");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 }
