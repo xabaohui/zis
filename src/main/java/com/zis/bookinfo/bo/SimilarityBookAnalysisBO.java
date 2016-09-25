@@ -5,10 +5,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.bean.BookinfoAid;
@@ -24,9 +26,12 @@ import com.zis.requirement.dao.BookAmountDao;
  * @author yz
  * 
  */
+@Component
 public class SimilarityBookAnalysisBO extends BookInfoAnalysisBO {
 
+	@Autowired
 	private BookinfoAidDao bookinfoAidDao;
+	@Autowired
 	private BookAmountDao bookAmountDao;
 	private List<Integer> booksInUse;
 
@@ -221,21 +226,5 @@ public class SimilarityBookAnalysisBO extends BookInfoAnalysisBO {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	public BookinfoAidDao getBookinfoAidDao() {
-		return bookinfoAidDao;
-	}
-
-	public void setBookinfoAidDao(BookinfoAidDao bookinfoAidDao) {
-		this.bookinfoAidDao = bookinfoAidDao;
-	}
-
-	public BookAmountDao getBookAmountDao() {
-		return bookAmountDao;
-	}
-
-	public void setBookAmountDao(BookAmountDao bookAmountDao) {
-		this.bookAmountDao = bookAmountDao;
 	}
 }

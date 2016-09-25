@@ -1,6 +1,6 @@
 package com.zis.purchase.action;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.zis.purchase.biz.DoPurchaseService;
 import com.zis.purchase.dto.InwarehouseCreateDTO;

@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.stereotype.Component;
 
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.bean.BookinfoStatus;
@@ -21,6 +22,7 @@ import com.zis.common.util.ZisUtils;
  * @author yz
  * 
  */
+@Component
 public class SameBookAnalysisBO extends BookInfoAnalysisBO {
 
 	@Override

@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.dao.BookinfoDao;
@@ -19,6 +20,7 @@ import com.zis.bookinfo.util.ConstantString;
  */
 public abstract class BookInfoAnalysisBO {
 
+	@Autowired
 	protected BookinfoDao bookinfoDao;
 	protected Logger logger = Logger.getLogger(BookInfoAnalysisBO.class);
 
@@ -59,13 +61,5 @@ public abstract class BookInfoAnalysisBO {
 		Integer minId = (Integer) ids[0];
 		Integer maxId = (Integer) ids[1];
 		return maxId;
-	}
-
-	public BookinfoDao getBookinfoDao() {
-		return bookinfoDao;
-	}
-
-	public void setBookinfoDao(BookinfoDao bookinfoDao) {
-		this.bookinfoDao = bookinfoDao;
 	}
 }

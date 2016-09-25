@@ -5,13 +5,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSON;
 import com.zis.bookinfo.bean.Bookinfo;
@@ -38,21 +39,33 @@ import com.zis.common.util.ZisUtils;
 import com.zis.requirement.bean.Bookamount;
 import com.zis.requirement.dao.BookAmountDao;
 
+@Service
 public class BookService {
 	private static Logger logger = LoggerFactory.getLogger(BookService.class);
 	private static final int MAX_CONTENT_LENGTH = 8192;
 
+	@Autowired
 	private BookinfoDao bookinfoDao;
+	@Autowired
 	private BookinfoDetailDao bookinfoDetailDao;
+	@Autowired
 	private YouluSalesDao youluSalesDao;
+	@Autowired
 	private DefaultBookMetadataCaptureHandler bookMetadataCapture;
+	@Autowired
 	private ThreadPoolTaskExecutor taskExecutor;
+	@Autowired
 	private BookAmountDao bookAmountDao;
+	@Autowired
 	private ShopItemInfoDao shopItemInfoDao;
 
+	@Autowired
 	private SimilarityBookAnalysisBO similarityBookAnalysisBO;
+	@Autowired
 	private SameBookAnalysisBO sameBookAnalysisBO;
+	@Autowired
 	private RepeatIsbnAnalysisBO repeatIsbnAnalysisBO;
+	@Autowired
 	private TaobaoCsvDataGenerateBO taobaoCsvDataGenerateBO;
 
 	/**
@@ -803,53 +816,5 @@ public class BookService {
 	 */
 	public void generateTaobaoCsvDataFile(List<BookInfoAndDetailDTO> list, String[] emails) {
 		taobaoCsvDataGenerateBO.generate(list, emails);
-	}
-
-	public void setBookinfoDao(BookinfoDao bookinfoDao) {
-		this.bookinfoDao = bookinfoDao;
-	}
-	
-	public void setBookinfoDetailDao(BookinfoDetailDao bookinfoDetailDao) {
-		this.bookinfoDetailDao = bookinfoDetailDao;
-	}
-
-	public void setYouluSalesDao(YouluSalesDao youluSalesDao) {
-		this.youluSalesDao = youluSalesDao;
-	}
-
-	public void setBookMetadataCapture(
-			DefaultBookMetadataCaptureHandler bookMetadataCapture) {
-		this.bookMetadataCapture = bookMetadataCapture;
-	}
-
-	public void setTaskExecutor(ThreadPoolTaskExecutor taskExecutor) {
-		this.taskExecutor = taskExecutor;
-	}
-
-	public void setSimilarityBookAnalysisBO(
-			SimilarityBookAnalysisBO similarityBookAnalysisBO) {
-		this.similarityBookAnalysisBO = similarityBookAnalysisBO;
-	}
-
-	public void setSameBookAnalysisBO(SameBookAnalysisBO sameBookAnalysisBO) {
-		this.sameBookAnalysisBO = sameBookAnalysisBO;
-	}
-
-	public void setRepeatIsbnAnalysisBO(
-			RepeatIsbnAnalysisBO repeatIsbnAnalysisBO) {
-		this.repeatIsbnAnalysisBO = repeatIsbnAnalysisBO;
-	}
-	
-	public void setTaobaoCsvDataGenerateBO(
-			TaobaoCsvDataGenerateBO taobaoCsvDataGenerateBO) {
-		this.taobaoCsvDataGenerateBO = taobaoCsvDataGenerateBO;
-	}
-	
-	public void setBookAmountDao(BookAmountDao bookAmountDao) {
-		this.bookAmountDao = bookAmountDao;
-	}
-	
-	public void setShopItemInfoDao(ShopItemInfoDao shopItemInfoDao) {
-		this.shopItemInfoDao = shopItemInfoDao;
 	}
 }

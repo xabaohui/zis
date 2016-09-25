@@ -9,6 +9,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.dto.BookInfoAndDetailDTO;
@@ -25,6 +26,7 @@ import com.zis.common.util.ZisUtils;
  * @author lvbin
  * 
  */
+@Component
 public class TaobaoCsvDataGenerateBO {
 
 	private static final Logger logger = LoggerFactory.getLogger(TaobaoCsvDataGenerateBO.class);
