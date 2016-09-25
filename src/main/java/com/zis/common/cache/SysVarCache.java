@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.zis.requirement.bean.SysVar;
 import com.zis.requirement.dao.SysVarDao;
 
@@ -14,10 +17,11 @@ import com.zis.requirement.dao.SysVarDao;
  * @author yz
  * 
  */
+@Component
 public class SysVarCache {
 
 	private Map<String, Integer> cache;
-
+	@Autowired
 	private SysVarDao sysVarDao;
 
 	public SysVarCache() {
@@ -97,10 +101,6 @@ public class SysVarCache {
 			throw new RuntimeException("重复的系统变量，key=" + key);
 		}
 		return list.get(0);
-	}
-
-	public void setSysVarDao(SysVarDao sysVarDao) {
-		this.sysVarDao = sysVarDao;
 	}
 
 	public List<SysVar> getAllSysVars() {

@@ -14,8 +14,8 @@ public interface TempImportTaskDao {
 
 	public TempImportTask findById(java.lang.Integer id);
 
-	public List findByExample(TempImportTask instance);
+	public List<TempImportTask> findByExample(TempImportTask instance);
 	
-	public List findByCriteria(DetachedCriteria criteria);
+	public List<TempImportTask> findByCriteria(DetachedCriteria criteria);
 
 }

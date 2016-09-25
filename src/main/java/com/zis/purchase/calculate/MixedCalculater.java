@@ -1,11 +1,19 @@
 package com.zis.purchase.calculate;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.zis.common.cache.SysVarCache;
 import com.zis.common.cache.SysVarConstant;
 
+@Component(value="mixedCalculater")
 public class MixedCalculater implements BookAmountCalculateInterface {
+	
+	@Autowired
 	private SalesCalculater salesCalculater;
+	@Autowired
 	private RequirementCalculater requirementCalculater;
+	@Autowired
 	private SysVarCache sysVarCache;
 
 	public Integer calculate(int bookId) {
@@ -22,30 +30,4 @@ public class MixedCalculater implements BookAmountCalculateInterface {
 			return 0;
 		}
 	}
-
-	public SalesCalculater getSalesCalculater() {
-		return salesCalculater;
-	}
-
-	public void setSalesCalculater(SalesCalculater salesCalculater) {
-		this.salesCalculater = salesCalculater;
-	}
-
-	public RequirementCalculater getRequirementCalculater() {
-		return requirementCalculater;
-	}
-
-	public void setRequirementCalculater(
-			RequirementCalculater requirementCalculater) {
-		this.requirementCalculater = requirementCalculater;
-	}
-
-	public SysVarCache getSysVarCache() {
-		return sysVarCache;
-	}
-
-	public void setSysVarCache(SysVarCache sysVarCache) {
-		this.sysVarCache = sysVarCache;
-	}
-
 }

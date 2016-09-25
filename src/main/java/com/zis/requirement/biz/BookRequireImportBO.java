@@ -7,6 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.service.BookService;
@@ -25,10 +27,14 @@ import com.zis.requirement.dto.BookRequireUploadDTO;
  * @author yz
  * 
  */
+@Component
 public class BookRequireImportBO {
 
+	@Autowired
 	private BookRequireImportTaskDao bookRequireImportTaskDao;
+	@Autowired
 	private BookRequireImportDetailDao bookRequireImportDetailDao;
+	@Autowired
 	private BookService bookService;
 
 	/**
@@ -138,19 +144,5 @@ public class BookRequireImportBO {
 		detail.setGmtModify(ZisUtils.getTS());
 		detail.setVersion(detail.getVersion()+1);
 		this.bookRequireImportDetailDao.update(detail);
-	}
-
-	public void setBookRequireImportDetailDao(
-			BookRequireImportDetailDao bookRequireImportDetailDao) {
-		this.bookRequireImportDetailDao = bookRequireImportDetailDao;
-	}
-
-	public void setBookRequireImportTaskDao(
-			BookRequireImportTaskDao bookRequireImportTaskDao) {
-		this.bookRequireImportTaskDao = bookRequireImportTaskDao;
-	}
-	
-	public void setBookService(BookService bookService) {
-		this.bookService = bookService;
 	}
 }

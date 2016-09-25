@@ -6,6 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.service.BookService;
@@ -20,10 +22,14 @@ import com.zis.requirement.dao.BookAmountDao;
  * @author yz
  *
  */
+@Component(value="requirementCalculater")
 public class RequirementCalculater implements BookAmountCalculateInterface {
 
+	@Autowired
 	private BookAmountDao bookAmountDao;
+	@Autowired
 	private SysVarCache sysVarCache;
+	@Autowired
 	private BookService bookService;
 
 	public Integer calculate(int bookId) {
@@ -49,7 +55,7 @@ public class RequirementCalculater implements BookAmountCalculateInterface {
 			criteria.setProjection(Projections.property("id"));
 			criteria.add(Restrictions.eq("groupId", book.getGroupId()));
 			criteria.add(Restrictions.eq("bookStatus", ConstantString.USEFUL));
-			List ids = this.bookService.findBookByCriteria(criteria);
+			List<Bookinfo> ids = this.bookService.findBookByCriteria(criteria);
 			dc.add(Restrictions.in("bookId", ids));
 		} else {
 			dc.add(Restrictions.eq("bookId", bookId));
@@ -65,25 +71,5 @@ public class RequirementCalculater implements BookAmountCalculateInterface {
 			total += ba.getAmount();
 		}
 		return total;
-	}
-
-	public BookAmountDao getBookAmountDao() {
-		return bookAmountDao;
-	}
-
-	public void setBookAmountDao(BookAmountDao bookAmountDao) {
-		this.bookAmountDao = bookAmountDao;
-	}
-
-	public SysVarCache getSysVarCache() {
-		return sysVarCache;
-	}
-
-	public void setSysVarCache(SysVarCache sysVarCache) {
-		this.sysVarCache = sysVarCache;
-	}
-	
-	public void setBookService(BookService bookService) {
-		this.bookService = bookService;
 	}
 }

@@ -2,20 +2,25 @@ package com.zis.purchase.calculate;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.zis.common.cache.SysVarCache;
 import com.zis.common.cache.SysVarConstant;
 import com.zis.purchase.bean.Storesales;
 import com.zis.purchase.dao.StoreSalesDao;
 
+@Component(value="salesCalculater")
 public class SalesCalculater implements BookAmountCalculateInterface {
 
+	@Autowired
 	private StoreSalesDao storeSalesDao;
+	@Autowired
 	private SysVarCache sysVarCache;
 
 	public Integer calculate(int bookId) {
 		Integer portio = sysVarCache
 				.getSystemVar(SysVarConstant.PURCHASE_SALES_PORTIO.getKeyName());
-		// List<SysVar> slist = sysVarDao.findByDepKey("requiremenPortio");
 		return getSalesAmount(bookId) * portio / 100;
 	}
 
@@ -29,21 +34,4 @@ public class SalesCalculater implements BookAmountCalculateInterface {
 		}
 		return list.get(0).getSales();
 	}
-
-	public StoreSalesDao getStoreSalesDao() {
-		return storeSalesDao;
-	}
-
-	public void setStoreSalesDao(StoreSalesDao storeSalesDao) {
-		this.storeSalesDao = storeSalesDao;
-	}
-
-	public SysVarCache getSysVarCache() {
-		return sysVarCache;
-	}
-
-	public void setSysVarCache(SysVarCache sysVarCache) {
-		this.sysVarCache = sysVarCache;
-	}
-
 }

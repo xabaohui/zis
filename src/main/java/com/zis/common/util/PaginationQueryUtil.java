@@ -20,7 +20,7 @@ public class PaginationQueryUtil {
 	private static SessionFactory sessionFactory;
 	
 	private static void initSessionFactory() {
-		ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+		ApplicationContext context = new ClassPathXmlApplicationContext("conf-ds.xml");
 		sessionFactory = (SessionFactory) context.getBean("sessionFactory");
 	}
 

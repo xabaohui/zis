@@ -5,6 +5,8 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.zis.common.util.ZisUtils;
 import com.zis.purchase.bean.Inwarehouse;
@@ -12,7 +14,6 @@ import com.zis.purchase.bean.PurchaseDetail;
 import com.zis.purchase.bean.PurchaseDetailStatus;
 import com.zis.purchase.bean.PurchasePlan;
 import com.zis.purchase.dao.PurchaseDetailDao;
-import com.zis.purchase.dao.PurchasePlanDao;
 
 /**
  * 采购入库核心业务逻辑
@@ -20,8 +21,10 @@ import com.zis.purchase.dao.PurchasePlanDao;
  * @author yz
  * 
  */
+@Component
 public class PurchaseInwarehouseBO extends InwarehouseBO {
-
+	
+	@Autowired
 	private PurchaseDetailDao purchaseDetailDao;
 	
 	@Override
@@ -100,14 +103,5 @@ public class PurchaseInwarehouseBO extends InwarehouseBO {
 		plan.setGmtModify(ZisUtils.getTS());
 		plan.setVersion(plan.getVersion() + 1);
 		this.purchasePlanDao.update(plan);
-	}
-	
-	public void setPurchaseDetailDao(PurchaseDetailDao purchaseDetailDao) {
-		this.purchaseDetailDao = purchaseDetailDao;
-	}
-	
-	@Override
-	public void setPurchasePlanDao(PurchasePlanDao purchasePlanDao) {
-		super.setPurchasePlanDao(purchasePlanDao);
 	}
 }

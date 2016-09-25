@@ -360,7 +360,6 @@ public class BookService {
 			else {
 				// 如果有相关图书，则将所有相关图书的ID都加入到集合中等待处理
 				relateId = book.getRelateId();
-				@SuppressWarnings("unchecked")
 				List<Bookinfo> list = bookinfoDao.findByRelateId(book
 						.getRelateId());
 				for (Bookinfo bookinfo : list) {
@@ -479,7 +478,6 @@ public class BookService {
 	 */
 	public Bookinfo saveBookinfoByCaptureFromYouluNet(int id) {
 		// 检查系统中是否存在outId=id的记录，如果有，则直接返回
-		@SuppressWarnings("unchecked")
 		List<Bookinfo> list = this.bookinfoDao.findByOutId(id);
 		if (!list.isEmpty()) {
 			return list.get(0);
@@ -527,7 +525,6 @@ public class BookService {
 		}
 		YouluSales sales = new YouluSales();
 		sales.setOutId(id);
-		@SuppressWarnings("unchecked")
 		List<Bookinfo> list = this.bookinfoDao.findByOutId(id);
 		if (!list.isEmpty()) {
 			sales.setBookId(list.get(0).getId());

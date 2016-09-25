@@ -8,6 +8,8 @@ import org.apache.log4j.Logger;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.zis.common.util.ZisUtils;
 import com.zis.purchase.bean.Inwarehouse;
@@ -35,11 +37,16 @@ import com.zis.purchase.dto.InwarehouseDealtResult;
  * @author yz
  * 
  */
+@Component
 public class InwarehouseBO {
-
+	
+	@Autowired
 	private InwarehouseDao inwarehouseDao;
+	@Autowired
 	private InwarehouseDetailDao inwarehouseDetailDao;
+	@Autowired
 	private InwarehousePositionDao inwarehousePositionDao;
+	@Autowired
 	protected PurchasePlanDao purchasePlanDao;
 
 	protected Logger logger = Logger.getLogger(PurchaseInwarehouseBO.class);
@@ -417,23 +424,5 @@ public class InwarehouseBO {
 		in.setGmtModify(ZisUtils.getTS());
 		in.setVersion(in.getVersion() + 1);
 		this.inwarehouseDao.save(in);
-	}
-
-	public void setInwarehouseDao(InwarehouseDao inwarehouseDao) {
-		this.inwarehouseDao = inwarehouseDao;
-	}
-
-	public void setInwarehouseDetailDao(
-			InwarehouseDetailDao inwarehouseDetailDao) {
-		this.inwarehouseDetailDao = inwarehouseDetailDao;
-	}
-
-	public void setInwarehousePositionDao(
-			InwarehousePositionDao inwarehousePositionDao) {
-		this.inwarehousePositionDao = inwarehousePositionDao;
-	}
-	
-	public void setPurchasePlanDao(PurchasePlanDao purchasePlanDao) {
-		this.purchasePlanDao = purchasePlanDao;
 	}
 }

@@ -10,13 +10,13 @@ public interface ShopItemInfoDao {
 
 	public ShopItemInfo findById(java.lang.Integer id);
 
-	public List findByExample(ShopItemInfo instance);
+	public List<ShopItemInfo> findByExample(ShopItemInfo instance);
 
-	public List findByShopName(Object shopName);
+	public List<ShopItemInfo> findByShopName(Object shopName);
 
 	public void save(ShopItemInfo instance);
 	
 	public void update(ShopItemInfo instance);
 
-	public List findbyCriteria(DetachedCriteria criteria);
+	public List<ShopItemInfo> findbyCriteria(DetachedCriteria criteria);
 }

@@ -14,9 +14,9 @@ public interface TempImportDetailDao {
 
 	public abstract TempImportDetail findById(java.lang.Integer id);
 
-	public abstract List findByExample(TempImportDetail instance);
+	public abstract List<TempImportDetail> findByExample(TempImportDetail instance);
 
-	public abstract List findByTaskId(Object taskId);
+	public abstract List<TempImportDetail> findByTaskId(Object taskId);
 	
-	public abstract List findByCriteria(DetachedCriteria criteria);
+	public abstract List<TempImportDetail> findByCriteria(DetachedCriteria criteria);
 }

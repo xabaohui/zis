@@ -15,7 +15,7 @@ public class CalcModeFactory {
 	}
 
 	public void setMap(Map<Integer, CalculateModeInterface> map) {
-		this.map = map;
+		CalcModeFactory.map = map;
 	}
 	
 }

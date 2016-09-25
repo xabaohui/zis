@@ -1,11 +1,19 @@
 package com.zis.purchase.calcMode;
 
+import javax.annotation.Resource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.zis.purchase.calculate.BookAmountCalculateInterface;
 
+@Component
 public class MixedFirstMode implements CalculateModeInterface {
 	
+	@Resource
 	private BookAmountCalculateInterface mixedCalculater;
-	private BookAmountCalculateInterface defaultCalculate;
+	@Resource
+	private BookAmountCalculateInterface defaultCalculater;
 	
 	public Integer doCalculate(int bookId) {
 		Integer result = null;
@@ -15,14 +23,6 @@ public class MixedFirstMode implements CalculateModeInterface {
 			return result;
 		}
 		
-		return defaultCalculate.calculate(bookId);
-	}
-
-	public void setMixedCalculater(BookAmountCalculateInterface mixedCalculater) {
-		this.mixedCalculater = mixedCalculater;
-	}
-
-	public void setDefaultCalculate(BookAmountCalculateInterface defaultCalculate) {
-		this.defaultCalculate = defaultCalculate;
+		return defaultCalculater.calculate(bookId);
 	}
 }

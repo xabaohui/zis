@@ -9,6 +9,8 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.service.BookService;
@@ -30,10 +32,14 @@ import com.zis.purchase.dto.TempImportDetailView;
  * @author yz
  * 
  */
+@Component
 public class TempImportBO {
-
+	
+	@Autowired
 	private TempImportTaskDao tempImportTaskDao;
+	@Autowired
 	private TempImportDetailDao tempImportDetailDao;
+	@Autowired
 	private BookService bookService;
 
 	private static final Logger logger = Logger.getLogger(TempImportBO.class);
@@ -298,18 +304,6 @@ public class TempImportBO {
 		task.setGmtModify(ZisUtils.getTS());
 		task.setVersion(task.getVersion() + 1);
 		this.tempImportTaskDao.save(task);
-	}
-
-	public void setTempImportDetailDao(TempImportDetailDao tempImportDetailDao) {
-		this.tempImportDetailDao = tempImportDetailDao;
-	}
-
-	public void setTempImportTaskDao(TempImportTaskDao tempImportTaskDao) {
-		this.tempImportTaskDao = tempImportTaskDao;
-	}
-
-	public void setBookService(BookService bookService) {
-		this.bookService = bookService;
 	}
 
 	/**

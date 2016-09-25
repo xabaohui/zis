@@ -12,9 +12,9 @@ public interface InwarehousePositionDao {
 
 	public InwarehousePosition findById(java.lang.Integer id);
 
-	public List findByExample(InwarehousePosition instance);
+	public List<InwarehousePosition> findByExample(InwarehousePosition instance);
 
-	public List findByInwarehouseId(Object inwarehouseId);
+	public List<InwarehousePosition> findByInwarehouseId(Object inwarehouseId);
 
-	public List findByCriteria(DetachedCriteria criteria);
+	public List<InwarehousePosition> findByCriteria(DetachedCriteria criteria);
 }

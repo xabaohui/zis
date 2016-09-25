@@ -14,6 +14,8 @@ import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.bean.BookinfoStatus;
@@ -27,12 +29,15 @@ import com.zis.requirement.dto.AddBookToDepartmentResult;
 import com.zis.requirement.dto.BookAmountAddApiRequestDTO;
 import com.zis.requirement.dto.RequirementCollectScheduleDTO;
 
+@Service
 public class BookAmountService {
 
 	private static Logger logger = Logger.getLogger(BookAmountService.class);
-
+	@Autowired
 	private BookAmountDao bookAmountDao;
+	@Autowired
 	private BookinfoDao bookinfoDao;
+	@Autowired
 	private DepartmentInfoDao departmentInfoDao;
 	
 //	private BookRequireImportBO bookRequireImportBO;
@@ -198,7 +203,7 @@ public class BookAmountService {
 		// 查询所有采集过数据的 学校
 		DetachedCriteria dc = DetachedCriteria.forClass(Bookamount.class);
 		dc.setProjection(Projections.distinct(Projections.property("college")));
-		List collegeList = this.bookAmountDao.findByCriteria(dc);
+		List<Bookamount> collegeList = this.bookAmountDao.findByCriteria(dc);
 		// 列出数据涉及到的专业
 		DetachedCriteria dcDepartmentInfo = DetachedCriteria
 				.forClass(Departmentinfo.class);
@@ -234,7 +239,7 @@ public class BookAmountService {
 		DetachedCriteria dcGetGroupCount = DetachedCriteria
 				.forClass(Bookamount.class);
 		dcGetGroupCount.setProjection(projectionList);
-		List countList = this.bookAmountDao.findByCriteria(dcGetGroupCount);
+		List<Bookamount> countList = this.bookAmountDao.findByCriteria(dcGetGroupCount);
 
 		// 遍历统计出的数据
 		List<RequirementCollectScheduleDTO> resultList = new ArrayList<RequirementCollectScheduleDTO>();
@@ -317,28 +322,4 @@ public class BookAmountService {
 		}
 		return null;
 	}
-	
-//	/**
-//	 * 导入书单，保存到临时表中
-//	 * @param list
-//	 */
-//	public void saveTempBookRequireImportDetails(List<BookRequireUploadDTO> list, String college, String operator, String memo) {
-//		this.bookRequireImportBO.saveTempBookRequireImportDetails(list, college, operator, memo);
-//	}
-
-	public void setBookAmountDao(BookAmountDao bookAmountDao) {
-		this.bookAmountDao = bookAmountDao;
-	}
-
-	public void setBookinfoDao(BookinfoDao bookinfoDao) {
-		this.bookinfoDao = bookinfoDao;
-	}
-
-	public void setDepartmentInfoDao(DepartmentInfoDao departmentInfoDao) {
-		this.departmentInfoDao = departmentInfoDao;
-	}
-	
-//	public void setBookRequireImportBO(BookRequireImportBO bookRequireImportBO) {
-//		this.bookRequireImportBO = bookRequireImportBO;
-//	}
 }

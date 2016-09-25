@@ -6,17 +6,21 @@ import org.apache.log4j.Logger;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.zis.requirement.bean.Bookamount;
 import com.zis.requirement.bean.Departmentinfo;
 import com.zis.requirement.dao.BookAmountDao;
 import com.zis.requirement.dao.DepartmentInfoDao;
 
+@Service
 public class SchoolBiz {
 
 	private static Logger logger = Logger.getLogger(SchoolBiz.class);
-
+	@Autowired
 	private DepartmentInfoDao departmentInfoDao;
+	@Autowired
 	private BookAmountDao bookamountDao;
 
 	/**
@@ -37,7 +41,8 @@ public class SchoolBiz {
 	 * @param partName
 	 * @return
 	 */
-	public int ifDepartmentInfoExist(String school, String institute, String partName) {
+	public int ifDepartmentInfoExist(String school, String institute,
+			String partName) {
 		Departmentinfo di = new Departmentinfo();
 		di.setCollege(school);
 		di.setInstitute(institute);
@@ -124,22 +129,6 @@ public class SchoolBiz {
 	 */
 	public void updateDepartmentInfo(Departmentinfo dmi) {
 		departmentInfoDao.update(dmi);
-	}
-
-	public DepartmentInfoDao getDepartmentInfoDao() {
-		return departmentInfoDao;
-	}
-
-	public void setDepartmentInfoDao(DepartmentInfoDao departmentInfoDao) {
-		this.departmentInfoDao = departmentInfoDao;
-	}
-
-	public BookAmountDao getBookamountDao() {
-		return bookamountDao;
-	}
-
-	public void setBookamountDao(BookAmountDao bookamountDao) {
-		this.bookamountDao = bookamountDao;
 	}
 
 	public List<Departmentinfo> findDepartmentInfoByCriteria(DetachedCriteria dc) {

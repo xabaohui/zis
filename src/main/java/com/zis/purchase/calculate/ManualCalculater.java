@@ -1,10 +1,15 @@
 package com.zis.purchase.calculate;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.zis.purchase.bean.PurchasePlan;
 import com.zis.purchase.dao.PurchasePlanDao;
 
+@Component(value="manualCalculater")
 public class ManualCalculater implements BookAmountCalculateInterface {
-
+	
+	@Autowired
 	private PurchasePlanDao purchasePlanDao;
 
 	public Integer calculate(int bookId) {
@@ -24,9 +29,5 @@ public class ManualCalculater implements BookAmountCalculateInterface {
 		// } else {
 		// return null;
 		// }
-	}
-
-	public void setPurchasePlanDao(PurchasePlanDao purchasePlanDao) {
-		this.purchasePlanDao = purchasePlanDao;
 	}
 }

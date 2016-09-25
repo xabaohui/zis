@@ -8,9 +8,10 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.zis.bookinfo.bean.Bookinfo;
-import com.zis.bookinfo.service.BookService;
 import com.zis.purchase.bean.Inwarehouse;
 import com.zis.purchase.bean.InwarehouseBizType;
 import com.zis.purchase.bean.InwarehouseDetail;
@@ -31,18 +32,24 @@ import com.zis.purchase.dto.StockDTO;
 import com.zis.purchase.dto.TempImportDTO;
 import com.zis.purchase.dto.TempImportDetailView;
 
+@Service
 public class DoPurchaseService {
-
-	private InwarehouseDao inwarehouseDao;
-	private InwarehousePositionDao inwarehousePositionDao;
-	private InwarehouseDetailDao inwarehouseDetailDao;
-
-	private PurchaseBO purchaseBO;
-	private TempImportBO tempImportBO;
-	private InwarehouseBO inwarehouseBO;
-	private PurchaseInwarehouseBO purchaseInwarehouseBO;
 	
-	private BookService bookService;
+	@Autowired
+	private InwarehouseDao inwarehouseDao;
+	@Autowired
+	private InwarehousePositionDao inwarehousePositionDao;
+	@Autowired
+	private InwarehouseDetailDao inwarehouseDetailDao;
+	@Autowired
+	private PurchaseBO purchaseBO;
+	@Autowired
+	private TempImportBO tempImportBO;
+	@Autowired
+	private InwarehouseBO inwarehouseBO;
+	@Autowired
+	private PurchaseInwarehouseBO purchaseInwarehouseBO;
+
 
 	private static final Logger logger = Logger.getLogger(DoPurchaseService.class);
 	
@@ -465,41 +472,6 @@ public class DoPurchaseService {
 	public List<InwarehouseDetail> findInwarehouseDetailByCriteria(
 			DetachedCriteria criteria) {
 		return this.inwarehouseDetailDao.findByCriteria(criteria);
-	}
-
-	public void setTempImportBO(TempImportBO tempImportBO) {
-		this.tempImportBO = tempImportBO;
-	}
-
-	public void setInwarehouseBO(InwarehouseBO inwarehouseBO) {
-		this.inwarehouseBO = inwarehouseBO;
-	}
-
-	public void setPurchaseInwarehouseBO(
-			PurchaseInwarehouseBO purchaseInwarehouseBO) {
-		this.purchaseInwarehouseBO = purchaseInwarehouseBO;
-	}
-
-	public void setInwarehouseDao(InwarehouseDao inwarehouseDao) {
-		this.inwarehouseDao = inwarehouseDao;
-	}
-
-	public void setInwarehousePositionDao(
-			InwarehousePositionDao inwarehousePositionDao) {
-		this.inwarehousePositionDao = inwarehousePositionDao;
-	}
-	
-	public void setInwarehouseDetailDao(
-			InwarehouseDetailDao inwarehouseDetailDao) {
-		this.inwarehouseDetailDao = inwarehouseDetailDao;
-	}
-	
-	public void setPurchaseBO(PurchaseBO purchaseBO) {
-		this.purchaseBO = purchaseBO;
-	}
-	
-	public void setBookService(BookService bookService) {
-		this.bookService = bookService;
 	}
 
 	public void deleteOnwayStock(String purchaseOperator) {

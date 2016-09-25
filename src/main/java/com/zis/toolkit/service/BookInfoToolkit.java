@@ -7,6 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.service.BookService;
@@ -18,8 +20,10 @@ import com.zis.bookinfo.util.YouLuNetTextUtil;
  * @author yz
  * 
  */
+@Service
 public class BookInfoToolkit {
-
+	
+	@Autowired
 	private BookService bookService;
 
 	private Logger logger = Logger.getLogger(BookInfoToolkit.class);
@@ -233,13 +237,5 @@ public class BookInfoToolkit {
 			}
 		}
 		return result;
-	}
-
-	public BookService getBookService() {
-		return bookService;
-	}
-
-	public void setBookService(BookService bookService) {
-		this.bookService = bookService;
 	}
 }

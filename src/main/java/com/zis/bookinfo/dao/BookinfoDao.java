@@ -2,7 +2,6 @@ package com.zis.bookinfo.dao;
 
 import java.util.List;
 
-import org.hibernate.Criteria;
 import org.hibernate.criterion.DetachedCriteria;
 
 import com.zis.bookinfo.bean.Bookinfo;
@@ -30,42 +29,42 @@ public interface BookinfoDao {
 
 	public abstract Bookinfo findById(java.lang.Integer id);
 
-	public abstract List findByExample(Bookinfo instance);
+	public abstract List<Bookinfo> findByExample(Bookinfo instance);
 	
-	public abstract List findByProperty(String propertyName, Object value);
+	public abstract List<Bookinfo> findByProperty(String propertyName, Object value);
 
-	public abstract List findByOutId(Object outId);
+	public abstract List<Bookinfo> findByOutId(Object outId);
 
-	public abstract List findByIsbn(Object isbn);
+	public abstract List<Bookinfo> findByIsbn(Object isbn);
 
-	public abstract List findByBookName(Object bookName);
+	public abstract List<Bookinfo> findByBookName(Object bookName);
 
-	public abstract List findByBookAuthor(Object bookAuthor);
+	public abstract List<Bookinfo> findByBookAuthor(Object bookAuthor);
 
-	public abstract List findByBookPublisher(Object bookPublisher);
+	public abstract List<Bookinfo> findByBookPublisher(Object bookPublisher);
 
-	public abstract List findByBookPrice(Object bookPrice);
+	public abstract List<Bookinfo> findByBookPrice(Object bookPrice);
 
-	public abstract List findByBookEdition(Object bookEdition);
+	public abstract List<Bookinfo> findByBookEdition(Object bookEdition);
 
-	public abstract List findByIsNewEdition(Object isNewEdition);
+	public abstract List<Bookinfo> findByIsNewEdition(Object isNewEdition);
 
-	public abstract List findByGroupId(Object groupId);
+	public abstract List<Bookinfo> findByGroupId(Object groupId);
 
-	public abstract List findByRelateId(Object relateId);
+	public abstract List<Bookinfo> findByRelateId(Object relateId);
 
-	public abstract List findByRepeatIsbn(Object repeatIsbn);
+	public abstract List<Bookinfo> findByRepeatIsbn(Object repeatIsbn);
 
-	public abstract List findByVersion(Object version);
+	public abstract List<Bookinfo> findByVersion(Object version);
 
-	public abstract List findByBookStatus(Object bookStatus);
+	public abstract List<Bookinfo> findByBookStatus(Object bookStatus);
 	
    /**
    * ͨ��hql�����в�ѯ
  * @param hql
  * @return
  */
-    public abstract List findByhql(String hql);  
+    public abstract List<Bookinfo> findByhql(String hql);  
 	 /**
 		 * ͨ�����ϲ�ѯ�õ��������
 		 * @param bookISBN
@@ -77,7 +76,7 @@ public interface BookinfoDao {
 	
 	public abstract List<Bookinfo> findByCriteriaLimitCount(DetachedCriteria criteria, Integer limit);
 
-	public abstract List findAll();
+	public abstract List<Bookinfo> findAll();
 
 	public abstract Bookinfo merge(Bookinfo detachedInstance);
 

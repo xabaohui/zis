@@ -7,8 +7,10 @@ import org.apache.log4j.Logger;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Component;
 
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.bean.BookinfoStatus;
@@ -34,13 +36,18 @@ import com.zis.purchase.dao.PurchasePlanDao;
  * @author yz
  * 
  */
+@Component
 public class PurchaseBO {
-
+	@Autowired
 	private SysVarCache sysVarCache;
+	@Autowired
 	private PurchaseDetailDao purchaseDetailDao;
+	@Autowired
 	private PurchasePlanDao purchasePlanDao;
 
+	@Autowired
 	private BookService bookService;
+	@Autowired
 	private ThreadPoolTaskExecutor taskExecutor;
 
 	private static final Logger logger = Logger.getLogger(PurchaseBO.class);
@@ -689,25 +696,5 @@ public class PurchaseBO {
 			plan.setVersion(plan.getVersion() + 1);
 			this.purchasePlanDao.update(plan);
 		}
-	}
-
-	public void setSysVarCache(SysVarCache sysVarCache) {
-		this.sysVarCache = sysVarCache;
-	}
-
-	public void setPurchaseDetailDao(PurchaseDetailDao purchaseDetailDao) {
-		this.purchaseDetailDao = purchaseDetailDao;
-	}
-
-	public void setPurchasePlanDao(PurchasePlanDao purchasePlanDao) {
-		this.purchasePlanDao = purchasePlanDao;
-	}
-
-	public void setBookService(BookService bookService) {
-		this.bookService = bookService;
-	}
-
-	public void setTaskExecutor(ThreadPoolTaskExecutor taskExecutor) {
-		this.taskExecutor = taskExecutor;
 	}
 }
