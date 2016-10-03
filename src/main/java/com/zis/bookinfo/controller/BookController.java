@@ -6,14 +6,21 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.opensymphony.xwork2.ActionContext;
 import com.zis.bookinfo.action.BookAction;
 import com.zis.bookinfo.bean.Bookinfo;
+import com.zis.bookinfo.bean.BookinfoDetail;
+import com.zis.bookinfo.bean.BookinfoStatus;
+import com.zis.bookinfo.dto.BookInfoAndDetailDTO;
 import com.zis.bookinfo.service.BookService;
 import com.zis.bookinfo.util.ConstantString;
 import com.zis.common.util.Page;
@@ -192,5 +199,32 @@ public class BookController {
 		// 状态为废弃的不查询
 		criteria.add(Restrictions.ne("bookStatus", ConstantString.ABANDON));
 		return criteria;
+	}
+	
+	/**
+	 * 通过id查询放入容器中
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value="update/{bookId}.html")
+	public String findBookById(@PathVariable(value="bookId") Integer bookId, ModelMap model) {
+		int id = bookId;//
+		Bookinfo book = bookService.findBookById(id);
+		if (book == null) {
+			// TODO
+			//this.addActionError("无此图书, bookId=" + bookId);
+			//return ERROR;
+		}
+		BookinfoDetail detail = bookService.findBookInfoDetailByBookId(id);
+		BookInfoAndDetailDTO infoAndDetail = new BookInfoAndDetailDTO();
+		BeanUtils.copyProperties(book, infoAndDetail);
+		if(detail != null) {
+			BeanUtils.copyProperties(detail, infoAndDetail);
+		}
+		model.put("book", infoAndDetail);
+		model.put("bookId", book.getId());
+		model.put("isNewEdition", book.getIsNewEdition());
+		model.put("repeatIsbn", book.getRepeatIsbn());
+		return "bookinfo/alterBook";
 	}
 }

@@ -1,33 +1,82 @@
 package com.zis.bookinfo.bean;
 
-import java.sql.Timestamp;
 import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 /**
  * Bookinfo entity. @author MyEclipse Persistence Tools
  */
-
+@Entity
+@Table(name = "bookinfo")
 public class Bookinfo implements java.io.Serializable {
 
 	// Fields
 
 	private static final long serialVersionUID = -5701295820763705669L;
+	
+	@Id
+	@GeneratedValue
+	@Column(name="id")
 	private Integer id;
+	
+	@Column(name="outId")
 	private Integer outId;
+	
+	@Column(name="ISBN")
 	private String isbn;
+	
+	@Column(name="bookName")
 	private String bookName;
+	
+	@Column(name="bookAuthor")
 	private String bookAuthor;
+	
+	@Column(name="bookPublisher")
 	private String bookPublisher;
+	
+	@Column(name="publishDate")
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date publishDate;
+	
+	@Column(name="bookPrice", precision=10, scale=2)
 	private Double bookPrice;
+	
+	@Column(name="bookEdition")
 	private String bookEdition;
+	
+	@Column(name="isNewEdition")
 	private Boolean isNewEdition;
+	
+	@Column(name="groupId")
 	private String groupId;
+	
+	@Column(name="relateId")
 	private String relateId;
+	
+	@Column(name="repeatISBN")
 	private Boolean repeatIsbn;
-	private Timestamp gmtCreate;
-	private Timestamp gmtModify;
+	
+	@Column(name="GMT_CREATE", updatable = false)
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date gmtCreate;
+	
+	@Column(name="GMT_MODIFY")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date gmtModify;
+	
+	@Version
+	@Column(name="Version")
 	private Integer version;
+	
+	@Column(name="bookStatus")
 	private String bookStatus;
 
 	// Constructors
@@ -51,7 +100,7 @@ public class Bookinfo implements java.io.Serializable {
 			String bookAuthor, String bookPublisher, Date publishDate,
 			Double bookPrice, String bookEdition, Boolean isNewEdition,
 			String groupId, String relateId, Boolean repeatIsbn,
-			Timestamp gmtCreate, Timestamp gmtModify, Integer version,
+			Date gmtCreate, Date gmtModify, Integer version,
 			String bookStatus) {
 		this.outId = outId;
 		this.isbn = isbn;
@@ -137,7 +186,6 @@ public class Bookinfo implements java.io.Serializable {
 		this.bookPrice = bookPrice;
 	}
 
-
 	public String getBookEdition() {
 		return bookEdition;
 	}
@@ -178,19 +226,19 @@ public class Bookinfo implements java.io.Serializable {
 		this.repeatIsbn = repeatIsbn;
 	}
 
-	public Timestamp getGmtCreate() {
+	public Date getGmtCreate() {
 		return this.gmtCreate;
 	}
 
-	public void setGmtCreate(Timestamp gmtCreate) {
+	public void setGmtCreate(Date gmtCreate) {
 		this.gmtCreate = gmtCreate;
 	}
 
-	public Timestamp getGmtModify() {
+	public Date getGmtModify() {
 		return this.gmtModify;
 	}
 
-	public void setGmtModify(Timestamp gmtModify) {
+	public void setGmtModify(Date gmtModify) {
 		this.gmtModify = gmtModify;
 	}
 
@@ -209,5 +257,4 @@ public class Bookinfo implements java.io.Serializable {
 	public void setBookStatus(String bookStatus) {
 		this.bookStatus = bookStatus;
 	}
-
 }

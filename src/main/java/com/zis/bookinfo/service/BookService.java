@@ -24,13 +24,13 @@ import com.zis.bookinfo.bo.RepeatIsbnAnalysisBO;
 import com.zis.bookinfo.bo.SameBookAnalysisBO;
 import com.zis.bookinfo.bo.SimilarityBookAnalysisBO;
 import com.zis.bookinfo.bo.TaobaoCsvDataGenerateBO;
-import com.zis.bookinfo.dao.BookinfoDao;
 import com.zis.bookinfo.dao.BookinfoDetailDao;
 import com.zis.bookinfo.dao.ShopItemInfoDao;
 import com.zis.bookinfo.dao.YouluSalesDao;
 import com.zis.bookinfo.dto.BookInfoAndDetailDTO;
 import com.zis.bookinfo.dto.BookInfoSearchResult;
 import com.zis.bookinfo.dto.ShopItemInfoDTO;
+import com.zis.bookinfo.repository.BookInfoDao;
 import com.zis.bookinfo.util.BookMetadata;
 import com.zis.bookinfo.util.BookMetadataSource;
 import com.zis.bookinfo.util.ConstantString;
@@ -45,7 +45,7 @@ public class BookService {
 	private static final int MAX_CONTENT_LENGTH = 8192;
 
 	@Autowired
-	private BookinfoDao bookinfoDao;
+	private BookInfoDao bookinfoDao;
 	@Autowired
 	private BookinfoDetailDao bookinfoDetailDao;
 	@Autowired
@@ -231,7 +231,7 @@ public class BookService {
 		if(list != null && !list.isEmpty()) {
 			throw new RuntimeException("该书已经被使用，请联系管理员");
 		}
-		Bookinfo book = this.bookinfoDao.findById(bookId);
+		Bookinfo book = this.bookinfoDao.findOne(bookId);
 		if(book == null || ConstantString.ABANDON.equals(book.getBookStatus())) {
 			return; // 图书不存在或者已废弃，不做任何处理
 		}
@@ -243,11 +243,12 @@ public class BookService {
 			// List<Bookinfo> booksToBeDeal = new ArrayList<Bookinfo>();
 			// booksToBeDeal.add(book);
 			// sameBookAnalysisBO.relateToSameBooks(booksToBeDeal);
-			DetachedCriteria criteria = DetachedCriteria.forClass(Bookinfo.class);
-			criteria.add(Restrictions.eq("groupId", book.getGroupId()));
-			criteria.add(Restrictions.eq("bookPublisher", book.getBookPublisher()));
-			criteria.add(Restrictions.ne("bookStatus", BookinfoStatus.DISCARD));
-			List<Bookinfo> bookList = bookinfoDao.findByCriteria(criteria);
+//			DetachedCriteria criteria = DetachedCriteria.forClass(Bookinfo.class);
+//			criteria.add(Restrictions.eq("groupId", book.getGroupId()));
+//			criteria.add(Restrictions.eq("bookPublisher", book.getBookPublisher()));
+//			criteria.add(Restrictions.ne("bookStatus", BookinfoStatus.DISCARD));
+//			List<Bookinfo> bookList = bookinfoDao.findByCriteria(criteria);
+			List<Bookinfo> bookList = bookinfoDao.findByGroupIdAndPublisher(book.getGroupId(), book.getBookPublisher());
 			this.sameBookAnalysisBO.batchUpdateBooksIsNewEdition(bookList, book.getGroupId());
 		}
 	}
@@ -265,8 +266,7 @@ public class BookService {
 	 */
 	public void updateBook(Bookinfo book, BookinfoDetail detail) {
 		book.setGmtModify(ZisUtils.getTS());
-		book.setVersion(book.getVersion() + 1);
-		bookinfoDao.update(book);
+		bookinfoDao.save(book);
 		if(detail != null) {
 			detail.setBookid(book.getId());
 			detail.setGmtModify(ZisUtils.getTS());
@@ -282,7 +282,7 @@ public class BookService {
 	 * @return
 	 */
 	public Bookinfo findBookById(int id) {
-		return bookinfoDao.findById(id);
+		return bookinfoDao.findOne(id);
 	}
 	
 	/**
@@ -291,17 +291,18 @@ public class BookService {
 	 * @return
 	 */
 	public Bookinfo findNormalBookById(int id) {
-		DetachedCriteria criteria = DetachedCriteria.forClass(Bookinfo.class);
-		criteria.add(Restrictions.eq("id", id));
-		criteria.add(Restrictions.eq("bookStatus", BookinfoStatus.NORMAL));
-		List<Bookinfo> list = this.bookinfoDao.findByCriteria(criteria);
-		if(list == null || list.isEmpty()) {
-			return null;
-		}
-		if(list.size() > 1) {
-			throw new RuntimeException("数据错误，bookId="+id+"对应两条以上记录");
-		}
-		return list.get(0);
+		return this.bookinfoDao.findNormalBook(id);
+//		DetachedCriteria criteria = DetachedCriteria.forClass(Bookinfo.class);
+//		criteria.add(Restrictions.eq("id", id));
+//		criteria.add(Restrictions.eq("bookStatus", BookinfoStatus.NORMAL));
+//		List<Bookinfo> list = this.bookinfoDao.findByCriteria(criteria);
+//		if(list == null || list.isEmpty()) {
+//			return null;
+//		}
+//		if(list.size() > 1) {
+//			throw new RuntimeException("数据错误，bookId="+id+"对应两条以上记录");
+//		}
+//		return list.get(0);
 	}
 
 	/**
@@ -329,7 +330,7 @@ public class BookService {
 		List<Bookinfo> booksToBeDeal = new ArrayList<Bookinfo>();
 		// 所有相同图书都整理到一起
 		for (Integer id : ids) {
-			Bookinfo book = bookinfoDao.findById(id);
+			Bookinfo book = bookinfoDao.findOne(id);
 			if (book != null) {
 				booksToBeDeal.add(book);
 			}
@@ -350,7 +351,7 @@ public class BookService {
 		Map<Integer, Bookinfo> booksToBeDeal = new HashMap<Integer, Bookinfo>();
 		// 所有关联图书都整理到一起
 		for (Integer id : ids) {
-			Bookinfo book = bookinfoDao.findById(id);
+			Bookinfo book = bookinfoDao.findOne(id);
 			if (book == null) { // 跳过不存在的记录
 				continue;
 			}
@@ -360,8 +361,7 @@ public class BookService {
 			else {
 				// 如果有相关图书，则将所有相关图书的ID都加入到集合中等待处理
 				relateId = book.getRelateId();
-				List<Bookinfo> list = bookinfoDao.findByRelateId(book
-						.getRelateId());
+				List<Bookinfo> list = getBooksByRelateId(relateId);
 				for (Bookinfo bookinfo : list) {
 					booksToBeDeal.put(bookinfo.getId(), bookinfo);
 				}
@@ -372,7 +372,8 @@ public class BookService {
 			relateId = "r" + ZisUtils.getDateString("yyyyMMddHHmmss") + (int) (Math.random() * 1000);
 		for (Bookinfo record : booksToBeDeal.values()) {
 			record.setRelateId(relateId);
-			bookinfoDao.update(record);
+			record.setGmtModify(ZisUtils.getTS());
+			bookinfoDao.save(record);
 			logger.info("successfully combined related books, bookId="
 					+ record.getId());
 		}
@@ -398,10 +399,10 @@ public class BookService {
 	 * @return
 	 */
 	public List<Bookinfo> getBooksByGroupId(String groupId) {
-		DetachedCriteria dc = DetachedCriteria.forClass(Bookinfo.class);
-		dc.add(Restrictions.eq("groupId", groupId));
-		dc.add(Restrictions.ne("bookStatus", ConstantString.ABANDON));
-		return bookinfoDao.findByCriteria(dc);
+//		DetachedCriteria dc = DetachedCriteria.forClass(Bookinfo.class);
+//		dc.add(Restrictions.eq("groupId", groupId));
+//		dc.add(Restrictions.ne("bookStatus", ConstantString.ABANDON));
+		return bookinfoDao.findByGroupId(groupId);
 	}
 
 	/**
@@ -411,10 +412,11 @@ public class BookService {
 	 * @return
 	 */
 	public List<Bookinfo> getBooksByRelateId(String relateId) {
-		DetachedCriteria dc = DetachedCriteria.forClass(Bookinfo.class);
-		dc.add(Restrictions.eq("relateId", relateId));
-		dc.add(Restrictions.ne("bookStatus", ConstantString.ABANDON));
-		return bookinfoDao.findByCriteria(dc);
+//		DetachedCriteria dc = DetachedCriteria.forClass(Bookinfo.class);
+//		dc.add(Restrictions.eq("relateId", relateId));
+//		dc.add(Restrictions.ne("bookStatus", ConstantString.ABANDON));
+//		return bookinfoDao.findByCriteria(dc);
+		return bookinfoDao.findByRelateId(relateId);
 	}
 
 	/**
@@ -423,7 +425,7 @@ public class BookService {
 	 * @param id
 	 */
 	public void removeRelateId(int id, String pageType) {
-		Bookinfo book = bookinfoDao.findById(id);
+		Bookinfo book = bookinfoDao.findOne(id);
 		// 不同版本
 		if (ConstantString.PAGEGROUP.equals(pageType)) {
 			boolean isNewEditionRemoved = book.getIsNewEdition();
@@ -434,11 +436,12 @@ public class BookService {
 			this.updateBook(book);
 			// 如果移除的记录是最新版，那么所属分组需要重新标记最新版
 			if(isNewEditionRemoved) {
-				DetachedCriteria criteria = DetachedCriteria.forClass(Bookinfo.class);
-				criteria.add(Restrictions.eq("groupId", groupId));
-				criteria.add(Restrictions.eq("bookPublisher", book.getBookPublisher()));
-				criteria.add(Restrictions.ne("bookStatus", BookinfoStatus.DISCARD));
-				List<Bookinfo> bookList = bookinfoDao.findByCriteria(criteria);
+//				DetachedCriteria criteria = DetachedCriteria.forClass(Bookinfo.class);
+//				criteria.add(Restrictions.eq("groupId", groupId));
+//				criteria.add(Restrictions.eq("bookPublisher", book.getBookPublisher()));
+//				criteria.add(Restrictions.ne("bookStatus", BookinfoStatus.DISCARD));
+//				List<Bookinfo> bookList = bookinfoDao.findByCriteria(criteria);
+				List<Bookinfo> bookList = bookinfoDao.findByGroupIdAndPublisher(groupId, book.getBookPublisher());
 				this.sameBookAnalysisBO.batchUpdateBooksIsNewEdition(bookList, groupId);
 			}
 		}
@@ -577,10 +580,11 @@ public class BookService {
 		if (StringUtils.isBlank(isbn)) {
 			throw new RuntimeException("isbn不能为空");
 		}
-		DetachedCriteria dc = DetachedCriteria.forClass(Bookinfo.class);
-		dc.add(Restrictions.eq("isbn", isbn));
-		dc.add(Restrictions.ne("bookStatus", ConstantString.ABANDON));// FIXME 中文会产生乱码
-		return bookinfoDao.findByCriteria(dc);
+		return bookinfoDao.findByIsbn(isbn);
+//		DetachedCriteria dc = DetachedCriteria.forClass(Bookinfo.class);
+//		dc.add(Restrictions.eq("isbn", isbn));
+//		dc.add(Restrictions.ne("bookStatus", ConstantString.ABANDON));
+//		return bookinfoDao.findByCriteria(dc);
 	}
 	
 	/**
