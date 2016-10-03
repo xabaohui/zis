@@ -152,6 +152,13 @@ public class BookInfoDaoTest {
 		}
 		Assert.assertNotNull(list);
 	}
+	
+	@Test
+	public void testCountWaitingBooks() {
+		Integer count = this.bookInfoDao.countWaitingBooks();
+		System.out.println(count);
+		Assert.assertNotNull(count);
+	}
 
 	private Bookinfo generateRandomBookInfo() {
 		Bookinfo book = new Bookinfo();

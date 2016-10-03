@@ -17,7 +17,7 @@ import com.zis.common.util.PaginationQueryUtil;
 import com.zis.common.util.ZisUtils;
 import com.zis.purchase.biz.DoPurchaseService;
 
-public class DoPurchaseAction extends ActionSupport {
+public class DoPurchaseAction extends ActionSupport  {
 
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = Logger
@@ -26,7 +26,7 @@ public class DoPurchaseAction extends ActionSupport {
 	private String isbn;
 	private String keyword;
 	private String purchaseOperator;
-
+	
 	private DoPurchaseService doPurchaseService;
 	private BookService bookService;
 
@@ -85,7 +85,7 @@ public class DoPurchaseAction extends ActionSupport {
 		criteria.add(Restrictions.lt("publishDate", ZisUtils.stringToDate("2016-01")));//FIXME 时间限定写死
 		criteria.add(Restrictions.eq("bookStatus", ConstantString.USEFUL));
 		criteria.setProjection(Projections.property("id"));
-		List list = this.bookService.findBookByCriteria(criteria);
+		List <Bookinfo> list = this.bookService.findBookByCriteria(criteria);
 		for (Object obj : list) {
 			Integer bookId = (Integer) obj;
 			doPurchaseService.addBlackList(bookId);

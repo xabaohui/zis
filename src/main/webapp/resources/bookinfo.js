@@ -8,7 +8,10 @@ function checkExistBook() {
 	$("showExistBook").style="display:none";
 	// 增加遮罩，提示用户系统处理中
 	document.getElementById("float-to-be-show").style.display = "block";
-	bookService.findAndCaptureBookByISBN(isbn, showCheckExistBookResult);
+	if (typeof window['bookService'] == 'undefined'){
+        window.bookService = dwr.util;
+        bookService.findAndCaptureBookByISBN(isbn, showCheckExistBookResult);
+    }
 }
 
 function showCheckExistBookResult(data) {

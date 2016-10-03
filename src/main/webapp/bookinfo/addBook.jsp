@@ -1,5 +1,4 @@
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
-<%@ taglib prefix="s" uri="/struts-tags"%>
 <%@ include file="/header.jsp"%>
 
 <script type='text/javascript' src='dwr/engine.js'></script>
@@ -10,10 +9,10 @@
 <script src="JTimer_1.3.js"></script>
 
 <h1>新增图书</h1>
-<h2><font color="green"><s:actionmessage /></font></h2>
+<h2><font color="green"><!--<s:actionmessage />  --></font></h2>
 <p />
 <div id="showExistBook" style="font-weight: bold;color: green"></div>
-<s:form action="saveOrUpdateBook" method="post">
+<form action="bookInfo/saveOrUpdate" method="post">
 	<table width="301" height="395" border="1">
 		<tr>
 			<td>ISBN</td>
@@ -79,7 +78,7 @@
 	<input type="submit" value="提交">
     &nbsp;&nbsp;&nbsp;
     <input type="reset" value="取消">
-</s:form>
+</form>
 
 <div id="float-to-be-show">
 	<h2>处理中，请稍后...</h2>

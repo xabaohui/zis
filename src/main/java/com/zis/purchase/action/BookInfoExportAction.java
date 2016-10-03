@@ -18,6 +18,10 @@ import com.zis.purchase.dto.TempImportDetailView;
 public class BookInfoExportAction extends
 		CommonExcelExportAction<TempImportDetailView> {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private Integer taskId;
 	private DoPurchaseService doPurchaseService;
 

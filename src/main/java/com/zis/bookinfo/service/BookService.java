@@ -11,6 +11,9 @@ import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
@@ -79,9 +82,11 @@ public class BookService {
 	public String getBookInfo(String bookName, String bookAuthor, String ISBN) {
 		DetachedCriteria criteria = this.buildBookInfoCriteria(bookName,
 				bookAuthor, ISBN);
-		List<Bookinfo> list = bookinfoDao
-				.findByCriteriaLimitCount(criteria, 20);
-		return JSON.toJSONString(list);
+		// FIXME to be impl
+		return null;
+//		List<Bookinfo> list = bookinfoDao
+//				.findByCriteriaLimitCount(criteria, 20);
+//		return JSON.toJSONString(list);
 	}
 
 	private DetachedCriteria buildBookInfoCriteria(String bookName,
@@ -107,15 +112,17 @@ public class BookService {
 	 * @return true if exist
 	 */
 	public boolean ifBookInfoExist(Bookinfo book) {
-		DetachedCriteria criteria = DetachedCriteria.forClass(Bookinfo.class);
-		criteria.add(Restrictions.eq("bookName", book.getBookName()));
-		criteria.add(Restrictions.eq("bookAuthor", book.getBookAuthor()));
-		criteria.add(Restrictions.eq("bookEdition", book.getBookEdition()));
-		criteria.add(Restrictions.eq("bookPublisher", book.getBookPublisher()));
-		criteria.add(Restrictions.eq("isbn", book.getIsbn()));
-		criteria.add(Restrictions.eq("bookStatus", BookinfoStatus.NORMAL));
-		List<Bookinfo> list = bookinfoDao.findByCriteria(criteria);
-		return list != null && !list.isEmpty();
+		return false;
+		// FIXME 未完成
+//		DetachedCriteria criteria = DetachedCriteria.forClass(Bookinfo.class);
+//		criteria.add(Restrictions.eq("bookName", book.getBookName()));
+//		criteria.add(Restrictions.eq("bookAuthor", book.getBookAuthor()));
+//		criteria.add(Restrictions.eq("bookEdition", book.getBookEdition()));
+//		criteria.add(Restrictions.eq("bookPublisher", book.getBookPublisher()));
+//		criteria.add(Restrictions.eq("isbn", book.getIsbn()));
+//		criteria.add(Restrictions.eq("bookStatus", BookinfoStatus.NORMAL));
+//		List<Bookinfo> list = bookinfoDao.findByCriteria(criteria);
+//		return list != null && !list.isEmpty();
 	}
 
 	/**
@@ -138,7 +145,7 @@ public class BookService {
 		book.setGmtCreate(ZisUtils.getTS());
 		book.setGmtModify(ZisUtils.getTS());
 		book.setVersion(0);
-		bookinfoDao.save(book);
+		book = bookinfoDao.save(book);
 		if(detail != null) {
 			detail.setBookid(book.getId());
 			bookinfoDetailDao.save(detail);
@@ -205,7 +212,9 @@ public class BookService {
 	 * @return
 	 */
 	public List<Bookinfo> findBookByCriteria(DetachedCriteria criteria) {
-		return bookinfoDao.findByCriteria(criteria);
+		return null;
+		// FIXME to be impl
+		//		return bookinfoDao.findByCriteria(criteria);
 	}
 	
 	/**
@@ -614,10 +623,11 @@ public class BookService {
 		}
 	}
 
-	public List<Bookinfo> getWaitCheckList() {
-		List<Bookinfo> list = bookinfoDao
-				.findByBookStatus(ConstantString.WAITCHECK);
-		return list;
+	public Page<Bookinfo> getWaitCheckList(Pageable page) {
+		return this.bookinfoDao.findByBookStatus(BookinfoStatus.WAITCHECK, page);
+//		List<Bookinfo> list = bookinfoDao
+//				.findByBookStatus(ConstantString.WAITCHECK);
+//		return list;
 	}
 
 	/**
@@ -817,5 +827,13 @@ public class BookService {
 	 */
 	public void generateTaobaoCsvDataFile(List<BookInfoAndDetailDTO> list, String[] emails) {
 		taobaoCsvDataGenerateBO.generate(list, emails);
+	}
+	
+	/**
+	 * 查询待审核的记录数
+	 * @return
+	 */
+	public 	Integer countWaitingBooks() {
+		return bookinfoDao.countWaitingBooks();
 	}
 }

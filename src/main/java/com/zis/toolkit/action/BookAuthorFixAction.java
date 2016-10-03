@@ -26,6 +26,7 @@ public class BookAuthorFixAction extends BaseBookFixAction {
 	 * 
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public String fixBookAuthor() {
 		DetachedCriteria criteria = DetachedCriteria.forClass(Bookinfo.class);
 		Integer totalCount = PaginationQueryUtil.getTotalCount(criteria);

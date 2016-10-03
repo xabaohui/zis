@@ -1,18 +1,17 @@
 <%@page import="com.zis.bookinfo.bean.Bookinfo"%>
 <%@page import="com.opensymphony.xwork2.ActionContext"%>
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
-<%@ taglib prefix="s" uri="/struts-tags"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ include file="/header.jsp"%>
 	<h2 align="center">
 		<font>
-		<s:if test="#pageType=='pageGroup'">不同版次的图书</s:if>
-		<s:if test="#pageType=='pageRelate'">相关图书</s:if>
-		
+			<c:if test="${pageType}=='pageGroup'">不同版次的图书</c:if>
+			<c:if test="${pageType}=='pageRelate'">相关图书</c:if>
 		</font>
 	</h2>
-		<s:form action="removeAll" method="post" id="from_checkBox" >
-		<s:hidden name="pageType" />
 		
+		<form action="/bookInfo/removeAll" method="post" id="from_checkBox" >
+		<input name="pageType" value="${pageType}">
 			<table id="common-table">
 				<tr>
 					<th>ID</th>
@@ -27,38 +26,38 @@
 					<th height="30" width="100">操作</th>
 				</tr>
 
-				<s:iterator value="relateList" var="book"> 
+				<c:forEach items="${relateList}"  var="book"> 
 					<tr>
-						<td><s:property value="id"/></td>
+						<td>${book.id}</td>
 						<td>
-							<a href="bookinfo/getAllBooks?bookISBN=<s:property value="isbn"/>"><s:property value="isbn"/></a>
-							<s:if test="#book.repeatIsbn == true"><br/><font style="font-weight:bold;color:red">[一码多书]</font></s:if>
+							<a href="bookInfo/getAllBooks?bookISBN=${book.isbn}">${book.isbn}</a>
+							<c:if test="${book.repeatIsbn} == true"><br/><font style="font-weight:bold;color:red">[一码多书]</font></c:if>
 						</td>
 						<td>
-							<s:property value="bookName"/>&nbsp;
-							[<a href="http://www.youlu.net/<s:property value="outId"/>" target="_blank">有</a>]
-							[<a href="https://s.taobao.com/search?q=<s:property value="isbn"/>" target="_blank">淘</a>]
+							${book.bookName}&nbsp;
+							[<a href="http://www.youlu.net/${book.outId}" target="_blank">有</a>]
+							[<a href="https://s.taobao.com/search?q=${book.isbn}" target="_blank">淘</a>]
 						</td>
 						<td>
-							<s:property value="bookEdition"/>
-							<s:if test="isNewEdition == true"><font style="font-weight:bold;color:green">[最新]</font></s:if>
-							<s:if test="groupId!=null">
-						    <a href="bookinfo/showGroupList?groupId=<s:property value="groupId"/>"  target="_blank"><br/>其他版本</a>
-							</s:if>
+							${book.bookEdition}
+							<c:if test="${book.isNewEdition} == true"><font style="font-weight:bold;color:green">[最新]</font></c:if>
+							<c:if test="${book.groupId}!=null">
+						    <a href="bookInfo/showGroupList?groupId=${book.groupId}"  target="_blank"><br/>其他版本</a>
+							</c:if>
 						</td>
-						<td><a href="bookinfo/getAllBooks?bookAuthor=<s:property value="bookAuthor"/>&bookPublisher=<s:property value="bookPublisher"/>&pageSource=pagination"><s:property value="bookAuthor"/></a></td>
-						<td><s:property value="bookPublisher"/></td>
+						<td><a href="bookInfo/getAllBooks?bookAuthor=${book.bookAuthor}&bookPublisher=${book.bookPublisher}&pageSource=pagination">${book.bookAuthor}</a></td>
+						<td>${book.bookPublisher}</td>
 						<td>
-							<s:date name="publishDate" format="yyyy年MM月" />
+							${book.publishDate}
 						</td>
-						<td><s:property value="bookPrice"/></td>
-						<td><s:property value="bookStatus"/></td>
-						<td><a href="bookinfo/removeRelateId?id=<s:property value="id"/>&pageType=<s:property value="pageType"/>">解除关联</a></td>
+						<td>${book.bookPrice}</td>
+						<td>${book.bookStatus}</td>
+						<td><a href="bookInfo/removeRelateId?id=${pageType}&pageType=${pageType}">解除关联</a></td>
 					</tr>
-			</s:iterator>
+			</c:forEach>
 			</table>
 		 　　<input type="submit"  value="解除所有关联">
 
-		</s:form>
+		</form>
 
 <%@ include file="/footer.jsp"%>

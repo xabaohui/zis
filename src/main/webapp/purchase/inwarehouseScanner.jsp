@@ -19,7 +19,7 @@
 			// (4-1)查询图书
 			bookService.findBookByISBN(userInput, findBookByIsbn);
 		}
-	}
+	};
 </script>
 
 <!-- 播放器 -->

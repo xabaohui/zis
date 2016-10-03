@@ -95,15 +95,15 @@
 				<br />
 				<br />
 				&nbsp;
-				<a href="<%=basePath%>/bookinfo/getAllBooks">图书列表</a> &nbsp;
+				<a href="<%=basePath%>bookInfo/getAllBooks">图书列表</a> &nbsp;
 				<br />
 				<br />
 				&nbsp;
-				<a href="<%=basePath%>/bookinfo/addBook.jsp">新增图书</a> &nbsp;
+				<a href="<%=basePath%>bookInfo/gotoAddBook">新增图书</a> &nbsp;
 				<br />
 				<br />
 				&nbsp;
-				<a href="<%=basePath%>/bookinfo/addYouLuData.jsp">批量增加</a> &nbsp;
+				<a href="<%=basePath%>bookInfo/gotoAddYouLuData">批量增加</a> &nbsp;
 				<br />
 				<br />
 				&nbsp;==========
@@ -125,19 +125,19 @@
 				<br />
 				<br />
 				&nbsp;
-				<a href="<%=basePath%>/purchase/queryPurchasePlan">采购计划</a>
+				<a href="<%=basePath%>purchase/queryPurchasePlan">采购计划</a>
 				<br />
 				<br />
 				&nbsp;
-				<a href="<%=basePath%>/purchase/queryPurchaseDetail">采购明细</a>
+				<a href="<%=basePath%>purchase/queryPurchaseDetail">采购明细</a>
 				<br />
 				<br />
 				&nbsp;
-				<a href="<%=basePath%>/purchase/viewTempImportTask">数据导入</a>
+				<a href="<%=basePath%>purchase/viewTempImportTask">数据导入</a>
 				<br />
 				<br />
 				&nbsp;
-				<a href="<%=basePath%>/purchase/inwarehouse.jsp">扫描入库</a>
+				<a href="<%=basePath%>purchase/gotoInWarehouse">扫描入库</a>
 				<br />
 				<br />
 				&nbsp;==========

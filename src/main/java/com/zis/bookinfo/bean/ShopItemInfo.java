@@ -10,6 +10,10 @@ public class ShopItemInfo implements java.io.Serializable {
 
 	// Fields
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -212738810787897497L;
 	private Integer id;
 	private Integer bookId;
 	private String isbn;

@@ -1,17 +1,17 @@
 <%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
-<%@ taglib prefix="s" uri="/struts-tags"%>
-
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!-- 分页查询start -->
 <div align="center">
 <p/>
-<s:if test="#prePage != null">
-	<s:a href="%{actionUrl}?%{queryCondition}pageSource=pagination&pageNow=%{prePage}">上一页</s:a>
-</s:if>
+<c:if test="${not empty prePage}">
+	<a href="${actionUrl}?${queryCondition}pageSource=pagination&pageNow=${prePage}" >上一页</a>
+	<!--<a href="%{actionUrl}?%{queryCondition}pageSource=pagination&pageNow=%{prePage}"></a>-->
+</c:if>
 &nbsp;
-<s:property value="#pageNow" />
+${pageNow}
 &nbsp;
-<s:if test="#nextPage != null">
-	<s:a href="%{actionUrl}?%{queryCondition}pageSource=pagination&pageNow=%{nextPage}">下一页</s:a>
-</s:if>
+<c:if test="${not empty nextPage}">
+	<a href="${actionUrl}?${queryCondition}pageSource=pagination&pageNow=${nextPage}" >下一页</a>
+</c:if>
 </div>
 <!-- 分页查询end -->
