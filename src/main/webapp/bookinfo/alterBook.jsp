@@ -4,12 +4,12 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="s" uri="/struts-tags"%>
 <%@ include file="/header.jsp"%>
-<script src="JTimer_1.3.js"></script>
+<script src="resources/JTimer_1.3.js"></script>
 <html>
 <head>
 <title>修改图书</title>
 
-<script type="text/javascript" src="JTimer_1.3.js"></script>
+<script type="text/javascript" src="resources/JTimer_1.3.js"></script>
 
 <script type="text/javascript">
 	function doModify(operateType) {

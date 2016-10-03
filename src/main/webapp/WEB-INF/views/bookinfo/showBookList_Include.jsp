@@ -8,7 +8,7 @@
 <script type="text/javascript" src='resources/common.js'></script>
 <script type="text/javascript" src='resources/bookinfo.js'></script>
 
-<form action="batchOperateBooks" method="post" id="form_checkBox">
+<form action="bookInfo/batchOperateBooks" method="post" id="form_checkBox">
 	<input type="hidden" name="operateType" id="operateType"/>
 	<div align="left">
 		<input type="button" value="设置成不同版本" onclick="batchOperate('<%=BookBatchOperateType.SET_TO_GROUP %>')" />
@@ -43,7 +43,7 @@
 				<td>${book.id}
 				</td>
 				<td>
-					<a href="bookinfo/getAllBooks?bookISBN=${book.isbn}">
+					<a href="bookInfo/getAllBooks?bookISBN=${book.isbn}">
 					${book.isbn}
 					</a>
 					<c:if test="${book.repeatIsbn} == true">
@@ -59,10 +59,10 @@
 					<c:if test="${book.isNewEdition} == true"><font style="font-weight:bold;color:green">[最新]</font></c:if>
 					<c:if test="${book.groupId} != null">
 						<br/>
-						[<a href="bookinfo/showGroupList?groupId=${book.groupId}" target="_blank">其他版本</a>]
+						[<a href="bookInfo/showGroupList?groupId=${book.groupId}" target="_blank">其他版本</a>]
 					</c:if>
 				</td>
-				<td><a href="bookinfo/getAllBooks?bookAuthor=${book.bookAuthor}&bookPublisher=${book.bookPublisher}&pageSource=pagination">${book.bookAuthor}</a>
+				<td><a href="bookInfo/getAllBooks?bookAuthor=${book.bookAuthor}&bookPublisher=${book.bookPublisher}&pageSource=pagination">${book.bookAuthor}</a>
 				</td>
 				<td>${book.bookPublisher}
 				</td>
@@ -71,13 +71,13 @@
 				</td>
 				<td>
 					<c:if test="${book.relateId} != null">
-						<a href="bookinfo/showGroupList?relateId=${book.relateId}"
+						<a href="bookInfo/showGroupList?relateId=${book.relateId}"
 							target="_blank">关联图书</a>
 					</c:if>
 				</td>
 				<td>${book.bookStatus}
 				</td>
-				<td><a href="bookinfo/findBookById?bookId=${book.id}"
+				<td><a href="bookInfo/findBookById?bookId=${book.id}"
 					target="_blank">修改</a></td>
 					<td><a href="#"
 					onclick="return immigrate(${book.id})">迁移</a></td>

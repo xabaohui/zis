@@ -10,6 +10,10 @@ public class BookinfoDetail implements java.io.Serializable {
 
 	// Fields
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2036786162490743934L;
 	private Integer bookid;
 	private String imageUrl;
 	private String taobaoTitle;

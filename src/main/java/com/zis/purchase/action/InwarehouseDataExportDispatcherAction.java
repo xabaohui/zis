@@ -12,6 +12,8 @@ import com.opensymphony.xwork2.ActionSupport;
  */
 public class InwarehouseDataExportDispatcherAction extends ActionSupport {
 
+	private static final long serialVersionUID = 1L;
+
 	private Integer[] batchSelectedItem;
 
 	private String operateType;

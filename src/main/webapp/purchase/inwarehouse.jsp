@@ -13,8 +13,8 @@
 	<table>
 		<tr>
 			<td>
-			<s:select list="#{'purchase':'采购入库', 'direct':'直接入库', 'return':'退货入库'}" name="bizType" label="入库类型" required="true" />
-			<s:textfield name="inwarehouseOperator" label="入库操作员" required="true" />
+			<s:select list="#{'purchase':'采购入库', 'direct':'直接入库', 'return':'退货入库'}" name="bizType" label="入库类型" required="required" />
+			<s:textfield name="inwarehouseOperator" label="入库操作员" required="required" />
 			<s:textfield name="purchaseOperator" label="采购员" />
 			<s:textfield name="memo" label="操作备注" />
 			</td>
