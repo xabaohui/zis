@@ -2,7 +2,6 @@
 <%@page import="com.zis.bookinfo.bean.Bookinfo"%>
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="s" uri="/struts-tags"%>
 <%@ include file="/header.jsp"%>
 <script src="resources/JTimer_1.3.js"></script>
 <html>
@@ -24,20 +23,20 @@
 		<font color="green">修改图书信息</font>
 	</h2>
 	<h3>
-		<font color="pink"> <s:property value="showValue" /> </font>
+		<font color="pink"> </font>
 	</h3>
 
-	<s:form action="saveOrUpdateBook" method="post" id="form_update">
+	<form action="saveOrUpdateBook" method="post" id="form_update">
 		<!-- 用来传操作符的值 -->
-		<s:hidden name="operateType" id="operateTypeId" />
-		<s:hidden name="bookId" />
-		<s:hidden name="isNewEdition" />
-		<s:hidden name="repeatIsbn" />
+		<input type="hidden" name="operateType" id="operateTypeId"/>
+		<input type="hidden" name="bookId" value="${bookId}"/>
+		<input type="hidden" name="isNewEdition" value="${isNewEdition}"/>
+		<input type="hidden" name="repeatIsbn" value="${repeatIsbn}"/>
 		<table width="301" height="395" border="1">
 			<tr>
 				<td>图书id <br /></td>
 				<td><input type="text" name="id" readonly="readonly"
-					value="${book.id }" />
+					value="${book.id }"/>
 				</td>
 			</tr>
 			<tr>
@@ -72,14 +71,14 @@
 			<tr>
 				<td>出版社</td>
 				<td><input type="text" name="bookPublisher"
-					value="${book.bookPublisher }" /> <%--      <s:textfield  name="#book.bookPublisher"/> --%>
+					value="${book.bookPublisher }" />
 				</td>
 			</tr>
 			<tr>
 				<td>出版日期</td>
 				<td><input type="text" onclick="JTC.setday()"
 					name="publishDate"
-					value="<s:date name="#book.publishDate"  format="yyyy-MM-dd"  />" />
+					value="${book.publishDate }" />
 			</tr>
 			<tr>
 				<td>价格</td>
@@ -90,16 +89,16 @@
 			<tr>
 				<td>是否最新版</td>
 				<td>
-					<s:if test="#book.isNewEdition==true">是</s:if>
-					<s:else>否</s:else>
+					<c:if test="${book.isNewEdition} == true">是</c:if>
+					<c:if test="${book.isNewEdition} == false">否</c:if>
 				</td>
 			</tr>
 			<tr>
 				<!-- 判断状态条件，自动判断 -->
 				<td>是否一码多书</td>
 				<td>
-					<s:if test="#book.repeatIsbn==true">是</s:if>
-					<s:else>否</s:else>
+					<c:if test="${book.repeatIsbn} == true">是</c:if>
+					<c:if test="${book.repeatIsbn} == false">否</c:if>
 				</td>
 
 			</tr>
@@ -162,7 +161,6 @@
 		%>
 
 
-
-	</s:form>
+	</form>
 </body>
 </html>

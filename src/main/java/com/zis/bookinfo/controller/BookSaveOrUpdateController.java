@@ -138,6 +138,7 @@ public class BookSaveOrUpdateController {
 		} catch (Exception e) {
 			// TODO 缺少springMVC验证框架jar包，及其配置
 			// this.addActionError("操作失败:" + e.getMessage());
+			e.printStackTrace();
 			logger.error("操作失败:" + e.getMessage(), e);
 			return "error";
 		}

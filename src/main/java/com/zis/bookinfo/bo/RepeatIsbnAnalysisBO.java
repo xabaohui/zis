@@ -2,12 +2,9 @@ package com.zis.bookinfo.bo;
 
 import java.util.List;
 
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Component;
 
 import com.zis.bookinfo.bean.Bookinfo;
-import com.zis.bookinfo.util.ConstantString;
 import com.zis.common.util.ZisUtils;
 
 /**
@@ -20,10 +17,10 @@ public class RepeatIsbnAnalysisBO extends BookInfoAnalysisBO {
 
 	@Override
 	public void processOne(Bookinfo book) {
-		DetachedCriteria dc = DetachedCriteria.forClass(Bookinfo.class);
-		dc.add(Restrictions.eq("isbn", book.getIsbn()));
-		dc.add(Restrictions.ne("bookStatus", ConstantString.ABANDON));
-		List<Bookinfo> list = bookinfoDao.findByCriteria(dc);
+//		DetachedCriteria dc = DetachedCriteria.forClass(Bookinfo.class);
+//		dc.add(Restrictions.eq("isbn", book.getIsbn()));
+//		dc.add(Restrictions.ne("bookStatus", ConstantString.ABANDON));
+		List<Bookinfo> list = bookinfoDao.findByIsbn(book.getIsbn());
 		if(list == null || list.isEmpty()) {
 			return;
 		}
@@ -33,8 +30,7 @@ public class RepeatIsbnAnalysisBO extends BookInfoAnalysisBO {
 			if (bi.getRepeatIsbn() != null && bi.getRepeatIsbn()) {
 				bi.setRepeatIsbn(false);
 				bi.setGmtModify(ZisUtils.getTS());
-				bi.setVersion(bi.getVersion() + 1);
-				bookinfoDao.update(bi);
+				bookinfoDao.save(bi);
 			}
 		}
 		// 多条记录，一码多书标记一下
@@ -43,8 +39,7 @@ public class RepeatIsbnAnalysisBO extends BookInfoAnalysisBO {
 				if (bi.getRepeatIsbn() != null && !bi.getRepeatIsbn()) {
 					bi.setRepeatIsbn(true);
 					bi.setGmtModify(ZisUtils.getTS());
-					bi.setVersion(bi.getVersion() + 1);
-					bookinfoDao.update(bi);
+					bookinfoDao.save(bi);
 				}
 			}
 			logger.info("successfuly process one ISBN reflect to multiple books, isbn="

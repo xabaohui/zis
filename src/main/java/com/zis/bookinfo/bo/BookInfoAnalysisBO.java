@@ -1,15 +1,10 @@
 package com.zis.bookinfo.bo;
 
-import java.util.List;
-
 import org.apache.log4j.Logger;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.ProjectionList;
-import org.hibernate.criterion.Projections;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.zis.bookinfo.bean.Bookinfo;
-import com.zis.bookinfo.dao.BookinfoDao;
+import com.zis.bookinfo.repository.BookInfoDao;
 import com.zis.bookinfo.util.ConstantString;
 
 /**
@@ -21,17 +16,17 @@ import com.zis.bookinfo.util.ConstantString;
 public abstract class BookInfoAnalysisBO {
 
 	@Autowired
-	protected BookinfoDao bookinfoDao;
+	protected BookInfoDao bookinfoDao;
 	protected Logger logger = Logger.getLogger(BookInfoAnalysisBO.class);
 
 	/**
 	 * 分析整个表格中的数据
 	 */
 	public void analysis() {
-		Integer maxId = getMaxBookId();
+		Integer maxId = this.bookinfoDao.findMaxBookId();
 		// 按照ID顺序遍历整个bookinfo表
 		for (int i = 1; i <= maxId; i++) {
-			Bookinfo book = this.bookinfoDao.findById(i);
+			Bookinfo book = this.bookinfoDao.findOne(i);
 			// 只处理状态不为“废弃”的记录
 			if (book != null
 					&& !book.getBookStatus().equals(ConstantString.ABANDON)) {
@@ -50,16 +45,16 @@ public abstract class BookInfoAnalysisBO {
 	 */
 	public abstract void processOne(Bookinfo book);
 
-	private Integer getMaxBookId() {
-		// 查出最大ID 和 最小ID
-		DetachedCriteria dc = DetachedCriteria.forClass(Bookinfo.class);
-		ProjectionList pList = Projections.projectionList();
-		pList.add(Projections.min("id")).add(Projections.max("id"));
-		dc.setProjection(pList);
-		List list = this.bookinfoDao.findByCriteria(dc);
-		Object[] ids = (Object[]) list.get(0);
-		Integer minId = (Integer) ids[0];
-		Integer maxId = (Integer) ids[1];
-		return maxId;
-	}
+//	private Integer getMaxBookId() {
+//		// 查出最大ID 和 最小ID
+//		DetachedCriteria dc = DetachedCriteria.forClass(Bookinfo.class);
+//		ProjectionList pList = Projections.projectionList();
+//		pList.add(Projections.min("id")).add(Projections.max("id"));
+//		dc.setProjection(pList);
+//		List list = this.bookinfoDao.findByCriteria(dc);
+//		Object[] ids = (Object[]) list.get(0);
+////		Integer minId = (Integer) ids[0];
+//		Integer maxId = (Integer) ids[1];
+//		return maxId;
+//	}
 }

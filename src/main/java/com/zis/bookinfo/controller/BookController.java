@@ -14,6 +14,8 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -233,7 +235,9 @@ public class BookController {
 
 	@RequestMapping(value = "/getWaitCheckList")
 	public String getWaitCheckList(ModelMap context) {
-		List<Bookinfo> list = bookService.getWaitCheckList();
+		// TODO 分页
+		Pageable page = new PageRequest(0, 20);
+		org.springframework.data.domain.Page<Bookinfo> list = bookService.getWaitCheckList(page);
 		context.put("ALLBOOKS", list);
 		return "bookinfo/dealWaitCheck";
 	}
@@ -381,7 +385,7 @@ public class BookController {
 		Date lastCountTime = (Date) servletContext
 				.getAttribute(BOOKINFO_WAIT_COUNT_TIME);
 		if (lastCountTime == null) {
-			int waitingCount = bookService.getWaitCheckList().size();
+			int waitingCount = bookService.countWaitingBooks();
 			servletContext.setAttribute(BOOKINFO_WAIT_COUNT, waitingCount);
 			servletContext.setAttribute(BOOKINFO_WAIT_COUNT_TIME, new Date());
 			return waitingCount;
@@ -389,7 +393,7 @@ public class BookController {
 		Date currentTime = new Date();
 		long diff = currentTime.getTime() - lastCountTime.getTime();
 		if (diff > BOOKINFO_WAIT_COUNT_EXPIRE_TIME) {
-			int waitingCount = bookService.getWaitCheckList().size();
+			int waitingCount = bookService.countWaitingBooks();
 			servletContext.setAttribute(BOOKINFO_WAIT_COUNT, waitingCount);
 			servletContext.setAttribute(BOOKINFO_WAIT_COUNT_TIME, currentTime);
 			return waitingCount;

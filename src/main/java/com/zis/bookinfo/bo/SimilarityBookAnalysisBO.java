@@ -177,7 +177,7 @@ public class SimilarityBookAnalysisBO extends BookInfoAnalysisBO {
 		for (String id : ids) {
 			try {
 				Integer bookId = Integer.parseInt(id.trim());
-				Bookinfo book = bookinfoDao.findById(bookId);
+				Bookinfo book = bookinfoDao.findOne(bookId);
 				// 不存在的记录不计
 				if (book == null) {
 					totalCount--;

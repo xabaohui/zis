@@ -6,13 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Component;
 
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.bean.BookinfoStatus;
-import com.zis.bookinfo.util.ConstantString;
 import com.zis.common.util.SequenceCreator;
 import com.zis.common.util.ZisUtils;
 
@@ -28,12 +25,12 @@ public class SameBookAnalysisBO extends BookInfoAnalysisBO {
 	@Override
 	public void processOne(Bookinfo book) {
 		logger.info("process book, id=" + book.getId());
-		DetachedCriteria dc = DetachedCriteria.forClass(Bookinfo.class);
-		dc.add(Restrictions.eq("bookName", book.getBookName()));
-		dc.add(Restrictions.eq("bookAuthor", book.getBookAuthor()));
-		dc.add(Restrictions.eq("bookPublisher", book.getBookPublisher()));
-		dc.add(Restrictions.ne("bookStatus", ConstantString.ABANDON));
-		List<Bookinfo> samebookList = bookinfoDao.findByCriteria(dc);
+		// DetachedCriteria dc = DetachedCriteria.forClass(Bookinfo.class);
+		// dc.add(Restrictions.eq("bookName", book.getBookName()));
+		// dc.add(Restrictions.eq("bookAuthor", book.getBookAuthor()));
+		// dc.add(Restrictions.eq("bookPublisher", book.getBookPublisher()));
+		// dc.add(Restrictions.ne("bookStatus", ConstantString.ABANDON));
+		List<Bookinfo> samebookList = bookinfoDao.findByBookNameAuthorPublisher(book.getBookName(), book.getBookAuthor(), book.getBookPublisher());
 		if (samebookList != null && samebookList.size() > 1) {
 			relateToSameBooks(samebookList);
 		}
@@ -68,11 +65,12 @@ public class SameBookAnalysisBO extends BookInfoAnalysisBO {
 				idsDealt.append(book.getId()).append(",");
 			} else {
 				// 如果有相同图书，所有图书ID加入到集合中等待处理
-				DetachedCriteria criteria = DetachedCriteria.forClass(Bookinfo.class);
-				criteria.add(Restrictions.eq("groupId", book.getGroupId()));
-				criteria.add(Restrictions.eq("bookPublisher", book.getBookPublisher()));
-				criteria.add(Restrictions.ne("bookStatus", BookinfoStatus.DISCARD));
-				List<Bookinfo> list = bookinfoDao.findByCriteria(criteria);
+//				DetachedCriteria criteria = DetachedCriteria.forClass(Bookinfo.class);
+//				criteria.add(Restrictions.eq("groupId", book.getGroupId()));
+//				criteria.add(Restrictions.eq("bookPublisher", book.getBookPublisher()));
+//				criteria.add(Restrictions.ne("bookStatus", BookinfoStatus.DISCARD));
+//				List<Bookinfo> list = bookinfoDao.findByCriteria(criteria);
+				List<Bookinfo> list = bookinfoDao.findByGroupIdAndPublisher(book.getGroupId(), book.getBookPublisher());
 				for (Bookinfo bookinfo : list) {
 					logger.debug("add bookinfo by groupId, id=" + bookinfo.getId());
 					booksToBeDeal.put(bookinfo.getId(), bookinfo);
@@ -102,22 +100,7 @@ public class SameBookAnalysisBO extends BookInfoAnalysisBO {
 		}
 		Bookinfo newBook = null; // 最新版图书
 		Date maxEditionDate = ZisUtils.stringToDate("1901-01");
-		// String bookPublisher = null;
-		// StringBuilder idsDealt = new StringBuilder();
 		for (Bookinfo book : bookList) {
-			// if(!ConstantString.USEFUL.equals(book.getBookStatus())) {
-			// continue; // 不是正式状态的记录不处理
-			// }
-			// idsDealt.append(book.getId()).append(",");
-			// // 检查出版社，如果出版社不同，则说明是不同记录，不允许合并到一组
-			// if(StringUtils.isBlank(bookPublisher)) {
-			// bookPublisher = book.getBookPublisher();
-			// } else {
-			// if(!bookPublisher.equals(book.getBookPublisher())) {
-			// throw new RuntimeException("出版社不同的图书不能合并到一组, ids=" +
-			// idsDealt.toString());
-			// }
-			//	}
 			// 遍历list，选择出版日期最大的记录
 			if (book.getPublishDate().after(maxEditionDate)) {
 				maxEditionDate = book.getPublishDate();
@@ -134,8 +117,7 @@ public class SameBookAnalysisBO extends BookInfoAnalysisBO {
 		// 批量更新
 		for (Bookinfo bookinfo : bookList) {
 			bookinfo.setGmtModify(ZisUtils.getTS());
-			bookinfo.setVersion(bookinfo.getVersion() + 1);
-			bookinfoDao.update(bookinfo);
+			bookinfoDao.save(bookinfo);
 		}
 	}
 

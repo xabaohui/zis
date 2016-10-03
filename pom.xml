@@ -9,7 +9,14 @@
   <url>http://maven.apache.org</url>
   
     <properties>
-		<org.springframework.version>3.1.2.RELEASE</org.springframework.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<jdk.version>1.7</jdk.version>
+		<junit.version>4.12</junit.version>
+		<log4j.version>1.2.16</log4j.version>
+		<slf4j.version>1.7.2</slf4j.version>
+		<hibernate.version>4.2.1.Final</hibernate.version>
+		<org.springframework.version>3.2.9.RELEASE</org.springframework.version>
+		<org.springdatajpa.version>1.6.0.RELEASE</org.springdatajpa.version>
 	</properties>
 
 
@@ -114,6 +121,11 @@
 			<artifactId>spring-webmvc</artifactId>
 			<version>${org.springframework.version}</version>
 		</dependency>
+		<dependency>
+		    <groupId>org.springframework.data</groupId>
+		    <artifactId>spring-data-jpa</artifactId>
+		    <version>${org.springdatajpa.version}</version>
+		</dependency>
 		<!--aspectjweaver包 -->
 		<dependency>
 			<groupId>org.aspectj</groupId>
@@ -166,7 +178,12 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
-			<version>3.6.0.Final</version>
+			<version>${hibernate.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-entitymanager</artifactId>
+			<version>${hibernate.version}</version>
 		</dependency>
 		<!-- mysql驱动包 -->
 		<dependency>
@@ -179,7 +196,7 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.2</version>
+			<version>${slf4j.version}</version>
 		</dependency>
 		<!-- ################################################### -->
 		<!-- ############### SSH 框架依赖关系  end   ############# -->
