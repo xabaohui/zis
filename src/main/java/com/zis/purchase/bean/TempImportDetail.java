@@ -1,26 +1,60 @@
 package com.zis.purchase.bean;
 
-import java.sql.Timestamp;
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 /**
  * TempImportDetail entity. @author MyEclipse Persistence Tools
  */
-
-public class TempImportDetail implements java.io.Serializable {
-
-	private static final long serialVersionUID = 1L;
+@Entity
+@Table(name="temp_import_detail")
+public class TempImportDetail {
 
 	// Fields
+	@Id
+	@GeneratedValue
+	@Column(name = "id")
 	private Integer id;
+	
+	@Column(name = "isbn")
 	private String isbn;
+	
+	@Column(name = "orig_isbn", nullable=false)
 	private String origIsbn;
+	
+	@Column(name = "data", nullable=false)
 	private String data;
+	
+	@Column(name = "book_id", nullable=false)
 	private Integer bookId;
+	
+	@Column(name = "task_id", nullable=false)
 	private Integer taskId;
+	
+	@Column(name = "status", nullable=false)
 	private String status;
+	
+	@Column(name = "additional_info")
 	private String additionalInfo;
-	private Timestamp gmtCreate;
-	private Timestamp gmtModify;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "gmt_create", nullable=false, updatable=false)
+	private Date gmtCreate;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "gmt_modify", nullable=false)
+	private Date gmtModify;
+	
+	@Version
+	@Column(name = "version", nullable=false)
 	private Integer version;
 
 	// Constructors
@@ -87,19 +121,19 @@ public class TempImportDetail implements java.io.Serializable {
 		this.status = status;
 	}
 
-	public Timestamp getGmtCreate() {
+	public Date getGmtCreate() {
 		return this.gmtCreate;
 	}
 
-	public void setGmtCreate(Timestamp gmtCreate) {
+	public void setGmtCreate(Date gmtCreate) {
 		this.gmtCreate = gmtCreate;
 	}
 
-	public Timestamp getGmtModify() {
+	public Date getGmtModify() {
 		return this.gmtModify;
 	}
 
-	public void setGmtModify(Timestamp gmtModify) {
+	public void setGmtModify(Date gmtModify) {
 		this.gmtModify = gmtModify;
 	}
 

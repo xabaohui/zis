@@ -1,30 +1,76 @@
 package com.zis.purchase.bean;
 
-import java.sql.Timestamp;
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 /**
  * Requirementamount entity. @author MyEclipse Persistence Tools
  */
-
-public class PurchasePlan implements java.io.Serializable {
+@Entity
+@Table(name="purchase_plan")
+public class PurchasePlan {
 
 	// Fields
 
+	@Id
+	@GeneratedValue
+	@Column(name="id")
 	private Integer id;
+	
+	@Column(name="bookId", nullable=false)
 	private Integer bookId;
+	
+	@Column(name="isbn", nullable=false)
 	private String isbn;
+	
+	@Column(name="bookName", nullable=false, length=100)
 	private String bookName;
+	
+	@Column(name="bookAuthor", nullable=false, length=100)
 	private String bookAuthor;
+	
+	@Column(name="bookPublisher", nullable=false, length=100)
 	private String bookPublisher;
+	
+	@Column(name="bookEdition", nullable=false, length=100)
 	private String bookEdition;
+	
+	@Column(name="requireAmount", nullable=false)
 	private Integer requireAmount; // 需求量
+	
+	@Column(name="manual_decision", nullable=false)
 	private Integer manualDecision; // 人工定义需求量
+	
+	@Column(name="stockAmount", nullable=false)
 	private Integer stockAmount; // 库存量
+	
+	@Column(name="purchasedAmount", nullable=false)
 	private Integer purchasedAmount; // 在途库存量（已采购未入库）
+	
+	@Column(name="status", nullable=false)
 	private String status;
+	
+	@Column(name="flag")
 	private String flag; // 标记：black黑名单，white白名单，normal正常
-	private Timestamp gmtCreate;
-	private Timestamp gmtModify;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name="GMT_CREATE", nullable=false, updatable=false)
+	private Date gmtCreate;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name="GMT_MODIFY", nullable=false)
+	private Date gmtModify;
+	
+	@Version
+	@Column(name="version", nullable=false)
 	private Integer version;
 
 	// Constructors
@@ -37,7 +83,7 @@ public class PurchasePlan implements java.io.Serializable {
 	public PurchasePlan(Integer bookId, Integer requireAmount,
 			Integer purchasedAmount, String bookName, String bookAuthor,
 			String bookPublisher, String isbn, String bookEdition,
-			Timestamp gmtCreate, Timestamp gmtModify, Integer version) {
+			Date gmtCreate, Date gmtModify, Integer version) {
 		this.bookId = bookId;
 		this.requireAmount = requireAmount;
 		this.purchasedAmount = purchasedAmount;
@@ -125,19 +171,19 @@ public class PurchasePlan implements java.io.Serializable {
 		this.bookEdition = bookEdition;
 	}
 
-	public Timestamp getGmtCreate() {
+	public Date getGmtCreate() {
 		return this.gmtCreate;
 	}
 
-	public void setGmtCreate(Timestamp gmtCreate) {
+	public void setGmtCreate(Date gmtCreate) {
 		this.gmtCreate = gmtCreate;
 	}
 
-	public Timestamp getGmtModify() {
+	public Date getGmtModify() {
 		return this.gmtModify;
 	}
 
-	public void setGmtModify(Timestamp gmtModify) {
+	public void setGmtModify(Date gmtModify) {
 		this.gmtModify = gmtModify;
 	}
 

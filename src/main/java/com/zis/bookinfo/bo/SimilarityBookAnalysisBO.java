@@ -7,14 +7,13 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.bean.BookinfoAid;
-import com.zis.bookinfo.dao.BookinfoAidDao;
+import com.zis.bookinfo.repository.BookInfoAidDao;
 import com.zis.bookinfo.util.ConstantString;
 import com.zis.common.util.TextClearUtils;
 import com.zis.requirement.bean.Bookamount;
@@ -30,7 +29,7 @@ import com.zis.requirement.dao.BookAmountDao;
 public class SimilarityBookAnalysisBO extends BookInfoAnalysisBO {
 
 	@Autowired
-	private BookinfoAidDao bookinfoAidDao;
+	private BookInfoAidDao bookinfoAidDao;
 	@Autowired
 	private BookAmountDao bookAmountDao;
 	private List<Integer> booksInUse;
@@ -52,7 +51,7 @@ public class SimilarityBookAnalysisBO extends BookInfoAnalysisBO {
 			if (pureName.contains(branch.getShortBookName())) {
 				branch.setIds(branch.getIds() + "," + book.getId());
 				branch.setTotalCount(branch.getTotalCount() + 1);
-				this.bookinfoAidDao.update(branch);
+				this.bookinfoAidDao.save(branch);
 				isAppend = true;
 			}
 			// branchKey包含书名，该条记录添加到对应分支中
@@ -64,7 +63,7 @@ public class SimilarityBookAnalysisBO extends BookInfoAnalysisBO {
 					// ShortBookName不是最小子集，则更新最小子集
 					branch.setShortBookName(pureName);
 				}
-				this.bookinfoAidDao.update(branch);
+				this.bookinfoAidDao.save(branch);
 				isAppend = true;
 			}
 		}
@@ -88,10 +87,10 @@ public class SimilarityBookAnalysisBO extends BookInfoAnalysisBO {
 		}
 		// 仅当pureName是ShortBookName的子集并且没有 分支名为pureName的记录，才允许更新分支名称
 		if (shortBookName.contains(pureName) && !shortBookName.equals(pureName)) {
-			BookinfoAid example = new BookinfoAid();
-			example.setGroupKey(trunkKey);
-			example.setShortBookName(pureName);
-			List<BookinfoAid> list = this.bookinfoAidDao.findByExample(example);
+//			BookinfoAid example = new BookinfoAid();
+//			example.setGroupKey(trunkKey);
+//			example.setShortBookName(pureName);
+			List<BookinfoAid> list = this.bookinfoAidDao.findByGroupKeyAndShortBookName(trunkKey, pureName);
 			if (list.isEmpty()) {
 				return true;
 			}
@@ -127,19 +126,13 @@ public class SimilarityBookAnalysisBO extends BookInfoAnalysisBO {
 	 */
 	public void afterAnalysis() {
 		// 查出最大ID 和 最小ID
-		DetachedCriteria dc = DetachedCriteria.forClass(BookinfoAid.class);
-		ProjectionList pList = Projections.projectionList();
-		pList.add(Projections.min("id")).add(Projections.max("id"));
-		dc.setProjection(pList);
-		List list = this.bookinfoAidDao.findByCriteria(dc);
-		Object[] ids = (Object[]) list.get(0);
-		Integer minId = (Integer) ids[0];
-		Integer maxId = (Integer) ids[1];
+		Integer minId = bookinfoAidDao.findMaxId();
+		Integer maxId = bookinfoAidDao.findMinId();
 		// 统计正在使用的ISBN
 		initBooksInUse();
 		// 逐条遍历，定义检查级别
 		for (int i = minId; i <= maxId; i++) {
-			BookinfoAid aid = this.bookinfoAidDao.findById(i);
+			BookinfoAid aid = this.bookinfoAidDao.findOne(i);
 			if (aid == null) {
 				continue;
 			}
@@ -222,7 +215,7 @@ public class SimilarityBookAnalysisBO extends BookInfoAnalysisBO {
 		}
 		aid.setCheckLevel(checkLevel);
 		try {
-			this.bookinfoAidDao.update(aid);
+			this.bookinfoAidDao.save(aid);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

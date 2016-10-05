@@ -13,11 +13,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
-import com.alibaba.fastjson.JSON;
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.bean.BookinfoDetail;
 import com.zis.bookinfo.bean.BookinfoStatus;
@@ -27,13 +25,13 @@ import com.zis.bookinfo.bo.RepeatIsbnAnalysisBO;
 import com.zis.bookinfo.bo.SameBookAnalysisBO;
 import com.zis.bookinfo.bo.SimilarityBookAnalysisBO;
 import com.zis.bookinfo.bo.TaobaoCsvDataGenerateBO;
-import com.zis.bookinfo.dao.BookinfoDetailDao;
-import com.zis.bookinfo.dao.ShopItemInfoDao;
-import com.zis.bookinfo.dao.YouluSalesDao;
 import com.zis.bookinfo.dto.BookInfoAndDetailDTO;
 import com.zis.bookinfo.dto.BookInfoSearchResult;
 import com.zis.bookinfo.dto.ShopItemInfoDTO;
 import com.zis.bookinfo.repository.BookInfoDao;
+import com.zis.bookinfo.repository.BookInfoDetailDao;
+import com.zis.bookinfo.repository.ShopItemInfoDao;
+import com.zis.bookinfo.repository.YouluSalesDao;
 import com.zis.bookinfo.util.BookMetadata;
 import com.zis.bookinfo.util.BookMetadataSource;
 import com.zis.bookinfo.util.ConstantString;
@@ -50,7 +48,7 @@ public class BookService {
 	@Autowired
 	private BookInfoDao bookinfoDao;
 	@Autowired
-	private BookinfoDetailDao bookinfoDetailDao;
+	private BookInfoDetailDao bookinfoDetailDao;
 	@Autowired
 	private YouluSalesDao youluSalesDao;
 	@Autowired
@@ -59,7 +57,7 @@ public class BookService {
 	private ThreadPoolTaskExecutor taskExecutor;
 	@Autowired
 	private BookAmountDao bookAmountDao;
-	@Autowired
+	@Autowired(required=false)
 	private ShopItemInfoDao shopItemInfoDao;
 
 	@Autowired
@@ -280,7 +278,7 @@ public class BookService {
 			detail.setBookid(book.getId());
 			detail.setGmtModify(ZisUtils.getTS());
 			detail.setVersion(detail.getVersion() + 1);
-			bookinfoDetailDao.update(detail);
+			bookinfoDetailDao.save(detail);
 		}
 	}
 
@@ -672,7 +670,7 @@ public class BookService {
 				existItem.setShopStatus(shopItemInfo.getShopStatus());
 				existItem.setGmtModified(ZisUtils.getTS());
 				existItem.setVersion(existItem.getVersion() + 1);
-				this.shopItemInfoDao.update(existItem);
+				this.shopItemInfoDao.save(existItem);
 				logger.info("update exist shopInfoItem, bookId=" + bookId);
 			}
 		}
@@ -696,7 +694,7 @@ public class BookService {
 			return;
 		}
 		for (ShopItemInfoDTO info : list) {
-			BookinfoDetail detail = this.bookinfoDetailDao.findByBookId(info.getBookId());
+			BookinfoDetail detail = this.bookinfoDetailDao.findOne(info.getBookId());
 			// 没有detail记录，立刻生成一条
 			if (detail == null) {
 				detail = this.captureBookInfoDetailFromNet(info.getBookId());
@@ -717,7 +715,7 @@ public class BookService {
 			}
 			detail.setGmtModify(ZisUtils.getTS());
 			detail.setVersion(detail.getVersion() + 1);
-			this.bookinfoDetailDao.update(detail);
+			this.bookinfoDetailDao.save(detail);
 		}
 	}
 	
@@ -735,10 +733,7 @@ public class BookService {
 		if(bookId == null) {
 			throw new IllegalArgumentException("参数非法，bookId不能为空");
 		}
-		DetachedCriteria criteria = DetachedCriteria.forClass(ShopItemInfo.class);
-		criteria.add(Restrictions.eq("shopName", shopName));
-		criteria.add(Restrictions.eq("bookId", bookId));
-		List<ShopItemInfo> list = this.shopItemInfoDao.findbyCriteria(criteria);
+		List<ShopItemInfo> list = this.shopItemInfoDao.findByShopNameAndBookId(shopName, bookId);
 		if(list == null || list.isEmpty()) {
 			return null;
 		}
@@ -763,7 +758,7 @@ public class BookService {
 			throw new RuntimeException("无此图书，bookId=" + bookId);
 		}
 		BookMetadata meta = null;
-		BookinfoDetail detail = this.bookinfoDetailDao.findByBookId(bookId);
+		BookinfoDetail detail = this.bookinfoDetailDao.findOne(bookId);
 		
 		// 如果outId不为空，则去原网站采集
 		if(book.getOutId() != null) {
@@ -817,7 +812,7 @@ public class BookService {
 	 * @return
 	 */
 	public BookinfoDetail findBookInfoDetailByBookId(Integer bookId) {
-		return this.bookinfoDetailDao.findByBookId(bookId);
+		return this.bookinfoDetailDao.findOne(bookId);
 	}
 	
 	/**

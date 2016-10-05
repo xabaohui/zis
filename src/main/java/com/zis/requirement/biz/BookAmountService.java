@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.bean.BookinfoStatus;
-import com.zis.bookinfo.dao.BookinfoDao;
+import com.zis.bookinfo.repository.BookInfoDao;
 import com.zis.common.util.ZisUtils;
 import com.zis.requirement.bean.Bookamount;
 import com.zis.requirement.bean.Departmentinfo;
@@ -36,7 +36,7 @@ public class BookAmountService {
 	@Autowired
 	private BookAmountDao bookAmountDao;
 	@Autowired
-	private BookinfoDao bookinfoDao;
+	private BookInfoDao bookinfoDao;
 	@Autowired
 	private DepartmentInfoDao departmentInfoDao;
 	
@@ -63,7 +63,7 @@ public class BookAmountService {
 //		ex.setTerm(ba.getTerm());
 //		List<Bookamount> list = bookAmountDao.findByExample(ex);
 		if (list != null && !list.isEmpty()) {
-			Bookinfo book = this.bookinfoDao.findById(ba.getBookId());
+			Bookinfo book = this.bookinfoDao.findOne(ba.getBookId());
 			throw new RuntimeException("专业" + ba.getPartId() + "已经登记过图书:"
 					+ book.getBookName() + ", bookId=" + ba.getBookId());
 		}
@@ -103,7 +103,7 @@ public class BookAmountService {
 			session.setAttribute("BookMap", bookMap);
 		}
 		// 检查图书状态
-		Bookinfo bi = this.bookinfoDao.findById(bookId);
+		Bookinfo bi = this.bookinfoDao.findOne(bookId);
 		if(bi == null || BookinfoStatus.DISCARD.equals(bi.getBookStatus())) {
 			return new AddBookToDepartmentResult(false, "图书不存在或者已删除");
 		}
@@ -169,7 +169,7 @@ public class BookAmountService {
 			ba.setInstitute(di.getInstitute());
 			ba.setPartName(di.getPartName());
 			ba.setPartId(di.getDid());
-			Bookinfo bi = bookinfoDao.findById(bookId);
+			Bookinfo bi = bookinfoDao.findOne(bookId);
 			if (bi == null) {
 				throw new RuntimeException("bookInfo is null, for id=" + bookId);
 			}
@@ -306,8 +306,8 @@ public class BookAmountService {
 		if(list == null || list.isEmpty()) {
 			return "没有查到"+bookIdFrom+"对应的记录";
 		}
-		Bookinfo bookFrom = this.bookinfoDao.findById(bookIdFrom);
-		Bookinfo bookTo = this.bookinfoDao.findById(bookIdTo);
+		Bookinfo bookFrom = this.bookinfoDao.findOne(bookIdFrom);
+		Bookinfo bookTo = this.bookinfoDao.findOne(bookIdTo);
 		if(bookFrom == null || bookTo == null) {
 			return "图书对象不存在，请检查输入";
 		}

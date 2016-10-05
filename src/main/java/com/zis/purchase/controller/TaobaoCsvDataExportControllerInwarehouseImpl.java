@@ -5,8 +5,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -49,22 +47,16 @@ public class TaobaoCsvDataExportControllerInwarehouseImpl extends
 	protected List<BookInfoAndDetailDTO> queryBookInfoAndDetails(
 			HttpServletRequest request) {
 		// 查询相关数据
-		DetachedCriteria criteria = DetachedCriteria
-				.forClass(InwarehouseDetail.class);
 		String[] batchSelectedItemStr = request
 				.getParameterValues("batchSelectedItem");
-		if (batchSelectedItemStr != null) {
-			Integer[] batchSelectedItem = new Integer[batchSelectedItemStr.length];
-			for (int i = 0; i < batchSelectedItemStr.length; i++) {
-				batchSelectedItem[i] = Integer
-						.parseInt(batchSelectedItemStr[i]);
-			}
-			criteria.add(Restrictions.in("inwarehouseId", batchSelectedItem));
-		}else{
+		if (batchSelectedItemStr == null) {
 			throw new IllegalArgumentException("batchSelectedItem 数组为空");
 		}
-		List<InwarehouseDetail> inList = doPurchaseService
-				.findInwarehouseDetailByCriteria(criteria);
+		Integer[] batchSelectedItem = new Integer[batchSelectedItemStr.length];
+		for (int i = 0; i < batchSelectedItemStr.length; i++) {
+			batchSelectedItem[i] = Integer.parseInt(batchSelectedItemStr[i]);
+		}
+		List<InwarehouseDetail> inList = doPurchaseService.findInwarehouseDetailByInwarehouseIds(batchSelectedItem);
 
 		// 转换成BookInfoAndDetailDTO
 		List<BookInfoAndDetailDTO> resultList = new ArrayList<BookInfoAndDetailDTO>();

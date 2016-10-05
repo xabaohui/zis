@@ -3,62 +3,14 @@
 	xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans 
-	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	http://www.springframework.org/schema/data/jpa
+	http://www.springframework.org/schema/data/jpa/spring-jpa-1.2.xsd">
 	
-	<bean id="purchasePlanDao"
-		class="com.zis.purchase.daoImpl.PurchasePlanDaoImpl">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>
-	<bean id="purchaseDetailDao"
-		class="com.zis.purchase.daoImpl.PurchaseDetailDaoImpl">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>
-	<bean id="storeSalesDao"
-		class="com.zis.purchase.daoImpl.StoresalesDAOImpl">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>
-	<bean id="sysVarDao" class="com.zis.requirement.daoImpl.SysVarDAOImpl">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>
-	<bean id="tempImportTaskDao"
-		class="com.zis.purchase.daoImpl.TempImportTaskDaoImpl">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>
-	<bean id="tempImportDetailDao"
-		class="com.zis.purchase.daoImpl.TempImportDetailDaoImpl">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>
-	<bean id="inwarehouseDetailDao"
-		class="com.zis.purchase.daoImpl.InwarehouseDetailDaoImpl">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>
-	<bean id="inwarehouseDao"
-		class="com.zis.purchase.daoImpl.InwarehouseDaoImpl">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>
-	<bean id="inwarehousePositionDao"
-		class="com.zis.purchase.daoImpl.InwarehousePositionDaoImpl">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>
+	<jpa:repositories base-package="com.zis.purchase.repository" entity-manager-factory-ref="entityManagerFactory"
+		transaction-manager-ref="transactionManager" />
 
 	<!-- modeFactory的map配置 -->
 	<bean id="modeFactory" class="com.zis.purchase.calcMode.CalcModeFactory">

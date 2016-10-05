@@ -1,27 +1,39 @@
 package com.zis.bookinfo.dao;
 
-import org.apache.commons.io.FileUtils;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import java.util.Date;
+import java.util.Random;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.zis.bookinfo.bean.BookinfoDetail;
-import com.zis.common.util.ZisUtils;
+import com.zis.bookinfo.repository.BookInfoDetailDao;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(value={"classpath:spring.xml"})
 public class BookInfoDetailDaoTest {
 
-	public static void main(String[] args) {
-		ApplicationContext ctx = new ClassPathXmlApplicationContext(new String[] {"applicationContext.xml", "applicationContext_bookinfo.xml", "applicationContext_requirement.xml"});
-		BookinfoDetailDao bookinfoDetailDao = (BookinfoDetailDao) ctx.getBean("bookinfoDetailDao");
+	@Autowired
+	private BookInfoDetailDao dao;
+	
+	@Test
+	public void testSave() {
+		// execute
+		BookinfoDetail detail = generateDetail();
+		dao.save(detail);
+	}
+
+	private BookinfoDetail generateDetail() {
 		BookinfoDetail detail = new BookinfoDetail();
-		detail.setBookid(32);
+		detail.setBookid(new Random().nextInt(1000));
 		detail.setCatalog("catalog");
 		detail.setSummary("summary");
-		detail.setGmtCreate(ZisUtils.getTS());
-		detail.setGmtModify(ZisUtils.getTS());
-		detail.setVersion(0);
-		bookinfoDetailDao.save(detail);
-		
-		BookinfoDetail d = bookinfoDetailDao.findByBookId(1);
-		System.out.println(d.getCatalog());
+		detail.setSource("taobao");
+		detail.setGmtCreate(new Date());
+		detail.setGmtModify(new Date());
+		return detail;
 	}
 }

@@ -5,8 +5,6 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,9 +19,6 @@ import com.zis.purchase.bean.PurchasePlan;
 import com.zis.purchase.bean.TempImportDetail;
 import com.zis.purchase.bean.TempImportTask;
 import com.zis.purchase.bean.TempImportTaskBizTypeEnum;
-import com.zis.purchase.dao.InwarehouseDao;
-import com.zis.purchase.dao.InwarehouseDetailDao;
-import com.zis.purchase.dao.InwarehousePositionDao;
 import com.zis.purchase.dto.InwarehouseCreateDTO;
 import com.zis.purchase.dto.InwarehouseCreateResult;
 import com.zis.purchase.dto.InwarehouseDealtResult;
@@ -31,6 +26,10 @@ import com.zis.purchase.dto.InwarehouseView;
 import com.zis.purchase.dto.StockDTO;
 import com.zis.purchase.dto.TempImportDTO;
 import com.zis.purchase.dto.TempImportDetailView;
+import com.zis.purchase.repository.InwarehouseDao;
+import com.zis.purchase.repository.InwarehouseDetailDao;
+import com.zis.purchase.repository.InwarehousePositionDao;
+import com.zis.purchase.repository.PurchasePlanDao;
 
 @Service
 public class DoPurchaseService {
@@ -41,6 +40,8 @@ public class DoPurchaseService {
 	private InwarehousePositionDao inwarehousePositionDao;
 	@Autowired
 	private InwarehouseDetailDao inwarehouseDetailDao;
+	@Autowired
+	private PurchasePlanDao purchasePlanDao;
 	@Autowired
 	private PurchaseBO purchaseBO;
 	@Autowired
@@ -234,8 +235,8 @@ public class DoPurchaseService {
 	 * @param dc
 	 * @return
 	 */
-	public List<PurchasePlan> findPurchasePlanByCriteria(DetachedCriteria dc) {
-		return purchaseBO.findPurchasePlanByCriteria(dc);
+	public List<PurchasePlan> findPurchasePlanByIsbn(String isbn) {
+		return purchasePlanDao.findByIsbn(isbn);
 	}
 	
 	/**
@@ -315,15 +316,6 @@ public class DoPurchaseService {
 	}
 	
 	/**
-	 * 查找临时导入明细
-	 * @param criteria
-	 * @return
-	 */
-	public List<TempImportDetail> findTempImportDetailByCritera(DetachedCriteria criteria) {
-		return this.tempImportBO.findTempImportDetailByCritera(criteria);
-	}
-
-	/**
 	 * 批量更新临时导入记录，使之成功或者失效
 	 * 
 	 * @param taskId
@@ -383,7 +375,7 @@ public class DoPurchaseService {
 					"inwarehouseId could not be null");
 		}
 		// 入库单检查，必须存在且状态是处理中
-		Inwarehouse in = this.inwarehouseDao.findById(inwarehouseId);
+		Inwarehouse in = this.inwarehouseDao.findOne(inwarehouseId);
 		if (in == null) {
 			throw new IllegalArgumentException("不存在的入库单，id=" + inwarehouseId);
 		}
@@ -435,7 +427,7 @@ public class DoPurchaseService {
 	 */
 	public InwarehouseView findInwarehouseViewById(Integer inwarehouseId) {
 		// 查询入库单
-		Inwarehouse in = this.inwarehouseDao.findById(inwarehouseId);
+		Inwarehouse in = this.inwarehouseDao.findOne(inwarehouseId);
 		if (in == null) {
 			return null;
 		}
@@ -445,14 +437,15 @@ public class DoPurchaseService {
 		inView.setStatusDisplay(InwarehouseStatus.getDisplay(in.getStatus()));
 		if (InwarehouseStatus.PROCESSING.equals(in.getStatus())) {
 			// 查询入库单下的可用库位
-			DetachedCriteria criteria = DetachedCriteria
-					.forClass(InwarehousePosition.class);
-			criteria.add(Restrictions.eq("inwarehouseId", inwarehouseId));
-			criteria.add(Restrictions.eq("isFull", false));
-			criteria.addOrder(Order.asc("gmtCreate"));
-			@SuppressWarnings("unchecked")
-			List<InwarehousePosition> list = this.inwarehousePositionDao
-					.findByCriteria(criteria);
+			// DetachedCriteria criteria = DetachedCriteria
+			// .forClass(InwarehousePosition.class);
+			// criteria.add(Restrictions.eq("inwarehouseId", inwarehouseId));
+			// criteria.add(Restrictions.eq("isFull", false));
+			// criteria.addOrder(Order.asc("gmtCreate"));
+			// List<InwarehousePosition> list = this.inwarehousePositionDao
+			// .findByCriteria(criteria);
+			//按照ID排序，由于是同一时间创建的，如果按照时间排序会导致库位顺序错乱的bug
+			List<InwarehousePosition> list = this.inwarehousePositionDao.findAvailablePosition(inwarehouseId);
 			if (list == null || list.isEmpty()) {
 				return inView;
 			}
@@ -468,10 +461,13 @@ public class DoPurchaseService {
 		return inView;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public List<InwarehouseDetail> findInwarehouseDetailByCriteria(
-			DetachedCriteria criteria) {
-		return this.inwarehouseDetailDao.findByCriteria(criteria);
+	/**
+	 * 按照入库单ID查询入库详情
+	 * @param inwarehouseId
+	 * @return
+	 */
+	public List<InwarehouseDetail> findInwarehouseDetailByInwarehouseIds(Integer[] inwarehouseIds) {
+		return this.inwarehouseDetailDao.findByInwarehouseIds(inwarehouseIds);
 	}
 
 	public void deleteOnwayStock(String purchaseOperator) {

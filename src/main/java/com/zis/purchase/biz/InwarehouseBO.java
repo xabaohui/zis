@@ -5,9 +5,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,13 +14,13 @@ import com.zis.purchase.bean.InwarehouseDetail;
 import com.zis.purchase.bean.InwarehousePosition;
 import com.zis.purchase.bean.InwarehouseStatus;
 import com.zis.purchase.bean.PurchasePlan;
-import com.zis.purchase.dao.InwarehouseDao;
-import com.zis.purchase.dao.InwarehouseDetailDao;
-import com.zis.purchase.dao.InwarehousePositionDao;
-import com.zis.purchase.dao.PurchasePlanDao;
 import com.zis.purchase.dto.InwarehouseCreateDTO;
 import com.zis.purchase.dto.InwarehouseCreateResult;
 import com.zis.purchase.dto.InwarehouseDealtResult;
+import com.zis.purchase.repository.InwarehouseDao;
+import com.zis.purchase.repository.InwarehouseDetailDao;
+import com.zis.purchase.repository.InwarehousePositionDao;
+import com.zis.purchase.repository.PurchasePlanDao;
 
 /**
  * 入库核心业务逻辑
@@ -138,7 +135,6 @@ public class InwarehouseBO {
 		pos.setIsFull(false);
 		pos.setGmtCreate(ZisUtils.getTS());
 		pos.setGmtModify(ZisUtils.getTS());
-		pos.setVersion(0);
 		this.inwarehousePositionDao.save(pos);
 		return pos.getId();
 	}
@@ -249,15 +245,14 @@ public class InwarehouseBO {
 	// 更新采购计划中的库存量和在途库存量
 	private void updatePurchasePlanForStock(Integer bookId,
 			Integer amount) {
-		PurchasePlan plan = this.purchasePlanDao.findByBookId(bookId);
+		PurchasePlan plan = this.purchasePlanDao.findOne(bookId);
 		if(plan == null) {
 			// 计划不存在，则不更新
 			return;
 		}
 		plan.setStockAmount(plan.getStockAmount() + amount);
 		plan.setGmtModify(ZisUtils.getTS());
-		plan.setVersion(plan.getVersion() + 1);
-		this.purchasePlanDao.update(plan);
+		this.purchasePlanDao.save(plan);
 	}
 
 	/**
@@ -271,14 +266,8 @@ public class InwarehouseBO {
 	 */
 	private InwarehousePosition findAvailablePosition(Integer inwarehouseId,
 			Integer amount) {
-		DetachedCriteria criteria = DetachedCriteria
-				.forClass(InwarehousePosition.class);
-		criteria.add(Restrictions.eq("inwarehouseId", inwarehouseId));
-		criteria.add(Restrictions.eq("isFull", false));
 		//按照ID排序，由于是同一时间创建的，如果按照时间排序会导致库位顺序错乱的bug
-		criteria.addOrder(Order.asc("id"));
-		List<InwarehousePosition> posList = this.inwarehousePositionDao
-				.findByCriteria(criteria);
+		List<InwarehousePosition> posList = this.inwarehousePositionDao.findAvailablePosition(inwarehouseId);
 		if (posList == null || posList.isEmpty()) {
 			return null;
 		}
@@ -372,7 +361,7 @@ public class InwarehouseBO {
 	 * 
 	 */
 	public void terminateInwarehouse(Integer inwarehouseId) {
-		Inwarehouse in = this.inwarehouseDao.findById(inwarehouseId);
+		Inwarehouse in = this.inwarehouseDao.findOne(inwarehouseId);
 		if (in == null) {
 			throw new IllegalArgumentException("不存在的入库单，id=" + inwarehouseId);
 		}
@@ -394,7 +383,7 @@ public class InwarehouseBO {
 		if(inwarehouseId == null) {
 			throw new RuntimeException("inwarehouseId could not be null");
 		}
-		Inwarehouse in = this.inwarehouseDao.findById(inwarehouseId);
+		Inwarehouse in = this.inwarehouseDao.findOne(inwarehouseId);
 		if(in == null) {
 			return;
 		}
@@ -414,12 +403,12 @@ public class InwarehouseBO {
 	 * @return
 	 */
 	public void deleteInwarehouseDetail(Integer detailId) {
-		InwarehouseDetail detail = this.inwarehouseDetailDao.findById(detailId);
+		InwarehouseDetail detail = this.inwarehouseDetailDao.findOne(detailId);
 		if(detail == null) {
 			return;
 		}
 		this.inwarehouseDetailDao.delete(detail);
-		Inwarehouse in = this.inwarehouseDao.findById(detail.getInwarehouseId());
+		Inwarehouse in = this.inwarehouseDao.findOne(detail.getInwarehouseId());
 		in.setAmount(in.getAmount() - detail.getAmount());
 		in.setGmtModify(ZisUtils.getTS());
 		in.setVersion(in.getVersion() + 1);

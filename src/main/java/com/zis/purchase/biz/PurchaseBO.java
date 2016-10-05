@@ -27,8 +27,8 @@ import com.zis.purchase.bean.PurchasePlanFlag;
 import com.zis.purchase.bean.PurchasePlanStatus;
 import com.zis.purchase.calcMode.CalcModeFactory;
 import com.zis.purchase.calcMode.CalculateModeInterface;
-import com.zis.purchase.dao.PurchaseDetailDao;
-import com.zis.purchase.dao.PurchasePlanDao;
+import com.zis.purchase.repository.PurchaseDetailDao;
+import com.zis.purchase.repository.PurchasePlanDao;
 
 /**
  * 采购核心业务逻辑
@@ -127,11 +127,9 @@ public class PurchaseBO {
 			plan.setManualDecision(0);
 			plan.setStockAmount(0);
 			plan.setPurchasedAmount(0);
-			plan.setId(null);
 			plan.setStatus(PurchasePlanStatus.NORMAL);
 			plan.setGmtCreate(ZisUtils.getTS());
 			plan.setGmtModify(ZisUtils.getTS());
-			plan.setVersion(0);
 			this.purchasePlanDao.save(plan);
 			logger.info("add new purchasePlan, bookId=" + bi.getId());
 		}
@@ -146,23 +144,15 @@ public class PurchaseBO {
 			// plan.setManualDecision(0); // 黑名单中的记录，人工定义需求量也设置为0(补偿处理之前的老数据)
 			// }
 			plan.setGmtModify(ZisUtils.getTS());
-			plan.setVersion(plan.getVersion() + 1);
-			purchasePlanDao.update(plan);
+			purchasePlanDao.save(plan);
 			logger.info("update exist purchasePlan, bookId=" + bi.getId());
 		}
 	}
 
 	// 废弃的记录，不处理/或作废已存在的采购计划
 	private void dealPurchasePlanForUseless(Bookinfo bi) {
-		PurchasePlan plan = this.findPurchasePlanByBookId(bi.getId());
-		if(plan == null || PurchasePlanStatus.USELESS.equals(plan.getStatus())) {
-			return;
-		}
-		plan.setStatus(PurchasePlanStatus.USELESS);
-		plan.setGmtModify(ZisUtils.getTS());
-		plan.setVersion(plan.getVersion() + 1);
+		this.purchasePlanDao.updateToUselessByBookId(bi.getId());
 		logger.info("make purchasePLan useless, for bookId=" + bi.getId());
-		this.purchasePlanDao.update(plan);
 	}
 
 	/**
@@ -247,38 +237,6 @@ public class PurchaseBO {
 		return plan != null && PurchasePlanFlag.WHITE.equals(plan.getFlag());
 	}
 
-	// /**
-	// * 清空更新时间在某个时间点之前的需求量
-	// *
-	// * @param now
-	// */
-	// private int updatePurchasePlanClearRequireAmount(Date now, int
-	// bookIdStart,
-	// int bookIdEnd) {
-	// if (now == null) {
-	// return 0;
-	// }
-	// // 查询出某个时间点之前修改的记录
-	// DetachedCriteria dc = DetachedCriteria.forClass(PurchasePlan.class);
-	// dc.add(Restrictions.lt("gmtModify", now));
-	// dc.add(Restrictions.between("bookId", bookIdStart, bookIdEnd));
-	// List<PurchasePlan> planList = this.purchasePlanDao.findbyCriteria(dc);
-	// for (PurchasePlan plan : planList) {
-	// plan.setRequireAmount(0);
-	// // 如果图书不存在或者已删除，则标记采购计划无效
-	// Bookinfo book = this.bookService.findNormalBookById(plan
-	// .getBookId());
-	// if (book == null
-	// || BookinfoStatus.DISCARD.equals(book.getBookStatus())) {
-	// plan.setStatus(PurchasePlanStatus.USELESS);
-	// }
-	// plan.setGmtModify(ZisUtils.getTS());
-	// plan.setVersion(plan.getVersion() + 1);
-	// this.purchasePlanDao.update(plan);
-	// }
-	// return planList.size();
-	// }
-
 	/**
 	 * 是否允许手动设置采购量
 	 * 
@@ -315,25 +273,6 @@ public class PurchaseBO {
 	 * @param bookId
 	 */
 	public void addBlackList(int bookId) {
-//		if (bookinfo == null) {
-//			return;
-//		}
-//		// 如果黑名单已有该记录，则不再重复添加
-//		if (!this.isBookInBlackList(bookinfo.getId())) {
-//			Bookblacklist bl = new Bookblacklist();
-//			bl.setBookId(bookinfo.getId());
-//			bl.setIsbn(bookinfo.getIsbn());
-//			bl.setBookAuthor(bookinfo.getBookAuthor());
-//			bl.setBookEdition(bookinfo.getBookEdition());
-//			bl.setBookName(bookinfo.getBookName());
-//			bl.setBookPublisher(bookinfo.getBookPublisher());
-//			bl.setGmtCreate(ZisUtils.getTS());
-//			bl.setGmtModify(ZisUtils.getTS());
-//			bl.setStatus("valid");
-//			bl.setVersion(0);
-//			bookblacklistDao.save(bl);
-//			logger.info("add bookInfo to blackList, bookId=" + bookinfo.getId());
-//		}
 		PurchasePlan plan = this.findPurchasePlanByBookId(bookId);
 		if(plan == null) {
 			throw new RuntimeException("采购计划不存在，bookId=" + bookId);
@@ -347,18 +286,8 @@ public class PurchaseBO {
 		plan.setRequireAmount(0);
 		plan.setManualDecision(0);
 		plan.setGmtModify(ZisUtils.getTS());
-		plan.setVersion(plan.getVersion() + 1);
-		purchasePlanDao.update(plan);
+		purchasePlanDao.save(plan);
 		logger.info("update purchasePlan, for clear requireAmount, bookId=" + bookId);
-//		if (plan != null) {
-//			plan.setRequireAmount(0);
-//			plan.setManualDecision(0);
-//			plan.setGmtModify(ZisUtils.getTS());
-//			plan.setVersion(plan.getVersion() + 1);
-//			purchasePlanDao.update(plan);
-//			logger.info("update purchasePlan, for clear requireAmount, bookId="
-//					+ bookinfo.getId());
-//		}
 	}
 
 	/**
@@ -383,29 +312,8 @@ public class PurchaseBO {
 		plan.setFlag(PurchasePlanFlag.WHITE);
 		plan.setRequireAmount(calculateRequireAmount(bi, plan));
 		plan.setGmtModify(ZisUtils.getTS());
-		plan.setVersion(plan.getVersion() + 1);
-		purchasePlanDao.update(plan);
+		purchasePlanDao.save(plan);
 		logger.info("add bookInfo to whiteList, bookId=" + bookId);
-//		if (bookinfo == null) {
-//			return;
-//		}
-//		// 如果白名单已有该记录，直接返回
-//		if (isBookInWhiteList(bookinfo.getId())) {
-//			return;
-//		}
-//		Bookwhitelist bl = new Bookwhitelist();
-//		bl.setBookId(bookinfo.getId());
-//		bl.setIsbn(bookinfo.getIsbn());
-//		bl.setBookAuthor(bookinfo.getBookAuthor());
-//		bl.setBookEdition(bookinfo.getBookEdition());
-//		bl.setBookName(bookinfo.getBookName());
-//		bl.setBookPublisher(bookinfo.getBookPublisher());
-//		bl.setGmtCreate(ZisUtils.getTS());
-//		bl.setGmtModify(ZisUtils.getTS());
-//		bl.setStatus("valid");
-//		bl.setVersion(0);
-//		bookwhitelistDao.save(bl);
-//		logger.info("add bookInfo to whiteList, bookId=" + bookinfo.getId());
 	}
 	
 	
@@ -433,22 +341,8 @@ public class PurchaseBO {
 		plan.setFlag(PurchasePlanFlag.NORMAL);
 		plan.setRequireAmount(calculateRequireAmount(bi, plan));
 		plan.setGmtModify(ZisUtils.getTS());
-		plan.setVersion(plan.getVersion() + 1);
-		purchasePlanDao.update(plan);
+		purchasePlanDao.save(plan);
 		logger.info("cancel while or black flag for purchasePlan, bookId=" + bookId);
-//		if ("white".equals(flag)) {
-//			Bookwhitelist wl = bookwhitelistDao.findById(id);
-//			wl.setStatus(ConstantString.STATUS_INVALID);
-//			wl.setGmtModify(ZisUtils.getTS());
-//			wl.setVersion(wl.getVersion() + 1);
-//			bookwhitelistDao.update(wl);
-//		} else {
-//			Bookblacklist bl = bookblacklistDao.findById(id);
-//			bl.setStatus(ConstantString.STATUS_INVALID);
-//			bl.setGmtModify(ZisUtils.getTS());
-//			bl.setVersion(bl.getVersion() + 1);
-//			bookblacklistDao.update(bl);
-//		}
 	}
 
 	/**
@@ -465,8 +359,7 @@ public class PurchaseBO {
 		}
 		plan.setStockAmount(amount);
 		plan.setGmtModify(ZisUtils.getTS());
-		plan.setVersion(plan.getVersion() + 1);
-		this.purchasePlanDao.update(plan);
+		this.purchasePlanDao.save(plan);
 		logger.info("update stock, bookId=" + bookId + ",stockBalance="
 				+ amount);
 		return StringUtils.EMPTY;
@@ -506,8 +399,7 @@ public class PurchaseBO {
 		// 设置需求量
 		plan.setManualDecision(amount);
 		plan.setGmtModify(ZisUtils.getTS());
-		plan.setVersion(plan.getVersion() + 1);
-		this.purchasePlanDao.update(plan);
+		this.purchasePlanDao.save(plan);
 		logger.info("update PurchasePlan by manual, bookId=" + bookId
 				+ ",manualDecision=" + amount);
 		return StringUtils.EMPTY;
@@ -524,8 +416,7 @@ public class PurchaseBO {
 		}
 		plan.setManualDecision(0);
 		plan.setGmtModify(ZisUtils.getTS());
-		plan.setVersion(plan.getVersion() + 1);
-		this.purchasePlanDao.update(plan);
+		this.purchasePlanDao.save(plan);
 		logger.info("remove manual decision successfully, bookId=" + bookId);
 	}
 	
@@ -545,8 +436,7 @@ public class PurchaseBO {
 		int planAmt = this.calculateRequireAmount(bi, plan);
 		plan.setRequireAmount(planAmt);
 		plan.setGmtModify(ZisUtils.getTS());
-		plan.setVersion(plan.getVersion() + 1);
-		this.purchasePlanDao.update(plan);
+		this.purchasePlanDao.save(plan);
 		logger.info("recalculate purchasePlan successfully, bookId=" + bookId);
 	}
 
@@ -579,8 +469,7 @@ public class PurchaseBO {
 		// 更新采购计划
 		plan.setPurchasedAmount(purchasedAmount + plan.getPurchasedAmount());
 		plan.setGmtModify(ZisUtils.getTS());
-		plan.setVersion(plan.getVersion() + 1);
-		purchasePlanDao.update(plan);
+		purchasePlanDao.save(plan);
 		// 新增采购明细
 		PurchaseDetail detail = buildPurchaseDetail(bookId, purchasedAmount,
 				operator, position, memo);
@@ -614,20 +503,7 @@ public class PurchaseBO {
 	 * @return
 	 */
 	public PurchasePlan findPurchasePlanByBookId(int bookId) {
-		PurchasePlan example = new PurchasePlan();
-		example.setStatus(PurchasePlanStatus.NORMAL);
-		example.setBookId(bookId);
 		return this.purchasePlanDao.findByBookId(bookId);
-	}
-
-	/**
-	 * 查询采购计划
-	 * 
-	 * @param dc
-	 * @return
-	 */
-	public List<PurchasePlan> findPurchasePlanByCriteria(DetachedCriteria dc) {
-		return purchasePlanDao.findbyCriteria(dc);
 	}
 
 	/**
@@ -635,32 +511,32 @@ public class PurchaseBO {
 	 */
 	@Deprecated
 	public void batchUpdatePurchasePlanForPurchaseAmount() {
-		DetachedCriteria criteria = DetachedCriteria
-				.forClass(PurchasePlan.class);
-		criteria.add(Restrictions.eq("status", PurchasePlanStatus.NORMAL));
-		criteria.add(Restrictions.gt("purchasedAmount", 0));
-		List<PurchasePlan> list = this.purchasePlanDao.findbyCriteria(criteria);
+		List<PurchasePlan> list = purchasePlanDao.findForRecalcOnwayStock();
 		for (PurchasePlan plan : list) {
 			plan.setPurchasedAmount(sumPurchaseAmount(plan.getBookId()));
-			this.purchasePlanDao.update(plan);
+			plan.setGmtModify(ZisUtils.getTS());
+			this.purchasePlanDao.save(plan);
 		}
 	}
 
 	private int sumPurchaseAmount(int bookId) {
-		DetachedCriteria detailDc = DetachedCriteria
-				.forClass(PurchaseDetail.class);
-		detailDc.add(Restrictions.eq("status", PurchaseDetailStatus.PURCHASED));
-		detailDc.add(Restrictions.eq("bookId", bookId));
-		List<PurchaseDetail> details = this.purchaseDetailDao
-				.findByCriteria(detailDc);
-		if (details == null || details.isEmpty()) {
-			return 0;
-		}
-		int sum = 0;
-		for (PurchaseDetail detail : details) {
-			sum += (detail.getPurchasedAmount() - detail.getInwarehouseAmount());
-		}
-		return sum;
+		// DetachedCriteria detailDc = DetachedCriteria
+		// .forClass(PurchaseDetail.class);
+		// detailDc.add(Restrictions.eq("status",
+		// PurchaseDetailStatus.PURCHASED));
+		// detailDc.add(Restrictions.eq("bookId", bookId));
+		// List<PurchaseDetail> details = this.purchaseDetailDao
+		// .findByCriteria(detailDc);
+		// if (details == null || details.isEmpty()) {
+		// return 0;
+		// }
+		// int sum = 0;
+		// for (PurchaseDetail detail : details) {
+		// sum += (detail.getPurchasedAmount() - detail.getInwarehouseAmount());
+		// }
+		// return sum;
+		// select sum(purchasedAmount - inwarehouseAmount) from PurchaseDetail where status = '' and bookId =
+		return this.purchaseDetailDao.sumPurchasedAmount(bookId);
 	}
 
 	/**
@@ -672,12 +548,7 @@ public class PurchaseBO {
 		if (StringUtils.isBlank(purchaseOperator)) {
 			return;
 		}
-		DetachedCriteria criteria = DetachedCriteria
-				.forClass(PurchaseDetail.class);
-		criteria.add(Restrictions.eq("operator", purchaseOperator));
-		criteria.add(Restrictions.eq("status", PurchaseDetailStatus.PURCHASED));
-		List<PurchaseDetail> details = this.purchaseDetailDao
-				.findByCriteria(criteria);
+		List<PurchaseDetail> details = this.purchaseDetailDao.findByOperatorAndStatus(purchaseOperator, PurchaseDetailStatus.PURCHASED);
 		if (details == null || details.isEmpty()) {
 			return;
 		}
@@ -685,7 +556,6 @@ public class PurchaseBO {
 			// 更新采购明细状态
 			detail.setStatus(PurchaseDetailStatus.USELESS);
 			detail.setGmtModify(ZisUtils.getTS());
-			detail.setVersion(detail.getVersion() + 1);
 			this.purchaseDetailDao.save(detail);
 			// 更新采购计划表
 			PurchasePlan plan = findPurchasePlanByBookId(detail.getBookId());
@@ -693,8 +563,7 @@ public class PurchaseBO {
 					- (detail.getPurchasedAmount() - detail
 							.getInwarehouseAmount()));
 			plan.setGmtModify(ZisUtils.getTS());
-			plan.setVersion(plan.getVersion() + 1);
-			this.purchasePlanDao.update(plan);
+			this.purchasePlanDao.save(plan);
 		}
 	}
 }
