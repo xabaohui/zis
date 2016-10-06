@@ -15,6 +15,7 @@
 	<jpa:repositories base-package="com.zis.requirement.repository"
 		entity-manager-factory-ref="entityManagerFactory"
 		transaction-manager-ref="transactionManager" />
+		<!--  
 	<bean id="departmentinfoDAO" class="com.zis.requirement.daoImpl.DepartmentinfoDAOImpl">
 		<property name="sessionFactory">
 			<ref bean="sessionFactory" />
@@ -37,10 +38,9 @@
 			<ref bean="sessionFactory" />
 		</property>
 	</bean>
-	<bean id="sysVarDao"
-		class="com.zis.requirement.daoImpl.SysVarDAOImpl">
+	<bean id="sysVarDao" class="com.zis.requirement.daoImpl.SysVarDAOImpl">
 		<property name="sessionFactory">
 			<ref bean="sessionFactory" />
 		</property>
-	</bean>
+	</bean>-->
 </beans>

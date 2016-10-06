@@ -18,8 +18,10 @@ public class SysVar {
 	@GeneratedValue
 	@Column(name="id")
 	private Integer id;
+	
 	@Column(name="depKey",length=100)
 	private String depKey;
+	
 	@Column(name="depValue")
 	private Integer depValue;
 

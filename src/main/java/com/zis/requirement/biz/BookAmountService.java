@@ -8,9 +8,6 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,11 +18,11 @@ import com.zis.bookinfo.repository.BookInfoDao;
 import com.zis.common.util.ZisUtils;
 import com.zis.requirement.bean.BookAmount;
 import com.zis.requirement.bean.Departmentinfo;
-import com.zis.requirement.dao.DepartmentInfoDao;
 import com.zis.requirement.dto.AddBookToDepartmentResult;
 import com.zis.requirement.dto.BookAmountAddApiRequestDTO;
 import com.zis.requirement.dto.RequirementCollectScheduleDTO;
 import com.zis.requirement.repository.BookAmountDao;
+import com.zis.requirement.repository.DepartmentInfoDao;
 
 @Service
 public class BookAmountService {
@@ -171,7 +168,7 @@ public class BookAmountService {
 	 */
 	public void addBookAmount(BookAmountAddApiRequestDTO requestDTO) {
 		Departmentinfo di = departmentInfoDao
-				.findById(requestDTO.getDepartId());
+				.findOne(requestDTO.getDepartId());
 		for (Integer bookId : requestDTO.getBookIdList()) {
 			BookAmount ba = new BookAmount();
 			BeanUtils.copyProperties(requestDTO, ba);
@@ -217,14 +214,14 @@ public class BookAmountService {
 //		dc.setProjection(Projections.distinct(Projections.property("college")));
 		List<String> collegeList = this.bookAmountDao.distinctCollege();
 		// 列出数据涉及到的专业
-		DetachedCriteria dcDepartmentInfo = DetachedCriteria
-				.forClass(Departmentinfo.class);
-		dcDepartmentInfo.add(Restrictions.in("college", collegeList));
-		dcDepartmentInfo.addOrder(Order.asc("college"))
-				.addOrder(Order.asc("institute"))
-				.addOrder(Order.asc("partName"));
+//		DetachedCriteria dcDepartmentInfo = DetachedCriteria
+//				.forClass(Departmentinfo.class);
+//		dcDepartmentInfo.add(Restrictions.in("college", collegeList));
+//		dcDepartmentInfo.addOrder(Order.asc("college"))
+//				.addOrder(Order.asc("institute"))
+//				.addOrder(Order.asc("partName"));
 		List<Departmentinfo> departmentInfos = this.departmentInfoDao
-				.findByCriteria(dcDepartmentInfo);
+				.findByCollegeListOrderByCollegeInstitutePartNameAsc(collegeList);
 		// 将所有专业、学年、学期记录下来，供采集信息查漏用
 		List<String> departNotDeal = new ArrayList<String>();
 		for (Departmentinfo depart : departmentInfos) {
@@ -290,7 +287,7 @@ public class BookAmountService {
 		// 经过上一轮处理，departNotDeal中的记录都是未处理的，这些记录追加到结果集最后
 		for (String notDeal : departNotDeal) {
 			String[] elem = notDeal.split("_");
-			Departmentinfo di = this.departmentInfoDao.findById(Integer
+			Departmentinfo di = this.departmentInfoDao.findOne(Integer
 					.valueOf(elem[0]));
 			RequirementCollectScheduleDTO collectDTO = new RequirementCollectScheduleDTO();
 			BeanUtils.copyProperties(di, collectDTO);

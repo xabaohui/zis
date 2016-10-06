@@ -39,7 +39,6 @@ public class DepartmentInfoAddAction extends ActionSupport {
 			if (id != null) {
 				dmi = schoolBiz.findDepartmentInfoById(id);
 				if (dmi != null){
-					dmi.setVersion(dmi.getVersion() + 1);
 					dmi.setGmtModify(ZisUtils.getTS());
 					dmi.setCollege(college);
 					dmi.setInstitute(institute);

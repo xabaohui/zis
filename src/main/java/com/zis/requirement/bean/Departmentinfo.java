@@ -1,38 +1,51 @@
 package com.zis.requirement.bean;
 
-import java.sql.Timestamp;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 /**
  * Departmentinfo entity. @author MyEclipse Persistence Tools
  */
 @Entity
-@Table(name="departmentinfo")
+@Table(name = "departmentinfo")
 public class Departmentinfo {
 
 	// Fields
 	@Id
 	@GeneratedValue
-	@Column(name="dId")
+	@Column(name = "dId")
 	private Integer did;
-	@Column(name="partName",length=30,nullable=false)
+
+	@Column(name = "partName", length = 30, nullable = false)
 	private String partName;
-	@Column(name="institute",length=30,nullable=false)
+
+	@Column(name = "institute", length = 30, nullable = false)
 	private String institute;
-	@Column(name="college",length=30,nullable=false)
+
+	@Column(name = "college", length = 30, nullable = false)
 	private String college;
-	@Column(name="years",nullable=false)
+
+	@Column(name = "years", nullable = false)
 	private Integer years;
-	@Column(name="GMT_CREATE",length=19,updatable=false)
-	private Timestamp gmtCreate;
-	@Column(name="GMT_MODIFY",length=19)
-	private Timestamp gmtModify;
-	@Column(name="version")
+
+	@Column(name = "GMT_CREATE", updatable = false)
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date gmtCreate;
+
+	@Column(name = "GMT_MODIFY")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date gmtModify;
+
+	@Version
+	@Column(name = "version")
 	private Integer version;
 
 	// Constructors
@@ -52,8 +65,7 @@ public class Departmentinfo {
 
 	/** full constructor */
 	public Departmentinfo(String partName, String institute, String college,
-			Integer years, Timestamp gmtCreate,
-			Timestamp gmtModify, Integer version) {
+			Integer years, Date gmtCreate, Date gmtModify, Integer version) {
 		this.partName = partName;
 		this.institute = institute;
 		this.college = college;
@@ -105,19 +117,19 @@ public class Departmentinfo {
 		this.years = years;
 	}
 
-	public Timestamp getGmtCreate() {
-		return this.gmtCreate;
+	public Date getGmtCreate() {
+		return gmtCreate;
 	}
 
-	public void setGmtCreate(Timestamp gmtCreate) {
+	public void setGmtCreate(Date gmtCreate) {
 		this.gmtCreate = gmtCreate;
 	}
 
-	public Timestamp getGmtModify() {
-		return this.gmtModify;
+	public Date getGmtModify() {
+		return gmtModify;
 	}
 
-	public void setGmtModify(Timestamp gmtModify) {
+	public void setGmtModify(Date gmtModify) {
 		this.gmtModify = gmtModify;
 	}
 

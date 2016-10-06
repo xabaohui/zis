@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.zis.requirement.bean.SysVar;
-import com.zis.requirement.dao.SysVarDao;
+import com.zis.requirement.repository.SysVarDao;
 
 /**
  * 系统变量缓存
@@ -19,7 +19,7 @@ import com.zis.requirement.dao.SysVarDao;
  */
 @Component
 public class SysVarCache {
-
+	//FIXME 会出现线程安全问题
 	private Map<String, Integer> cache;
 	@Autowired
 	private SysVarDao sysVarDao;
@@ -86,13 +86,12 @@ public class SysVarCache {
 			var.setDepKey(key);
 		}
 		var.setDepValue(value);
-		this.sysVarDao.update(var);
+		this.sysVarDao.save(var);
 		cache.put(key, value);
 	}
 
 	// 从数据库加载数据
 	private SysVar loadSysVarFromDB(String key) {
-		@SuppressWarnings("unchecked")
 		List<SysVar> list = this.sysVarDao.findByDepKey(key);
 		if (list == null || list.isEmpty()) {
 			return null;

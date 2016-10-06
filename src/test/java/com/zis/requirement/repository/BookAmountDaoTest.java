@@ -14,7 +14,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 
-import com.alibaba.fastjson.JSONObject;
 import com.zis.requirement.bean.BookAmount;
 import com.zis.requirement.dto.RequirementCollectScheduleDTO;
 
@@ -100,9 +99,12 @@ public class BookAmountDaoTest {
 	public void testFindByBookIdListGradeAndCollege() {
 		// prepare data
 		BookAmount test = getBookAmount();
+		BookAmount test1 = getBookAmount1();
 		this.bookAmountDao.save(test);
+		this.bookAmountDao.save(test1);
 		List<Integer> listTest = new ArrayList<Integer>();
 		listTest.add(test.getBookId());
+		listTest.add(test1.getBookId());
 
 		// execute
 		List<BookAmount> list = this.bookAmountDao
@@ -110,6 +112,12 @@ public class BookAmountDaoTest {
 
 		// assert
 		Assert.assertFalse(list.isEmpty());
+		for (BookAmount rcd : list) {
+			Assert.assertNotEquals(test1.getBookId(), rcd.getBookId());
+			Assert.assertEquals(test.getBookId(), rcd.getBookId());
+			Assert.assertNotEquals(new Integer(1), rcd.getGrade());
+			Assert.assertNotEquals("A测试专用", rcd.getCollege());
+		}
 	}
 
 	@Test
@@ -130,7 +138,7 @@ public class BookAmountDaoTest {
 			Assert.assertNotEquals("A测试专用", rcd.getCollege());
 		}
 	}
-
+	
 	private BookAmount getBookAmount() {
 		BookAmount bookAmount = new BookAmount();
 		bookAmount.setBookId(2500);
@@ -154,21 +162,21 @@ public class BookAmountDaoTest {
 	
 	private BookAmount getBookAmount1() {
 		BookAmount bookAmount = new BookAmount();
-		bookAmount.setBookId(2500);
-		bookAmount.setIsbn("95271");
+		bookAmount.setBookId(25679081);
+		bookAmount.setIsbn("9222333");
 		bookAmount.setBookName("华安1");
 		bookAmount.setBookAuthor("唐伯虎1");
 		bookAmount.setBookPublisher("未来战士出版社1");
 		bookAmount.setPartId(29);
 		bookAmount.setAmount(50);
-		bookAmount.setGmtCreate(new Timestamp(System.currentTimeMillis()));
+//		bookAmount.setGmtCreate(new Timestamp(System.currentTimeMillis()));
 		bookAmount.setGmtModify(new Timestamp(System.currentTimeMillis()));
-		bookAmount.setVersion(2);
-		bookAmount.setOperator("吕老师1");
-		bookAmount.setCollege("魔法大学1");
-		bookAmount.setInstitute("恶魔猎手学院1");
-		bookAmount.setPartName("屠夫专业1");
-		bookAmount.setGrade(2);
+//		bookAmount.setVersion(3);
+		bookAmount.setOperator("吕老师2");
+		bookAmount.setCollege("魔法大学2");
+		bookAmount.setInstitute("恶魔猎手学院2");
+		bookAmount.setPartName("屠夫专业2");
+		bookAmount.setGrade(1);
 		bookAmount.setTerm(3);
 		return bookAmount;
 	}

@@ -1,40 +1,56 @@
 package com.zis.requirement.bean;
 
 import java.sql.Timestamp;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import org.springframework.data.annotation.Version;
 
 /**
  * TempBookRequireImport entity. @author MyEclipse Persistence Tools
  */
 @Entity
-@Table(name="book_require_import_task")
+@Table(name = "book_require_import_task")
 public class BookRequireImportTask {
 
 	// Fields
 	@Id
 	@GeneratedValue
-	@Column(name="id")
+	@Column(name = "id")
 	private Integer id;
-	@Column(name="college",length=32,nullable=false)
+
+	@Column(name = "college", length = 32, nullable = false)
 	private String college;
-	@Column(name="operator",length=32,nullable=false)
+
+	@Column(name = "operator", length = 32, nullable = false)
 	private String operator;
-	@Column(name="memo",length=128,nullable=false)
+
+	@Column(name = "memo", length = 128, nullable = false)
 	private String memo;
-	@Column(name="total_count")
+
+	@Column(name = "total_count")
 	private Integer totalCount;
-	@Column(name="status",length=32,nullable=false)
+
+	@Column(name = "status", length = 32, nullable = false)
 	private String status;
-	@Column(name="gmt_create",length=19,nullable=false,updatable=false)
-	private Timestamp gmtCreate;
-	@Column(name="gmt_modify",length=19,nullable=false)
-	private Timestamp gmtModify;
-	@Column(name="version",nullable=false)
+
+	@Column(name = "gmt_create", length = 19, nullable = false, updatable = false)
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date gmtCreate;
+
+	@Column(name = "gmt_modify", length = 19, nullable = false)
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date gmtModify;
+
+	@Version
+	@Column(name = "version", nullable = false)
 	private Integer version;
 
 	// Constructors
@@ -56,8 +72,8 @@ public class BookRequireImportTask {
 
 	/** full constructor */
 	public BookRequireImportTask(String operator, String memo,
-			Integer totalCount, String status, Timestamp gmtCreate,
-			Timestamp gmtModify, Integer version) {
+			Integer totalCount, String status, Date gmtCreate, Date gmtModify,
+			Integer version) {
 		this.operator = operator;
 		this.memo = memo;
 		this.totalCount = totalCount;
@@ -109,19 +125,19 @@ public class BookRequireImportTask {
 		this.status = status;
 	}
 
-	public Timestamp getGmtCreate() {
-		return this.gmtCreate;
+	public Date getGmtCreate() {
+		return gmtCreate;
 	}
 
-	public void setGmtCreate(Timestamp gmtCreate) {
+	public void setGmtCreate(Date gmtCreate) {
 		this.gmtCreate = gmtCreate;
 	}
 
-	public Timestamp getGmtModify() {
-		return this.gmtModify;
+	public Date getGmtModify() {
+		return gmtModify;
 	}
 
-	public void setGmtModify(Timestamp gmtModify) {
+	public void setGmtModify(Date gmtModify) {
 		this.gmtModify = gmtModify;
 	}
 

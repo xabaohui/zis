@@ -105,7 +105,7 @@ public class RequirementImportAction extends ActionSupport {
 			saveImportRecord(list);
 
 			// 导入失败的数据处理
-			if(!cannotImport.isEmpty()) {
+			if (!cannotImport.isEmpty()) {
 				StringBuilder builder = new StringBuilder();
 				for (RequirementImportDTO failRecord : cannotImport) {
 					builder.append(getFaildRecordMessage(failRecord));
@@ -146,12 +146,12 @@ public class RequirementImportAction extends ActionSupport {
 
 	private void saveImportRecord(List<RequirementImportDTO> list) {
 		for (RequirementImportDTO record : list) {
-			if(StringUtils.isBlank(record.getIsbn())) {
+			if (StringUtils.isBlank(record.getIsbn())) {
 				record.setFailReason("ISBN为空");
 				cannotImport.add(record);
 				continue;
 			}
-			if(record.getCount() == null || record.getCount() == 0) {
+			if (record.getCount() == null || record.getCount() == 0) {
 				record.setFailReason("数量为空");
 				cannotImport.add(record);
 				continue;
@@ -184,7 +184,9 @@ public class RequirementImportAction extends ActionSupport {
 			dc.add(Restrictions.eq("partName", record.getPartName().trim()));
 			// 如果没有查到院校信息或者查到了多条记录，加入到失败列表中，留给人工处理
 			List<Departmentinfo> departList = schoolBiz
-					.findDepartmentInfoByCriteria(dc);
+					.findByCollegeInstituteAndPartName(record.getCollege()
+							.trim(), record.getInstitute().trim(), record
+							.getPartName().trim());
 			if (departList.size() != 1) {
 				record.setFailReason("专业错误");
 				cannotImport.add(record);
@@ -206,7 +208,7 @@ public class RequirementImportAction extends ActionSupport {
 				bookAmountService.saveBookAmount(ba);
 				logger.info("成功导入教材需求量：" + ba);
 			} catch (Exception e) {
-				if(e.getMessage().contains("已经登记过")) {// 跳过重复录入的报错
+				if (e.getMessage().contains("已经登记过")) {// 跳过重复录入的报错
 					continue;
 				}
 				record.setFailReason("系统错误：" + e.getMessage());

@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Projections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +14,6 @@ import com.zis.bookinfo.bean.BookinfoAid;
 import com.zis.bookinfo.repository.BookInfoAidDao;
 import com.zis.bookinfo.util.ConstantString;
 import com.zis.common.util.TextClearUtils;
-import com.zis.requirement.bean.BookAmount;
 import com.zis.requirement.repository.BookAmountDao;
 
 /**
@@ -152,7 +149,7 @@ public class SimilarityBookAnalysisBO extends BookInfoAnalysisBO {
 //			DetachedCriteria dc = DetachedCriteria.forClass(Bookamount.class);
 //			dc.setProjection(Projections.distinct(Projections
 //					.property("bookId")));
-			List<BookAmount> list = this.bookAmountDao.distinctBookId();
+			List<Integer> list = this.bookAmountDao.distinctBookId();
 			booksInUse = new ArrayList<Integer>();
 			for (Object record : list) {
 				Integer bookId = (Integer) record;

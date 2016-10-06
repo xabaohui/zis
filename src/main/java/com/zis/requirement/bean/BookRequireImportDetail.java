@@ -1,12 +1,15 @@
 package com.zis.requirement.bean;
 
-import java.sql.Timestamp;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 /**
  * TempBookRequireImportDetail entity. @author MyEclipse Persistence Tools
@@ -20,42 +23,64 @@ public class BookRequireImportDetail {
 	@GeneratedValue
 	@Column(name="id")
 	private Integer id;
+	
 	@Column(name="bookId")
 	private Integer bookid;
+	
 	@Column(name="isbn",length=32)
 	private String isbn;
+	
 	@Column(name="bookName",length=128,nullable=false)
 	private String bookName;
+	
 	@Column(name="bookAuthor",length=128)
 	private String bookAuthor;
+	
 	@Column(name="bookEdition",length=32)
 	private String bookEdition;
+	
 	@Column(name="bookPublisher",length=32,nullable=false)
 	private String bookPublisher;
+	
 	@Column(name="departId")
 	private Integer departId;
+	
 	@Column(name="college",length=64,nullable=false)
 	private String college;
+	
 	@Column(name="institute",length=64,nullable=false)
 	private String institute;
+	
 	@Column(name="partName",length=64)
 	private String partName;
+	
 	@Column(name="classNum",length=64)
 	private String classNum;
+	
 	@Column(name="grade")
 	private Integer grade;
+	
 	@Column(name="term")
 	private Integer term;
+	
 	@Column(name="amount")
 	private Integer amount;
+	
 	@Column(name="batch_id",nullable=false)
 	private Integer batchId;
+	
 	@Column(name="status",length=32,nullable=false)
 	private String status;
+	
 	@Column(name="gmt_create",length=19,nullable=false,updatable=false)
-	private Timestamp gmtCreate;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date gmtCreate;
+	
 	@Column(name="gmt_modify",length=19,nullable=false)
-	private Timestamp gmtModify;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date gmtModify;
+	
+	@Version
 	@Column(name="version",nullable=false)
 	private Integer version;
 
@@ -68,7 +93,7 @@ public class BookRequireImportDetail {
 	/** minimal constructor */
 	public BookRequireImportDetail(String bookName, String bookPublisher,
 			String college, String institute, Integer batchId, String status,
-			Timestamp gmtCreate, Timestamp gmtModify, Integer version) {
+			Date gmtCreate, Date gmtModify, Integer version) {
 		this.bookName = bookName;
 		this.bookPublisher = bookPublisher;
 		this.college = college;
@@ -86,7 +111,7 @@ public class BookRequireImportDetail {
 			String bookPublisher, Integer departId, String college,
 			String institute, String partName, String classNum, Integer grade,
 			Integer term, Integer amount, Integer batchId, String status,
-			Timestamp gmtCreate, Timestamp gmtModify, Integer version) {
+			Date gmtCreate, Date gmtModify, Integer version) {
 		this.bookid = bookid;
 		this.isbn = isbn;
 		this.bookName = bookName;
@@ -246,21 +271,6 @@ public class BookRequireImportDetail {
 		this.status = status;
 	}
 
-	public Timestamp getGmtCreate() {
-		return this.gmtCreate;
-	}
-
-	public void setGmtCreate(Timestamp gmtCreate) {
-		this.gmtCreate = gmtCreate;
-	}
-
-	public Timestamp getGmtModify() {
-		return this.gmtModify;
-	}
-
-	public void setGmtModify(Timestamp gmtModify) {
-		this.gmtModify = gmtModify;
-	}
 
 	public Integer getVersion() {
 		return this.version;
@@ -268,6 +278,22 @@ public class BookRequireImportDetail {
 
 	public void setVersion(Integer version) {
 		this.version = version;
+	}
+
+	public Date getGmtCreate() {
+		return gmtCreate;
+	}
+
+	public void setGmtCreate(Date gmtCreate) {
+		this.gmtCreate = gmtCreate;
+	}
+
+	public Date getGmtModify() {
+		return gmtModify;
+	}
+
+	public void setGmtModify(Date gmtModify) {
+		this.gmtModify = gmtModify;
 	}
 
 }

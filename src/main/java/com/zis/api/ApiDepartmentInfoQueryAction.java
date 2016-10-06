@@ -31,7 +31,7 @@ public class ApiDepartmentInfoQueryAction extends BaseApiAction {
 	private String id;
 
 	private SchoolBiz schoolBiz;
-	
+
 	/**
 	 * 查询所有学校
 	 * 
@@ -69,7 +69,8 @@ public class ApiDepartmentInfoQueryAction extends BaseApiAction {
 				.add(Projections.property("did")));
 		dc.add(Restrictions.in("college", coveredCollege));
 		dc.addOrder(Order.asc("college"));
-		List list = schoolBiz.findDepartmentInfoByCriteria(dc);
+		List<DepartmentQueryData> list = schoolBiz
+				.findByCollegeListGroupByCollegeOrderByCollege(coveredCollege);
 
 		// 准备返回结果
 		List<DepartmentQueryData> result = fillResultDataToMap(list);
@@ -101,7 +102,7 @@ public class ApiDepartmentInfoQueryAction extends BaseApiAction {
 		renderSuccessResult(result);
 		return SUCCESS;
 	}
-	
+
 	// 查找学校下面的所有学院
 	private List querySpecifiedInstitute() {
 		Integer departId = Integer.parseInt(id);
@@ -112,13 +113,15 @@ public class ApiDepartmentInfoQueryAction extends BaseApiAction {
 					+ departId);
 			return new ArrayList<Departmentinfo>();
 		}
-		DetachedCriteria dc = DetachedCriteria.forClass(Departmentinfo.class);
-		dc.add(Restrictions.eq("college", di.getCollege()));
-		dc.setProjection(Projections.projectionList()
-				.add(Projections.groupProperty("institute"))
-				.add(Projections.property("did")));
-		dc.addOrder(Order.asc("college")).addOrder(Order.asc("institute"));
-		return schoolBiz.findDepartmentInfoByCriteria(dc);
+		// DetachedCriteria dc =
+		// DetachedCriteria.forClass(Departmentinfo.class);
+		// dc.add(Restrictions.eq("college", di.getCollege()));
+		// dc.setProjection(Projections.projectionList()
+		// .add(Projections.groupProperty("institute"))
+		// .add(Projections.property("did")));
+		// dc.addOrder(Order.asc("college")).addOrder(Order.asc("institute"));
+		return schoolBiz.findByCollegeGroupByInstituteOrderByInstitute(di
+				.getCollege());
 	}
 
 	/**
@@ -136,7 +139,7 @@ public class ApiDepartmentInfoQueryAction extends BaseApiAction {
 		}
 
 		// 查询指定学校、学院下的所有专业
-		List list = querySpecifiedDepartment();
+		List<DepartmentQueryData> list = querySpecifiedDepartment();
 
 		// 准备返回结果
 		List<DepartmentQueryData> result = fillResultDataToMap(list);
@@ -155,23 +158,29 @@ public class ApiDepartmentInfoQueryAction extends BaseApiAction {
 					+ departId);
 			return new ArrayList<Departmentinfo>();
 		}
-		DetachedCriteria dc = DetachedCriteria.forClass(Departmentinfo.class);
-		dc.add(Restrictions.eq("college", di.getCollege()));
-		dc.add(Restrictions.eq("institute", di.getInstitute()));
-		dc.setProjection(Projections.projectionList()
-				.add(Projections.groupProperty("partName"))
-				.add(Projections.property("did")));
-		dc.addOrder(Order.asc("college")).addOrder(Order.asc("institute")).addOrder(Order.asc("partName"));
-		return schoolBiz.findDepartmentInfoByCriteria(dc);
+//		DetachedCriteria dc = DetachedCriteria.forClass(Departmentinfo.class);
+//		dc.add(Restrictions.eq("college", di.getCollege()));
+//		dc.add(Restrictions.eq("institute", di.getInstitute()));
+//		dc.setProjection(Projections.projectionList()
+//				.add(Projections.groupProperty("partName"))
+//				.add(Projections.property("did")));
+//		dc.addOrder(Order.asc("college")).addOrder(Order.asc("institute"))
+//				.addOrder(Order.asc("partName"));
+		return schoolBiz
+				.findByCollegeAndInstituteGroupByPartNameOrderByPartName(
+						di.getCollege(), di.getInstitute());
 	}
 
 	// 查询结果封装到map中
-	private List<DepartmentQueryData> fillResultDataToMap(List list) {
+	private List<DepartmentQueryData> fillResultDataToMap(
+			List<DepartmentQueryData> list) {
 		List<DepartmentQueryData> result = new ArrayList<DepartmentQueryData>();
 		for (Object entry : list) {
 			Object[] data = (Object[]) entry;
-			//result.put(data[0].toString(), Integer.parseInt(data[1].toString()));
-			result.add(new DepartmentQueryData(Integer.parseInt(data[1].toString()), data[0].toString()));
+			// result.put(data[0].toString(),
+			// Integer.parseInt(data[1].toString()));
+			result.add(new DepartmentQueryData(Integer.parseInt(data[1]
+					.toString()), data[0].toString()));
 		}
 		return result;
 	}
@@ -197,7 +206,7 @@ public class ApiDepartmentInfoQueryAction extends BaseApiAction {
 		response.setMsg("系统内部错误：" + errMsg);
 		renderResult(response);
 	}
-	
+
 	protected void renderSuccessResult(List<DepartmentQueryData> result) {
 		DepartmentQueryResponse response = new DepartmentQueryResponse();
 		response.setCode(BaseApiResponse.CODE_SUCCESS);

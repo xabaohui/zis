@@ -3,35 +3,20 @@ package com.zis.requirement.biz;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Order;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.zis.requirement.bean.BookAmount;
+import com.zis.api.response.DepartmentQueryData;
 import com.zis.requirement.bean.Departmentinfo;
-import com.zis.requirement.dao.DepartmentInfoDao;
-import com.zis.requirement.repository.BookAmountDao;
+import com.zis.requirement.repository.DepartmentInfoDao;
 
 @Service
 public class SchoolBiz {
 
 	private static Logger logger = Logger.getLogger(SchoolBiz.class);
+
 	@Autowired
 	private DepartmentInfoDao departmentInfoDao;
-	@Autowired
-	private BookAmountDao bookamountDao;
-
-	/**
-	 * 通过院校对象查询院校信息
-	 * 
-	 * @param di
-	 * @return
-	 */
-	public List<Departmentinfo> getDepartmentInfoByExample(Departmentinfo di) {
-		return departmentInfoDao.findByExample(di);
-	}
 
 	/**
 	 * 检查院校信息是否存在
@@ -57,11 +42,13 @@ public class SchoolBiz {
 	 * @return
 	 */
 	public int ifDepartmentInfoExist(Departmentinfo dmi) {
-		Departmentinfo di = new Departmentinfo();
-		di.setCollege(dmi.getCollege());
-		di.setInstitute(dmi.getInstitute());
-		di.setPartName(dmi.getPartName());
-		List<Departmentinfo> list = departmentInfoDao.findByExample(di);
+		// Departmentinfo di = new Departmentinfo();
+		// di.setCollege(dmi.getCollege());
+		// di.setInstitute(dmi.getInstitute());
+		// di.setPartName(dmi.getPartName());
+		List<Departmentinfo> list = departmentInfoDao
+				.findByCollegeInstituteAndPartName(dmi.getCollege(),
+						dmi.getInstitute(), dmi.getPartName());
 		logger.info("requirement.biz.AddSchoolBiz.existSchool--院校信息已存在");
 		if (list.size() > 0) {
 			return list.get(0).getDid();
@@ -76,12 +63,14 @@ public class SchoolBiz {
 	 * @param dmi
 	 */
 	public void addDepartmentInfo(Departmentinfo dmi) {
-		Departmentinfo ex = new Departmentinfo();
-		BeanUtils.copyProperties(dmi, ex);
-		ex.setVersion(null);
-		ex.setGmtCreate(null);
-		ex.setGmtModify(null);
-		List<Departmentinfo> list = this.departmentInfoDao.findByExample(ex);
+		// Departmentinfo ex = new Departmentinfo();
+		// BeanUtils.copyProperties(dmi, ex);
+		// ex.setVersion(null);
+		// ex.setGmtCreate(null);
+		// ex.setGmtModify(null);
+		List<Departmentinfo> list = this.departmentInfoDao
+				.findByCollegeInstitutePartNameAndYears(dmi.getCollege(),
+						dmi.getInstitute(), dmi.getPartName(), dmi.getYears());
 		if (!list.isEmpty()) {
 			String fmt = "重复添加院校信息, %s, %s, %s";
 			throw new RuntimeException(String.format(fmt, dmi.getCollege(),
@@ -96,10 +85,10 @@ public class SchoolBiz {
 	 * @return
 	 */
 	public List<Departmentinfo> getAllDepartmentInfo() {
-		DetachedCriteria dc = DetachedCriteria.forClass(Departmentinfo.class);
-		dc.addOrder(Order.asc("college")).addOrder(Order.asc("institute"))
-				.addOrder(Order.asc("partName"));
-		List<Departmentinfo> list = departmentInfoDao.findByCriteria(dc);
+//		DetachedCriteria dc = DetachedCriteria.forClass(Departmentinfo.class);
+//		dc.addOrder(Order.asc("college")).addOrder(Order.asc("institute"))
+//				.addOrder(Order.asc("partName"));
+		List<Departmentinfo> list = departmentInfoDao.findOrderByCollegeInstitutePartNameAsc();
 		logger.info("requirement.biz.GetInfoBiz.getAllInfo--查找院校信息成功");
 		return list;
 	}
@@ -111,7 +100,7 @@ public class SchoolBiz {
 	 * @return
 	 */
 	public Departmentinfo findDepartmentInfoById(Integer id) {
-		Departmentinfo di = departmentInfoDao.findById(id);
+		Departmentinfo di = departmentInfoDao.findOne(id);
 		return di;
 	}
 
@@ -121,11 +110,27 @@ public class SchoolBiz {
 	 * @param dmi
 	 */
 	public void updateDepartmentInfo(Departmentinfo dmi) {
-		departmentInfoDao.update(dmi);
+		departmentInfoDao.save(dmi);
 	}
 
-	public List<Departmentinfo> findDepartmentInfoByCriteria(DetachedCriteria dc) {
-		return departmentInfoDao.findByCriteria(dc);
+//	public List<Departmentinfo> findDepartmentInfoByCriteria(DetachedCriteria dc) {
+//		return departmentInfoDao.findByCriteria(dc);
+//	}
+	
+	public List<Departmentinfo> findByCollegeInstituteAndPartName(String college, String institute, String partName) {
+		return departmentInfoDao.findByCollegeInstituteAndPartName(college, institute, partName);
+	}
+
+	public List<DepartmentQueryData> findByCollegeListGroupByCollegeOrderByCollege(List<String> collegeList) {
+		return departmentInfoDao.findByCollegeListGroupByCollegeOrderByCollege(collegeList);
+	}
+	
+	public List<DepartmentQueryData> findByCollegeGroupByInstituteOrderByInstitute(String college) {
+		return departmentInfoDao.findByCollegeGroupByInstituteOrderByInstitute(college);
+	}
+	
+	public List<DepartmentQueryData> findByCollegeAndInstituteGroupByPartNameOrderByPartName(String college, String institute) {
+		return departmentInfoDao.findByCollegeAndInstituteGroupByPartNameOrderByPartName(college, institute);
 	}
 
 }

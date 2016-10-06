@@ -13,13 +13,13 @@ import org.springframework.stereotype.Component;
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.service.BookService;
 import com.zis.common.util.ZisUtils;
-import com.zis.requirement.bean.BookRequireImportTask;
 import com.zis.requirement.bean.BookRequireImportDetail;
 import com.zis.requirement.bean.BookRequireImportDetailStatus;
+import com.zis.requirement.bean.BookRequireImportTask;
 import com.zis.requirement.bean.BookRequireImportTaskStatus;
-import com.zis.requirement.dao.BookRequireImportTaskDao;
-import com.zis.requirement.dao.BookRequireImportDetailDao;
 import com.zis.requirement.dto.BookRequireUploadDTO;
+import com.zis.requirement.repository.BookRequireImportDetailDao;
+import com.zis.requirement.repository.BookRequireImportTaskDao;
 
 /**
  * 导入书单相关业务逻辑
@@ -43,7 +43,8 @@ public class BookRequireImportBO {
 	 * @param list
 	 */
 	public void saveTempBookRequireImportDetails(
-			List<BookRequireUploadDTO> list, String college, String operator, String memo) {
+			List<BookRequireUploadDTO> list, String college, String operator,
+			String memo) {
 		if (list == null || list.isEmpty()) {
 			throw new RuntimeException("导入失败，list不能为空");
 		}
@@ -57,7 +58,8 @@ public class BookRequireImportBO {
 			throw new RuntimeException("导入失败，操作备注不能为空");
 		}
 		// 新增TempBookRequireImport记录
-		BookRequireImportTask record = saveTempBookRequireImport(operator, college, memo, list.size());
+		BookRequireImportTask record = saveTempBookRequireImport(operator,
+				college, memo, list.size());
 		// 批量保存明细
 		List<BookRequireImportDetail> detailList = new ArrayList<BookRequireImportDetail>();
 		for (BookRequireUploadDTO dto : list) {
@@ -74,9 +76,9 @@ public class BookRequireImportBO {
 		// 匹配图书
 		doMatchBook(detailList);
 		// 匹配专业
-//		doMatchDepartment(record.getId());
+		// doMatchDepartment(record.getId());
 	}
-	
+
 	private BookRequireImportTask saveTempBookRequireImport(String operator,
 			String college, String memo, int totalCount) {
 		BookRequireImportTask record = new BookRequireImportTask();
@@ -91,17 +93,21 @@ public class BookRequireImportBO {
 		this.bookRequireImportTaskDao.save(record);
 		return record;
 	}
-	
+
 	/**
 	 * 尝试匹配一个批次下未匹配成功的图书
+	 * 
 	 * @param batchId
 	 */
 	public void doMatchBook(Integer batchId) {
-		DetachedCriteria criteria = DetachedCriteria.forClass(BookRequireImportDetail.class);
-		criteria.add(Restrictions.eq("batchId", batchId));
-		criteria.add(Restrictions.eq("status", BookRequireImportDetailStatus.BOOK_NOT_MATCHED));
-		List<BookRequireImportDetail> list = this.bookRequireImportDetailDao.findByCriteria(criteria);
-		if(list == null || list.isEmpty()) {
+		// DetachedCriteria criteria =
+		// DetachedCriteria.forClass(BookRequireImportDetail.class);
+		// criteria.add(Restrictions.eq("batchId", batchId));
+		// criteria.add(Restrictions.eq("status",
+		// BookRequireImportDetailStatus.BOOK_NOT_MATCHED));
+		List<BookRequireImportDetail> list = this.bookRequireImportDetailDao
+				.findByBatchId(batchId);
+		if (list == null || list.isEmpty()) {
 			return;
 		}
 		this.doMatchBook(list);
@@ -118,23 +124,27 @@ public class BookRequireImportBO {
 					|| StringUtils.isBlank(detail.getBookPublisher())) {
 				continue;
 			}
-			DetachedCriteria criteria = DetachedCriteria.forClass(Bookinfo.class);
+			DetachedCriteria criteria = DetachedCriteria
+					.forClass(Bookinfo.class);
 			criteria.add(Restrictions.eq("bookName", detail.getBookName()));
 			criteria.add(Restrictions.eq("bookAuthor", detail.getBookAuthor()));
 			criteria.add(Restrictions.eq("bookEdition", detail.getBookEdition()));
-			criteria.add(Restrictions.eq("bookPublisher", detail.getBookPublisher()));
+			criteria.add(Restrictions.eq("bookPublisher",
+					detail.getBookPublisher()));
 			if (StringUtils.isNotBlank(detail.getIsbn())) {
 				criteria.add(Restrictions.eq("isbn", detail.getIsbn()));
 			}
-			List<Bookinfo> bookList = this.bookService.findBookByCriteria(criteria);
-			if(bookList != null && bookList.size() == 1) {
+			List<Bookinfo> bookList = this.bookService
+					.findBookByCriteria(criteria);
+			if (bookList != null && bookList.size() == 1) {
 				doMatchBook(detail, bookList.get(0).getId());
 			}
 		}
 	}
-	
+
 	/**
 	 * 匹配图书
+	 * 
 	 * @param detail
 	 * @param bookId
 	 */
@@ -142,7 +152,6 @@ public class BookRequireImportBO {
 		detail.setBookid(bookId);
 		detail.setStatus(BookRequireImportDetailStatus.DEPARTMENT_NOT_MATCHED);
 		detail.setGmtModify(ZisUtils.getTS());
-		detail.setVersion(detail.getVersion()+1);
-		this.bookRequireImportDetailDao.update(detail);
+		this.bookRequireImportDetailDao.save(detail);
 	}
 }
