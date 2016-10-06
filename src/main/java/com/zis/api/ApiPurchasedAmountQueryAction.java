@@ -49,10 +49,7 @@ public class ApiPurchasedAmountQueryAction extends ActionSupport {
 			renderResult(response);
 			return SUCCESS;
 		}
-		DetachedCriteria dc = DetachedCriteria.forClass(PurchasePlan.class);
-		dc.add(Restrictions.eq("isbn", isbn));
-		dc.add(Restrictions.eq("status", PurchasePlanStatus.NORMAL));
-		List<PurchasePlan> list = doPurchaseService.findPurchasePlanByCriteria(dc);
+		List<PurchasePlan> list = doPurchaseService.findPurchasePlanByIsbn(isbn);
 		List<RequiredAmountQueryData> resultList = new ArrayList<RequiredAmountQueryData>();
 		// 如果采购计划中无此记录，提示系统无此记录
 		if (list == null || list.isEmpty()) {
@@ -92,10 +89,7 @@ public class ApiPurchasedAmountQueryAction extends ActionSupport {
 			renderResult(response);
 			return SUCCESS;
 		}
-		DetachedCriteria dc = DetachedCriteria.forClass(PurchasePlan.class);
-		dc.add(Restrictions.eq("isbn", isbn));
-		dc.add(Restrictions.eq("status", PurchasePlanStatus.NORMAL));
-		List<PurchasePlan> list = doPurchaseService.findPurchasePlanByCriteria(dc);
+		List<PurchasePlan> list = doPurchaseService.findPurchasePlanByIsbn(isbn);
 		List<RequiredAmountQueryDataV2> resultList = new ArrayList<RequiredAmountQueryDataV2>();
 		// 如果采购计划中无此记录，提示系统无此记录
 		if (list == null || list.isEmpty()) {

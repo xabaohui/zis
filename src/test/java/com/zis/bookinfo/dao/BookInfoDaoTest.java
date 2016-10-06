@@ -17,6 +17,7 @@ import org.springframework.test.context.transaction.TransactionConfiguration;
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.bean.BookinfoStatus;
 import com.zis.bookinfo.repository.BookInfoDao;
+import com.zis.common.util.TestUtil;
 import com.zis.common.util.ZisUtils;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -26,7 +27,7 @@ public class BookInfoDaoTest {
 
 	@Autowired
 	BookInfoDao bookInfoDao;
-
+	
 	@Test
 	public void testSave() {
 		this.bookInfoDao.save(generateRandomBookInfo());
@@ -85,7 +86,7 @@ public class BookInfoDaoTest {
 	public void testFindByGroupIdAndPublisher() {
 		// prepare data
 		Bookinfo book = generateRandomBookInfo();
-		String groupId = randomStr(5);
+		String groupId = TestUtil.randomStr(5);
 		String publisher = book.getBookPublisher();
 		book.setGroupId(groupId);
 		this.bookInfoDao.save(book);
@@ -102,7 +103,7 @@ public class BookInfoDaoTest {
 	public void testFindByRelateId() {
 		// prepare data
 		Bookinfo book = generateRandomBookInfo();
-		String relateId = randomStr(5);
+		String relateId = TestUtil.randomStr(5);
 		book.setRelateId(relateId);
 		this.bookInfoDao.save(book);
 
@@ -117,7 +118,7 @@ public class BookInfoDaoTest {
 	public void testFindByGroupId() {
 		// prepare data
 		Bookinfo book = generateRandomBookInfo();
-		String groupId = randomStr(5);
+		String groupId = TestUtil.randomStr(5);
 		book.setGroupId(groupId);
 		System.out.println(groupId);
 		this.bookInfoDao.save(book);
@@ -170,17 +171,9 @@ public class BookInfoDaoTest {
 		book.setBookStatus(BookinfoStatus.NORMAL);
 		book.setGmtCreate(ZisUtils.getTS());
 		book.setGmtModify(ZisUtils.getTS());
-		book.setIsbn("9787" + randomStr(9));
+		book.setIsbn("9787" + TestUtil.randomStr(9));
 		book.setPublishDate(ZisUtils.getTS());
 		book.setVersion(0);
 		return book;
-	}
-
-	private String randomStr(int length) {
-		StringBuilder builder = new StringBuilder();
-		for (int i = 0; i < length; i++) {
-			builder.append(new Random().nextInt(10));
-		}
-		return builder.toString();
 	}
 }

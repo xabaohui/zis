@@ -1,22 +1,53 @@
 package com.zis.purchase.bean;
 
 import java.sql.Timestamp;
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 /**
  * TempImportTask entity. @author MyEclipse Persistence Tools
  */
-
-public class TempImportTask implements java.io.Serializable {
+@Entity
+@Table(name="temp_import_task")
+public class TempImportTask {
 
 	// Fields
 
+	@Id
+	@GeneratedValue
+	@Column(name = "id")
 	private Integer id;
+
+	@Column(name = "biz_type", nullable=false)
 	private String bizType;
+	
+	@Column(name = "memo", length=32)
 	private String memo;
+	
+	@Column(name = "status", nullable=false)
 	private Integer status;
+	
+	@Column(name = "total_count")
 	private Integer totalCount;
-	private Timestamp gmtCreate;
-	private Timestamp gmtModify;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "gmt_create", nullable=false, updatable=false)
+	private Date gmtCreate;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "gmt_modify", nullable=false)
+	private Date gmtModify;
+	
+	@Version
+	@Column(name = "version", nullable=false)
 	private Integer version;
 
 	// Constructors
@@ -37,7 +68,7 @@ public class TempImportTask implements java.io.Serializable {
 
 	/** full constructor */
 	public TempImportTask(String bizType, String memo, Integer status,
-			Timestamp gmtCreate, Timestamp gmtModify, Integer version) {
+			Date gmtCreate, Date gmtModify, Integer version) {
 		this.bizType = bizType;
 		this.memo = memo;
 		this.status = status;
@@ -88,19 +119,19 @@ public class TempImportTask implements java.io.Serializable {
 		this.status = status;
 	}
 
-	public Timestamp getGmtCreate() {
+	public Date getGmtCreate() {
 		return this.gmtCreate;
 	}
 
-	public void setGmtCreate(Timestamp gmtCreate) {
+	public void setGmtCreate(Date gmtCreate) {
 		this.gmtCreate = gmtCreate;
 	}
 
-	public Timestamp getGmtModify() {
+	public Date getGmtModify() {
 		return this.gmtModify;
 	}
 
-	public void setGmtModify(Timestamp gmtModify) {
+	public void setGmtModify(Date gmtModify) {
 		this.gmtModify = gmtModify;
 	}
 

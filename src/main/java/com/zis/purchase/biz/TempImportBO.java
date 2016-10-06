@@ -10,6 +10,10 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Component;
 
 import com.zis.bookinfo.bean.Bookinfo;
@@ -21,10 +25,10 @@ import com.zis.purchase.bean.TempImportDetailStatus;
 import com.zis.purchase.bean.TempImportTask;
 import com.zis.purchase.bean.TempImportTaskBizTypeEnum;
 import com.zis.purchase.bean.TempImportTaskStatus;
-import com.zis.purchase.dao.TempImportDetailDao;
-import com.zis.purchase.dao.TempImportTaskDao;
 import com.zis.purchase.dto.TempImportDTO;
 import com.zis.purchase.dto.TempImportDetailView;
+import com.zis.purchase.repository.TempImportDetailDao;
+import com.zis.purchase.repository.TempImportTaskDao;
 
 /**
  * 临时导入记录处理BO
@@ -56,7 +60,6 @@ public class TempImportBO {
 		task.setTotalCount(list.size());
 		task.setGmtCreate(ZisUtils.getTS());
 		task.setGmtModify(ZisUtils.getTS());
-		task.setVersion(0);
 		this.tempImportTaskDao.save(task);
 		for (TempImportDTO tmp : list) {
 			TempImportDetail detail = new TempImportDetail();
@@ -80,11 +83,7 @@ public class TempImportBO {
 	 */
 	public void updateTempImportDetail(Integer taskId) {
 		// 1. 查找出未匹配图书的记录
-		TempImportDetail example = new TempImportDetail();
-		example.setTaskId(taskId);
-		example.setStatus(TempImportDetailStatus.NOT_MATCHED);
-		List<TempImportDetail> list = this.tempImportDetailDao
-				.findByExample(example);
+		List<TempImportDetail> list = tempImportDetailDao.findByTaskIdAndStatus(taskId, TempImportDetailStatus.NOT_MATCHED);
 		for (TempImportDetail record : list) {
 			// 2. 如果isbn = null，则先填写isbn
 			if (StringUtils.isBlank(record.getIsbn())) {
@@ -108,7 +107,6 @@ public class TempImportBO {
 					// 2.1.2 匹配失败，仅更新isbn
 					record.setIsbn(exactIsbn);
 					record.setGmtModify(ZisUtils.getTS());
-					record.setVersion(record.getVersion() + 1);
 					this.tempImportDetailDao.save(record);
 					continue; // 处理完成，跳过后续流程
 				}
@@ -122,7 +120,6 @@ public class TempImportBO {
 			if (bookList != null && bookList.size() == 1) {
 				record.setBookId(bookList.get(0).getId());
 				record.setStatus(TempImportDetailStatus.MATCHED);
-				record.setVersion(record.getVersion() + 1);
 				record.setGmtModify(ZisUtils.getTS());
 				this.tempImportDetailDao.save(record);
 				logger.info("tempImportDetail associate with bookInfo, detailId="
@@ -135,20 +132,15 @@ public class TempImportBO {
 
 	// 如果本次待处理的全部搞定，则修改TaskStatus
 	private void updateTaskIfFullyMatched(Integer taskId) {
-		TempImportDetail example = new TempImportDetail();
-		example.setTaskId(taskId);
-		example.setStatus(TempImportDetailStatus.NOT_MATCHED);
-		List<TempImportDetail> notMatched = this.tempImportDetailDao
-				.findByExample(example);
+		List<TempImportDetail> notMatched = tempImportDetailDao.findByTaskIdAndStatus(taskId, TempImportDetailStatus.NOT_MATCHED);
 		if (notMatched == null || notMatched.isEmpty()) {
-			TempImportTask task = this.tempImportTaskDao.findById(taskId);
+			TempImportTask task = this.tempImportTaskDao.findOne(taskId);
 			if (task == null) {
 				throw new RuntimeException(
 						"TempImportTask could not be null, taskId=" + taskId);
 			}
 			task.setStatus(TempImportTaskStatus.FULLY_MATCHED);
 			task.setGmtModify(ZisUtils.getTS());
-			task.setVersion(task.getVersion() + 1);
 			this.tempImportTaskDao.save(task);
 			logger.info("tempImportTask fully matched, taskId=" + taskId);
 		}
@@ -164,7 +156,7 @@ public class TempImportBO {
 	public String updateAssociateTempImportDetailWithBookInfo(
 			Integer tempImportDetailId, Integer bookId) {
 		TempImportDetail tmpRecord = this.tempImportDetailDao
-				.findById(tempImportDetailId);
+				.findOne(tempImportDetailId);
 		Bookinfo book = this.bookService.findBookById(bookId);
 		return this.updateAssociatePurchaseTempImportWithBookInfo(tmpRecord,
 				book);
@@ -196,7 +188,6 @@ public class TempImportBO {
 		detail.setBookId(book.getId());
 		detail.setStatus(TempImportDetailStatus.MATCHED);
 		detail.setGmtModify(ZisUtils.getTS());
-		detail.setVersion(detail.getVersion() + 1);
 		this.tempImportDetailDao.save(detail);
 		logger.info("tempImportDetail associate with bookInfo, detailId="
 				+ detail.getId());
@@ -212,7 +203,7 @@ public class TempImportBO {
 	 * @return
 	 */
 	public TempImportTask findTempImportTaskByTaskId(Integer taskId) {
-		return this.tempImportTaskDao.findById(taskId);
+		return this.tempImportTaskDao.findOne(taskId);
 	}
 
 	/**
@@ -228,11 +219,7 @@ public class TempImportBO {
 			throw new RuntimeException("illegal arguments, for input null");
 		}
 		// 查找记录
-		TempImportDetail example = new TempImportDetail();
-		example.setTaskId(taskId);
-		example.setStatus(tempImportDetailStatus);
-		List<TempImportDetail> list = this.tempImportDetailDao
-				.findByExample(example);
+		List<TempImportDetail> list = this.tempImportDetailDao.findByTaskIdAndStatus(taskId, tempImportDetailStatus);
 		// 转换结果
 		List<TempImportDetailView> resultList = new ArrayList<TempImportDetailView>();
 		for (TempImportDetail detail : list) {
@@ -262,10 +249,6 @@ public class TempImportBO {
 		return resultList;
 	}
 	
-	public List<TempImportDetail> findTempImportDetailByCritera(DetachedCriteria criteria) {
-		return this.tempImportDetailDao.findByCriteria(criteria);
-	}
-
 	/**
 	 * 批量更新临时导入记录，使之成功或者失效
 	 * 
@@ -277,7 +260,7 @@ public class TempImportBO {
 		if (taskId == null) {
 			throw new RuntimeException("参数taskId不能为空");
 		}
-		TempImportTask task = this.tempImportTaskDao.findById(taskId);
+		TempImportTask task = this.tempImportTaskDao.findOne(taskId);
 		if (task == null) {
 			throw new RuntimeException("tempImportTask不能为空,taskId=" + taskId);
 		}
@@ -302,7 +285,6 @@ public class TempImportBO {
 		}
 		task.setStatus(tempImportTaskStatus);
 		task.setGmtModify(ZisUtils.getTS());
-		task.setVersion(task.getVersion() + 1);
 		this.tempImportTaskDao.save(task);
 	}
 
@@ -312,10 +294,15 @@ public class TempImportBO {
 	 * @return
 	 */
 	public List<TempImportTask> findAllTempImportTask() {
-		DetachedCriteria criteria = DetachedCriteria
-				.forClass(TempImportTask.class);
-		criteria.add(Restrictions.ne("status", TempImportTaskStatus.CANCEL));
-		criteria.addOrder(Order.asc("status").desc("gmtCreate"));
-		return this.tempImportTaskDao.findByCriteria(criteria);
+//		DetachedCriteria criteria = DetachedCriteria
+//				.forClass(TempImportTask.class);
+//		criteria.add(Restrictions.ne("status", TempImportTaskStatus.CANCEL));
+//		criteria.addOrder(Order.asc("status").desc("gmtCreate"));
+//		return this.tempImportTaskDao.findByCriteria(criteria);
+		// FIXME 分页查询
+		Sort sort = new Sort(Direction.ASC, "status").and(new Sort(Direction.DESC, "gmtCreate"));
+		Pageable page = new PageRequest(0, 20, sort);
+		tempImportTaskDao.findAll(page);
+		return null;
 	}
 }

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import com.zis.common.cache.SysVarCache;
 import com.zis.common.cache.SysVarConstant;
 import com.zis.purchase.bean.Storesales;
-import com.zis.purchase.dao.StoreSalesDao;
+import com.zis.purchase.repository.StoreSalesDao;
 
 @Component(value="salesCalculater")
 public class SalesCalculater implements BookAmountCalculateInterface {

@@ -37,4 +37,10 @@
 			<ref bean="sessionFactory" />
 		</property>
 	</bean>
+	<bean id="sysVarDao"
+		class="com.zis.requirement.daoImpl.SysVarDAOImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
 </beans>

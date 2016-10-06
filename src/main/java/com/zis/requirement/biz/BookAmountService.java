@@ -10,8 +10,6 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
-import org.hibernate.criterion.ProjectionList;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.bean.BookinfoStatus;
-import com.zis.bookinfo.dao.BookinfoDao;
+import com.zis.bookinfo.repository.BookInfoDao;
 import com.zis.common.util.ZisUtils;
 import com.zis.requirement.bean.BookAmount;
 import com.zis.requirement.bean.Departmentinfo;
@@ -36,7 +34,7 @@ public class BookAmountService {
 	@Autowired
 	private BookAmountDao bookAmountDao;
 	@Autowired
-	private BookinfoDao bookinfoDao;
+	private BookInfoDao bookinfoDao;
 	@Autowired
 	private DepartmentInfoDao departmentInfoDao;
 
@@ -66,7 +64,7 @@ public class BookAmountService {
 		// ex.setTerm(ba.getTerm());
 		// List<Bookamount> list = bookAmountDao.findByExample(ex);
 		if (list != null && !list.isEmpty()) {
-			Bookinfo book = this.bookinfoDao.findById(ba.getBookId());
+			Bookinfo book = this.bookinfoDao.findOne(ba.getBookId());
 			throw new RuntimeException("专业" + ba.getPartId() + "已经登记过图书:"
 					+ book.getBookName() + ", bookId=" + ba.getBookId());
 		}
@@ -109,8 +107,8 @@ public class BookAmountService {
 			session.setAttribute("BookMap", bookMap);
 		}
 		// 检查图书状态
-		Bookinfo bi = this.bookinfoDao.findById(bookId);
-		if (bi == null || BookinfoStatus.DISCARD.equals(bi.getBookStatus())) {
+		Bookinfo bi = this.bookinfoDao.findOne(bookId);
+		if(bi == null || BookinfoStatus.DISCARD.equals(bi.getBookStatus())) {
 			return new AddBookToDepartmentResult(false, "图书不存在或者已删除");
 		}
 		// 检查该图书是否已添加
@@ -183,7 +181,7 @@ public class BookAmountService {
 			ba.setInstitute(di.getInstitute());
 			ba.setPartName(di.getPartName());
 			ba.setPartId(di.getDid());
-			Bookinfo bi = bookinfoDao.findById(bookId);
+			Bookinfo bi = bookinfoDao.findOne(bookId);
 			if (bi == null) {
 				throw new RuntimeException("bookInfo is null, for id=" + bookId);
 			}
@@ -273,7 +271,7 @@ public class BookAmountService {
 			collectDTO.setCollege(dataArr[1].toString());
 			collectDTO.setInstitute(dataArr[2].toString());
 			collectDTO.setPartName(dataArr[3].toString());
-			collectDTO.setDepartId(Integer.valueOf(dataArr[4].toString()));
+			collectDTO.setPartId(Integer.valueOf(dataArr[4].toString()));
 			collectDTO.setGrade(Integer.valueOf(dataArr[5].toString()));
 			collectDTO.setTerm(Integer.valueOf(dataArr[6].toString()));
 			if (groupByOperator) {
@@ -282,7 +280,7 @@ public class BookAmountService {
 			// 数据添加到结果集中
 			resultList.add(collectDTO);
 			// 把这个专业和学期的记录从departNotDeal中移除
-			String key = getRequirementCollectKey(collectDTO.getDepartId(),
+			String key = getRequirementCollectKey(collectDTO.getPartId(),
 					collectDTO.getGrade(), collectDTO.getTerm());
 			if (departNotDeal.contains(key)) {
 				departNotDeal.remove(key);
@@ -296,7 +294,7 @@ public class BookAmountService {
 					.valueOf(elem[0]));
 			RequirementCollectScheduleDTO collectDTO = new RequirementCollectScheduleDTO();
 			BeanUtils.copyProperties(di, collectDTO);
-			collectDTO.setDepartId(di.getDid());
+			collectDTO.setPartId(di.getDid());
 			collectDTO.setGrade(Integer.valueOf(elem[1]));
 			collectDTO.setTerm(Integer.valueOf(elem[2]));
 			collectDTO.setOperator("未操作");
@@ -331,9 +329,9 @@ public class BookAmountService {
 		if (list == null || list.isEmpty()) {
 			return "没有查到" + bookIdFrom + "对应的记录";
 		}
-		Bookinfo bookFrom = this.bookinfoDao.findById(bookIdFrom);
-		Bookinfo bookTo = this.bookinfoDao.findById(bookIdTo);
-		if (bookFrom == null || bookTo == null) {
+		Bookinfo bookFrom = this.bookinfoDao.findOne(bookIdFrom);
+		Bookinfo bookTo = this.bookinfoDao.findOne(bookIdTo);
+		if(bookFrom == null || bookTo == null) {
 			return "图书对象不存在，请检查输入";
 		}
 		if (!bookFrom.getIsbn().equals(bookTo.getIsbn())) {

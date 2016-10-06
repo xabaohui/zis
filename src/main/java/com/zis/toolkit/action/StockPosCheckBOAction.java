@@ -10,12 +10,14 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.service.BookService;
 import com.zis.purchase.bean.TempImportDetail;
 import com.zis.purchase.bean.TempImportDetailStatus;
 import com.zis.purchase.biz.DoPurchaseService;
+import com.zis.purchase.repository.TempImportDetailDao;
 
 /**
  * 库位信息校准Action
@@ -31,7 +33,8 @@ public class StockPosCheckBOAction {
 	private static final String SESSION_KEY_POS = "stockPosCheck.StockPos";
 	private static final Integer taskId = 39;
 
-	private DoPurchaseService doPurchaseService;
+	@Autowired
+	private TempImportDetailDao tempImportDetailDao;
 	private BookService bookService;
 	
 	public StockPosCheckResult addBookRecord(String isbn, HttpSession session) {
@@ -53,7 +56,7 @@ public class StockPosCheckBOAction {
 		criteria.add(Restrictions.eq("isbn", isbn));
 		criteria.add(Restrictions.eq("taskId", 18));
 		criteria.add(Restrictions.eq("status", TempImportDetailStatus.MATCHED));
-		List<TempImportDetail> list = this.doPurchaseService.findTempImportDetailByCritera(criteria);
+		List<TempImportDetail> list = this.tempImportDetailDao.findTempImportDetailByCritera(criteria);
 		if(list == null || list.isEmpty()) {
 			return new StockPosCheckResult(false, "没有找到条形码对应的库位，请跳过此条");
 		}
@@ -98,10 +101,6 @@ public class StockPosCheckBOAction {
 	public void clearSession(HttpSession session) {
 		session.setAttribute(SESSION_KEY_POS, null);
 		session.setAttribute(SESSION_KEY_RECORDS, null);
-	}
-	
-	public void setDoPurchaseService(DoPurchaseService doPurchaseService) {
-		this.doPurchaseService = doPurchaseService;
 	}
 	
 	public void setBookService(BookService bookService) {

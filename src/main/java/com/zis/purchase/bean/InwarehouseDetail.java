@@ -1,23 +1,55 @@
 package com.zis.purchase.bean;
 
-import java.sql.Timestamp;
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 /**
  * InwarehouseDetail entity. @author MyEclipse Persistence Tools
  */
-
-public class InwarehouseDetail implements java.io.Serializable {
+@Entity
+@Table(name="inwarehouse_detail")
+public class InwarehouseDetail {
 
 	// Fields
 
+	@Id
+	@GeneratedValue
+	@Column(name="id")
 	private Integer id;
+	
+	@Column(name="inwarehouse_id", nullable=false)
 	private Integer inwarehouseId;
+
+	@Column(name="biz_type", nullable=false)
 	private String bizType;
+	
+	@Column(name="position_label", nullable=false, length=32)
 	private String positionLabel;
+	
+	@Column(name="book_id", nullable=false)
 	private Integer bookId;
+	
+	@Column(name="amount", nullable=false)
 	private Integer amount;
-	private Timestamp gmtCreate;
-	private Timestamp gmtModify;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name="gmt_create", nullable=false, updatable=false)
+	private Date gmtCreate;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name="gmt_modify", nullable=false)
+	private Date gmtModify;
+	
+	@Version
+	@Column(name="version")
 	private Integer version;
 
 	// Constructors
@@ -76,19 +108,19 @@ public class InwarehouseDetail implements java.io.Serializable {
 		this.amount = amount;
 	}
 
-	public Timestamp getGmtCreate() {
+	public Date getGmtCreate() {
 		return this.gmtCreate;
 	}
 
-	public void setGmtCreate(Timestamp gmtCreate) {
+	public void setGmtCreate(Date gmtCreate) {
 		this.gmtCreate = gmtCreate;
 	}
 
-	public Timestamp getGmtModify() {
+	public Date getGmtModify() {
 		return this.gmtModify;
 	}
 
-	public void setGmtModify(Timestamp gmtModify) {
+	public void setGmtModify(Date gmtModify) {
 		this.gmtModify = gmtModify;
 	}
 

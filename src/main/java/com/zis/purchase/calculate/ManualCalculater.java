@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.zis.purchase.bean.PurchasePlan;
-import com.zis.purchase.dao.PurchasePlanDao;
+import com.zis.purchase.repository.PurchasePlanDao;
 
 @Component(value="manualCalculater")
 public class ManualCalculater implements BookAmountCalculateInterface {
@@ -18,16 +18,5 @@ public class ManualCalculater implements BookAmountCalculateInterface {
 			throw new RuntimeException("没有采购计划，bookId=" + bookId);
 		}
 		return plan.getManualDecision();
-		// List<Manualdecision> list = null;
-		// if (bookId > 0) {
-		// list = manualdecisionDao.findByBookId(bookId);
-		// if (list != null && !list.isEmpty()) {
-		// return list.get(0).getAmount();
-		// } else {
-		// return null;
-		// }
-		// } else {
-		// return null;
-		// }
 	}
 }

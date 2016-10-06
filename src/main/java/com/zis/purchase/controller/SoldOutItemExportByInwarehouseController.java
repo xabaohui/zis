@@ -8,8 +8,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -58,17 +56,15 @@ public class SoldOutItemExportByInwarehouseController extends CommonExcelExportC
 	@Override
 	protected List<InwarehouseDetail> queryExportData(HttpServletRequest request) {
 		String[] batchSelectedItemStr=request.getParameterValues("batchSelectedItem");
-		DetachedCriteria criteria = DetachedCriteria.forClass(InwarehouseDetail.class);
 		if(batchSelectedItemStr!=null){
 			Integer []batchSelectedItem=new Integer[batchSelectedItemStr.length];
 			for(int i=0;i<batchSelectedItemStr.length;i++){
 				batchSelectedItem[i]=Integer.parseInt(batchSelectedItemStr[i]);
 			}
-			criteria.add(Restrictions.in("inwarehouseId", batchSelectedItem));
+			return this.doPurchaseService.findInwarehouseDetailByInwarehouseIds(batchSelectedItem);
 		}else{
 			throw new IllegalArgumentException("batchSelectedItem 数组为空");
 		}
-		return this.doPurchaseService.findInwarehouseDetailByCriteria(criteria);
 	}
 	
 	@Override

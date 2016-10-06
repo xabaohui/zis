@@ -3,8 +3,6 @@ package com.zis.purchase.biz;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +11,7 @@ import com.zis.purchase.bean.Inwarehouse;
 import com.zis.purchase.bean.PurchaseDetail;
 import com.zis.purchase.bean.PurchaseDetailStatus;
 import com.zis.purchase.bean.PurchasePlan;
-import com.zis.purchase.dao.PurchaseDetailDao;
+import com.zis.purchase.repository.PurchaseDetailDao;
 
 /**
  * 采购入库核心业务逻辑
@@ -50,12 +48,7 @@ public class PurchaseInwarehouseBO extends InwarehouseBO {
 	}
 	
 	private List<PurchaseDetail> findPurchaseDetail(String purchaseOperator, Integer bookId) {
-		DetachedCriteria criteria = DetachedCriteria
-				.forClass(PurchaseDetail.class);
-		criteria.add(Restrictions.eq("operator", purchaseOperator));
-		criteria.add(Restrictions.eq("bookId", bookId));
-		criteria.add(Restrictions.eq("status", PurchaseDetailStatus.PURCHASED));
-		return this.purchaseDetailDao.findByCriteria(criteria);
+		return purchaseDetailDao.findByOperatorAndStatusAndBookId(purchaseOperator, PurchaseDetailStatus.PURCHASED, bookId);
 	}
 
 	@Override
@@ -101,7 +94,6 @@ public class PurchaseInwarehouseBO extends InwarehouseBO {
 		remains = remains > 0 ? remains : 0;
 		plan.setPurchasedAmount(remains);
 		plan.setGmtModify(ZisUtils.getTS());
-		plan.setVersion(plan.getVersion() + 1);
-		this.purchasePlanDao.update(plan);
+		this.purchasePlanDao.save(plan);
 	}
 }
