@@ -1,17 +1,26 @@
 package com.zis.requirement.bean;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 /**
  * SysVar entity. @author MyEclipse Persistence Tools
  */
-
-public class SysVar implements java.io.Serializable {
+@Entity
+@Table(name="sys_var")
+public class SysVar {
 
 	// Fields
-
-	private static final long serialVersionUID = 1L;
-
+	@Id
+	@GeneratedValue
+	@Column(name="id")
 	private Integer id;
+	@Column(name="depKey",length=100)
 	private String depKey;
+	@Column(name="depValue")
 	private Integer depValue;
 
 	// Constructors

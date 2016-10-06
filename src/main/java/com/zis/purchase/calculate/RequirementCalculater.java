@@ -1,6 +1,10 @@
 package com.zis.purchase.calculate;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.annotation.Resource;
+import javax.annotation.Resources;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.criterion.DetachedCriteria;
@@ -14,8 +18,8 @@ import com.zis.bookinfo.service.BookService;
 import com.zis.bookinfo.util.ConstantString;
 import com.zis.common.cache.SysVarCache;
 import com.zis.common.cache.SysVarConstant;
-import com.zis.requirement.bean.Bookamount;
-import com.zis.requirement.dao.BookAmountDao;
+import com.zis.requirement.bean.BookAmount;
+import com.zis.requirement.repository.BookAmountDao;
 
 /**
  * 根据教材使用量计算（大一数据不统计，如果存在不同版本的图书，最新版本的使用量是之前所有版本之和）
@@ -25,7 +29,7 @@ import com.zis.requirement.dao.BookAmountDao;
 @Component(value="requirementCalculater")
 public class RequirementCalculater implements BookAmountCalculateInterface {
 
-	@Autowired
+	@Resource(name="bookAmountDao")
 	private BookAmountDao bookAmountDao;
 	@Autowired
 	private SysVarCache sysVarCache;
@@ -48,26 +52,36 @@ public class RequirementCalculater implements BookAmountCalculateInterface {
 		if(book == null || !ConstantString.USEFUL.equals(book.getBookStatus())) {
 			return 0;
 		}
-		DetachedCriteria dc = DetachedCriteria.forClass(Bookamount.class);
+//		DetachedCriteria dc = DetachedCriteria.forClass(Bookamount.class);
+		List<BookAmount> list;
 		//如果存在不同版本的图书，最新版本的使用量是之前所有版本之和
 		if(book.getIsNewEdition() && StringUtils.isNotBlank(book.getGroupId())) {
 			DetachedCriteria criteria = DetachedCriteria.forClass(Bookinfo.class);
 			criteria.setProjection(Projections.property("id"));
 			criteria.add(Restrictions.eq("groupId", book.getGroupId()));
 			criteria.add(Restrictions.eq("bookStatus", ConstantString.USEFUL));
+			//FIXME 获取IDS为空
 			List<Bookinfo> ids = this.bookService.findBookByCriteria(criteria);
-			dc.add(Restrictions.in("bookId", ids));
+			List<Integer> idsInt = new ArrayList<Integer>();
+			if(ids!=null){
+				for (int i=0 ;i<ids.size(); i++){
+					idsInt.add(ids.get(i).getId());
+				}
+			}
+			list=this.bookAmountDao.findByBookIdListGradeAndCollege(idsInt);
+//			dc.add(Restrictions.in("bookId", ids));
 		} else {
-			dc.add(Restrictions.eq("bookId", bookId));
+//			dc.add(Restrictions.eq("bookId", bookId));
+			list=this.bookAmountDao.findByBookIdGradeAndCollege(bookId);
 		}
-		dc.add(Restrictions.ne("grade", 1));//大一数据不统计
-		dc.add(Restrictions.ne("college", "A测试专用"));//测试专业不统计
-		List<Bookamount> list = this.bookAmountDao.findByCriteria(dc);
+//		dc.add(Restrictions.ne("grade", 1));//大一数据不统计
+//		dc.add(Restrictions.ne("college", "A测试专用"));//测试专业不统计
+//			= this.bookAmountDao.findByCriteria(dc);
 		if (list == null || list.isEmpty()) {
 			return 0;
 		}
 		int total = 0;
-		for (Bookamount ba : list) {
+		for (BookAmount ba : list) {
 			total += ba.getAmount();
 		}
 		return total;

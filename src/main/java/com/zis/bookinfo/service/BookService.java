@@ -13,11 +13,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
-import com.alibaba.fastjson.JSON;
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.bean.BookinfoDetail;
 import com.zis.bookinfo.bean.BookinfoStatus;
@@ -39,8 +37,8 @@ import com.zis.bookinfo.util.BookMetadataSource;
 import com.zis.bookinfo.util.ConstantString;
 import com.zis.common.capture.DefaultBookMetadataCaptureHandler;
 import com.zis.common.util.ZisUtils;
-import com.zis.requirement.bean.Bookamount;
-import com.zis.requirement.dao.BookAmountDao;
+import com.zis.requirement.bean.BookAmount;
+import com.zis.requirement.repository.BookAmountDao;
 
 @Service
 public class BookService {
@@ -236,7 +234,8 @@ public class BookService {
 			return;
 		}
 		// 检查图书是否已被使用
-		List<Bookamount> list = this.bookAmountDao.findByBookId(bookId);
+		List<BookAmount> list = this.bookAmountDao.findByBookId(bookId);
+		//select bookId from bookAmount;
 		if(list != null && !list.isEmpty()) {
 			throw new RuntimeException("该书已经被使用，请联系管理员");
 		}

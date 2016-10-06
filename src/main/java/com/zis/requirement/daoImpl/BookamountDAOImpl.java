@@ -10,19 +10,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-import com.zis.requirement.bean.Bookamount;
+import com.zis.requirement.bean.BookAmount;
 import com.zis.requirement.dao.BookAmountDao;
 import com.zis.requirement.dao.BookAmountDao;
 
 /**
  * A data access object (DAO) providing persistence and search support for
- * Bookamount entities. Transaction control of the save(), update() and delete()
+ * BookAmount entities. Transaction control of the save(), update() and delete()
  * operations can directly support Spring container-managed transactions or they
  * can be augmented to handle user-managed Spring transactions. Each of these
  * methods provides additional information for how to configure it for the
  * desired type of transaction control.
  * 
- * @see com.zis.requirement.bean.Bookamount
+ * @see com.zis.requirement.bean.BookAmount
  * @author MyEclipse Persistence Tools
  */
 
@@ -50,10 +50,10 @@ public class BookamountDAOImpl extends HibernateDaoSupport implements
 	 * 
 	 * @see
 	 * com.zis.requirement.daoImpl.BookAmountDao2#save(com.zis.requirement.bean
-	 * .Bookamount)
+	 * .BookAmount)
 	 */
-	public void save(Bookamount transientInstance) {
-		log.debug("saving Bookamount instance");
+	public void save(BookAmount transientInstance) {
+		log.debug("saving BookAmount instance");
 		try {
 			getHibernateTemplate().saveOrUpdate(transientInstance);
 			log.debug("save successful");
@@ -63,8 +63,8 @@ public class BookamountDAOImpl extends HibernateDaoSupport implements
 		}
 	}
 
-	public void delete(Bookamount persistentInstance) {
-		log.debug("deleting Bookamount instance");
+	public void delete(BookAmount persistentInstance) {
+		log.debug("deleting BookAmount instance");
 		try {
 			getHibernateTemplate().delete(persistentInstance);
 			log.debug("delete successful");
@@ -80,11 +80,11 @@ public class BookamountDAOImpl extends HibernateDaoSupport implements
 	 * @see
 	 * com.zis.requirement.daoImpl.BookAmountDao2#findById(java.lang.Integer)
 	 */
-	public Bookamount findById(java.lang.Integer id) {
-		log.debug("getting Bookamount instance with id: " + id);
+	public BookAmount findById(java.lang.Integer id) {
+		log.debug("getting BookAmount instance with id: " + id);
 		try {
-			Bookamount instance = (Bookamount) getHibernateTemplate().get(
-					"com.zis.requirement.bean.Bookamount", id);
+			BookAmount instance = (BookAmount) getHibernateTemplate().get(
+					"com.zis.requirement.bean.BookAmount", id);
 			return instance;
 		} catch (RuntimeException re) {
 			log.error("get failed", re);
@@ -97,10 +97,10 @@ public class BookamountDAOImpl extends HibernateDaoSupport implements
 	 * 
 	 * @see
 	 * com.zis.requirement.daoImpl.BookAmountDao2#findByExample(com.zis.requirement
-	 * .bean.Bookamount)
+	 * .bean.BookAmount)
 	 */
-	public List findByExample(Bookamount instance) {
-		log.debug("finding Bookamount instance by example");
+	public List findByExample(BookAmount instance) {
+		log.debug("finding BookAmount instance by example");
 		try {
 			List results = getHibernateTemplate().findByExample(instance);
 			log.debug("find by example successful, result size: "
@@ -113,10 +113,10 @@ public class BookamountDAOImpl extends HibernateDaoSupport implements
 	}
 
 	public List findByProperty(String propertyName, Object value) {
-		log.debug("finding Bookamount instance with property: " + propertyName
+		log.debug("finding BookAmount instance with property: " + propertyName
 				+ ", value: " + value);
 		try {
-			String queryString = "from Bookamount as model where model."
+			String queryString = "from BookAmount as model where model."
 					+ propertyName + "= ?";
 			return getHibernateTemplate().find(queryString, value);
 		} catch (RuntimeException re) {
@@ -125,7 +125,7 @@ public class BookamountDAOImpl extends HibernateDaoSupport implements
 		}
 	}
 
-	public List<Bookamount> findByBookId(int bookId) {
+	public List<BookAmount> findByBookId(int bookId) {
 		return findByProperty(BOOK_ID, bookId);
 	}
 
@@ -173,9 +173,9 @@ public class BookamountDAOImpl extends HibernateDaoSupport implements
 	 * @see com.zis.requirement.daoImpl.BookAmountDao2#findAll()
 	 */
 	public List findAll() {
-		log.debug("finding all Bookamount instances");
+		log.debug("finding all BookAmount instances");
 		try {
-			String queryString = "from Bookamount";
+			String queryString = "from BookAmount";
 			return getHibernateTemplate().find(queryString);
 		} catch (RuntimeException re) {
 			log.error("find all failed", re);
@@ -183,10 +183,10 @@ public class BookamountDAOImpl extends HibernateDaoSupport implements
 		}
 	}
 
-	public Bookamount merge(Bookamount detachedInstance) {
-		log.debug("merging Bookamount instance");
+	public BookAmount merge(BookAmount detachedInstance) {
+		log.debug("merging BookAmount instance");
 		try {
-			Bookamount result = (Bookamount) getHibernateTemplate().merge(
+			BookAmount result = (BookAmount) getHibernateTemplate().merge(
 					detachedInstance);
 			log.debug("merge successful");
 			return result;
@@ -204,7 +204,7 @@ public class BookamountDAOImpl extends HibernateDaoSupport implements
 	 * .criterion.DetachedCriteria)
 	 */
 	public List findByCriteria(DetachedCriteria dc) {
-		log.debug("updating Bookamount bookamount");
+		log.debug("updating BookAmount bookamount");
 		try {
 			return getHibernateTemplate().findByCriteria(dc);
 		} catch (RuntimeException re) {
@@ -213,8 +213,8 @@ public class BookamountDAOImpl extends HibernateDaoSupport implements
 		}
 	}
 
-	public void attachDirty(Bookamount instance) {
-		log.debug("attaching dirty Bookamount instance");
+	public void attachDirty(BookAmount instance) {
+		log.debug("attaching dirty BookAmount instance");
 		try {
 			getHibernateTemplate().saveOrUpdate(instance);
 			log.debug("attach successful");
@@ -224,8 +224,8 @@ public class BookamountDAOImpl extends HibernateDaoSupport implements
 		}
 	}
 
-	public void attachClean(Bookamount instance) {
-		log.debug("attaching clean Bookamount instance");
+	public void attachClean(BookAmount instance) {
+		log.debug("attaching clean BookAmount instance");
 		try {
 			getHibernateTemplate().lock(instance, LockMode.NONE);
 			log.debug("attach successful");

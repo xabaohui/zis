@@ -9,10 +9,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.zis.requirement.bean.Bookamount;
+import com.zis.requirement.bean.BookAmount;
 import com.zis.requirement.bean.Departmentinfo;
-import com.zis.requirement.dao.BookAmountDao;
 import com.zis.requirement.dao.DepartmentInfoDao;
+import com.zis.requirement.repository.BookAmountDao;
 
 @Service
 public class SchoolBiz {
@@ -102,13 +102,6 @@ public class SchoolBiz {
 		List<Departmentinfo> list = departmentInfoDao.findByCriteria(dc);
 		logger.info("requirement.biz.GetInfoBiz.getAllInfo--查找院校信息成功");
 		return list;
-	}
-
-	/**
-	 * 查询教材使用量
-	 */
-	public List<Bookamount> findBookAmountByCriteria(DetachedCriteria dc) {
-		return bookamountDao.findByCriteria(dc);
 	}
 
 	/**

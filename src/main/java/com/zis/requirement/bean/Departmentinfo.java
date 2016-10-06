@@ -2,25 +2,37 @@ package com.zis.requirement.bean;
 
 import java.sql.Timestamp;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 /**
  * Departmentinfo entity. @author MyEclipse Persistence Tools
  */
-
-public class Departmentinfo implements java.io.Serializable {
+@Entity
+@Table(name="departmentinfo")
+public class Departmentinfo {
 
 	// Fields
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+	@Id
+	@GeneratedValue
+	@Column(name="dId")
 	private Integer did;
+	@Column(name="partName",length=30,nullable=false)
 	private String partName;
+	@Column(name="institute",length=30,nullable=false)
 	private String institute;
+	@Column(name="college",length=30,nullable=false)
 	private String college;
+	@Column(name="years",nullable=false)
 	private Integer years;
+	@Column(name="GMT_CREATE",length=19,updatable=false)
 	private Timestamp gmtCreate;
+	@Column(name="GMT_MODIFY",length=19)
 	private Timestamp gmtModify;
+	@Column(name="version")
 	private Integer version;
 
 	// Constructors

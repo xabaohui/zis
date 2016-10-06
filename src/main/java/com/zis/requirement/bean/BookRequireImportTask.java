@@ -2,22 +2,39 @@ package com.zis.requirement.bean;
 
 import java.sql.Timestamp;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 /**
  * TempBookRequireImport entity. @author MyEclipse Persistence Tools
  */
-
-public class BookRequireImportTask implements java.io.Serializable {
+@Entity
+@Table(name="book_require_import_task")
+public class BookRequireImportTask {
 
 	// Fields
-
+	@Id
+	@GeneratedValue
+	@Column(name="id")
 	private Integer id;
+	@Column(name="college",length=32,nullable=false)
 	private String college;
+	@Column(name="operator",length=32,nullable=false)
 	private String operator;
+	@Column(name="memo",length=128,nullable=false)
 	private String memo;
+	@Column(name="total_count")
 	private Integer totalCount;
+	@Column(name="status",length=32,nullable=false)
 	private String status;
+	@Column(name="gmt_create",length=19,nullable=false,updatable=false)
 	private Timestamp gmtCreate;
+	@Column(name="gmt_modify",length=19,nullable=false)
 	private Timestamp gmtModify;
+	@Column(name="version",nullable=false)
 	private Integer version;
 
 	// Constructors

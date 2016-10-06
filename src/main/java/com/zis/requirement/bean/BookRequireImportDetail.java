@@ -2,33 +2,61 @@ package com.zis.requirement.bean;
 
 import java.sql.Timestamp;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 /**
  * TempBookRequireImportDetail entity. @author MyEclipse Persistence Tools
  */
-
-public class BookRequireImportDetail implements java.io.Serializable {
+@Entity
+@Table(name="book_require_import_detail")
+public class BookRequireImportDetail {
 
 	// Fields
-
+	@Id
+	@GeneratedValue
+	@Column(name="id")
 	private Integer id;
+	@Column(name="bookId")
 	private Integer bookid;
+	@Column(name="isbn",length=32)
 	private String isbn;
+	@Column(name="bookName",length=128,nullable=false)
 	private String bookName;
+	@Column(name="bookAuthor",length=128)
 	private String bookAuthor;
+	@Column(name="bookEdition",length=32)
 	private String bookEdition;
+	@Column(name="bookPublisher",length=32,nullable=false)
 	private String bookPublisher;
+	@Column(name="departId")
 	private Integer departId;
+	@Column(name="college",length=64,nullable=false)
 	private String college;
+	@Column(name="institute",length=64,nullable=false)
 	private String institute;
+	@Column(name="partName",length=64)
 	private String partName;
+	@Column(name="classNum",length=64)
 	private String classNum;
+	@Column(name="grade")
 	private Integer grade;
+	@Column(name="term")
 	private Integer term;
+	@Column(name="amount")
 	private Integer amount;
+	@Column(name="batch_id",nullable=false)
 	private Integer batchId;
+	@Column(name="status",length=32,nullable=false)
 	private String status;
+	@Column(name="gmt_create",length=19,nullable=false,updatable=false)
 	private Timestamp gmtCreate;
+	@Column(name="gmt_modify",length=19,nullable=false)
 	private Timestamp gmtModify;
+	@Column(name="version",nullable=false)
 	private Integer version;
 
 	// Constructors

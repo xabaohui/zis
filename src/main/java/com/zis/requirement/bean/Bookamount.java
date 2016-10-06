@@ -1,43 +1,88 @@
 package com.zis.requirement.bean;
 
-import java.sql.Timestamp;
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 /**
- * Bookamount entity. @author MyEclipse Persistence Tools
+ * BookAmount entity. @author MyEclipse Persistence Tools
  */
-
-public class Bookamount implements java.io.Serializable {
+@Entity
+@Table(name = "bookamount")
+public class BookAmount {
 
 	// Fields
-
-	private static final long serialVersionUID = 1L;
-
+	@Id
+	@GeneratedValue
+	@Column(name = "id")
 	private Integer id;
+
+	@Column(name = "bookId", nullable = false)
 	private Integer bookId;
+
+	@Column(name = "ISBN", nullable = false, length = 50)
 	private String isbn;
+
+	@Column(name = "bookName", nullable = false, length = 50)
 	private String bookName;
+
+	@Column(name = "bookAuthor", nullable = false, length = 50)
 	private String bookAuthor;
+
+	@Column(name = "bookPublisher", nullable = false)
 	private String bookPublisher;
+
+	@Column(name = "partId", nullable = false)
 	private Integer partId;
+
+	@Column(name = "amount", nullable = false)
 	private Integer amount;
-	private Timestamp gmtCreate;
-	private Timestamp gmtModify;
+
+	@Column(name = "GMT_CREATE", updatable = false)
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date gmtCreate;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "GMT_MODIFY")
+	private Date gmtModify;
+
+	@Version
+	@Column(name = "version")
 	private Integer version;
+
+	@Column(name = "operator", length = 110)
 	private String operator;
+
+	@Column(name = "college", length = 100)
 	private String college;
+
+	@Column(name = "institute", length = 100)
 	private String institute;
+
+	@Column(name = "partName", length = 100)
 	private String partName;
+
+	@Column(name = "grade")
 	private Integer grade;
+
+	@Column(name = "term")
 	private Integer term;
 
 	// Constructors
 
 	/** default constructor */
-	public Bookamount() {
+	public BookAmount() {
 	}
 
 	/** minimal constructor */
-	public Bookamount(Integer bookId, String isbn, String bookName,
+	public BookAmount(Integer bookId, String isbn, String bookName,
 			String bookAuthor, String bookPublisher, Integer partId,
 			Integer amount) {
 		this.bookId = bookId;
@@ -50,9 +95,9 @@ public class Bookamount implements java.io.Serializable {
 	}
 
 	/** full constructor */
-	public Bookamount(Integer bookId, String isbn, String bookName,
+	public BookAmount(Integer bookId, String isbn, String bookName,
 			String bookAuthor, String bookPublisher, Integer partId,
-			Integer amount, Timestamp gmtCreate, Timestamp gmtModify,
+			Integer amount, Date gmtCreate, Date gmtModify,
 			Integer version, String operator) {
 		this.bookId = bookId;
 		this.isbn = isbn;
@@ -133,19 +178,19 @@ public class Bookamount implements java.io.Serializable {
 		this.amount = amount;
 	}
 
-	public Timestamp getGmtCreate() {
-		return this.gmtCreate;
+	public Date getGmtCreate() {
+		return gmtCreate;
 	}
 
-	public void setGmtCreate(Timestamp gmtCreate) {
+	public void setGmtCreate(Date gmtCreate) {
 		this.gmtCreate = gmtCreate;
 	}
 
-	public Timestamp getGmtModify() {
-		return this.gmtModify;
+	public Date getGmtModify() {
+		return gmtModify;
 	}
 
-	public void setGmtModify(Timestamp gmtModify) {
+	public void setGmtModify(Date gmtModify) {
 		this.gmtModify = gmtModify;
 	}
 
@@ -207,7 +252,7 @@ public class Bookamount implements java.io.Serializable {
 
 	@Override
 	public String toString() {
-		return "Bookamount [id=" + id + ", bookId=" + bookId + ", isbn=" + isbn
+		return "BookAmount [id=" + id + ", bookId=" + bookId + ", isbn=" + isbn
 				+ ", bookName=" + bookName + ", bookAuthor=" + bookAuthor
 				+ ", bookPublisher=" + bookPublisher + ", partId=" + partId
 				+ ", amount=" + amount + ", gmtCreate=" + gmtCreate

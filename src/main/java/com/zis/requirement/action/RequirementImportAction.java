@@ -24,7 +24,7 @@ import com.zis.bookinfo.service.BookService;
 import com.zis.common.excel.ExcelImporter;
 import com.zis.common.excel.FileImporter;
 import com.zis.common.util.ZisUtils;
-import com.zis.requirement.bean.Bookamount;
+import com.zis.requirement.bean.BookAmount;
 import com.zis.requirement.bean.Departmentinfo;
 import com.zis.requirement.biz.BookAmountService;
 import com.zis.requirement.biz.SchoolBiz;
@@ -170,7 +170,7 @@ public class RequirementImportAction extends ActionSupport {
 				continue;
 			}
 			Bookinfo bi = bookList.get(0);
-			Bookamount ba = new Bookamount();
+			BookAmount ba = new BookAmount();
 			ba.setBookId(bi.getId());
 			ba.setIsbn(bi.getIsbn());
 			ba.setBookName(bi.getBookName());

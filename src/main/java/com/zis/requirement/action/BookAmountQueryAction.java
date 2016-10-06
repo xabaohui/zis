@@ -14,7 +14,7 @@ import com.opensymphony.xwork2.validator.annotations.Validations;
 import com.zis.common.util.Page;
 import com.zis.common.util.PaginationQueryUtil;
 import com.zis.common.util.ZisUtils;
-import com.zis.requirement.bean.Bookamount;
+import com.zis.requirement.bean.BookAmount;
 
 public class BookAmountQueryAction extends ActionSupport {
 
@@ -58,7 +58,7 @@ public class BookAmountQueryAction extends ActionSupport {
 		Page page = Page
 				.createPage(pageNow, Page.DEFAULT_PAGE_SIZE, totalCount);
 		@SuppressWarnings("unchecked")
-		List<Bookamount> list = PaginationQueryUtil.paginationQuery(criteria,
+		List<BookAmount> list = PaginationQueryUtil.paginationQuery(criteria,
 				page);
 		// 将返回结果存入ActionContext中
 		ActionContext context = ActionContext.getContext();
@@ -147,7 +147,7 @@ public class BookAmountQueryAction extends ActionSupport {
 	}
 
 	private DetachedCriteria buildCriteria() {
-		DetachedCriteria dc = DetachedCriteria.forClass(Bookamount.class);
+		DetachedCriteria dc = DetachedCriteria.forClass(BookAmount.class);
 		if (!StringUtils.isBlank(isbn)) {
 			dc.add(Restrictions.eq("isbn", isbn));
 		}

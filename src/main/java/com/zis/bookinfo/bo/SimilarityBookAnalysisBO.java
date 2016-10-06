@@ -17,8 +17,8 @@ import com.zis.bookinfo.bean.BookinfoAid;
 import com.zis.bookinfo.dao.BookinfoAidDao;
 import com.zis.bookinfo.util.ConstantString;
 import com.zis.common.util.TextClearUtils;
-import com.zis.requirement.bean.Bookamount;
-import com.zis.requirement.dao.BookAmountDao;
+import com.zis.requirement.bean.BookAmount;
+import com.zis.requirement.repository.BookAmountDao;
 
 /**
  * 相似图书分析
@@ -33,6 +33,7 @@ public class SimilarityBookAnalysisBO extends BookInfoAnalysisBO {
 	private BookinfoAidDao bookinfoAidDao;
 	@Autowired
 	private BookAmountDao bookAmountDao;
+	// FIXME 会有线程安全问题
 	private List<Integer> booksInUse;
 
 	@Override
@@ -155,15 +156,16 @@ public class SimilarityBookAnalysisBO extends BookInfoAnalysisBO {
 
 	private void initBooksInUse() {
 		if (booksInUse == null) {
-			DetachedCriteria dc = DetachedCriteria.forClass(Bookamount.class);
-			dc.setProjection(Projections.distinct(Projections
-					.property("bookId")));
-			List list = this.bookAmountDao.findByCriteria(dc);
+//			DetachedCriteria dc = DetachedCriteria.forClass(Bookamount.class);
+//			dc.setProjection(Projections.distinct(Projections
+//					.property("bookId")));
+			List<BookAmount> list = this.bookAmountDao.distinctBookId();
 			booksInUse = new ArrayList<Integer>();
 			for (Object record : list) {
 				Integer bookId = (Integer) record;
 				booksInUse.add(bookId);
 			}
+			//select distinct bookId form booamount;
 		}
 
 	}

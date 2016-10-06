@@ -17,7 +17,7 @@ import com.opensymphony.xwork2.validator.annotations.RequiredFieldValidator;
 import com.opensymphony.xwork2.validator.annotations.Validations;
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.common.util.ZisUtils;
-import com.zis.requirement.bean.Bookamount;
+import com.zis.requirement.bean.BookAmount;
 import com.zis.requirement.bean.Departmentinfo;
 import com.zis.requirement.biz.BookAmountService;
 import com.zis.requirement.biz.SchoolBiz;
@@ -81,7 +81,7 @@ public class BookAmountAddAction extends ActionSupport {
 		}
 
 		// 准备要保存到数据库的数据
-		List<Bookamount> list = buildBookAmountList(di, map);
+		List<BookAmount> list = buildBookAmountList(di, map);
 		
 		try {
 			// 写入数据库
@@ -96,11 +96,11 @@ public class BookAmountAddAction extends ActionSupport {
 		return SUCCESS;
 	}
 
-	private List<Bookamount> buildBookAmountList(Departmentinfo di,
+	private List<BookAmount> buildBookAmountList(Departmentinfo di,
 			Map<Integer, Bookinfo> map) {
-		List<Bookamount> list = new ArrayList<Bookamount>();
+		List<BookAmount> list = new ArrayList<BookAmount>();
 		for (Entry<Integer, Bookinfo> entry : map.entrySet()) {
-			Bookamount ba = new Bookamount();
+			BookAmount ba = new BookAmount();
 			// 设置院校信息
 			ba.setPartId(did);
 			ba.setCollege(di.getCollege());
