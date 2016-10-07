@@ -70,7 +70,6 @@ public class TempImportBO {
 			detail.setAdditionalInfo(tmp.getAdditionalInfo());
 			detail.setGmtCreate(ZisUtils.getTS());
 			detail.setGmtModify(ZisUtils.getTS());
-			detail.setVersion(0);
 			this.tempImportDetailDao.save(detail);
 		}
 		logger.info("save tempImportTask, id=" + task.getId());

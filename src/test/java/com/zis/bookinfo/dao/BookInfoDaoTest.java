@@ -173,7 +173,6 @@ public class BookInfoDaoTest {
 		book.setGmtModify(ZisUtils.getTS());
 		book.setIsbn("9787" + TestUtil.randomStr(9));
 		book.setPublishDate(ZisUtils.getTS());
-		book.setVersion(0);
 		return book;
 	}
 }

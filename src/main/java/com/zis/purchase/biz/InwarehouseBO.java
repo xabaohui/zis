@@ -92,7 +92,6 @@ public class InwarehouseBO {
 		record.setAmount(0);
 		record.setGmtCreate(ZisUtils.getTS());
 		record.setGmtModify(ZisUtils.getTS());
-		record.setVersion(0);
 		this.inwarehouseDao.save(record);
 
 		// 创建入库辅助表InwarehousePosition
@@ -289,7 +288,6 @@ public class InwarehouseBO {
 			for (InwarehousePosition pos : updatePos) {
 				pos.setIsFull(true);
 				pos.setGmtModify(ZisUtils.getTS());
-				pos.setVersion(pos.getVersion() + 1);
 				this.inwarehousePositionDao.save(pos);
 			}
 		}
@@ -324,7 +322,6 @@ public class InwarehouseBO {
 		// 更新入库单
 		in.setAmount(in.getAmount() + amount);
 		in.setGmtModify(ZisUtils.getTS());
-		in.setVersion(in.getVersion() + 1);
 		this.inwarehouseDao.save(in);
 		// 更新库位
 		pos.setCurrentAmount(pos.getCurrentAmount() + amount);
@@ -332,7 +329,6 @@ public class InwarehouseBO {
 			pos.setIsFull(true);
 		}
 		pos.setGmtModify(ZisUtils.getTS());
-		pos.setVersion(pos.getVersion() + 1);
 		this.inwarehousePositionDao.save(pos);
 		// 新增入库明细记录
 		InwarehouseDetail detail = new InwarehouseDetail();
@@ -343,7 +339,6 @@ public class InwarehouseBO {
 		detail.setPositionLabel(pos.getPositionLabel());
 		detail.setGmtCreate(ZisUtils.getTS());
 		detail.setGmtModify(ZisUtils.getTS());
-		detail.setVersion(0);
 		this.inwarehouseDetailDao.save(detail);
 	}
 
@@ -370,7 +365,6 @@ public class InwarehouseBO {
 		}
 		in.setStatus(InwarehouseStatus.SUCCESS);
 		in.setGmtModify(ZisUtils.getTS());
-		in.setVersion(in.getVersion() + 1);
 		this.inwarehouseDao.save(in);
 	}
 	
@@ -392,7 +386,6 @@ public class InwarehouseBO {
 		}
 		in.setStatus(InwarehouseStatus.CANCEL);
 		in.setGmtModify(ZisUtils.getTS());
-		in.setVersion(in.getVersion() + 1);
 		//FIXME 入库单置为无效，但是没有修改库存
 		this.inwarehouseDao.save(in);
 	}
@@ -411,7 +404,6 @@ public class InwarehouseBO {
 		Inwarehouse in = this.inwarehouseDao.findOne(detail.getInwarehouseId());
 		in.setAmount(in.getAmount() - detail.getAmount());
 		in.setGmtModify(ZisUtils.getTS());
-		in.setVersion(in.getVersion() + 1);
 		this.inwarehouseDao.save(in);
 	}
 }

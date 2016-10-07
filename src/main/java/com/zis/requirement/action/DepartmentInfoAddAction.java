@@ -59,7 +59,6 @@ public class DepartmentInfoAddAction extends ActionSupport {
 				dmi.setYears(years);
 				dmi.setGmtModify(ZisUtils.getTS());
 				dmi.setGmtCreate(ZisUtils.getTS());
-				dmi.setVersion(0);
 				try {
 					schoolBiz.addDepartmentInfo(dmi);
 				} catch (Exception e) {

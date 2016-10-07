@@ -203,7 +203,6 @@ public class RequirementImportAction extends ActionSupport {
 			ba.setAmount(record.getCount());
 			ba.setGmtCreate(ZisUtils.getTS());
 			ba.setGmtModify(ZisUtils.getTS());
-			ba.setVersion(0);
 			try {
 				bookAmountService.saveBookAmount(ba);
 				logger.info("成功导入教材需求量：" + ba);

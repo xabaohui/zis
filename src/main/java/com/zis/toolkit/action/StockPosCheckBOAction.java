@@ -36,42 +36,42 @@ public class StockPosCheckBOAction {
 	@Autowired
 	private TempImportDetailDao tempImportDetailDao;
 	private BookService bookService;
-	
-	public StockPosCheckResult addBookRecord(String isbn, HttpSession session) {
-		if(StringUtils.isBlank(isbn)) {
-			return new StockPosCheckResult(false, "条形码不能为空");
-		}
-		// 跳过错误条码和一码多书
-		List<Bookinfo> books = this.bookService.findBookByISBN(isbn);
-		if(books == null || books.isEmpty()) {
-			return new StockPosCheckResult(false, "条形码错误，请跳过此条");
-		}
-		if(books.size() > 1) {
-			return new StockPosCheckResult(false, "一码多书，请跳过此条");
-		}
-		// 记录本次扫描条码到session中
-		List<Bookinfo> recordList = putBookIntoSession(books.get(0), session);
-		// 查询条码匹配的库位
-		DetachedCriteria criteria = DetachedCriteria.forClass(TempImportDetail.class);
-		criteria.add(Restrictions.eq("isbn", isbn));
-		criteria.add(Restrictions.eq("taskId", 18));
-		criteria.add(Restrictions.eq("status", TempImportDetailStatus.MATCHED));
-		List<TempImportDetail> list = this.tempImportDetailDao.findTempImportDetailByCritera(criteria);
-		if(list == null || list.isEmpty()) {
-			return new StockPosCheckResult(false, "没有找到条形码对应的库位，请跳过此条");
-		}
-		// 记录库位
-		Set<String> stockPosLabel = new HashSet<String>();
-		for (TempImportDetail detail : list) {
-			stockPosLabel.add(detail.getAdditionalInfo());
-		}
-		// 库位和session中的库位合并
-		Set<String> properStockPos = putPosIntoSession(stockPosLabel, session);
-		StockPosCheckResult result = new StockPosCheckResult(true, "");
-		result.setScannedBookList(recordList);
-		result.setComparablePos(properStockPos);
-		return result;
-	}
+//TODO taskId根据定值 18来查询，此方法是否有用	
+//	public StockPosCheckResult addBookRecord(String isbn, HttpSession session) {
+//		if(StringUtils.isBlank(isbn)) {
+//			return new StockPosCheckResult(false, "条形码不能为空");
+//		}
+//		// 跳过错误条码和一码多书
+//		List<Bookinfo> books = this.bookService.findBookByISBN(isbn);
+//		if(books == null || books.isEmpty()) {
+//			return new StockPosCheckResult(false, "条形码错误，请跳过此条");
+//		}
+//		if(books.size() > 1) {
+//			return new StockPosCheckResult(false, "一码多书，请跳过此条");
+//		}
+//		// 记录本次扫描条码到session中
+//		List<Bookinfo> recordList = putBookIntoSession(books.get(0), session);
+////		// 查询条码匹配的库位
+////		DetachedCriteria criteria = DetachedCriteria.forClass(TempImportDetail.class);
+////		criteria.add(Restrictions.eq("isbn", isbn));
+////		criteria.add(Restrictions.eq("taskId", 18));
+////		criteria.add(Restrictions.eq("status", TempImportDetailStatus.MATCHED));
+////		List<TempImportDetail> list = this.tempImportDetailDao.findTempImportDetailByCritera(criteria);
+////		if(list == null || list.isEmpty()) {
+////			return new StockPosCheckResult(false, "没有找到条形码对应的库位，请跳过此条");
+////		}
+////		// 记录库位
+////		Set<String> stockPosLabel = new HashSet<String>();
+////		for (TempImportDetail detail : list) {
+////			stockPosLabel.add(detail.getAdditionalInfo());
+////		}
+//		// 库位和session中的库位合并
+//		Set<String> properStockPos = putPosIntoSession(stockPosLabel, session);
+//		StockPosCheckResult result = new StockPosCheckResult(true, "");
+//		result.setScannedBookList(recordList);
+//		result.setComparablePos(properStockPos);
+//		return result;
+//	}
 	
 	private Set<String> putPosIntoSession(Set<String> stockPosLabel, HttpSession session) {
 		@SuppressWarnings("unchecked")

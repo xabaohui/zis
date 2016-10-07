@@ -65,7 +65,6 @@ public class SchoolBiz {
 	public void addDepartmentInfo(Departmentinfo dmi) {
 		// Departmentinfo ex = new Departmentinfo();
 		// BeanUtils.copyProperties(dmi, ex);
-		// ex.setVersion(null);
 		// ex.setGmtCreate(null);
 		// ex.setGmtModify(null);
 		List<Departmentinfo> list = this.departmentInfoDao

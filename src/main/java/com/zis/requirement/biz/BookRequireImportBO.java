@@ -69,7 +69,6 @@ public class BookRequireImportBO {
 			detail.setStatus(BookRequireImportDetailStatus.BOOK_NOT_MATCHED);
 			detail.setGmtCreate(ZisUtils.getTS());
 			detail.setGmtModify(ZisUtils.getTS());
-			detail.setVersion(0);
 			this.bookRequireImportDetailDao.save(detail);
 			detailList.add(detail);
 		}
@@ -89,7 +88,6 @@ public class BookRequireImportBO {
 		record.setTotalCount(totalCount);
 		record.setGmtCreate(ZisUtils.getTS());
 		record.setGmtModify(ZisUtils.getTS());
-		record.setVersion(0);
 		this.bookRequireImportTaskDao.save(record);
 		return record;
 	}

@@ -171,7 +171,6 @@ public class BookSaveOrUpdateController {
 			detail.setSource(BookMetadataSource.USER);
 			detail.setGmtCreate(ZisUtils.getTS());
 			detail.setGmtModify(ZisUtils.getTS());
-			detail.setVersion(0);
 			return detail;
 		} else {
 			if (!isBlank(bookInfoDTO.getImageUrl())) {

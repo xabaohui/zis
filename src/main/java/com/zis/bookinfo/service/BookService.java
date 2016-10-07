@@ -142,7 +142,6 @@ public class BookService {
 		// book.setBookStatus(ConstantString.USEFUL);
 		book.setGmtCreate(ZisUtils.getTS());
 		book.setGmtModify(ZisUtils.getTS());
-		book.setVersion(0);
 		book = bookinfoDao.save(book);
 		if(detail != null) {
 			detail.setBookid(book.getId());
@@ -278,7 +277,6 @@ public class BookService {
 		if(detail != null) {
 			detail.setBookid(book.getId());
 			detail.setGmtModify(ZisUtils.getTS());
-			detail.setVersion(detail.getVersion() + 1);
 			bookinfoDetailDao.save(detail);
 		}
 	}
@@ -544,7 +542,6 @@ public class BookService {
 		sales.setStockBalance(bi.getStock());
 		sales.setGmtCreate(ZisUtils.getTS());
 		sales.setGmtModify(ZisUtils.getTS());
-		sales.setVersion(0);
 		this.youluSalesDao.save(sales);
 	}
 
@@ -662,7 +659,6 @@ public class BookService {
 			item.setShopStatus(shopItemInfo.getShopStatus());
 			item.setGmtCreate(ZisUtils.getTS());
 			item.setGmtModified(ZisUtils.getTS());
-			item.setVersion(0);
 			this.shopItemInfoDao.save(item);
 			logger.info("create new shopInfoItem, bookId=" + bookId);
 		} else {
@@ -670,7 +666,6 @@ public class BookService {
 				// 如果存在且状态发生变化，则进行更新
 				existItem.setShopStatus(shopItemInfo.getShopStatus());
 				existItem.setGmtModified(ZisUtils.getTS());
-				existItem.setVersion(existItem.getVersion() + 1);
 				this.shopItemInfoDao.save(existItem);
 				logger.info("update exist shopInfoItem, bookId=" + bookId);
 			}
@@ -715,7 +710,6 @@ public class BookService {
 				detail.setTaobaoCatagoryId(info.getTaobaoCatagoryId());
 			}
 			detail.setGmtModify(ZisUtils.getTS());
-			detail.setVersion(detail.getVersion() + 1);
 			this.bookinfoDetailDao.save(detail);
 		}
 	}
@@ -803,7 +797,6 @@ public class BookService {
 		detail.setOutId(Integer.valueOf(meta.getOutId()));
 		detail.setGmtCreate(ZisUtils.getTS());
 		detail.setGmtModify(ZisUtils.getTS());
-		detail.setVersion(0);
 		return detail;
 	}
 

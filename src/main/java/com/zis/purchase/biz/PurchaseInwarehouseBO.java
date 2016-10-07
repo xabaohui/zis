@@ -70,7 +70,6 @@ public class PurchaseInwarehouseBO extends InwarehouseBO {
 				pur.setInwarehouseAmount(pur.getPurchasedAmount());
 				pur.setStatus(PurchaseDetailStatus.CHECKED);
 				pur.setGmtModify(ZisUtils.getTS());
-				pur.setVersion(pur.getVersion() + 1);
 				this.purchaseDetailDao.save(pur);
 				stillRemains = stillRemains - purAmountNotIn;
 			} else {
@@ -78,7 +77,6 @@ public class PurchaseInwarehouseBO extends InwarehouseBO {
 				pur.setInwarehouseAmount(pur.getInwarehouseAmount()
 						+ stillRemains);
 				pur.setGmtModify(ZisUtils.getTS());
-				pur.setVersion(pur.getVersion() + 1);
 				this.purchaseDetailDao.save(pur);
 				stillRemains = 0;
 			}

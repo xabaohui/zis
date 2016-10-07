@@ -492,7 +492,6 @@ public class PurchaseBO {
 		po.setInwarehouseAmount(0);
 		po.setGmtCreate(ZisUtils.getTS());
 		po.setGmtModify(ZisUtils.getTS());
-		po.setVersion(0);
 		return po;
 	}
 

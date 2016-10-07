@@ -1,6 +1,5 @@
 package com.zis.requirement.bean;
 
-import java.sql.Timestamp;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -10,8 +9,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
-import org.springframework.data.annotation.Version;
 
 /**
  * TempBookRequireImport entity. @author MyEclipse Persistence Tools
@@ -61,7 +60,7 @@ public class BookRequireImportTask {
 
 	/** minimal constructor */
 	public BookRequireImportTask(String operator, String memo, String status,
-			Timestamp gmtCreate, Timestamp gmtModify, Integer version) {
+			Date gmtCreate, Date gmtModify, Integer version) {
 		this.operator = operator;
 		this.memo = memo;
 		this.status = status;
@@ -82,19 +81,27 @@ public class BookRequireImportTask {
 		this.gmtModify = gmtModify;
 		this.version = version;
 	}
-
+	
 	// Property accessors
-
+	
 	public Integer getId() {
-		return this.id;
+		return id;
 	}
 
 	public void setId(Integer id) {
 		this.id = id;
 	}
 
+	public String getCollege() {
+		return college;
+	}
+
+	public void setCollege(String college) {
+		this.college = college;
+	}
+
 	public String getOperator() {
-		return this.operator;
+		return operator;
 	}
 
 	public void setOperator(String operator) {
@@ -102,7 +109,7 @@ public class BookRequireImportTask {
 	}
 
 	public String getMemo() {
-		return this.memo;
+		return memo;
 	}
 
 	public void setMemo(String memo) {
@@ -110,7 +117,7 @@ public class BookRequireImportTask {
 	}
 
 	public Integer getTotalCount() {
-		return this.totalCount;
+		return totalCount;
 	}
 
 	public void setTotalCount(Integer totalCount) {
@@ -118,7 +125,7 @@ public class BookRequireImportTask {
 	}
 
 	public String getStatus() {
-		return this.status;
+		return status;
 	}
 
 	public void setStatus(String status) {
@@ -142,18 +149,10 @@ public class BookRequireImportTask {
 	}
 
 	public Integer getVersion() {
-		return this.version;
+		return version;
 	}
 
 	public void setVersion(Integer version) {
 		this.version = version;
-	}
-
-	public String getCollege() {
-		return college;
-	}
-
-	public void setCollege(String college) {
-		this.college = college;
 	}
 }

@@ -186,7 +186,6 @@ public class BookAmountService {
 			ba.setId(null);// copyProperties会把ID复制过来
 			ba.setGmtCreate(ZisUtils.getTS());
 			ba.setGmtModify(ZisUtils.getTS());
-			ba.setVersion(0);
 			this.saveBookAmount(ba);
 		}
 	}
@@ -337,7 +336,6 @@ public class BookAmountService {
 		for (BookAmount record : list) {
 			record.setBookId(bookIdTo);
 			record.setGmtModify(ZisUtils.getTS());
-			record.setVersion(record.getVersion() + 1);
 			this.bookAmountDao.save(record);
 		}
 		return null;

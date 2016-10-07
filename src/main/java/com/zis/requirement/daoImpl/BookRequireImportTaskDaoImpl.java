@@ -24,7 +24,7 @@ import com.zis.requirement.dao.BookRequireImportTaskDao;
  * @author MyEclipse Persistence Tools
  */
 
-public class BookRequireImportTaskDaoImpl extends HibernateDaoSupport implements BookRequireImportTaskDao {
+public class BookRequireImportTaskDaoImpl extends HibernateDaoSupport implements BookRequireImportTaskDaoTest {
 	private static final Logger log = LoggerFactory
 			.getLogger(BookRequireImportTaskDaoImpl.class);
 	// property constants

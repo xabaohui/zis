@@ -150,7 +150,6 @@ public class BookAmountDaoTest {
 		bookAmount.setAmount(50);
 		bookAmount.setGmtCreate(new Timestamp(System.currentTimeMillis()));
 		bookAmount.setGmtModify(new Timestamp(System.currentTimeMillis()));
-		bookAmount.setVersion(2);
 		bookAmount.setOperator("吕老师");
 		bookAmount.setCollege("魔法大学");
 		bookAmount.setInstitute("恶魔猎手学院");
@@ -169,9 +168,8 @@ public class BookAmountDaoTest {
 		bookAmount.setBookPublisher("未来战士出版社1");
 		bookAmount.setPartId(29);
 		bookAmount.setAmount(50);
-//		bookAmount.setGmtCreate(new Timestamp(System.currentTimeMillis()));
+		bookAmount.setGmtCreate(new Timestamp(System.currentTimeMillis()));
 		bookAmount.setGmtModify(new Timestamp(System.currentTimeMillis()));
-//		bookAmount.setVersion(3);
 		bookAmount.setOperator("吕老师2");
 		bookAmount.setCollege("魔法大学2");
 		bookAmount.setInstitute("恶魔猎手学院2");

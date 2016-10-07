@@ -116,7 +116,6 @@ public class BookAmountAddAction extends ActionSupport {
 			ba.setIsbn(entry.getValue().getIsbn());
 			ba.setGmtCreate(ZisUtils.getTS());
 			ba.setGmtModify(ZisUtils.getTS());
-			ba.setVersion(1);
 			ba.setAmount(amount);
 			ba.setOperator(operator);
 			list.add(ba);
