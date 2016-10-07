@@ -62,7 +62,7 @@
 						[<a href="bookInfo/showGroupList?groupId=${book.groupId}" target="_blank">其他版本</a>]
 					</c:if>
 				</td>
-				<td><a href="bookInfo/getAllBooks?bookAuthor=${book.bookAuthor}&bookPublisher=${book.bookPublisher}&pageSource=pagination">${book.bookAuthor}</a>
+				<td><a href="bookInfo/getAllBooks?bookAuthor=${book.bookAuthor}&bookPublisher=${book.bookPublisher}">${book.bookAuthor}</a>
 				</td>
 				<td>${book.bookPublisher}
 				</td>

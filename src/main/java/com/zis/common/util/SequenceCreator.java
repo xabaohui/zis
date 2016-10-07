@@ -13,6 +13,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  * @author yz
  * 
  */
+// FIXME 改成JPA
 public class SequenceCreator {
 
 	public static final String SEQ_BOOK_GROUP_ID = "book_group_id";

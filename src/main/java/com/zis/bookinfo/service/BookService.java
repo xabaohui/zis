@@ -829,7 +829,24 @@ public class BookService {
 	 * 查询待审核的记录数
 	 * @return
 	 */
-	public 	Integer countWaitingBooks() {
+	public Integer countWaitingBooks() {
 		return bookinfoDao.countWaitingBooks();
+	}
+	
+	/**
+	 * 统计图书数量
+	 * @return
+	 */
+	public Integer countAllBooks() {
+		return (int) bookinfoDao.count();
+	}
+	
+	/**
+	 * 分页查询所有图书
+	 * @param pageable
+	 * @return
+	 */
+	public Page<Bookinfo> findAll(Pageable pageable) {
+		return bookinfoDao.findAll(pageable);
 	}
 }
