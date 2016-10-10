@@ -20,13 +20,13 @@
 <!-- 分页查询start -->
 <c:if test="${not empty prePage}">
 	<a
-		href="bookInfo/showSameBooksList?pageNow=${prePage}&similarityCheckLevel=${similarityCheckLevel}">上一页</a>&nbsp;
+		href="bookInfo/showSameBooksList?page=${prePage}&similarityCheckLevel=${similarityCheckLevel}">上一页</a>&nbsp;
 	</c:if>
 ${pageNow}
 &nbsp;
 <c:if test="${not empty nextPage}">
 	<a
-		href="bookInfo/showSameBooksList?pageNow=${nextPage}&similarityCheckLevel=${similarityCheckLevel}">下一页</a>&nbsp;
+		href="bookInfo/showSameBooksList?page=${nextPage}&similarityCheckLevel=${similarityCheckLevel}">下一页</a>&nbsp;
 	</c:if>
 <!-- 分页查询end -->
 

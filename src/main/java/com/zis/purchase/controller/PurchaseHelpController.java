@@ -15,4 +15,8 @@ public class PurchaseHelpController {
 	public String gotoTempImportUpload(){
 		return "purchase/tempImportUpload";
 	}
+	@RequestMapping(value="/gotoSysFunc")
+	public String gotoSysFunc(){
+		return "purchase/sysFunc";
+	}
 }

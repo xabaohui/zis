@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.zis.api.response.DepartmentQueryData;
@@ -116,20 +118,55 @@ public class SchoolBiz {
 //		return departmentInfoDao.findByCriteria(dc);
 //	}
 	
+	/**
+	 * 根据 college, institute, partName 查询
+	 * 
+	 * @param college
+	 * @param institute
+	 * @param partName
+	 * @return
+	 */
 	public List<Departmentinfo> findByCollegeInstituteAndPartName(String college, String institute, String partName) {
 		return departmentInfoDao.findByCollegeInstituteAndPartName(college, institute, partName);
 	}
-
+	
+	/**
+	 * 根据 collegeLis 条件以及 college 分组及升序排序 后查询 did和college
+	 * 
+	 * @param collegeList
+	 * @return
+	 */
 	public List<DepartmentQueryData> findByCollegeListGroupByCollegeOrderByCollege(List<String> collegeList) {
 		return departmentInfoDao.findByCollegeListGroupByCollegeOrderByCollege(collegeList);
 	}
 	
+	/**
+	 * 根据 collegeLis 条件以及 college 分组及升序排序 后查询 did和college
+	 * 
+	 * @param collegeList
+	 * @return
+	 */
 	public List<DepartmentQueryData> findByCollegeGroupByInstituteOrderByInstitute(String college) {
 		return departmentInfoDao.findByCollegeGroupByInstituteOrderByInstitute(college);
 	}
 	
+	/**
+	 * 根据 college,  institute 条件以及 partName 分组及升序排序 后查询 did和partName
+	 * @param college
+	 * @param institute
+	 * @return
+	 */
 	public List<DepartmentQueryData> findByCollegeAndInstituteGroupByPartNameOrderByPartName(String college, String institute) {
 		return departmentInfoDao.findByCollegeAndInstituteGroupByPartNameOrderByPartName(college, institute);
+	}
+	
+	/**
+	 * 分页查询 Departmentinfo
+	 * @param page
+	 * @return
+	 */
+	public Page<Departmentinfo> findAll(Pageable page){
+		return this.departmentInfoDao.findAll(page);
 	}
 
 }

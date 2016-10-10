@@ -47,7 +47,7 @@ public class InwarehouseDetailController extends
 	}
 
 	@Override
-	protected String setActionUrl() {
+	protected String setActionUrl(HttpServletRequest request) {
 		return "purchase/viewInwarehouseDetail";
 	}
 

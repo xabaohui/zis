@@ -25,7 +25,7 @@ public abstract class PaginationQueryController<T> {
 	protected Logger logger = Logger.getLogger(PaginationQueryController.class);
 
 	// 传入跳转地址 错误地址
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings("rawtypes")
 	public String executeQuery(ModelMap context, HttpServletRequest request) {
 		String pageNowStr = request.getParameter("pageNow");
 		if(StringUtils.isBlank(pageNowStr)) {
@@ -46,13 +46,14 @@ public abstract class PaginationQueryController<T> {
 			int totalCount = PaginationQueryUtil.getTotalCount(queryCondition);
 			Page page = Page.createPage(pageNow, Page.DEFAULT_PAGE_SIZE,
 					totalCount);
-			List list = PaginationQueryUtil.paginationQuery(queryCondition,
+			@SuppressWarnings("unchecked")
+			List<T> list = PaginationQueryUtil.paginationQuery(queryCondition,
 					page);
 			// 转换结果
 			List resultList = transformResult(list);
 			// 设置页面参数
 			context.put(setResultListLabel(), resultList);
-			context.put("actionUrl", setActionUrl());
+			context.put("actionUrl", setActionUrl(request));
 			context.put("queryCondition", setActionUrlQueryCondition(request));
 			context.put("pageNow", pageNow);
 			if (page.isHasPre()) {
@@ -102,7 +103,7 @@ public abstract class PaginationQueryController<T> {
 	/**
 	 * 设置分页查询跳转目标url
 	 */
-	protected abstract String setActionUrl();
+	protected abstract String setActionUrl(HttpServletRequest request);
 
 	/**
 	 * 设置分页查询条件，确保翻页过程中查询条件不丢失
@@ -115,7 +116,8 @@ public abstract class PaginationQueryController<T> {
 	 * @param list
 	 * @return
 	 */
-	protected List<T> transformResult(List<T> list) {
+	@SuppressWarnings("rawtypes")
+	protected List transformResult(List<T> list) {
 		return list;
 	}
 

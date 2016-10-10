@@ -43,7 +43,7 @@ public class PurchaseDetailViewController extends
 	}
 
 	@Override
-	protected String setActionUrl() {
+	protected String setActionUrl(HttpServletRequest request) {
 		return "purchase/queryPurchaseDetail";
 	}
 

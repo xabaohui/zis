@@ -35,8 +35,7 @@ public class DepartmentInfoDaoTest {
 		collegeList.add(test1.getCollege());
 
 		// execute
-		List<Departmentinfo> list = this.dao
-				.findByCollegeListOrderByCollegeInstitutePartNameAsc(collegeList);
+		List<Departmentinfo> list = this.dao.findByCollegeListOrderByCollegeInstitutePartNameAsc(collegeList);
 
 		// assert
 		Assert.assertFalse(list.isEmpty());
@@ -55,13 +54,12 @@ public class DepartmentInfoDaoTest {
 		this.dao.save(test);
 
 		// execute
-		List<Departmentinfo> list = this.dao
-				.findOrderByCollegeInstitutePartNameAsc();
+		List<Departmentinfo> list = this.dao.findOrderByCollegeInstitutePartNameAsc();
 
 		// assert
 		Assert.assertFalse(list.isEmpty());
 		for (Departmentinfo rec : list) {
-			if(test.getYears().equals(rec.getYears())) {
+			if (test.getYears().equals(rec.getYears())) {
 				return;
 			}
 		}
@@ -78,8 +76,8 @@ public class DepartmentInfoDaoTest {
 		this.dao.save(test);
 
 		// execute
-		List<Departmentinfo> list = this.dao.findByCollegeInstituteAndPartName(
-				test.getCollege(), test.getInstitute(), test.getPartName());
+		List<Departmentinfo> list = this.dao.findByCollegeInstituteAndPartName(test.getCollege(), test.getInstitute(),
+				test.getPartName());
 
 		// assert
 		Assert.assertFalse(list.isEmpty());
@@ -101,14 +99,11 @@ public class DepartmentInfoDaoTest {
 		this.dao.save(test);
 
 		// execute
-		List<Departmentinfo> list = this.dao
-				.findByCollegeInstitutePartNameAndYears(test.getCollege(),
-						test.getInstitute(), test.getPartName(),
-						test.getYears());
+		List<Departmentinfo> list = this.dao.findByCollegeInstitutePartNameAndYears(test.getCollege(),
+				test.getInstitute(), test.getPartName(), test.getYears());
 
 		// assert
 		Assert.assertFalse(list.isEmpty());
-		Assert.assertEquals(1, list.size());
 		for (Departmentinfo rec : list) {
 			Assert.assertEquals(test.getCollege(), rec.getCollege());
 			Assert.assertEquals(test.getInstitute(), rec.getInstitute());
@@ -129,8 +124,7 @@ public class DepartmentInfoDaoTest {
 		collegeList.add(test1.getCollege());
 
 		// execute
-		List<DepartmentQueryData> list = this.dao
-				.findByCollegeListGroupByCollegeOrderByCollege(collegeList);
+		List<DepartmentQueryData> list = this.dao.findByCollegeListGroupByCollegeOrderByCollege(collegeList);
 
 		// assert
 		Assert.assertFalse(list.isEmpty());
@@ -149,9 +143,7 @@ public class DepartmentInfoDaoTest {
 		this.dao.save(test);
 
 		// execute
-		List<DepartmentQueryData> list = this.dao
-				.findByCollegeGroupByInstituteOrderByInstitute(test
-						.getCollege());
+		List<DepartmentQueryData> list = this.dao.findByCollegeGroupByInstituteOrderByInstitute(test.getCollege());
 
 		// assert
 		Assert.assertFalse(list.isEmpty());
@@ -170,9 +162,8 @@ public class DepartmentInfoDaoTest {
 		this.dao.save(test);
 
 		// execute
-		List<DepartmentQueryData> list = this.dao
-				.findByCollegeAndInstituteGroupByPartNameOrderByPartName(
-						test.getCollege(), test.getInstitute());
+		List<DepartmentQueryData> list = this.dao.findByCollegeAndInstituteGroupByPartNameOrderByPartName(
+				test.getCollege(), test.getInstitute());
 
 		// assert
 		Assert.assertFalse(list.isEmpty());

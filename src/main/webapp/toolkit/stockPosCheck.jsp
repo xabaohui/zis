@@ -18,7 +18,7 @@
 			// (4-1)查询图书
 			stockPosCheckBO.addBookRecord(userInput, showAddResult);
 		}
-	}
+	};
 </script>
 
 <!-- 播放器 -->

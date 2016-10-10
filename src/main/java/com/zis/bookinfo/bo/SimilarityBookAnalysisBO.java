@@ -7,6 +7,8 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import com.zis.bookinfo.bean.Bookinfo;
@@ -31,7 +33,7 @@ public class SimilarityBookAnalysisBO extends BookInfoAnalysisBO {
 	private BookAmountDao bookAmountDao;
 	// FIXME 会有线程安全问题
 	private List<Integer> booksInUse;
-
+	
 	@Override
 	public void processOne(Bookinfo book) {
 		if (book == null) {

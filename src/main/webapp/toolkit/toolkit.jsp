@@ -2,9 +2,6 @@
 <%@ taglib prefix="s" uri="/struts-tags"%>
 <%@ include file="/header.jsp"%>
   		<h1>系统小工具</h1>
-  		<s:actionerror cssStyle="color:red;"/>
-  		<s:fielderror cssStyle="color:red;"/>
-  		<s:actionmessage cssStyle="color:green;"/>
   		<ul>
   		<s:iterator value="showResult" var="entry">
 			<li><s:property value="entry"/></li>

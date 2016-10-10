@@ -10,6 +10,8 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.zis.bookinfo.bean.Bookinfo;
@@ -339,5 +341,14 @@ public class BookAmountService {
 			this.bookAmountDao.save(record);
 		}
 		return null;
+	}
+	
+	/**
+	 * 分页查询
+	 * @param page
+	 * @return
+	 */
+	public Page<BookAmount> findAll(Pageable page){
+		return this.bookAmountDao.findAll(page);
 	}
 }

@@ -7,7 +7,6 @@
 			+ path + "/";
 %>
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 	<head>
 		<base href="<%=basePath%>">
@@ -144,7 +143,7 @@
 				<br />
 				<br />
 				&nbsp;
-				<a href="<%=basePath%>/purchase/sysFunc.jsp">系统功能</a>
+				<a href="<%=basePath%>/purchase/gotoSysFunc">系统功能</a>
 				<br />
 				<br />
 				&nbsp;
@@ -152,7 +151,7 @@
 				<br />
 				<br />
 				&nbsp;
-				<a href="<%=basePath%>/toolkit/toolkit.jsp">内容修复</a>
+				<a href="<%=basePath%>/toolkit/gotoToolkit">内容修复</a>
 				<br />
 				<br />
 				&nbsp;
