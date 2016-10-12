@@ -87,7 +87,7 @@
 	<body>
 	<div align="center">
 	<h1>图书使用量 - 学生版</h1>
-		<form action="getAmountForStu" method="post">
+		<form action="requirement/getAmountForStu" method="post">
 		<table>
 		<tr>
 		<td>学校</td>

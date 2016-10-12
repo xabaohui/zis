@@ -2,6 +2,7 @@ package com.zis.purchase.controller;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,42 +25,40 @@ import com.zis.purchase.biz.DoPurchaseService;
  * 
  */
 @Controller
-@RequestMapping(value="/purchase")
-public class WangqubaoItemExportByInwarehouseController extends
-		CommonExcelExportController<InwarehouseDetail> {
+@RequestMapping(value = "/purchase")
+public class WangqubaoItemExportByInwarehouseController extends CommonExcelExportController<InwarehouseDetail> {
 
-
-	private ThreadLocal<HashSet<String>> uniqueIsbnDealt = new ThreadLocal<HashSet<String>>();// 已处理的记录，导出的时候判断重复项用
 	// private Integer[] batchSelectedItem;
 	@Autowired
 	private BookService bookService;
 	@Autowired
 	private DoPurchaseService doPurchaseService;
-	
-	@RequestMapping(value="/exportWangqubaoItemByInwarehouse")
-	public String export(HttpServletRequest request, HttpServletResponse response){
+
+	@RequestMapping(value = "/exportWangqubaoItemByInwarehouse")
+	public String export(HttpServletRequest request, HttpServletResponse response) {
 		return super.export(request, response);
 	}
+
 	@Override
 	protected String[] getTableHeaders() {
-		return new String[] { "序号", "商品名称", "商品货号", "商品条形码", "仓库名称", "供应商",
-				"供应商货号", "商品备案货号", "品牌", "商品属性", "大类名称", "小类名称", "单位", "颜色名称",
-				"尺码名称", "单价", "条码", "亚马逊编码", "SKU条形码", "SKU备案货号", "重量", "颜色代码",
-				"尺码代码", "原产地", "税率" };
+		return new String[] { "序号", "商品名称", "商品货号", "商品条形码", "仓库名称", "供应商", "供应商货号", "商品备案货号", "品牌", "商品属性", "大类名称",
+				"小类名称", "单位", "颜色名称", "尺码名称", "单价", "条码", "亚马逊编码", "SKU条形码", "SKU备案货号", "重量", "颜色代码", "尺码代码", "原产地",
+				"税率" };
 	}
 
 	@Override
 	protected boolean isSkip(InwarehouseDetail record) {
-		 Bookinfo book = this.bookService.findBookById(record.getBookId());
-		 if (book == null) {
-		 throw new RuntimeException("没有找到对应的图书：" + record.getBookId());
-		 }
-		 String uniqueIsbn = getUniqueIsbn(book);
+		Bookinfo book = this.bookService.findBookById(record.getBookId());
+		Set<String> uniqueIsbnDealt = new HashSet<String>();// 已处理的记录，导出的时候判断重复项用
+		if (book == null) {
+			throw new RuntimeException("没有找到对应的图书：" + record.getBookId());
+		}
+		String uniqueIsbn = getUniqueIsbn(book);
 		// 如果已经处理过，则跳过
-		if (uniqueIsbnDealt.get().contains(uniqueIsbn)) {
+		if (uniqueIsbnDealt.contains(uniqueIsbn)) {
 			return true;
 		} else {
-			uniqueIsbnDealt.get().add(uniqueIsbn);
+			uniqueIsbnDealt.add(uniqueIsbn);
 			return false;
 		}
 	}
@@ -72,8 +71,7 @@ public class WangqubaoItemExportByInwarehouseController extends
 	 */
 	private String getUniqueIsbn(Bookinfo book) {
 		// 一码多书的，采用"条形码+bookId"作为唯一标识，正常的图书直接使用条形码
-		return book.getRepeatIsbn() ? book.getIsbn() + "-" + book.getId()
-				: book.getIsbn();
+		return book.getRepeatIsbn() ? book.getIsbn() + "-" + book.getId() : book.getIsbn();
 	}
 
 	@Override
@@ -81,8 +79,8 @@ public class WangqubaoItemExportByInwarehouseController extends
 		String[] rowDatas = new String[this.getTableHeaders().length];
 		Bookinfo book = this.bookService.findBookById(record.getBookId());
 		String fmt = "%s (%s) %s %s";
-		String itemTitle = String.format(fmt, book.getBookName(),
-				book.getBookEdition(), book.getBookAuthor(), book.getIsbn());
+		String itemTitle = String.format(fmt, book.getBookName(), book.getBookEdition(), book.getBookAuthor(),
+				book.getIsbn());
 		// 一码多书的，采用"条形码+bookId"作为唯一标识，正常的图书直接使用条形码
 		String uniqueIsbn = getUniqueIsbn(book);
 		rowDatas[1] = itemTitle;// 商品名称
@@ -99,15 +97,14 @@ public class WangqubaoItemExportByInwarehouseController extends
 
 	@Override
 	protected List<InwarehouseDetail> queryExportData(HttpServletRequest request) {
-		String[] batchSelectedItemStr = request
-				.getParameterValues("batchSelectedItem");
+		String[] batchSelectedItemStr = request.getParameterValues("batchSelectedItem");
 		if (batchSelectedItemStr != null) {
 			Integer[] batchSelectedItem = new Integer[batchSelectedItemStr.length];
 			for (int i = 0; i < batchSelectedItemStr.length; i++) {
-				batchSelectedItem[i]=Integer.parseInt(batchSelectedItemStr[i]);
+				batchSelectedItem[i] = Integer.parseInt(batchSelectedItemStr[i]);
 			}
 			return this.doPurchaseService.findInwarehouseDetailByInwarehouseIds(batchSelectedItem);
-		}else {
+		} else {
 			throw new IllegalArgumentException("batchSelectedItem 数组为空");
 		}
 	}
@@ -116,6 +113,7 @@ public class WangqubaoItemExportByInwarehouseController extends
 	protected String setExportFileName() {
 		return "网渠宝商品资料-" + ZisUtils.getDateString("yyyy-MM-dd") + ".xls";
 	}
+
 	@Override
 	protected String getSuccessPage() {
 		return "success";

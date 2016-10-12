@@ -3,13 +3,13 @@ package com.zis.purchase.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 
 import com.zis.purchase.bean.PurchaseDetail;
 import com.zis.purchase.bean.PurchaseDetailStatus;
 
-public interface PurchaseDetailDao extends CrudRepository<PurchaseDetail, Integer> {
+public interface PurchaseDetailDao extends PagingAndSortingRepository<PurchaseDetail, Integer> {
 	
 	/**
 	 * 计算特定图书在途数量总和

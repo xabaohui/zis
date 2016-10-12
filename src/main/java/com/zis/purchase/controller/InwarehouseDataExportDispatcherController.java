@@ -20,6 +20,9 @@ public class InwarehouseDataExportDispatcherController {
 	@RequestMapping(value = "/exportInwarehouseData",method=RequestMethod.POST)
 	public String export(Integer[] batchSelectedItem, String operateType,
 			ModelMap map) {
+		if(batchSelectedItem==null){
+			return "error";
+		}
 		map.put("batchSelectedItem", batchSelectedItem);
 		if ("taobao_item_data".equals(operateType)) {
 			return "forward:/purchase/exportTaobaoItemDataByInwarehouse";

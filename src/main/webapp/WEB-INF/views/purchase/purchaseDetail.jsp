@@ -4,7 +4,7 @@
 <%@ taglib prefix="mvc" uri="http://www.springframework.org/tags" %>
 <center>
     <h1>采购明细</h1>
-    <form action="queryPurchaseDetail" method="post">
+    <form action="purchase/queryPurchaseDetail" method="post">
     <table>
     	<tr>
     		<td>ISBN</td>

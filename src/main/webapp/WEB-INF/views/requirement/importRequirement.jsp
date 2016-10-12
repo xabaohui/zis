@@ -22,8 +22,8 @@
 			</td>
 		</tr>
 		<tr>
-			<td></td>
-			<td colspan="2"><input type="submit" value="导入" onclick="showShadow();"/>
+			<td colspan="2"></td>
+			<td><input type="submit" value="导入" onclick="showShadow();"/>
 			</td>
 		</tr>
 	</table>

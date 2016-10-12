@@ -8,6 +8,8 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import com.zis.bookinfo.bean.Bookinfo;
@@ -42,8 +44,7 @@ public class BookRequireImportBO {
 	 * 
 	 * @param list
 	 */
-	public void saveTempBookRequireImportDetails(
-			List<BookRequireUploadDTO> list, String college, String operator,
+	public void saveTempBookRequireImportDetails(List<BookRequireUploadDTO> list, String college, String operator,
 			String memo) {
 		if (list == null || list.isEmpty()) {
 			throw new RuntimeException("导入失败，list不能为空");
@@ -58,8 +59,7 @@ public class BookRequireImportBO {
 			throw new RuntimeException("导入失败，操作备注不能为空");
 		}
 		// 新增TempBookRequireImport记录
-		BookRequireImportTask record = saveTempBookRequireImport(operator,
-				college, memo, list.size());
+		BookRequireImportTask record = saveTempBookRequireImport(operator, college, memo, list.size());
 		// 批量保存明细
 		List<BookRequireImportDetail> detailList = new ArrayList<BookRequireImportDetail>();
 		for (BookRequireUploadDTO dto : list) {
@@ -78,8 +78,7 @@ public class BookRequireImportBO {
 		// doMatchDepartment(record.getId());
 	}
 
-	private BookRequireImportTask saveTempBookRequireImport(String operator,
-			String college, String memo, int totalCount) {
+	private BookRequireImportTask saveTempBookRequireImport(String operator, String college, String memo, int totalCount) {
 		BookRequireImportTask record = new BookRequireImportTask();
 		record.setCollege(college);
 		record.setMemo(memo);
@@ -103,8 +102,7 @@ public class BookRequireImportBO {
 		// criteria.add(Restrictions.eq("batchId", batchId));
 		// criteria.add(Restrictions.eq("status",
 		// BookRequireImportDetailStatus.BOOK_NOT_MATCHED));
-		List<BookRequireImportDetail> list = this.bookRequireImportDetailDao
-				.findByBatchId(batchId);
+		List<BookRequireImportDetail> list = this.bookRequireImportDetailDao.findByBatchId(batchId);
 		if (list == null || list.isEmpty()) {
 			return;
 		}
@@ -116,24 +114,19 @@ public class BookRequireImportBO {
 			// 尝试匹配图书：书单中的书名、作者、版次、出版社与系统里的记录完全一致
 			// 1. 书单中的书名、作者、版次、出版社为空，匹配失败
 			// 2. 满足上述条件，系统中的记录仅有一条，匹配成功；否则匹配失败
-			if (StringUtils.isBlank(detail.getBookName())
-					|| StringUtils.isBlank(detail.getBookAuthor())
-					|| StringUtils.isBlank(detail.getBookEdition())
-					|| StringUtils.isBlank(detail.getBookPublisher())) {
+			if (StringUtils.isBlank(detail.getBookName()) || StringUtils.isBlank(detail.getBookAuthor())
+					|| StringUtils.isBlank(detail.getBookEdition()) || StringUtils.isBlank(detail.getBookPublisher())) {
 				continue;
 			}
-			DetachedCriteria criteria = DetachedCriteria
-					.forClass(Bookinfo.class);
+			DetachedCriteria criteria = DetachedCriteria.forClass(Bookinfo.class);
 			criteria.add(Restrictions.eq("bookName", detail.getBookName()));
 			criteria.add(Restrictions.eq("bookAuthor", detail.getBookAuthor()));
 			criteria.add(Restrictions.eq("bookEdition", detail.getBookEdition()));
-			criteria.add(Restrictions.eq("bookPublisher",
-					detail.getBookPublisher()));
+			criteria.add(Restrictions.eq("bookPublisher", detail.getBookPublisher()));
 			if (StringUtils.isNotBlank(detail.getIsbn())) {
 				criteria.add(Restrictions.eq("isbn", detail.getIsbn()));
 			}
-			List<Bookinfo> bookList = this.bookService
-					.findBookByCriteria(criteria);
+			List<Bookinfo> bookList = this.bookService.findBookByCriteria(criteria);
 			if (bookList != null && bookList.size() == 1) {
 				doMatchBook(detail, bookList.get(0).getId());
 			}
@@ -151,5 +144,25 @@ public class BookRequireImportBO {
 		detail.setStatus(BookRequireImportDetailStatus.DEPARTMENT_NOT_MATCHED);
 		detail.setGmtModify(ZisUtils.getTS());
 		this.bookRequireImportDetailDao.save(detail);
+	}
+
+	/**
+	 * 分页查询所有 BookRequireImportDetail 对象
+	 * 
+	 * @param page
+	 * @return
+	 */
+	public Page<BookRequireImportDetail> findAllBookRequireImportDetail(Pageable page) {
+		return this.bookRequireImportDetailDao.findAll(page);
+	}
+
+	/**
+	 * 分页查询所有 BookRequireImportTask 对象
+	 * 
+	 * @param page
+	 * @return
+	 */
+	public Page<BookRequireImportTask> findAllBookRequireImportTask(Pageable page) {
+		return this.bookRequireImportTaskDao.findAll(page);
 	}
 }

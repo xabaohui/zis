@@ -4,9 +4,10 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.criterion.DetachedCriteria;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.zis.bookinfo.bean.Bookinfo;
@@ -15,6 +16,7 @@ import com.zis.purchase.bean.InwarehouseBizType;
 import com.zis.purchase.bean.InwarehouseDetail;
 import com.zis.purchase.bean.InwarehousePosition;
 import com.zis.purchase.bean.InwarehouseStatus;
+import com.zis.purchase.bean.PurchaseDetail;
 import com.zis.purchase.bean.PurchasePlan;
 import com.zis.purchase.bean.TempImportDetail;
 import com.zis.purchase.bean.TempImportTask;
@@ -29,7 +31,9 @@ import com.zis.purchase.dto.TempImportDetailView;
 import com.zis.purchase.repository.InwarehouseDao;
 import com.zis.purchase.repository.InwarehouseDetailDao;
 import com.zis.purchase.repository.InwarehousePositionDao;
+import com.zis.purchase.repository.PurchaseDetailDao;
 import com.zis.purchase.repository.PurchasePlanDao;
+import com.zis.purchase.repository.TempImportDetailDao;
 
 @Service
 public class DoPurchaseService {
@@ -50,6 +54,10 @@ public class DoPurchaseService {
 	private InwarehouseBO inwarehouseBO;
 	@Autowired
 	private PurchaseInwarehouseBO purchaseInwarehouseBO;
+	@Autowired
+	private PurchaseDetailDao purchaseDetailDao;
+	@Autowired
+	private TempImportDetailDao tempImportDetailDao;
 
 
 	private static final Logger logger = Logger.getLogger(DoPurchaseService.class);
@@ -294,8 +302,8 @@ public class DoPurchaseService {
 	 * 
 	 * @return
 	 */
-	public List<TempImportTask> findAllTempImportTask() {
-		return tempImportBO.findAllTempImportTask();
+	public Page<TempImportTask> findAllTempImportTask(Pageable page) {
+		return tempImportBO.findAllTempImportTask(page);
 	}
 
 	public TempImportTask findTempImportTaskByTaskId(Integer taskId) {
@@ -476,4 +484,50 @@ public class DoPurchaseService {
 		}
 		this.purchaseBO.deleteOnwayStock(purchaseOperator);
 	}
+	
+	/**
+	 * 分页查询所有 PurchasePlan 对象
+	 * @param page
+	 * @return
+	 */
+	public Page<PurchasePlan> findAllPurchasePlan(Pageable page){
+		return this.purchasePlanDao.findAll(page);
+	}
+	
+	/**
+	 * 分页查询所有 InwarehouseDetailDao 对象
+	 * @param page
+	 * @return
+	 */
+	public Page<InwarehouseDetail> findAllInwarehouseDetail(Pageable page){
+		return this.inwarehouseDetailDao.findAll(page);
+	}
+	
+	/**
+	 * 分页查询所有 Inwarehouse 对象
+	 * @param page
+	 * @return
+	 */
+	public Page<Inwarehouse> findAllInwarehouse(Pageable page){
+		return this.inwarehouseDao.findAll(page);
+	}
+	
+	/**
+	 * 分页查询所有 PurchaseDetail 对象
+	 * @param page
+	 * @return
+	 */
+	public Page<PurchaseDetail> findAllPurchaseDetail(Pageable page){
+		return this.purchaseDetailDao.findAll(page);
+	}
+	
+	/**
+	 * 分页查询所有 TempImportDetail 对象
+	 * @param page
+	 * @return
+	 */
+	public Page<TempImportDetail> findAllTempImportDetail(Pageable page){
+		return this.tempImportDetailDao.findAll(page);
+	}
+	
 }

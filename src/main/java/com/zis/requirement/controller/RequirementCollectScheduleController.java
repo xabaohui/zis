@@ -34,10 +34,9 @@ public class RequirementCollectScheduleController {
 	 * 
 	 * @return
 	 */
-	@RequestMapping(value="/exportRequirementCollectSchedule")
-	public String exportSchedule(HttpServletResponse response, boolean groupByOperator) {
-		List<RequirementCollectScheduleDTO> list = bookAmountService
-				.findRequirementCollectSchedule(groupByOperator);
+	@RequestMapping(value = "/exportRequirementCollectSchedule")
+	public String exportSchedule(HttpServletResponse response, Boolean groupByOperator) {
+		List<RequirementCollectScheduleDTO> list = bookAmountService.findRequirementCollectSchedule(groupByOperator);
 		Workbook book = new HSSFWorkbook();
 		Sheet sheet = book.createSheet();
 		Row row = sheet.createRow(0);
@@ -52,8 +51,7 @@ public class RequirementCollectScheduleController {
 		int i = 1;
 		for (RequirementCollectScheduleDTO dto : list) {
 			// XXX 过滤大一和大四第二学期
-			if (dto.getGrade() == 1
-					|| (dto.getGrade() == 4 && dto.getTerm() == 2)) {
+			if (dto.getGrade() == 1 || (dto.getGrade() == 4 && dto.getTerm() == 2)) {
 				continue;
 			}
 			createNewRow(sheet, i, dto);
@@ -69,8 +67,7 @@ public class RequirementCollectScheduleController {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		return "success";
+		return "sss.html";
 	}
 
 	/**
@@ -78,8 +75,7 @@ public class RequirementCollectScheduleController {
 	 * @param i
 	 * @param line0
 	 */
-	private void createNewRow(Sheet sheet, int index,
-			RequirementCollectScheduleDTO dto) {
+	private void createNewRow(Sheet sheet, int index, RequirementCollectScheduleDTO dto) {
 		Row row = sheet.createRow(index);
 		// "学校", "学院", "专业", "年级", "学期", "收录员", "条码数量"
 		row.createCell(0).setCellValue(dto.getCollege());
@@ -96,8 +92,8 @@ public class RequirementCollectScheduleController {
 		try {
 			response.setContentType("application/msexcel;charset=UTF-8"); // 两种方法都可以
 			// response.setContentType("application/octet-stream;charset=iso-8859-1");
-			response.setHeader("Content-Disposition", "attachment;filename="
-					+ java.net.URLEncoder.encode("教材需求统计.csv", "UTF-8"));
+			response.setHeader("Content-Disposition",
+					"attachment;filename=" + java.net.URLEncoder.encode("教材需求统计.csv", "UTF-8"));
 			// 客户端不缓存
 			response.addHeader("Pargam", "no-cache");
 			response.addHeader("Cache-Control", "no-cache");

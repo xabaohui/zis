@@ -10,6 +10,8 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.service.BookService;
 import com.zis.common.controllertemplate.PaginationQueryController;
+import com.zis.common.mvc.ext.WebHelper;
 import com.zis.purchase.bean.TempImportDetail;
 import com.zis.purchase.bean.TempImportDetailStatus;
 import com.zis.purchase.bean.TempImportTask;
@@ -34,8 +37,7 @@ import com.zis.purchase.dto.TempImportTaskView;
  */
 @Controller
 @RequestMapping(value = "/purchase")
-public class TempImportDetailViewController extends
-		PaginationQueryController<TempImportDetail> {
+public class TempImportDetailViewController extends PaginationQueryController<TempImportDetail> {
 
 	// private Integer taskId;
 	// private String status;
@@ -44,9 +46,12 @@ public class TempImportDetailViewController extends
 	@Autowired
 	private DoPurchaseService doPurchaseService;
 
-	@RequestMapping(value="/viewTempImportDetailForMatched")
+	@RequestMapping(value = "/viewTempImportDetailForMatched")
 	public String executeQuery(ModelMap context, HttpServletRequest request) {
-		return super.executeQuery(context, request);
+		//TODO 设置查询条件
+		Pageable page = WebHelper.buildPageRequest(request);
+		Page<TempImportDetail> pageList = this.doPurchaseService.findAllTempImportDetail(page);
+		return super.executeQuery(context, request, pageList, page);
 	}
 
 	@Override
@@ -81,8 +86,7 @@ public class TempImportDetailViewController extends
 		String status = request.getParameter("status");
 		if (StringUtils.isNumeric(taskIdStr)) {
 			Integer taskId = Integer.parseInt(taskIdStr);
-			DetachedCriteria criteria = DetachedCriteria
-					.forClass(TempImportDetail.class);
+			DetachedCriteria criteria = DetachedCriteria.forClass(TempImportDetail.class);
 			criteria.add(Restrictions.eq("taskId", taskId));
 			criteria.add(Restrictions.eq("status", status));
 			return criteria;
@@ -97,22 +101,19 @@ public class TempImportDetailViewController extends
 		String taskIdStr = request.getParameter("taskId");
 		if (StringUtils.isNumeric(taskIdStr)) {
 			Integer taskId = Integer.parseInt(taskIdStr);
-			TempImportTask task = this.doPurchaseService
-					.findTempImportTaskByTaskId(taskId);
+			TempImportTask task = this.doPurchaseService.findTempImportTaskByTaskId(taskId);
 			// 给下一个页面准备参数
 			TempImportTaskView view = new TempImportTaskView();
 			BeanUtils.copyProperties(task, view);
-			view.setBizTypeDisplay(TempImportTaskBizTypeEnum.parseEnum(
-					task.getBizType()).getDisplayValue());
-			view.setStatusDisplay(TempImportTaskStatus.getDisplay(task
-					.getStatus()));
+			view.setBizTypeDisplay(TempImportTaskBizTypeEnum.parseEnum(task.getBizType()).getDisplayValue());
+			view.setStatusDisplay(TempImportTaskStatus.getDisplay(task.getStatus()));
 			context.put("task", view);
 		} else {
 			throw new IllegalArgumentException("taskId 异常");
 		}
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "rawtypes" })
 	@Override
 	protected List transformResult(List<TempImportDetail> list) {
 		// 转换结果
@@ -122,18 +123,15 @@ public class TempImportDetailViewController extends
 			BeanUtils.copyProperties(detail, view);
 			// 未匹配成功的，查找出可能相关的记录
 			if (detail.getStatus().equals(TempImportDetailStatus.NOT_MATCHED)) {
-				List<Bookinfo> relatedBooks = this.bookService
-						.findBookByISBN(detail.getOrigIsbn());
+				List<Bookinfo> relatedBooks = this.bookService.findBookByISBN(detail.getOrigIsbn());
 				view.setRelatedBooks(relatedBooks);
 				view.setIsbn(detail.getOrigIsbn());
 			}
 			// 匹配成功的，查找出匹配的记录
 			else if (detail.getStatus().equals(TempImportDetailStatus.MATCHED)) {
-				Bookinfo book = this.bookService.findBookById(detail
-						.getBookId());
+				Bookinfo book = this.bookService.findBookById(detail.getBookId());
 				if (book == null) {
-					throw new RuntimeException("图书记录不存在,bookId="
-							+ detail.getBookId());
+					throw new RuntimeException("图书记录不存在,bookId=" + detail.getBookId());
 				}
 				view.setAssociateBook(book);
 			} else {

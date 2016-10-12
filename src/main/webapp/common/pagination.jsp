@@ -4,14 +4,13 @@
 <div align="center">
 <p/>
 <c:if test="${not empty prePage}">
-	<a href="${actionUrl}?${queryCondition}pageSource=pagination&pageNow=${prePage}" >上一页</a>
-	<!--<a href="%{actionUrl}?%{queryCondition}pageSource=pagination&pageNow=%{prePage}"></a>-->
+	<a href="${actionUrl}?${queryCondition}page=${prePage}" >上一页</a>
 </c:if>
 &nbsp;
-${pageNow}
+${page}
 &nbsp;
 <c:if test="${not empty nextPage}">
-	<a href="${actionUrl}?${queryCondition}pageSource=pagination&pageNow=${nextPage}" >下一页</a>
+	<a href="${actionUrl}?${queryCondition}page=${nextPage}" >下一页</a>
 </c:if>
 </div>
 <!-- 分页查询end -->

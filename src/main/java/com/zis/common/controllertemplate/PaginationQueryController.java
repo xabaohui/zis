@@ -4,13 +4,11 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.criterion.DetachedCriteria;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.ui.ModelMap;
-
-import com.zis.common.util.Page;
-import com.zis.common.util.PaginationQueryUtil;
 
 /**
  * 分页查询Action基类
@@ -26,59 +24,43 @@ public abstract class PaginationQueryController<T> {
 
 	// 传入跳转地址 错误地址
 	@SuppressWarnings("rawtypes")
-	public String executeQuery(ModelMap context, HttpServletRequest request) {
-		String pageNowStr = request.getParameter("pageNow");
-		if(StringUtils.isBlank(pageNowStr)) {
-			pageNowStr = "1";
-		}
-		String pageSource=request.getParameter("pageSource");
-		try {
-			Integer pageNow=Integer.parseInt(pageNowStr);
-			if (pageNow < 1) {
-				pageNow = 1;
-			}
-			if (PAGE_SOURCE_DEFAULT_VALUE.equals(pageSource)) {
-				preProcessGetRequestCHN(request);
-			}
-			doBeforeQuery(request);
-			// 分页查询
-			DetachedCriteria queryCondition = buildQueryCondition(request);
-			int totalCount = PaginationQueryUtil.getTotalCount(queryCondition);
-			Page page = Page.createPage(pageNow, Page.DEFAULT_PAGE_SIZE,
-					totalCount);
-			@SuppressWarnings("unchecked")
-			List<T> list = PaginationQueryUtil.paginationQuery(queryCondition,
-					page);
-			// 转换结果
-			List resultList = transformResult(list);
-			// 设置页面参数
-			context.put(setResultListLabel(), resultList);
-			context.put("actionUrl", setActionUrl(request));
-			context.put("queryCondition", setActionUrlQueryCondition(request));
-			context.put("pageNow", pageNow);
-			if (page.isHasPre()) {
-				context.put("prePage", pageNow - 1);
-			}
-			if (page.isHasNext()) {
-				context.put("nextPage", pageNow + 1);
-			}
-			// 设置其他页面参数
-			doBeforeReturn(context,request);
-
-			return getSuccessPage(request);
-		} catch (Exception e) {
-			// TODO 验证框架
-			// this.addActionError(e.getMessage());
-			logger.error("查询临时导入记录时出错，" + e.getMessage(), e);
+	public String executeQuery(ModelMap context, HttpServletRequest request, Page<T> pageList, Pageable page) {
+		if (pageList == null || page == null) {
 			return getFailPage();
 		}
+		doBeforeQuery(request);
+		// 分页查询
+		List<T> list = pageList.getContent();
+		// 转换结果
+		List resultList = transformResult(list);
+		// 设置页面参数
+		context.put(setResultListLabel(), resultList);
+		context.put("actionUrl", setActionUrl(request));
+		context.put("queryCondition", setActionUrlQueryCondition(request));
+		context.put("page", page.getPageNumber());
+		if (pageList.hasPrevious()) {
+			context.put("prePage", page.previousOrFirst().getPageNumber());
+		}
+		if (pageList.hasNext()) {
+			context.put("nextPage", page.next().getPageNumber());
+		}
+		// 设置其他页面参数
+		doBeforeReturn(context, request);
+
+		return getSuccessPage(request);
+		// TODO 验证框架
+		// this.addActionError(e.getMessage());
+		// logger.error("查询临时导入记录时出错，" + e.getMessage(), e); // TODO 验证框架
+		// this.addActionError(e.getMessage());
+		// logger.error("查询临时导入记录时出错，" + e.getMessage(), e);
+
 	}
-	
+
 	/**
 	 * 设置失败跳转路径
 	 */
 	protected abstract String getFailPage();
-	
+
 	/**
 	 * 设置成功跳转路径
 	 */
@@ -97,7 +79,7 @@ public abstract class PaginationQueryController<T> {
 	/**
 	 * 主方法执行完成后，页面开始渲染之前执行的方法，由子类进行扩展
 	 */
-	protected void doBeforeReturn(ModelMap context,HttpServletRequest request) {
+	protected void doBeforeReturn(ModelMap context, HttpServletRequest request) {
 	}
 
 	/**
@@ -133,7 +115,6 @@ public abstract class PaginationQueryController<T> {
 	 * 
 	 * @return
 	 */
-	protected abstract DetachedCriteria buildQueryCondition(
-			HttpServletRequest request);
+	protected abstract DetachedCriteria buildQueryCondition(HttpServletRequest request);
 
 }

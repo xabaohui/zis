@@ -10,6 +10,8 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.service.BookService;
 import com.zis.common.controllertemplate.PaginationQueryController;
+import com.zis.common.mvc.ext.WebHelper;
 import com.zis.common.util.ZisUtils;
 import com.zis.purchase.bean.PurchasePlan;
 import com.zis.purchase.bean.PurchasePlanStatus;
@@ -41,7 +44,10 @@ public class PurchasePlanViewController extends
 	
 	@RequestMapping(value="/queryPurchasePlan")
 	public String executeQuery(ModelMap context,HttpServletRequest request){
-		return super.executeQuery(context, request);
+		//TODO 设置查询条件
+		Pageable page = WebHelper.buildPageRequest(request);
+		Page<PurchasePlan> pageList=this.doPurchaseService.findAllPurchasePlan(page);
+		return super.executeQuery(context, request, pageList, page);
 	}
 
 	@Override
@@ -142,7 +148,7 @@ public class PurchasePlanViewController extends
 		return dc;
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes" })
 	@Override
 	protected List transformResult(List<PurchasePlan> list) {
 		List<PurchasePlanView> resultList = new ArrayList<PurchasePlanView>();

@@ -262,18 +262,17 @@ public class BookAmountService {
 
 		// 遍历统计出的数据
 		List<RequirementCollectScheduleDTO> resultList = new ArrayList<RequirementCollectScheduleDTO>();
-		for (Object record : countList) {
-			Object[] dataArr = (Object[]) record;
+		for (RequirementCollectScheduleDTO req : countList) {
 			RequirementCollectScheduleDTO collectDTO = new RequirementCollectScheduleDTO();
-			collectDTO.setCount(Integer.valueOf(dataArr[0].toString()));
-			collectDTO.setCollege(dataArr[1].toString());
-			collectDTO.setInstitute(dataArr[2].toString());
-			collectDTO.setPartName(dataArr[3].toString());
-			collectDTO.setPartId(Integer.valueOf(dataArr[4].toString()));
-			collectDTO.setGrade(Integer.valueOf(dataArr[5].toString()));
-			collectDTO.setTerm(Integer.valueOf(dataArr[6].toString()));
+			collectDTO.setCount(req.getCount());
+			collectDTO.setCollege(req.getCollege());
+			collectDTO.setInstitute(req.getInstitute());
+			collectDTO.setPartName(req.getPartName());
+			collectDTO.setPartId(req.getPartId());
+			collectDTO.setGrade(req.getGrade());
+			collectDTO.setTerm(req.getTerm());
 			if (groupByOperator) {
-				collectDTO.setOperator(dataArr[7].toString());
+				collectDTO.setOperator(req.getOperator());
 			}
 			// 数据添加到结果集中
 			resultList.add(collectDTO);
@@ -282,8 +281,30 @@ public class BookAmountService {
 					collectDTO.getGrade(), collectDTO.getTerm());
 			if (departNotDeal.contains(key)) {
 				departNotDeal.remove(key);
-			}
+			} 
 		}
+//		for (Object record : countList) {
+//			Object[] dataArr = (Object[]) record;
+//			RequirementCollectScheduleDTO collectDTO = new RequirementCollectScheduleDTO();
+//			collectDTO.setCount(Integer.valueOf(dataArr[0].toString()));
+//			collectDTO.setCollege(dataArr[1].toString());
+//			collectDTO.setInstitute(dataArr[2].toString());
+//			collectDTO.setPartName(dataArr[3].toString());
+//			collectDTO.setPartId(Integer.valueOf(dataArr[4].toString()));
+//			collectDTO.setGrade(Integer.valueOf(dataArr[5].toString()));
+//			collectDTO.setTerm(Integer.valueOf(dataArr[6].toString()));
+//			if (groupByOperator) {
+//				collectDTO.setOperator(dataArr[7].toString());
+//			}
+//			// 数据添加到结果集中
+//			resultList.add(collectDTO);
+//			// 把这个专业和学期的记录从departNotDeal中移除
+//			String key = getRequirementCollectKey(collectDTO.getPartId(),
+//					collectDTO.getGrade(), collectDTO.getTerm());
+//			if (departNotDeal.contains(key)) {
+//				departNotDeal.remove(key);
+//			}
+//		}
 
 		// 经过上一轮处理，departNotDeal中的记录都是未处理的，这些记录追加到结果集最后
 		for (String notDeal : departNotDeal) {

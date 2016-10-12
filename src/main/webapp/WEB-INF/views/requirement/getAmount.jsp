@@ -6,7 +6,7 @@
 	<table>
 		<tr>
 			<td><h1>图书使用量</h1>&nbsp;&nbsp;<a
-				href="requirement/importRequirement.jsp">批量导入</a></td>
+				href="requirement/gotoImportRequirement">批量导入</a></td>
 			<td><form
 					action="requirement/exportRequirementCollectSchedule?groupByOperator=true"
 					method="post" target="_blank">
@@ -20,7 +20,7 @@
 		</tr>
 	</table>
 
-	<form action="getAmountAction" method="post">
+	<form action="requirement/getAmountAction" method="post">
 		<table>
 			<tr>
 				<td>ISBN</td>

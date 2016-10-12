@@ -35,6 +35,7 @@
 			<th>专业</th>
 			<th>学年制</th>
 			<th>操作</th>
+			<th>录入操作</th>
 		</tr>
 		<c:forEach items="${allSchoolInfo}" var="st">
 			<tr>

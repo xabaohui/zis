@@ -4,13 +4,13 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 
 import com.zis.purchase.bean.PurchasePlan;
 import com.zis.purchase.bean.PurchasePlanStatus;
 
-public interface PurchasePlanDao extends CrudRepository<PurchasePlan, Integer> {
+public interface PurchasePlanDao extends PagingAndSortingRepository<PurchasePlan, Integer> {
 
 	/**
 	 * 作废指定bookId的采购计划
