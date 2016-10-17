@@ -38,6 +38,7 @@ import com.zis.bookinfo.bean.BookinfoDetail;
 import com.zis.bookinfo.dto.BookInfoAndDetailDTO;
 import com.zis.bookinfo.service.BookService;
 import com.zis.bookinfo.util.ConstantString;
+import com.zis.common.mvc.ext.QueryUtil;
 import com.zis.common.mvc.ext.WebHelper;
 import com.zis.common.util.PaginationQueryUtil;
 import com.zis.common.util.ZisUtils;
@@ -69,10 +70,10 @@ public class BookController {
 			String bookAuthor, String bookPublisher, HttpServletRequest request) {
 		logger.debug("start:" + System.currentTimeMillis());
 		// TODO 创建查询条件
-//		Specification<Bookinfo> test = test(bookName, strictBookName, bookISBN, bookAuthor, bookPublisher);
+		Specification<Bookinfo> test = getBooks(bookName, strictBookName, bookISBN, bookAuthor, bookPublisher);
 		// 分页查询
 		Pageable page = WebHelper.buildPageRequest(request);
-		Page<Bookinfo> list = this.bookService.findAll(page);
+		Page<Bookinfo> list = this.bookService.findByTest(test, page);
 
 		// 待审核数
 		int waitCheckCount = getWaitingCount(request);
@@ -372,6 +373,7 @@ public class BookController {
 
 	private DetachedCriteria buildDetachedCriteria(String bookName, Boolean strictBookName, String bookISBN,
 			String bookAuthor, String bookPublisher) {
+		QueryUtil<Bookinfo> query =new QueryUtil<Bookinfo>(Bookinfo.class);
 		DetachedCriteria criteria = DetachedCriteria.forClass(Bookinfo.class);
 		if (!StringUtils.isBlank(bookName)) {
 			if (strictBookName != null && strictBookName == true) {
@@ -399,6 +401,36 @@ public class BookController {
 		criteria.add(Restrictions.ne("bookStatus", ConstantString.ABANDON));
 		return criteria;
 
+	}
+	private Specification<Bookinfo> getBooks(String bookName, Boolean strictBookName, String bookISBN,
+			String bookAuthor, String bookPublisher) {
+		QueryUtil<Bookinfo> query =new QueryUtil<Bookinfo>(Bookinfo.class);
+		if (!StringUtils.isBlank(bookName)) {
+			if (strictBookName != null && strictBookName == true) {
+				query.eq("bookName", bookName);
+			} else {
+				query.like("bookName", "%" + bookName + "%");
+			}
+		}
+		// ISBN不为空则添加条件
+		if (!StringUtils.isBlank(bookISBN)) {
+			String[] isbns = bookISBN.split(",");
+			if (isbns.length == 1) {
+				query.eq("isbn", bookISBN);
+			} else {
+//				criteria.add(Restrictions.in("isbn", isbns));
+			}
+		}
+		// 模糊查询作者
+		if (!StringUtils.isBlank(bookAuthor))
+			query.like("bookAuthor", "%" + bookAuthor + "%");
+		if (!StringUtils.isBlank(bookPublisher)) {
+			query.eq("bookPublisher", bookPublisher);
+		}
+		// 状态为废弃的不查询
+		query.ne("bookStatus", ConstantString.ABANDON);
+		return query.getSpecification();
+		
 	}
 
 //	public static Specification<Bookinfo> test(final String bookName, final Boolean strictBookName, final String bookISBN,
