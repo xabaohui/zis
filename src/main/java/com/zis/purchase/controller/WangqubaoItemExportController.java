@@ -2,6 +2,7 @@ package com.zis.purchase.controller;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,7 +31,7 @@ public class WangqubaoItemExportController extends
 		CommonExcelExportController<TempImportDetailView> {
 
 //	private Integer taskId;
-	private ThreadLocal<HashSet<String>> uniqueIsbnDealt=new ThreadLocal<HashSet<String>>();
+	private ThreadLocal<Set<String>> uniqueIsbnDealtLocal = new ThreadLocal<Set<String>>();
 //	private Set<String> uniqueIsbnDealt = new HashSet<String>();//已处理的记录，导出的时候判断重复项用
 	@Autowired
 	private DoPurchaseService doPurchaseService;
@@ -51,11 +52,16 @@ public class WangqubaoItemExportController extends
 	@Override
 	protected boolean isSkip(TempImportDetailView record) {
 		String uniqueIsbn = getUniqueIsbn(record.getAssociateBook());
-		// TODO 如果已经处理过，则跳过
-		if(uniqueIsbnDealt.get().contains(uniqueIsbn)) {
+		Set<String> set = uniqueIsbnDealtLocal.get();
+		if(set == null){
+			set = new HashSet<String>();
+			uniqueIsbnDealtLocal.set(set);
+		}
+		// 如果已经处理过，则跳过
+		if(set.contains(uniqueIsbn)) {
 			return true;
 		} else {
-			uniqueIsbnDealt.get().add(uniqueIsbn);
+			set.add(uniqueIsbn);
 			return super.isSkip(record);
 		}
 	}

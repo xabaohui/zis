@@ -8,10 +8,13 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
+import org.directwebremoting.annotations.RemoteMethod;
+import org.directwebremoting.annotations.RemoteProxy;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.zis.bookinfo.bean.Bookinfo;
@@ -27,6 +30,7 @@ import com.zis.requirement.repository.BookAmountDao;
 import com.zis.requirement.repository.DepartmentInfoDao;
 
 @Service
+@RemoteProxy(name = "addAmountBiz")
 public class BookAmountService {
 
 	private static Logger logger = Logger.getLogger(BookAmountService.class);
@@ -53,9 +57,8 @@ public class BookAmountService {
 		// criteria.add(Restrictions.eq("partId", ba.getPartId()));
 		// criteria.add(Restrictions.eq("grade", ba.getGrade()));
 		// criteria.add(Restrictions.eq("term", ba.getTerm()));
-		List<BookAmount> list = this.bookAmountDao
-				.findByBookIdPartIdGradeAndTerm(ba.getBookId(), ba.getPartId(),
-						ba.getGrade(), ba.getTerm());
+		List<BookAmount> list = this.bookAmountDao.findByBookIdPartIdGradeAndTerm(ba.getBookId(), ba.getPartId(),
+				ba.getGrade(), ba.getTerm());
 		// Bookamount ex = new Bookamount();
 		// ex.setBookId(ba.getBookId());
 		// ex.setPartId(ba.getPartId());
@@ -64,8 +67,8 @@ public class BookAmountService {
 		// List<Bookamount> list = bookAmountDao.findByExample(ex);
 		if (list != null && !list.isEmpty()) {
 			Bookinfo book = this.bookinfoDao.findOne(ba.getBookId());
-			throw new RuntimeException("专业" + ba.getPartId() + "已经登记过图书:"
-					+ book.getBookName() + ", bookId=" + ba.getBookId());
+			throw new RuntimeException("专业" + ba.getPartId() + "已经登记过图书:" + book.getBookName() + ", bookId="
+					+ ba.getBookId());
 		}
 		bookAmountDao.save(ba);
 	}
@@ -82,9 +85,9 @@ public class BookAmountService {
 	 * @param session
 	 * @return
 	 */
-	public AddBookToDepartmentResult addSelectedBookToDwrSession(
-			Integer bookId, Integer departId, Integer grade, Integer term,
-			HttpSession session) {
+	@RemoteMethod
+	public AddBookToDepartmentResult addSelectedBookToDwrSession(Integer bookId, Integer departId, Integer grade,
+			Integer term, HttpSession session) {
 		if (bookId == null) {
 			return new AddBookToDepartmentResult(false, "图书ID不能为空");
 		}
@@ -99,15 +102,14 @@ public class BookAmountService {
 		}
 		// 从session中取得bookMap，如果没有，则创建
 		@SuppressWarnings("unchecked")
-		Map<Integer, Bookinfo> bookMap = (Map<Integer, Bookinfo>) session
-				.getAttribute("BookMap");
+		Map<Integer, Bookinfo> bookMap = (Map<Integer, Bookinfo>) session.getAttribute("BookMap");
 		if (bookMap == null) {
 			bookMap = new HashMap<Integer, Bookinfo>();
 			session.setAttribute("BookMap", bookMap);
 		}
 		// 检查图书状态
 		Bookinfo bi = this.bookinfoDao.findOne(bookId);
-		if(bi == null || BookinfoStatus.DISCARD.equals(bi.getBookStatus())) {
+		if (bi == null || BookinfoStatus.DISCARD.equals(bi.getBookStatus())) {
 			return new AddBookToDepartmentResult(false, "图书不存在或者已删除");
 		}
 		// 检查该图书是否已添加
@@ -117,8 +119,7 @@ public class BookAmountService {
 		// criteria.add(Restrictions.eq("partId", departId));
 		// criteria.add(Restrictions.eq("grade", grade));
 		// criteria.add(Restrictions.eq("term", term));
-		List<BookAmount> baList = this.bookAmountDao
-				.findByBookIdPartIdGradeAndTerm(bookId, departId, grade, term);
+		List<BookAmount> baList = this.bookAmountDao.findByBookIdPartIdGradeAndTerm(bookId, departId, grade, term);
 		if (baList != null && !baList.isEmpty()) {
 			return new AddBookToDepartmentResult(false, "该专业已使用该图书，无需再次录入");
 		}
@@ -135,15 +136,13 @@ public class BookAmountService {
 	 * @param session
 	 * @return
 	 */
-	public AddBookToDepartmentResult removeSelectedBookToDwrSession(
-			Integer bookId, HttpSession session) {
+	@RemoteMethod
+	public AddBookToDepartmentResult removeSelectedBookToDwrSession(Integer bookId, HttpSession session) {
 		// 从session中取得bookMap，如果没有，直接返回
 		@SuppressWarnings("unchecked")
-		Map<Integer, Bookinfo> bookMap = (Map<Integer, Bookinfo>) session
-				.getAttribute("BookMap");
+		Map<Integer, Bookinfo> bookMap = (Map<Integer, Bookinfo>) session.getAttribute("BookMap");
 		if (bookMap == null) {
-			return new AddBookToDepartmentResult(false,
-					"系统错误：session中没有已保存的图书记录");
+			return new AddBookToDepartmentResult(false, "系统错误：session中没有已保存的图书记录");
 		}
 		// 从bookMap中移除记录
 		if (bookMap.containsKey(bookId)) {
@@ -153,10 +152,8 @@ public class BookAmountService {
 		return buildSuccessAddBookToDepartmentResult(bookMap);
 	}
 
-	private AddBookToDepartmentResult buildSuccessAddBookToDepartmentResult(
-			Map<Integer, Bookinfo> bookMap) {
-		AddBookToDepartmentResult result = new AddBookToDepartmentResult(true,
-				"");
+	private AddBookToDepartmentResult buildSuccessAddBookToDepartmentResult(Map<Integer, Bookinfo> bookMap) {
+		AddBookToDepartmentResult result = new AddBookToDepartmentResult(true, "");
 		for (Bookinfo book : bookMap.values()) {
 			result.add(book);
 		}
@@ -169,8 +166,7 @@ public class BookAmountService {
 	 * @param requestDTO
 	 */
 	public void addBookAmount(BookAmountAddApiRequestDTO requestDTO) {
-		Departmentinfo di = departmentInfoDao
-				.findOne(requestDTO.getDepartId());
+		Departmentinfo di = departmentInfoDao.findOne(requestDTO.getDepartId());
 		for (Integer bookId : requestDTO.getBookIdList()) {
 			BookAmount ba = new BookAmount();
 			BeanUtils.copyProperties(requestDTO, ba);
@@ -208,57 +204,51 @@ public class BookAmountService {
 	 * 
 	 * @return
 	 */
-	public List<RequirementCollectScheduleDTO> findRequirementCollectSchedule(
-			boolean groupByOperator) {
+	public List<RequirementCollectScheduleDTO> findRequirementCollectSchedule(boolean groupByOperator) {
 		// 查询所有采集过数据的 学校
-//		DetachedCriteria dc = DetachedCriteria.forClass(Bookamount.class);
-//		dc.setProjection(Projections.distinct(Projections.property("college")));
+		// DetachedCriteria dc = DetachedCriteria.forClass(Bookamount.class);
+		// dc.setProjection(Projections.distinct(Projections.property("college")));
 		List<String> collegeList = this.bookAmountDao.distinctCollege();
 		// 列出数据涉及到的专业
-//		DetachedCriteria dcDepartmentInfo = DetachedCriteria
-//				.forClass(Departmentinfo.class);
-//		dcDepartmentInfo.add(Restrictions.in("college", collegeList));
-//		dcDepartmentInfo.addOrder(Order.asc("college"))
-//				.addOrder(Order.asc("institute"))
-//				.addOrder(Order.asc("partName"));
+		// DetachedCriteria dcDepartmentInfo = DetachedCriteria
+		// .forClass(Departmentinfo.class);
+		// dcDepartmentInfo.add(Restrictions.in("college", collegeList));
+		// dcDepartmentInfo.addOrder(Order.asc("college"))
+		// .addOrder(Order.asc("institute"))
+		// .addOrder(Order.asc("partName"));
 		List<Departmentinfo> departmentInfos = this.departmentInfoDao
 				.findByCollegeListOrderByCollegeInstitutePartNameAsc(collegeList);
 		// 将所有专业、学年、学期记录下来，供采集信息查漏用
 		List<String> departNotDeal = new ArrayList<String>();
 		for (Departmentinfo depart : departmentInfos) {
 			for (int grade = 1; grade <= depart.getYears(); grade++) {
-				departNotDeal.add(getRequirementCollectKey(depart.getDid(),
-						grade, 1));
-				departNotDeal.add(getRequirementCollectKey(depart.getDid(),
-						grade, 2));
+				departNotDeal.add(getRequirementCollectKey(depart.getDid(), grade, 1));
+				departNotDeal.add(getRequirementCollectKey(depart.getDid(), grade, 2));
 			}
 		}
 
 		// 对已采集的数据归类汇总
-//		ProjectionList projectionList = Projections.projectionList();
-//		projectionList.add(Projections.rowCount());
-//		projectionList.add(Projections.groupProperty("college"));
-//		projectionList.add(Projections.groupProperty("institute"));
-//		projectionList.add(Projections.groupProperty("partName"));
-//		projectionList.add(Projections.groupProperty("partId"));
-//		projectionList.add(Projections.groupProperty("grade"));
-//		projectionList.add(Projections.groupProperty("term"));
-//		if (groupByOperator) {
-//			projectionList.add(Projections.groupProperty("operator"));
-//		}
-//		// select c1, c2, c3, count(*) from XX group by c1, c2, c3;
-//		DetachedCriteria dcGetGroupCount = DetachedCriteria
-//				.forClass(Bookamount.class);
-//		dcGetGroupCount.setProjection(projectionList);
-		List<RequirementCollectScheduleDTO> countList; 
+		// ProjectionList projectionList = Projections.projectionList();
+		// projectionList.add(Projections.rowCount());
+		// projectionList.add(Projections.groupProperty("college"));
+		// projectionList.add(Projections.groupProperty("institute"));
+		// projectionList.add(Projections.groupProperty("partName"));
+		// projectionList.add(Projections.groupProperty("partId"));
+		// projectionList.add(Projections.groupProperty("grade"));
+		// projectionList.add(Projections.groupProperty("term"));
+		// if (groupByOperator) {
+		// projectionList.add(Projections.groupProperty("operator"));
+		// }
+		// // select c1, c2, c3, count(*) from XX group by c1, c2, c3;
+		// DetachedCriteria dcGetGroupCount = DetachedCriteria
+		// .forClass(Bookamount.class);
+		// dcGetGroupCount.setProjection(projectionList);
+		List<RequirementCollectScheduleDTO> countList;
 		if (groupByOperator) {
-			countList=this.bookAmountDao
-					.countGroupByCollegeInseitutePartNamePartIdGradeTermOperator();
-		}else{
-			countList=this.bookAmountDao
-					.countGroupByCollegeInseitutePartNamePartIdGradeTerm();
+			countList = this.bookAmountDao.countGroupByCollegeInseitutePartNamePartIdGradeTermOperator();
+		} else {
+			countList = this.bookAmountDao.countGroupByCollegeInseitutePartNamePartIdGradeTerm();
 		}
-		
 
 		// 遍历统计出的数据
 		List<RequirementCollectScheduleDTO> resultList = new ArrayList<RequirementCollectScheduleDTO>();
@@ -277,40 +267,39 @@ public class BookAmountService {
 			// 数据添加到结果集中
 			resultList.add(collectDTO);
 			// 把这个专业和学期的记录从departNotDeal中移除
-			String key = getRequirementCollectKey(collectDTO.getPartId(),
-					collectDTO.getGrade(), collectDTO.getTerm());
+			String key = getRequirementCollectKey(collectDTO.getPartId(), collectDTO.getGrade(), collectDTO.getTerm());
 			if (departNotDeal.contains(key)) {
 				departNotDeal.remove(key);
-			} 
+			}
 		}
-//		for (Object record : countList) {
-//			Object[] dataArr = (Object[]) record;
-//			RequirementCollectScheduleDTO collectDTO = new RequirementCollectScheduleDTO();
-//			collectDTO.setCount(Integer.valueOf(dataArr[0].toString()));
-//			collectDTO.setCollege(dataArr[1].toString());
-//			collectDTO.setInstitute(dataArr[2].toString());
-//			collectDTO.setPartName(dataArr[3].toString());
-//			collectDTO.setPartId(Integer.valueOf(dataArr[4].toString()));
-//			collectDTO.setGrade(Integer.valueOf(dataArr[5].toString()));
-//			collectDTO.setTerm(Integer.valueOf(dataArr[6].toString()));
-//			if (groupByOperator) {
-//				collectDTO.setOperator(dataArr[7].toString());
-//			}
-//			// 数据添加到结果集中
-//			resultList.add(collectDTO);
-//			// 把这个专业和学期的记录从departNotDeal中移除
-//			String key = getRequirementCollectKey(collectDTO.getPartId(),
-//					collectDTO.getGrade(), collectDTO.getTerm());
-//			if (departNotDeal.contains(key)) {
-//				departNotDeal.remove(key);
-//			}
-//		}
+		// for (Object record : countList) {
+		// Object[] dataArr = (Object[]) record;
+		// RequirementCollectScheduleDTO collectDTO = new
+		// RequirementCollectScheduleDTO();
+		// collectDTO.setCount(Integer.valueOf(dataArr[0].toString()));
+		// collectDTO.setCollege(dataArr[1].toString());
+		// collectDTO.setInstitute(dataArr[2].toString());
+		// collectDTO.setPartName(dataArr[3].toString());
+		// collectDTO.setPartId(Integer.valueOf(dataArr[4].toString()));
+		// collectDTO.setGrade(Integer.valueOf(dataArr[5].toString()));
+		// collectDTO.setTerm(Integer.valueOf(dataArr[6].toString()));
+		// if (groupByOperator) {
+		// collectDTO.setOperator(dataArr[7].toString());
+		// }
+		// // 数据添加到结果集中
+		// resultList.add(collectDTO);
+		// // 把这个专业和学期的记录从departNotDeal中移除
+		// String key = getRequirementCollectKey(collectDTO.getPartId(),
+		// collectDTO.getGrade(), collectDTO.getTerm());
+		// if (departNotDeal.contains(key)) {
+		// departNotDeal.remove(key);
+		// }
+		// }
 
 		// 经过上一轮处理，departNotDeal中的记录都是未处理的，这些记录追加到结果集最后
 		for (String notDeal : departNotDeal) {
 			String[] elem = notDeal.split("_");
-			Departmentinfo di = this.departmentInfoDao.findOne(Integer
-					.valueOf(elem[0]));
+			Departmentinfo di = this.departmentInfoDao.findOne(Integer.valueOf(elem[0]));
 			RequirementCollectScheduleDTO collectDTO = new RequirementCollectScheduleDTO();
 			BeanUtils.copyProperties(di, collectDTO);
 			collectDTO.setPartId(di.getDid());
@@ -323,8 +312,7 @@ public class BookAmountService {
 		return resultList;
 	}
 
-	private String getRequirementCollectKey(Integer departId, Integer grade,
-			Integer term) {
+	private String getRequirementCollectKey(Integer departId, Integer grade, Integer term) {
 		return departId + "_" + grade + "_" + term;
 	}
 
@@ -339,8 +327,8 @@ public class BookAmountService {
 	 * @param bookIdTo
 	 * @return
 	 */
-	public String updateForImmigrateBookRequirement(Integer bookIdFrom,
-			Integer bookIdTo) {
+	@RemoteMethod
+	public String updateForImmigrateBookRequirement(Integer bookIdFrom, Integer bookIdTo) {
 		if (bookIdFrom.equals(bookIdTo)) {
 			return "迁移后的对象与原对象相同";
 		}
@@ -350,7 +338,7 @@ public class BookAmountService {
 		}
 		Bookinfo bookFrom = this.bookinfoDao.findOne(bookIdFrom);
 		Bookinfo bookTo = this.bookinfoDao.findOne(bookIdTo);
-		if(bookFrom == null || bookTo == null) {
+		if (bookFrom == null || bookTo == null) {
 			return "图书对象不存在，请检查输入";
 		}
 		if (!bookFrom.getIsbn().equals(bookTo.getIsbn())) {
@@ -363,13 +351,25 @@ public class BookAmountService {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * 分页查询
+	 * 
 	 * @param page
 	 * @return
 	 */
-	public Page<BookAmount> findAll(Pageable page){
+	public Page<BookAmount> findAll(Pageable page) {
 		return this.bookAmountDao.findAll(page);
+	}
+
+	/**
+	 * 分页查询带条件
+	 * 
+	 * @param spec
+	 * @param page
+	 * @return
+	 */
+	public Page<BookAmount> findBySpecPage(Specification<BookAmount> spec, Pageable page) {
+		return this.bookAmountDao.findAll(spec, page);
 	}
 }

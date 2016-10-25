@@ -1,9 +1,9 @@
 package com.zis.common.cache;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,6 @@ import com.zis.requirement.repository.SysVarDao;
  */
 @Component
 public class SysVarCache {
-	//FIXME 会出现线程安全问题
 	private Map<String, Integer> cache;
 	@Autowired
 	private SysVarDao sysVarDao;
@@ -31,7 +30,8 @@ public class SysVarCache {
 	 * 初始化系统变量
 	 */
 	private void initSystemVar() {
-		cache = new HashMap<String, Integer>();
+		//解决方案
+		cache = new ConcurrentHashMap<String, Integer>();
 		// init all: db->default
 		for (SysVarConstant var : SysVarConstant.values()) {
 			// 加载系统变量
@@ -54,7 +54,7 @@ public class SysVarCache {
 	 * @return
 	 */
 	public Integer getSystemVar(String key) {
-		if(cache == null) {
+		if (cache == null) {
 			initSystemVar();
 		}
 		// 从cache中读取，如果没有，则从数据库中查询
@@ -76,7 +76,7 @@ public class SysVarCache {
 	 * @param value
 	 */
 	public void updateSysVar(String key, Integer value) {
-		if(cache == null) {
+		if (cache == null) {
 			initSystemVar();
 		}
 		// update db->cache
@@ -103,7 +103,7 @@ public class SysVarCache {
 	}
 
 	public List<SysVar> getAllSysVars() {
-		if(cache == null) {
+		if (cache == null) {
 			initSystemVar();
 		}
 		List<SysVar> list = new ArrayList<SysVar>();

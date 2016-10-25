@@ -18,8 +18,7 @@
 	<table>
 		<tr>
 			<td>导入Excel文件</td>
-			<td><input type="file" name="excelFile" id="excelFile" required="required">
-			</td>
+			<td><input type="file" name="excelFile" id="excelFile" required="required"></td>
 		</tr>
 		<tr>
 			<td>备注</td>
@@ -28,9 +27,7 @@
 		</tr>
 		<tr>
 			<td colspan="2"></td>
-			<td><input type="submit" value="导入"
-				onclick="showShadow();">
-			</td>
+			<td><input type="submit" value="导入"onclick="showShadow();"></td>
 		</tr>
 	</table>
 </form>
@@ -57,8 +54,8 @@
 <script type="text/javascript">
 	document.getElementsByName('bizType')[0].checked = true;
 </script>
-<br />
-<br />
+<br/>
+<br/>
 <div id="bg-to-be-hidden"></div>
 <div id="float-to-be-show">
 	正在导入，请耐心等待，大约需要10分钟。<br /> <br />如果你很无聊，可以先抠一会儿鼻屎，或者<b><a

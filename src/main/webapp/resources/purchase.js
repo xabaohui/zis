@@ -119,7 +119,7 @@ function showMultipleBooks(bookList) {
 	for(var i=0; i<bookList.length; i++) {
 		var book = bookList[i];
 		var bookIntro = book.isbn + ' / ' + book.bookName + '( ' + book.bookEdition + ' ) / ' + book.bookAuthor + ' / ' + book.bookPublisher;
-		selectedContent =  selectedContent + '<li>'+ bookIntro + '<input type=button value="选择" onclick="inwarehouse('+book.id + ',\'' + bookIntro +'\')"' +'</li><p/>'
+		selectedContent =  selectedContent + '<li>'+ bookIntro + '<input type=button value="选择" onclick="inwarehouse('+book.id + ',\'' + bookIntro +'\')"' +'</li><p/>';
 	}
 	selectedContent = selectedContent + '</ol>';
 	$('selectArea').innerHTML = selectedContent;

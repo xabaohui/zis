@@ -107,7 +107,7 @@ function showAddResult(data) {
 				+ "<input type=\"button\" value=\"删除\" onclick=\"removeBook("+ bookId +")\"/>";
 			displayContent += ('<li>' + line + '</li>');
 		}
-		displayContent += '</ol>'
+		displayContent += '</ol>';
 		$("bookListAdded").innerHTML = displayContent;
 	} else {
 		alert('操作失败，' + data.failReason);

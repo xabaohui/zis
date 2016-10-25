@@ -4,4 +4,8 @@
 
 <h1>出错啦.....</h1>
 
+<h2>
+	<font color="red">${actionError}</font>
+</h2>
+
 <%@ include file="/footer.jsp"%>

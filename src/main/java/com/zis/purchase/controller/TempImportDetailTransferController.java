@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.zis.bookinfo.bean.ShopItemInfoShopName;
@@ -26,55 +27,52 @@ import com.zis.purchase.dto.TempImportDetailView;
  * 
  */
 @Controller
-@RequestMapping(value="/purchase")
+@RequestMapping(value = "/purchase")
 public class TempImportDetailTransferController {
 
-//	private Integer taskId;
-	
 	private Logger logger = Logger.getLogger(TempImportDetailTransferController.class);
 	@Autowired
 	private BookService bookService;
 	@Autowired
 	private DoPurchaseService doPurchaseService;
-	
+
 	/**
 	 * 转换为其他类型记录
+	 * 
 	 * @return
 	 */
-	@RequestMapping(value="/transferTempImportDetailForMatched")
-	public String transfer(Integer taskId) {
+	@RequestMapping(value = "/transferTempImportDetailForMatched")
+	public String transfer(Integer taskId, ModelMap map) {
 		TempImportTask task = doPurchaseService.findTempImportTaskByTaskId(taskId);
-		if(task == null) {
+		if (task == null) {
 			logger.error("临时导入记录转换成其他类型时发成错误，无此记录，taskId=" + taskId);
-			//TODO 验证框架
-//			this.addActionError("系统错误，无此记录，taskId=" + taskId);
+			map.put("actionError", "系统错误，无此记录，taskId=" + taskId);
 			return "error";
 		}
 		try {
-			switch(TempImportTaskBizTypeEnum.parseEnum(task.getBizType())) {
-				case STOCK:
-					transferToBookStock(taskId);
-					break;
-				case SHOP_STATUS:
-					transferToShopItem(taskId);
-					break;
-				case SHOP_TITLE:
-					updateShopItemInfo(true, false, false,taskId);
-					break;
-				case SHOP_CATEGORY_ID:
-					updateShopItemInfo(false, true, false,taskId);
-					break;
-				case TAOBAO_FORBIDDEN:
-					updateShopItemInfo(false, false, true,taskId);
-					break;
-				default:
-					throw new RuntimeException("不支持的业务类型：" + task.getBizType());
+			switch (TempImportTaskBizTypeEnum.parseEnum(task.getBizType())) {
+			case STOCK:
+				transferToBookStock(taskId);
+				break;
+			case SHOP_STATUS:
+				transferToShopItem(taskId);
+				break;
+			case SHOP_TITLE:
+				updateShopItemInfo(true, false, false, taskId);
+				break;
+			case SHOP_CATEGORY_ID:
+				updateShopItemInfo(false, true, false, taskId);
+				break;
+			case TAOBAO_FORBIDDEN:
+				updateShopItemInfo(false, false, true, taskId);
+				break;
+			default:
+				throw new RuntimeException("不支持的业务类型：" + task.getBizType());
 			}
 			return "success";
 		} catch (Exception e) {
 			logger.error("临时导入记录转换成其他类型时发成错误:" + e.getMessage(), e);
-			//TODO 验证框架
-//			this.addActionError("临时导入记录转换成其他类型时发生错误:" + e.getMessage());
+			map.put("actionError", "临时导入记录转换成其他类型时发生错误:" + e.getMessage());
 			return "error";
 		}
 	}
@@ -83,7 +81,8 @@ public class TempImportDetailTransferController {
 	 * 更新库存
 	 */
 	private void transferToBookStock(Integer taskId) {
-		List<TempImportDetailView> list = this.doPurchaseService.findTempImportDetail(taskId, TempImportDetailStatus.MATCHED);
+		List<TempImportDetailView> list = this.doPurchaseService.findTempImportDetail(taskId,
+				TempImportDetailStatus.MATCHED);
 		List<StockDTO> stockList = new ArrayList<StockDTO>();
 		for (TempImportDetailView view : list) {
 			StockDTO stock = new StockDTO();
@@ -98,11 +97,13 @@ public class TempImportDetailTransferController {
 	 * 批量转换为网店商品
 	 */
 	private void transferToShopItem(Integer taskId) {
-		List<TempImportDetailView> list = this.doPurchaseService.findTempImportDetail(taskId, TempImportDetailStatus.MATCHED);
+		List<TempImportDetailView> list = this.doPurchaseService.findTempImportDetail(taskId,
+				TempImportDetailStatus.MATCHED);
 		List<ShopItemInfoDTO> itemList = new ArrayList<ShopItemInfoDTO>();
 		for (TempImportDetailView view : list) {
-			if(!ShopItemInfoStatus.ON_SALES.equals(view.getAdditionalInfo()) && !ShopItemInfoStatus.SOLD_OUT.equals(view.getAdditionalInfo())) {
-				throw new RuntimeException("商品状态必须是"+ShopItemInfoStatus.ON_SALES+"或者" + ShopItemInfoStatus.SOLD_OUT);
+			if (!ShopItemInfoStatus.ON_SALES.equals(view.getAdditionalInfo())
+					&& !ShopItemInfoStatus.SOLD_OUT.equals(view.getAdditionalInfo())) {
+				throw new RuntimeException("商品状态必须是" + ShopItemInfoStatus.ON_SALES + "或者" + ShopItemInfoStatus.SOLD_OUT);
 			}
 			ShopItemInfoDTO item = new ShopItemInfoDTO();
 			item.setBookId(view.getBookId());
@@ -112,24 +113,28 @@ public class TempImportDetailTransferController {
 		}
 		this.bookService.saveShopItemForBatch(itemList);
 	}
-	
+
 	/**
 	 * 更新网店标题\类目ID，或设置禁止发布
-	 * @param updateTitle 是否更新标题
+	 * 
+	 * @param updateTitle
+	 *            是否更新标题
 	 */
-	private void updateShopItemInfo(boolean updateTitle, boolean updateCategoryId, boolean updateForbidden,Integer taskId) {
-		List<TempImportDetailView> list = this.doPurchaseService.findTempImportDetail(taskId, TempImportDetailStatus.MATCHED);
+	private void updateShopItemInfo(boolean updateTitle, boolean updateCategoryId, boolean updateForbidden,
+			Integer taskId) {
+		List<TempImportDetailView> list = this.doPurchaseService.findTempImportDetail(taskId,
+				TempImportDetailStatus.MATCHED);
 		List<ShopItemInfoDTO> detailList = new ArrayList<ShopItemInfoDTO>();
 		for (TempImportDetailView view : list) {
 			ShopItemInfoDTO detail = new ShopItemInfoDTO();
 			detail.setBookId(view.getBookId());
-			if(updateTitle) {
+			if (updateTitle) {
 				detail.setTaobaoTitle(view.getData());
 			}
-			if(updateCategoryId){
+			if (updateCategoryId) {
 				detail.setTaobaoCatagoryId(Integer.valueOf(view.getData()));
 			}
-			if(updateForbidden) {
+			if (updateForbidden) {
 				detail.setTaobaoForbidden("是".equals(view.getData()));
 			}
 			detailList.add(detail);

@@ -3,6 +3,7 @@ package com.zis.bookinfo.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.directwebremoting.annotations.DataTransferObject;
 import org.springframework.beans.BeanUtils;
 
 import com.zis.bookinfo.bean.Bookinfo;
@@ -17,6 +18,7 @@ import com.zis.bookinfo.util.BookMetadata;
  * @author yz
  * 
  */
+@DataTransferObject
 public class BookInfoSearchResult {
 	private boolean isSysData; // 是否是系统采集数据
 	private List<BookInfoAndDetailDTO> booksExist = new ArrayList<BookInfoAndDetailDTO>();

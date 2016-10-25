@@ -3,5 +3,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
     <h1>操作成功</h1>
+<h2>${actionMessage}</h2>
 
- <%@ include file="/footer.jsp"%>
+<%@ include file="/footer.jsp"%>

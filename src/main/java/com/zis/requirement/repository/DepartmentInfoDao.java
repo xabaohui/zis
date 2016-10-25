@@ -2,6 +2,7 @@ package com.zis.requirement.repository;
 
 import java.util.List;
 
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
@@ -11,10 +12,10 @@ import com.zis.requirement.bean.Departmentinfo;
 
 /**
  * @author think
- *
+ * 
  */
-public interface DepartmentInfoDao extends
-		PagingAndSortingRepository<Departmentinfo, Integer> {
+public interface DepartmentInfoDao extends PagingAndSortingRepository<Departmentinfo, Integer>,
+		JpaSpecificationExecutor<Departmentinfo> {
 
 	/**
 	 * 根据 college的集合 查询 排序通过 college, institute, partName 三个字段 以升序排列
@@ -44,10 +45,8 @@ public interface DepartmentInfoDao extends
 	 * @return
 	 */
 	@Query(value = "from Departmentinfo where college = :college and institute = :institute and partName = :partName")
-	public List<Departmentinfo> findByCollegeInstituteAndPartName(
-			@Param(value = "college") String college,
-			@Param(value = "institute") String institute,
-			@Param(value = "partName") String partName);
+	public List<Departmentinfo> findByCollegeInstituteAndPartName(@Param(value = "college") String college,
+			@Param(value = "institute") String institute, @Param(value = "partName") String partName);
 
 	/**
 	 * 根据 college, institute, partName years 查询
@@ -58,10 +57,8 @@ public interface DepartmentInfoDao extends
 	 * @return
 	 */
 	@Query(value = "from Departmentinfo where college = :college and institute = :institute and partName = :partName and years = :years")
-	public List<Departmentinfo> findByCollegeInstitutePartNameAndYears(
-			@Param(value = "college") String college,
-			@Param(value = "institute") String institute,
-			@Param(value = "partName") String partName,
+	public List<Departmentinfo> findByCollegeInstitutePartNameAndYears(@Param(value = "college") String college,
+			@Param(value = "institute") String institute, @Param(value = "partName") String partName,
 			@Param(value = "years") Integer years);
 
 	/**
@@ -73,7 +70,7 @@ public interface DepartmentInfoDao extends
 	@Query(value = "SELECT new com.zis.api.response.DepartmentQueryData(did, college) FROM Departmentinfo WHERE college IN (:collegeList) GROUP BY college ORDER BY college ASC")
 	public List<DepartmentQueryData> findByCollegeListGroupByCollegeOrderByCollege(
 			@Param(value = "collegeList") List<String> collegeList);
-	
+
 	/**
 	 * 根据 college 条件以及 institute 分组及升序排序 后查询 did和institute
 	 * 
@@ -84,9 +81,9 @@ public interface DepartmentInfoDao extends
 	public List<DepartmentQueryData> findByCollegeGroupByInstituteOrderByInstitute(
 			@Param(value = "college") String college);
 
-
 	/**
-	 * 根据 college,  institute 条件以及 partName 分组及升序排序 后查询 did和partName
+	 * 根据 college, institute 条件以及 partName 分组及升序排序 后查询 did和partName
+	 * 
 	 * @param college
 	 * @param institute
 	 * @return

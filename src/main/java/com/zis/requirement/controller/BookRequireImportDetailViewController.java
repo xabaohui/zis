@@ -3,18 +3,16 @@ package com.zis.requirement.controller;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.zis.common.controllertemplate.PaginationQueryController;
-import com.zis.common.mvc.ext.WebHelper;
+import com.zis.common.mvc.ext.QueryUtil;
 import com.zis.requirement.bean.BookRequireImportDetail;
 import com.zis.requirement.bean.BookRequireImportDetailStatus;
 import com.zis.requirement.biz.BookRequireImportBO;
@@ -34,10 +32,7 @@ public class BookRequireImportDetailViewController extends PaginationQueryContro
 
 	@RequestMapping(value = "/viewBookRequireImportDetailForMatched")
 	public String executeQuery(ModelMap context, HttpServletRequest request) {
-		// TODO 设置查询条件
-		Pageable page = WebHelper.buildPageRequest(request);
-		Page<BookRequireImportDetail> pageList = this.bookRequireImportBO.findAllBookRequireImportDetail(page);
-		return super.executeQuery(context, request, pageList, page);
+		return super.executeQuery(context, request);
 	}
 
 	@Override
@@ -64,7 +59,7 @@ public class BookRequireImportDetailViewController extends PaginationQueryContro
 	}
 
 	@Override
-	protected DetachedCriteria buildQueryCondition(HttpServletRequest request) {
+	protected Specification<BookRequireImportDetail> buildQueryCondition(HttpServletRequest request) {
 		String status = request.getParameter("status");
 		String taskIdStr = request.getParameter("taskId");
 		Integer taskId;
@@ -73,11 +68,16 @@ public class BookRequireImportDetailViewController extends PaginationQueryContro
 		} else {
 			throw new IllegalArgumentException("taskId is error");
 		}
-		DetachedCriteria criteria = DetachedCriteria.forClass(BookRequireImportDetail.class);
-		criteria.add(Restrictions.eq("status", status));
-		criteria.add(Restrictions.eq("batchId", taskId));
-		criteria.addOrder(Order.asc("gmtCreate"));
-		return criteria;
+		// DetachedCriteria criteria =
+		// DetachedCriteria.forClass(BookRequireImportDetail.class);
+		// criteria.add(Restrictions.eq("status", status));
+		// criteria.add(Restrictions.eq("batchId", taskId));
+		// criteria.addOrder(Order.asc("gmtCreate"));
+		QueryUtil<BookRequireImportDetail> query = new QueryUtil<BookRequireImportDetail>();
+		query.eq("status", status);
+		query.eq("batchId", taskId);
+		query.asc("gmtCreate");
+		return query.getSpecification();
 	}
 
 	@Override
@@ -95,5 +95,10 @@ public class BookRequireImportDetailViewController extends PaginationQueryContro
 		} else {
 			return "requirement/bookRequireImportDetailForMatched";
 		}
+	}
+
+	@Override
+	protected Page<BookRequireImportDetail> buildPageList(Specification<BookRequireImportDetail> spec, Pageable page) {
+		return this.bookRequireImportBO.findAllBookRequireImportDetailBySpecPage(spec, page);
 	}
 }

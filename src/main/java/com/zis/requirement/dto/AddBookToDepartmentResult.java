@@ -3,6 +3,8 @@ package com.zis.requirement.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.directwebremoting.annotations.DataTransferObject;
+
 import com.zis.bookinfo.bean.Bookinfo;
 
 /**
@@ -11,6 +13,7 @@ import com.zis.bookinfo.bean.Bookinfo;
  * @author yz
  * 
  */
+@DataTransferObject
 public class AddBookToDepartmentResult {
 
 	private boolean success;

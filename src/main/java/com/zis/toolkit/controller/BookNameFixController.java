@@ -2,11 +2,16 @@ package com.zis.toolkit.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.zis.toolkit.dto.FixBookNameDTO;
 import com.zis.toolkit.service.BookInfoToolkit;
 
 /**
@@ -27,15 +32,14 @@ public class BookNameFixController extends BaseBookFixController {
 	 * 
 	 * @return
 	 */
-	// TODO 验证框架
-	// @Validations(requiredStrings = {
-	// @RequiredStringValidator(fieldName = "startLabel", trim = true, key =
-	// "起始字符不能为空"),
-	// @RequiredStringValidator(fieldName = "keyword", trim = true, key =
-	// "关键字不能为空"), })
 	@RequestMapping(value = "/batchFixBookName")
-	public String fixBookName(ModelMap context, String startLabel, String keyword) {
-		List<String> list = bookInfoToolkit.updateFixBookName(startLabel, keyword);
+	public String fixBookName(@Valid @ModelAttribute("fixBookNameDTO") FixBookNameDTO fixBookNameDTO, BindingResult br,
+			ModelMap context) {
+		if (br.hasErrors()) {
+			return "toolkit/toolkit";
+		}
+		List<String> list = bookInfoToolkit.updateFixBookName(fixBookNameDTO.getStartLabel(),
+				fixBookNameDTO.getKeyword());
 		showResult(list, context);
 		return "toolkit/toolkit";
 	}

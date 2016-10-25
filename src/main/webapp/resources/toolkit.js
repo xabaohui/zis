@@ -14,7 +14,7 @@ function showAddResult(result) {
 		for(var i=0; i<scannedBookList.length; i++) {
 			var book = scannedBookList[i];
 			var bookIntro = book.isbn + ' / ' + book.bookName;
-			selectedContent =  selectedContent + '<li>'+ bookIntro +'</li>'
+			selectedContent =  selectedContent + '<li>'+ bookIntro +'</li>';
 		}
 		selectedContent = selectedContent + '</ol>';
 		

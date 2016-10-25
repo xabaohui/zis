@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.zis.api.response.DepartmentQueryData;
@@ -28,8 +29,7 @@ public class SchoolBiz {
 	 * @param partName
 	 * @return
 	 */
-	public int ifDepartmentInfoExist(String school, String institute,
-			String partName) {
+	public int ifDepartmentInfoExist(String school, String institute, String partName) {
 		Departmentinfo di = new Departmentinfo();
 		di.setCollege(school);
 		di.setInstitute(institute);
@@ -48,9 +48,8 @@ public class SchoolBiz {
 		// di.setCollege(dmi.getCollege());
 		// di.setInstitute(dmi.getInstitute());
 		// di.setPartName(dmi.getPartName());
-		List<Departmentinfo> list = departmentInfoDao
-				.findByCollegeInstituteAndPartName(dmi.getCollege(),
-						dmi.getInstitute(), dmi.getPartName());
+		List<Departmentinfo> list = departmentInfoDao.findByCollegeInstituteAndPartName(dmi.getCollege(),
+				dmi.getInstitute(), dmi.getPartName());
 		logger.info("requirement.biz.AddSchoolBiz.existSchool--院校信息已存在");
 		if (list.size() > 0) {
 			return list.get(0).getDid();
@@ -69,13 +68,11 @@ public class SchoolBiz {
 		// BeanUtils.copyProperties(dmi, ex);
 		// ex.setGmtCreate(null);
 		// ex.setGmtModify(null);
-		List<Departmentinfo> list = this.departmentInfoDao
-				.findByCollegeInstitutePartNameAndYears(dmi.getCollege(),
-						dmi.getInstitute(), dmi.getPartName(), dmi.getYears());
+		List<Departmentinfo> list = this.departmentInfoDao.findByCollegeInstitutePartNameAndYears(dmi.getCollege(),
+				dmi.getInstitute(), dmi.getPartName(), dmi.getYears());
 		if (!list.isEmpty()) {
 			String fmt = "重复添加院校信息, %s, %s, %s";
-			throw new RuntimeException(String.format(fmt, dmi.getCollege(),
-					dmi.getInstitute(), dmi.getPartName()));
+			throw new RuntimeException(String.format(fmt, dmi.getCollege(), dmi.getInstitute(), dmi.getPartName()));
 		}
 		departmentInfoDao.save(dmi);
 	}
@@ -86,9 +83,10 @@ public class SchoolBiz {
 	 * @return
 	 */
 	public List<Departmentinfo> getAllDepartmentInfo() {
-//		DetachedCriteria dc = DetachedCriteria.forClass(Departmentinfo.class);
-//		dc.addOrder(Order.asc("college")).addOrder(Order.asc("institute"))
-//				.addOrder(Order.asc("partName"));
+		// DetachedCriteria dc =
+		// DetachedCriteria.forClass(Departmentinfo.class);
+		// dc.addOrder(Order.asc("college")).addOrder(Order.asc("institute"))
+		// .addOrder(Order.asc("partName"));
 		List<Departmentinfo> list = departmentInfoDao.findOrderByCollegeInstitutePartNameAsc();
 		logger.info("requirement.biz.GetInfoBiz.getAllInfo--查找院校信息成功");
 		return list;
@@ -114,10 +112,11 @@ public class SchoolBiz {
 		departmentInfoDao.save(dmi);
 	}
 
-//	public List<Departmentinfo> findDepartmentInfoByCriteria(DetachedCriteria dc) {
-//		return departmentInfoDao.findByCriteria(dc);
-//	}
-	
+	// public List<Departmentinfo> findDepartmentInfoByCriteria(DetachedCriteria
+	// dc) {
+	// return departmentInfoDao.findByCriteria(dc);
+	// }
+
 	/**
 	 * 根据 college, institute, partName 查询
 	 * 
@@ -129,7 +128,7 @@ public class SchoolBiz {
 	public List<Departmentinfo> findByCollegeInstituteAndPartName(String college, String institute, String partName) {
 		return departmentInfoDao.findByCollegeInstituteAndPartName(college, institute, partName);
 	}
-	
+
 	/**
 	 * 根据 collegeLis 条件以及 college 分组及升序排序 后查询 did和college
 	 * 
@@ -139,7 +138,7 @@ public class SchoolBiz {
 	public List<DepartmentQueryData> findByCollegeListGroupByCollegeOrderByCollege(List<String> collegeList) {
 		return departmentInfoDao.findByCollegeListGroupByCollegeOrderByCollege(collegeList);
 	}
-	
+
 	/**
 	 * 根据 collegeLis 条件以及 college 分组及升序排序 后查询 did和college
 	 * 
@@ -149,24 +148,38 @@ public class SchoolBiz {
 	public List<DepartmentQueryData> findByCollegeGroupByInstituteOrderByInstitute(String college) {
 		return departmentInfoDao.findByCollegeGroupByInstituteOrderByInstitute(college);
 	}
-	
+
 	/**
-	 * 根据 college,  institute 条件以及 partName 分组及升序排序 后查询 did和partName
+	 * 根据 college, institute 条件以及 partName 分组及升序排序 后查询 did和partName
+	 * 
 	 * @param college
 	 * @param institute
 	 * @return
 	 */
-	public List<DepartmentQueryData> findByCollegeAndInstituteGroupByPartNameOrderByPartName(String college, String institute) {
+	public List<DepartmentQueryData> findByCollegeAndInstituteGroupByPartNameOrderByPartName(String college,
+			String institute) {
 		return departmentInfoDao.findByCollegeAndInstituteGroupByPartNameOrderByPartName(college, institute);
 	}
-	
+
 	/**
 	 * 分页查询 Departmentinfo
+	 * 
 	 * @param page
 	 * @return
 	 */
-	public Page<Departmentinfo> findAll(Pageable page){
+	public Page<Departmentinfo> findAll(Pageable page) {
 		return this.departmentInfoDao.findAll(page);
+	}
+
+	/**
+	 * 分页查询带条件 Departmentinfo
+	 * 
+	 * @param spec
+	 * @param page
+	 * @return
+	 */
+	public Page<Departmentinfo> findAllBySpecPage(Specification<Departmentinfo> spec, Pageable page) {
+		return this.departmentInfoDao.findAll(spec, page);
 	}
 
 }

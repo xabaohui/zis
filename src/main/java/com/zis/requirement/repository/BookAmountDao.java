@@ -2,6 +2,7 @@ package com.zis.requirement.repository;
 
 import java.util.List;
 
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
@@ -9,8 +10,8 @@ import org.springframework.data.repository.query.Param;
 import com.zis.requirement.bean.BookAmount;
 import com.zis.requirement.dto.RequirementCollectScheduleDTO;
 
-public interface BookAmountDao extends
-		PagingAndSortingRepository<BookAmount, Integer> {
+public interface BookAmountDao extends PagingAndSortingRepository<BookAmount, Integer>,
+		JpaSpecificationExecutor<BookAmount> {
 
 	/**
 	 * 根据bookId查询
@@ -38,10 +39,8 @@ public interface BookAmountDao extends
 	 * @return
 	 */
 	@Query("from BookAmount where bookId = :bookId and partId = :partId and grade = :grade and term = :term")
-	List<BookAmount> findByBookIdPartIdGradeAndTerm(
-			@Param(value = "bookId") Integer bookId,
-			@Param(value = "partId") Integer partId,
-			@Param(value = "grade") Integer grade,
+	List<BookAmount> findByBookIdPartIdGradeAndTerm(@Param(value = "bookId") Integer bookId,
+			@Param(value = "partId") Integer partId, @Param(value = "grade") Integer grade,
 			@Param(value = "term") Integer term);
 
 	/**
@@ -79,8 +78,7 @@ public interface BookAmountDao extends
 	 * @return
 	 */
 	@Query("FROM BookAmount WHERE grade<>1 AND college<>'A测试专用' AND bookId IN (:bookId)")
-	List<BookAmount> findByBookIdListGradeAndCollege(
-			@Param(value = "bookId") List<Integer> bookId);
+	List<BookAmount> findByBookIdListGradeAndCollege(@Param(value = "bookId") List<Integer> bookId);
 
 	/**
 	 * 通过bookId查询 排除 大一 以及 院校名为A测试专用
@@ -89,6 +87,5 @@ public interface BookAmountDao extends
 	 * @return
 	 */
 	@Query("FROM BookAmount WHERE grade<>1 AND college<>'A测试专用' AND bookId = :bookId")
-	List<BookAmount> findByBookIdGradeAndCollege(
-			@Param(value = "bookId") Integer bookId);
+	List<BookAmount> findByBookIdGradeAndCollege(@Param(value = "bookId") Integer bookId);
 }

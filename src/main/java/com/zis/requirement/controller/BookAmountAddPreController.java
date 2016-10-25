@@ -23,15 +23,15 @@ public class BookAmountAddPreController {
 	private SchoolBiz schoolBiz;
 	
 	@RequestMapping(value="/addAmountPreAction")
-	public String amountPre(Integer dId, ModelMap ctx){
-		if (dId == null){
+	public String amountPre(Integer id, ModelMap ctx){
+		if (id == null){
 			return "error";
 		}else {
-			Departmentinfo di = schoolBiz.findDepartmentInfoById(dId);
+			Departmentinfo di = schoolBiz.findDepartmentInfoById(id);
 			if (di == null){
 				return "error";
 			}
-			ctx.put("dId", dId);
+			ctx.put("did", id);
 			ctx.put("college", di.getCollege());
 			ctx.put("institute", di.getInstitute());
 			ctx.put("partName", di.getPartName());

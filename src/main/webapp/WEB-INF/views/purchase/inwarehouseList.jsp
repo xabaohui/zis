@@ -33,24 +33,20 @@
 		</tr>
 		<c:forEach items="${resultList}" var="record">
 			<tr>
-				<td><input type="checkbox" value="${record.id}"
-					name="batchSelectedItem" <c:if test="${record.status} == 'processing'">disabled</c:if>/>
+				<td>
+					<input type="checkbox" value="${record.id}" name="batchSelectedItem" 
+					<c:if test="${record.status eq 'processing'}">disabled</c:if>/>
 				</td>
-				<td>${record.gmtCreate}
-				</td>
-				<td>${record.bizTypeDisplay}${record.source}
-				</td>
-				<td>${record.inwarehouseOperator}
-				</td>
-				<td>${record.memo}
-				</td>
-				<td><a href="purchase/viewInwarehouseDetail?inwarehouseId=${record.id}">${record.amount}</a>
-				</td>
+				<td>${record.gmtCreate}</td>
+				<td>${record.bizTypeDisplay}${record.source}</td>
+				<td>${record.inwarehouseOperator}</td>
+				<td>${record.memo}</td>
+				<td><a href="purchase/viewInwarehouseDetail?inwarehouseId=${record.id}">${record.amount}</a></td>
 				<td>${record.statusDisplay}
-				<c:if test="${record.status} == 'processing'">
-					<a href="purchase/recoverScan?inwarehouseId=${record.id}">继续扫描</a> 
-					| <a href="#" onclick="return deleteInwarehouse('${record.id}');">删除</a>
-				</c:if>
+					<c:if test="${record.status eq 'processing'}">
+						<a href="purchase/recoverScan?inwarehouseId=${record.id}">继续扫描</a> 
+						| <a href="#" onclick="return deleteInwarehouse('${record.id}');">删除</a>
+					</c:if>
 				</td>
 			</tr>
 			</c:forEach>

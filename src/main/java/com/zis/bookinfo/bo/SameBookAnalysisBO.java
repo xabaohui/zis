@@ -30,14 +30,16 @@ public class SameBookAnalysisBO extends BookInfoAnalysisBO {
 		// dc.add(Restrictions.eq("bookAuthor", book.getBookAuthor()));
 		// dc.add(Restrictions.eq("bookPublisher", book.getBookPublisher()));
 		// dc.add(Restrictions.ne("bookStatus", ConstantString.ABANDON));
-		List<Bookinfo> samebookList = bookinfoDao.findByBookNameAuthorPublisher(book.getBookName(), book.getBookAuthor(), book.getBookPublisher());
+		List<Bookinfo> samebookList = bookinfoDao.findByBookNameAuthorPublisher(book.getBookName(),
+				book.getBookAuthor(), book.getBookPublisher());
 		if (samebookList != null && samebookList.size() > 1) {
 			relateToSameBooks(samebookList);
 		}
 	}
 
 	/**
-	 *  把相同图书进行数据关联，关联后的图书，groupId相同，除了最新版isNewEdition=true，其他都是false
+	 * 把相同图书进行数据关联，关联后的图书，groupId相同，除了最新版isNewEdition=true，其他都是false
+	 * 
 	 * @param samebookList
 	 */
 	public void relateToSameBooks(List<Bookinfo> samebookList) {
@@ -47,15 +49,15 @@ public class SameBookAnalysisBO extends BookInfoAnalysisBO {
 		}
 		String bookPublisher = samebookList.get(0).getBookPublisher();// 出版社，检查用，所有待处理记录出版社必须相同
 		StringBuilder idsDealt = new StringBuilder(); // 记录所有记录的ID，打印日志用
-		
+
 		// 1. 针对samebookList中的每一条记录，查出groupId相同的所有记录，加入booksToBeDeal统一处理
 		Map<Integer, Bookinfo> booksToBeDeal = new HashMap<Integer, Bookinfo>();
 		for (Bookinfo book : samebookList) {
-			if(BookinfoStatus.DISCARD.equals(book.getBookStatus())) {
+			if (BookinfoStatus.DISCARD.equals(book.getBookStatus())) {
 				continue; // 已作废的记录不处理
 			}
 			// 强制要求所有图书必须在同一出版社
-			if(!bookPublisher.equals(book.getBookPublisher())) {
+			if (!bookPublisher.equals(book.getBookPublisher())) {
 				throw new RuntimeException("出版社不同的图书不能合并到一组");
 			}
 			logger.debug("process bookinfo, id=" + book.getId() + "bookName=" + book.getBookName());
@@ -65,11 +67,14 @@ public class SameBookAnalysisBO extends BookInfoAnalysisBO {
 				idsDealt.append(book.getId()).append(",");
 			} else {
 				// 如果有相同图书，所有图书ID加入到集合中等待处理
-//				DetachedCriteria criteria = DetachedCriteria.forClass(Bookinfo.class);
-//				criteria.add(Restrictions.eq("groupId", book.getGroupId()));
-//				criteria.add(Restrictions.eq("bookPublisher", book.getBookPublisher()));
-//				criteria.add(Restrictions.ne("bookStatus", BookinfoStatus.DISCARD));
-//				List<Bookinfo> list = bookinfoDao.findByCriteria(criteria);
+				// DetachedCriteria criteria =
+				// DetachedCriteria.forClass(Bookinfo.class);
+				// criteria.add(Restrictions.eq("groupId", book.getGroupId()));
+				// criteria.add(Restrictions.eq("bookPublisher",
+				// book.getBookPublisher()));
+				// criteria.add(Restrictions.ne("bookStatus",
+				// BookinfoStatus.DISCARD));
+				// List<Bookinfo> list = bookinfoDao.findByCriteria(criteria);
 				List<Bookinfo> list = bookinfoDao.findByGroupIdAndPublisher(book.getGroupId(), book.getBookPublisher());
 				for (Bookinfo bookinfo : list) {
 					logger.debug("add bookinfo by groupId, id=" + bookinfo.getId());
@@ -78,24 +83,23 @@ public class SameBookAnalysisBO extends BookInfoAnalysisBO {
 				}
 			}
 		}
-		
+
 		// 2. 生成新的groupId
 		String groupId = "s" + getUniqueStr();
-		
+
 		// 3. 遍历booksToBeDeal，出版日期最大的记录isNewEdition=true，其他的均为false
 		batchUpdateBooksIsNewEdition(booksToBeDeal.values(), groupId);
-		logger.info("successfully combined same books, bookId="
-				+ idsDealt.toString());
+		logger.info("successfully combined same books, bookId=" + idsDealt.toString());
 	}
-	
+
 	/**
 	 * 将图书设置为不同版本，并标记最新版
+	 * 
 	 * @param bookList
 	 * @param groupId
 	 */
-	public void batchUpdateBooksIsNewEdition(
-			Collection<Bookinfo> bookList, String groupId) {
-		if(bookList == null || bookList.isEmpty()) {
+	public void batchUpdateBooksIsNewEdition(Collection<Bookinfo> bookList, String groupId) {
+		if (bookList == null || bookList.isEmpty()) {
 			return;
 		}
 		Bookinfo newBook = null; // 最新版图书
@@ -111,7 +115,7 @@ public class SameBookAnalysisBO extends BookInfoAnalysisBO {
 			book.setGroupId(groupId);
 		}
 		// 设置最新版标记
-		if(newBook != null) {
+		if (newBook != null) {
 			newBook.setIsNewEdition(true);
 		}
 		// 批量更新

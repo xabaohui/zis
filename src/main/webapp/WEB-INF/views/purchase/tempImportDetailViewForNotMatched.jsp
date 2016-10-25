@@ -11,15 +11,16 @@
 	<h1>导入记录明细 - 未关联</h1>
 	<p/>
 	<h3><a href="purchase/viewTempImportTask">上一步</a>&nbsp;
-	|&nbsp;<a href="purchase/viewTempImportDetailForMatched?status=matched&taskId=${task.id}">下一步</a></h3>
+		|&nbsp;<a href="purchase/viewTempImportDetailForMatched?status=matched&taskId=${task.id}">下一步</a>
+	</h3>
 	<p/>
 	<div align="left">
-	&nbsp;&nbsp;
-	业务类型：${task.bizTypeDisplay}&nbsp;&nbsp;
-	备注：${task.memo}&nbsp;&nbsp;
-	当前状态：${task.statusDisplay}&nbsp;&nbsp;
-	记录总数：${task.totalCount}
-	<p/>
+		&nbsp;&nbsp;
+		业务类型：${task.bizTypeDisplay}&nbsp;&nbsp;
+		备注：${task.memo}&nbsp;&nbsp;
+		当前状态：${task.statusDisplay}&nbsp;&nbsp;
+		记录总数：${task.totalCount}
+		<p/>
 	</div>
 	<table id="common-table">
 		<tr>
@@ -31,7 +32,8 @@
 		<tr>
 			<td>${index.count}</td>
 			<td>
-				<a href="bookinfo/getAllBooks?bookISBN=${detail.isbn}" target="_blank">${detail.isbn}</a>&nbsp;/&nbsp;${detail.data}&nbsp;/&nbsp;${detail.additionalInfo}
+				<a href="bookinfo/getAllBooks?bookISBN=${detail.isbn}" target="_blank">${detail.isbn}</a>
+				&nbsp;/&nbsp;${detail.data}&nbsp;/&nbsp;${detail.additionalInfo}
 				[<a href="https://s.taobao.com/search?q=${detail.isbn}" target="_blank">淘</a>]
 				[<a href="http://search.dangdang.com/?key=${detail.isbn}" target="_blank">当</a>]
 			</td>

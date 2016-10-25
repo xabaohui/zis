@@ -13,34 +13,27 @@
 
 <%-- 记住这里需要设置enctype="multipart/form-data"--%>
 <h2>导入书单</h2>
-<form action="requirement/uploadBookRequirement" method="post"
-	enctype="multipart/form-data">
+<form action="requirement/uploadBookRequirement" method="post" enctype="multipart/form-data">
 	<table>
 		<tr>
 			<td>学校</td>
-			<td><input type="text" name="college" required="required" />
-			</td>
+			<td><input type="text" name="college" required="required" /></td>
 		</tr>
 		<tr>
 			<td>操作员</td>
-			<td><input type="text" name="operator" required="required" />
-			</td>
+			<td><input type="text" name="operator" required="required" /></td>
 		</tr>
 		<tr>
 			<td>操作备注</td>
-			<td><input type="text" name="memo" required="required" />
-			</td>
+			<td><input type="text" name="memo" required="required" /></td>
 		</tr>
 		<tr>
 			<td>导入Excel文件</td>
-			<td><input type="file" name="excelFile" required="required" />
-			</td>
+			<td><input type="file" name="excelFile" required="required" /></td>
 		</tr>
 		<tr>
 			<td></td>
-			<td colspan="2"><input type="submit" value="导入"
-				onclick="showShadow();" />
-			</td>
+			<td colspan="2"><input type="submit" value="导入" onclick="showShadow();" /></td>
 		</tr>
 	</table>
 </form>

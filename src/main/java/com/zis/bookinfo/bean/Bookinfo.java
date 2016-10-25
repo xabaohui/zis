@@ -11,11 +11,14 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
+import org.directwebremoting.annotations.DataTransferObject;
+
 /**
  * Bookinfo entity. @author MyEclipse Persistence Tools
  */
 @Entity
 @Table(name = "bookinfo")
+@DataTransferObject
 public class Bookinfo implements java.io.Serializable {
 
 	// Fields

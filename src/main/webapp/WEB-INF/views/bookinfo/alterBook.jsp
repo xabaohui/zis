@@ -35,56 +35,39 @@
 		<table width="301" height="395" border="1">
 			<tr>
 				<td>图书id <br /></td>
-				<td><input type="text" name="id" readonly="readonly"
-					value="${book.id}" />
-				</td>
+				<td><input type="text" name="id" readonly="readonly" value="${book.id}" /></td>
 			</tr>
 			<tr>
 				<td>外部id</td>
-				<td><input type="text" name="outId" value="${book.outId}"
-					readonly="readonly" />
-				</td>
+				<td><input type="text" name="outId" value="${book.outId}" readonly="readonly" /></td>
 			</tr>
 			<tr>
 				<td>ISBN</td>
-				<td><input type="text" name="isbn" value="${book.isbn}" readonly="readonly" />
-				</td>
+				<td><input type="text" name="isbn" value="${book.isbn}" readonly="readonly" /></td>
 			</tr>
 			<tr>
 				<td>图书名称 <br /></td>
-				<td><input type="text" name="bookName"
-					value="${book.bookName}" />
-				</td>
+				<td><input type="text" name="bookName" value="${book.bookName}" /></td>
 			</tr>
 			<tr>
 				<td>图书版次</td>
-				<td><input type="text" name="bookEdition"
-					value="${book.bookEdition}" />
-				</td>
+				<td><input type="text" name="bookEdition" value="${book.bookEdition}" /></td>
 			</tr>
 			<tr>
 				<td>作者</td>
-				<td><input type="text" name="bookAuthor"
-					value="${book.bookAuthor}" />
-				</td>
+				<td><input type="text" name="bookAuthor" value="${book.bookAuthor}" /></td>
 			</tr>
 			<tr>
 				<td>出版社</td>
-				<td><input type="text" name="bookPublisher"
-					value="${book.bookPublisher}" />
-				</td>
+				<td><input type="text" name="bookPublisher" value="${book.bookPublisher}" /></td>
 			</tr>
 			<tr>
 				<td>出版日期</td>
-				<td><input type="text" onclick="JTC.setday()"
-					name="publishDate"
-					value="${book.publishDate}" />
+				<td><input type="text" onclick="JTC.setday()" name="publishDate" value="${book.publishDate}" /></td>
 			</tr>
 			<tr>
 				<td>价格</td>
-				<td><input type="text" name="bookPrice"
-					value="${book.bookPrice}" />
-				</td>
+				<td><input type="text" name="bookPrice" value="${book.bookPrice}" /></td>
 			</tr>
 			<tr>
 				<td>是否最新版</td>
@@ -142,8 +125,8 @@
 
 		<input type="button" value="修改" onclick="doModify('update')">
 		<input type="reset" value="恢复">
-    &nbsp;&nbsp;&nbsp;
-    <input type="button" value="删除" onclick="doModify('notuse')">
+   		&nbsp;&nbsp;&nbsp;
+    	<input type="button" value="删除" onclick="doModify('notuse')">
 
 
 		<%
@@ -154,8 +137,8 @@
 
 		<input type="button" value="审核" onclick="doModify('checkok')">
 		<input type="reset" value="恢复">
-    &nbsp;&nbsp;&nbsp;
-    <input type="button" value="删除" onclick="doModify('notuse')">
+    	&nbsp;&nbsp;&nbsp;
+    	<input type="button" value="删除" onclick="doModify('notuse')">
 
 		<%
 			}

@@ -273,7 +273,6 @@ public class TempImportBO {
 		// criteria.add(Restrictions.ne("status", TempImportTaskStatus.CANCEL));
 		// criteria.addOrder(Order.asc("status").desc("gmtCreate"));
 		// return this.tempImportTaskDao.findByCriteria(criteria);
-		// FIXME 分页查询
 		// Sort sort = new Sort(Direction.ASC, "status").and(new
 		// Sort(Direction.DESC, "gmtCreate"));
 		// Pageable page = new PageRequest(0, 20, sort);

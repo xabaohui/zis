@@ -2,35 +2,23 @@ package com.zis.bookinfo.controller;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.bean.BookinfoAid;
@@ -40,8 +28,6 @@ import com.zis.bookinfo.service.BookService;
 import com.zis.bookinfo.util.ConstantString;
 import com.zis.common.mvc.ext.QueryUtil;
 import com.zis.common.mvc.ext.WebHelper;
-import com.zis.common.util.PaginationQueryUtil;
-import com.zis.common.util.ZisUtils;
 import com.zis.purchase.biz.DoPurchaseService;
 
 @Controller
@@ -69,11 +55,11 @@ public class BookController {
 	public String getAllBooks(ModelMap model, String bookName, Boolean strictBookName, String bookISBN,
 			String bookAuthor, String bookPublisher, HttpServletRequest request) {
 		logger.debug("start:" + System.currentTimeMillis());
-		// TODO 创建查询条件
-		Specification<Bookinfo> test = getBooks(bookName, strictBookName, bookISBN, bookAuthor, bookPublisher);
+		// 创建查询条件
+		Specification<Bookinfo> spec = buildSpec(bookName, strictBookName, bookISBN, bookAuthor, bookPublisher);
 		// 分页查询
 		Pageable page = WebHelper.buildPageRequest(request);
-		Page<Bookinfo> list = this.bookService.findByTest(test, page);
+		Page<Bookinfo> list = this.bookService.findBySpecification(spec, page);
 
 		// 待审核数
 		int waitCheckCount = getWaitingCount(request);
@@ -81,6 +67,7 @@ public class BookController {
 		// 将返回结果存入ActionContext中
 		model.put("waitCheckCount", waitCheckCount + "");
 		model.put("list", list.getContent());
+		model.put("page", page.getPageNumber() + 1);
 		setQueryConditionToPage(model, bookISBN, bookName, strictBookName, bookAuthor, bookPublisher);
 		if (list.hasPrevious()) {
 			model.put("prePage", page.previousOrFirst().getPageNumber());
@@ -100,8 +87,7 @@ public class BookController {
 	public String findBookById(Integer bookId, ModelMap ctx) {
 		Bookinfo book = bookService.findBookById(bookId);
 		if (book == null) {
-			// TODO 验证框架
-			// this.addActionError("无此图书, bookId=" + bookId);
+			ctx.put("actionError", "无此图书, bookId=" + bookId);
 			return "error";
 		}
 		BookinfoDetail detail = bookService.findBookInfoDetailByBookId(bookId);
@@ -114,7 +100,7 @@ public class BookController {
 		ctx.put("bookId", book.getId());
 		ctx.put("isNewEdition", book.getIsNewEdition());
 		ctx.put("repeatIsbn", book.getRepeatIsbn());
-		return "/bookinfo/alterBook";
+		return "bookinfo/alterBook";
 	}
 
 	/**
@@ -123,11 +109,7 @@ public class BookController {
 	 * @return
 	 */
 	@RequestMapping(value = "/batchOperateBooks")
-	public String batchOperate(Integer[] batchSelectedItem, String operateType) {
-		for (Integer i : batchSelectedItem) {
-			System.out.println(i);
-		}
-		System.out.println(operateType);
+	public String batchOperate(Integer[] batchSelectedItem, String operateType, ModelMap map) {
 		try {
 			// 设置成不同版本
 			if (BookBatchOperateType.SET_TO_GROUP.equals(operateType)) {
@@ -151,14 +133,12 @@ public class BookController {
 				}
 				return "success";
 			} else {
-				// TODO 验证框架
-				// this.addActionError("系统错误，不支持的操作类型" + operateType);
+				map.put("actionError", "系统错误，不支持的操作类型" + operateType);
 				return "error";
 			}
 		} catch (Exception e) {
 			logger.error("操作失败，" + e.getMessage(), e);
-			// TODO 验证框架
-			// this.addActionError("操作失败，" + e.getMessage());
+			map.put("actionError", "操作失败，" + e.getMessage());
 			return "error";
 		}
 	}
@@ -183,19 +163,19 @@ public class BookController {
 			session.setAttribute("relateList", relateList);
 			map.put("pageType", ConstantString.PAGEGRELATE);
 		}
-		return "/bookinfo/RelateList";
+		return "bookinfo/RelateList";
 	}
 
 	/**
-	 * 移除关联id XXX 移除成功后，回到原页面
+	 * 移除关联id XXX 移除成功后，回到原页面 修改成功
 	 * 
 	 * @return
 	 */
 	@RequestMapping(value = "/removeRelateId")
-	public String removeRelateId(Integer id, String pageType) {
-		pageType = "pageRelate";
+	public String removeRelateId(Integer id, String pageType, ModelMap map) {
 		bookService.removeRelateId(id, pageType);
-		return "success";
+		map.put("pageType", pageType);
+		return "forward:/bookInfo/showGroupList";
 	}
 
 	/**
@@ -206,8 +186,6 @@ public class BookController {
 	@RequestMapping(value = "/removeAll")
 	public String removeAll(HttpSession session, String pageType) {
 		@SuppressWarnings("unchecked")
-		// List<Bookinfo>list1=bookService.getBooksByRelateId("555");
-		// pageType="pageRelate";
 		List<Bookinfo> list = (List<Bookinfo>) session.getAttribute("relateList");
 		this.bookService.removeAllRelation(list, pageType);
 		return "success";
@@ -371,40 +349,41 @@ public class BookController {
 	// private String sameBookIds;
 	// private String similarityCheckLevel;
 
-	private DetachedCriteria buildDetachedCriteria(String bookName, Boolean strictBookName, String bookISBN,
+	// private DetachedCriteria buildDetachedCriteria(String bookName, Boolean
+	// strictBookName, String bookISBN,
+	// String bookAuthor, String bookPublisher) {
+	// QueryUtil<Bookinfo> query =new QueryUtil<Bookinfo>(Bookinfo.class);
+	// DetachedCriteria criteria = DetachedCriteria.forClass(Bookinfo.class);
+	// if (!StringUtils.isBlank(bookName)) {
+	// if (strictBookName != null && strictBookName == true) {
+	// criteria.add(Restrictions.eq("bookName", bookName));
+	// } else {
+	// criteria.add(Restrictions.like("bookName", "%" + bookName + "%"));
+	// }
+	// }
+	// // ISBN不为空则添加条件
+	// if (!StringUtils.isBlank(bookISBN)) {
+	// String[] isbns = bookISBN.split(",");
+	// if (isbns.length == 1) {
+	// criteria.add(Restrictions.eq("isbn", bookISBN));
+	// } else {
+	// criteria.add(Restrictions.in("isbn", isbns));
+	// }
+	// }
+	// // 模糊查询作者
+	// if (!StringUtils.isBlank(bookAuthor))
+	// criteria.add(Restrictions.like("bookAuthor", "%" + bookAuthor + "%"));
+	// if (!StringUtils.isBlank(bookPublisher)) {
+	// criteria.add(Restrictions.eq("bookPublisher", bookPublisher));
+	// }
+	// // 状态为废弃的不查询
+	// criteria.add(Restrictions.ne("bookStatus", ConstantString.ABANDON));
+	// return criteria;
+	//
+	// }
+	private Specification<Bookinfo> buildSpec(String bookName, Boolean strictBookName, String bookISBN,
 			String bookAuthor, String bookPublisher) {
-		QueryUtil<Bookinfo> query =new QueryUtil<Bookinfo>(Bookinfo.class);
-		DetachedCriteria criteria = DetachedCriteria.forClass(Bookinfo.class);
-		if (!StringUtils.isBlank(bookName)) {
-			if (strictBookName != null && strictBookName == true) {
-				criteria.add(Restrictions.eq("bookName", bookName));
-			} else {
-				criteria.add(Restrictions.like("bookName", "%" + bookName + "%"));
-			}
-		}
-		// ISBN不为空则添加条件
-		if (!StringUtils.isBlank(bookISBN)) {
-			String[] isbns = bookISBN.split(",");
-			if (isbns.length == 1) {
-				criteria.add(Restrictions.eq("isbn", bookISBN));
-			} else {
-				criteria.add(Restrictions.in("isbn", isbns));
-			}
-		}
-		// 模糊查询作者
-		if (!StringUtils.isBlank(bookAuthor))
-			criteria.add(Restrictions.like("bookAuthor", "%" + bookAuthor + "%"));
-		if (!StringUtils.isBlank(bookPublisher)) {
-			criteria.add(Restrictions.eq("bookPublisher", bookPublisher));
-		}
-		// 状态为废弃的不查询
-		criteria.add(Restrictions.ne("bookStatus", ConstantString.ABANDON));
-		return criteria;
-
-	}
-	private Specification<Bookinfo> getBooks(String bookName, Boolean strictBookName, String bookISBN,
-			String bookAuthor, String bookPublisher) {
-		QueryUtil<Bookinfo> query =new QueryUtil<Bookinfo>(Bookinfo.class);
+		QueryUtil<Bookinfo> query = new QueryUtil<Bookinfo>();
 		if (!StringUtils.isBlank(bookName)) {
 			if (strictBookName != null && strictBookName == true) {
 				query.eq("bookName", bookName);
@@ -418,7 +397,8 @@ public class BookController {
 			if (isbns.length == 1) {
 				query.eq("isbn", bookISBN);
 			} else {
-//				criteria.add(Restrictions.in("isbn", isbns));
+				// criteria.add(Restrictions.in("isbn", isbns));
+				query.in("isbn", isbns);
 			}
 		}
 		// 模糊查询作者
@@ -430,46 +410,52 @@ public class BookController {
 		// 状态为废弃的不查询
 		query.ne("bookStatus", ConstantString.ABANDON);
 		return query.getSpecification();
-		
+
 	}
 
-//	public static Specification<Bookinfo> test(final String bookName, final Boolean strictBookName, final String bookISBN,
-//			final String bookAuthor, final String bookPublisher) {
-//		Specification<Bookinfo> sss = new Specification<Bookinfo>() {
-//
-//			@Override
-//			public Predicate toPredicate(Root<Bookinfo> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-//				List<Predicate> list = new ArrayList<Predicate>();
-//				if (!StringUtils.isBlank(bookName)) {
-//					if (strictBookName != null && strictBookName == true) {
-//						list.add(cb.equal(root.get("bookName").as(String.class), bookName));
-//					} else {
-//						list.add(cb.like(root.get("bookName").as(String.class), "%" + bookName + "%"));
-//					}
-//					// ISBN不为空则添加条件
-//					if (!StringUtils.isBlank(bookISBN)) {
-//						String[] isbns = bookISBN.split(",");
-//						if (isbns.length == 1) {
-//							list.add(cb.equal(root.get("isbn").as(String.class), bookISBN));
-//						} else {
-//							list.add(cb.equal(root.get("isbn").as(String.class), isbns));
-//						}
-//					}
-//					// 模糊查询作者
-//					if (!StringUtils.isBlank(bookAuthor))
-//						list.add(cb.like(root.get("bookAuthor").as(String.class), "%" + bookAuthor + "%"));
-//					if (!StringUtils.isBlank(bookPublisher)) {
-//						list.add(cb.equal(root.get("bookPublisher").as(String.class), bookPublisher));
-//					}
-//					// 状态为废弃的不查询
-//					list.add(cb.notEqual(root.get("bookStatus").as(String.class), ConstantString.ABANDON));
-//				}
-//
-//				Predicate[] prc = new Predicate[list.size()];
-//				query.where(cb.and(list.toArray(prc)));
-//				return query.getRestriction();
-//			}
-//		};
-//		return sss;
-//	}
+	// public static Specification<Bookinfo> test(final String bookName, final
+	// Boolean strictBookName, final String bookISBN,
+	// final String bookAuthor, final String bookPublisher) {
+	// Specification<Bookinfo> sss = new Specification<Bookinfo>() {
+	//
+	// @Override
+	// public Predicate toPredicate(Root<Bookinfo> root, CriteriaQuery<?> query,
+	// CriteriaBuilder cb) {
+	// List<Predicate> list = new ArrayList<Predicate>();
+	// if (!StringUtils.isBlank(bookName)) {
+	// if (strictBookName != null && strictBookName == true) {
+	// list.add(cb.equal(root.get("bookName").as(String.class), bookName));
+	// } else {
+	// list.add(cb.like(root.get("bookName").as(String.class), "%" + bookName +
+	// "%"));
+	// }
+	// // ISBN不为空则添加条件
+	// if (!StringUtils.isBlank(bookISBN)) {
+	// String[] isbns = bookISBN.split(",");
+	// if (isbns.length == 1) {
+	// list.add(cb.equal(root.get("isbn").as(String.class), bookISBN));
+	// } else {
+	// list.add(cb.equal(root.get("isbn").as(String.class), isbns));
+	// }
+	// }
+	// // 模糊查询作者
+	// if (!StringUtils.isBlank(bookAuthor))
+	// list.add(cb.like(root.get("bookAuthor").as(String.class), "%" +
+	// bookAuthor + "%"));
+	// if (!StringUtils.isBlank(bookPublisher)) {
+	// list.add(cb.equal(root.get("bookPublisher").as(String.class),
+	// bookPublisher));
+	// }
+	// // 状态为废弃的不查询
+	// list.add(cb.notEqual(root.get("bookStatus").as(String.class),
+	// ConstantString.ABANDON));
+	// }
+	//
+	// Predicate[] prc = new Predicate[list.size()];
+	// query.where(cb.and(list.toArray(prc)));
+	// return query.getRestriction();
+	// }
+	// };
+	// return sss;
+	// }
 }

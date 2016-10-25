@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.zis.bookinfo.bean.Bookinfo;
@@ -29,26 +30,22 @@ import com.zis.purchase.biz.DoPurchaseService;
  */
 @Controller
 @RequestMapping(value = "/purchase")
-public class TaobaoCsvDataExportControllerInwarehouseImpl extends
-		TaobaoCsvDataExportController {
+public class TaobaoCsvDataExportControllerInwarehouseImpl extends TaobaoCsvDataExportController {
 	// 已处理的记录，导出的时候判断重复项用
 	@Autowired
 	private DoPurchaseService doPurchaseService;
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(TaobaoCsvDataExportControllerInwarehouseImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(TaobaoCsvDataExportControllerInwarehouseImpl.class);
 
 	@RequestMapping(value = "/exportTaobaoItemDataByInwarehouse")
-	public String export(HttpServletRequest request) {
-		return super.export(request);
+	public String export(HttpServletRequest request, ModelMap map) {
+		return super.export(request, map);
 	}
 
 	@Override
-	protected List<BookInfoAndDetailDTO> queryBookInfoAndDetails(
-			HttpServletRequest request) {
+	protected List<BookInfoAndDetailDTO> queryBookInfoAndDetails(HttpServletRequest request) {
 		// 查询相关数据
-		String[] batchSelectedItemStr = request
-				.getParameterValues("batchSelectedItem");
+		String[] batchSelectedItemStr = request.getParameterValues("batchSelectedItem");
 		if (batchSelectedItemStr == null) {
 			throw new IllegalArgumentException("batchSelectedItem 数组为空");
 		}
@@ -62,11 +59,9 @@ public class TaobaoCsvDataExportControllerInwarehouseImpl extends
 		List<BookInfoAndDetailDTO> resultList = new ArrayList<BookInfoAndDetailDTO>();
 		List<String> uniqueIsbnDealt = new ArrayList<String>();
 		for (InwarehouseDetail record : inList) {
-			Bookinfo book = this.bookService.findNormalBookById(record
-					.getBookId());
+			Bookinfo book = this.bookService.findNormalBookById(record.getBookId());
 			if (book == null) {
-				throw new RuntimeException("没有找到对应图书，bookId="
-						+ record.getBookId());
+				throw new RuntimeException("没有找到对应图书，bookId=" + record.getBookId());
 			}
 
 			// 如果已经处理过，则跳过
@@ -78,20 +73,17 @@ public class TaobaoCsvDataExportControllerInwarehouseImpl extends
 			}
 
 			// 如果淘宝网已上架，则跳过
-			ShopItemInfo item = this.bookService
-					.findShopItemByBookIdAndShopName(
-							ShopItemInfoShopName.TB_ZAIJIAN, book.getId());
+			ShopItemInfo item = this.bookService.findShopItemByBookIdAndShopName(ShopItemInfoShopName.TB_ZAIJIAN,
+					book.getId());
 			if (item != null) {
 				continue;
 			}
 
-			BookinfoDetail detail = bookService.findBookInfoDetailByBookId(book
-					.getId());
+			BookinfoDetail detail = bookService.findBookInfoDetailByBookId(book.getId());
 			// 如果没有图书详情，则从网上采集
 			if (detail == null) {
 				try {
-					detail = bookService.captureBookInfoDetailFromNet(book
-							.getId());
+					detail = bookService.captureBookInfoDetailFromNet(book.getId());
 				} catch (Exception e) {
 					// 单条错误不能影响全部记录
 					logger.error("[数据采集] 采集过程中发生错误，bookId=", book.getId(), e);
@@ -102,8 +94,7 @@ public class TaobaoCsvDataExportControllerInwarehouseImpl extends
 				continue;
 			}
 			// 过滤淘宝黑名单记录
-			if (detail.getTaobaoForbidden() != null
-					&& detail.getTaobaoForbidden() == true) {
+			if (detail.getTaobaoForbidden() != null && detail.getTaobaoForbidden() == true) {
 				continue;
 			}
 
@@ -111,10 +102,8 @@ public class TaobaoCsvDataExportControllerInwarehouseImpl extends
 			BeanUtils.copyProperties(book, infoAndDetail);
 			BeanUtils.copyProperties(detail, infoAndDetail);
 			// 查询库存量
-			PurchasePlan plan = this.doPurchaseService
-					.findPurchasePlanByBookId(book.getId());
-			if (plan == null || plan.getStockAmount() == null
-					|| plan.getStockAmount() <= 0) {
+			PurchasePlan plan = this.doPurchaseService.findPurchasePlanByBookId(book.getId());
+			if (plan == null || plan.getStockAmount() == null || plan.getStockAmount() <= 0) {
 				continue; // 跳过没有库存的记录
 			}
 			if (plan != null) {
@@ -138,8 +127,7 @@ public class TaobaoCsvDataExportControllerInwarehouseImpl extends
 	 */
 	private String getUniqueIsbn(Bookinfo book) {
 		// 一码多书的，采用"条形码+bookId"作为唯一标识，正常的图书直接使用条形码
-		return book.getRepeatIsbn() ? book.getIsbn() + "-" + book.getId()
-				: book.getIsbn();
+		return book.getRepeatIsbn() ? book.getIsbn() + "-" + book.getId() : book.getIsbn();
 	}
 
 }

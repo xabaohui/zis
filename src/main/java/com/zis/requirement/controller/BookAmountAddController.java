@@ -6,11 +6,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 
 import org.apache.log4j.Logger;
-import org.apache.struts2.ServletActionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.zis.bookinfo.bean.Bookinfo;
@@ -19,6 +22,7 @@ import com.zis.requirement.bean.BookAmount;
 import com.zis.requirement.bean.Departmentinfo;
 import com.zis.requirement.biz.BookAmountService;
 import com.zis.requirement.biz.SchoolBiz;
+import com.zis.requirement.dto.AddAmountDTO;
 
 /**
  * 添加教材使用量
@@ -36,57 +40,42 @@ public class BookAmountAddController {
 	@Autowired
 	private SchoolBiz schoolBiz;
 
-	// private Integer grade;
-	// private Integer term;
-	// private Integer amount;
-	// private String operator;
-	// private Integer did;
-
-	// TODO 验证框架
-	// @Validations(
-	// // 学年学期不能为空
-	// requiredFields = { @RequiredFieldValidator(fieldName = "term", key =
-	// "学期不能为空") },
-	// // 学年学期区间
-	// intRangeFields = { @IntRangeFieldValidator(fieldName = "term", min = "1",
-	// max = "2", key = "学期在1和2之间") },
-	// // 学年学期只能填数字
-	// conversionErrorFields = {
-	// @ConversionErrorFieldValidator(fieldName = "amount", key = "数量只能填数字",
-	// shortCircuit = true),
-	// @ConversionErrorFieldValidator(fieldName = "term", key = "学期只能填数字",
-	// shortCircuit = true) })
 	// 添加教材使用量
 	@RequestMapping(value = "/addAmount")
-	public String addAmount(Integer did, Integer grade, Integer term, Integer amount, String operator) {
+	public String addAmount(@Valid @ModelAttribute("dto") AddAmountDTO dto, BindingResult br, ModelMap context,
+			HttpSession session) {
+		if(br.hasErrors()){
+			return "requirement/amountInfo";
+		}
+		Integer grade = dto.getGrade();
+		Integer term = dto.getTerm();
+		Integer amount = dto.getAmount();
+		String operator = dto.getOperator();
+		Integer did = dto.getDid();
 		// 参数检查
 		if (did <= 0) {
-			// TODO 验证框架
-			// this.addFieldError("schoolNotExist", "院校信息不存在");
+			// TODO 验证框架(处理方式使用modelMap,成功信息未actionMessage,错误信息用actionError)
+			context.put("actionError", "院校信息不存在");
 			return "error";
 		}
 		if (grade == null) {
-			// TODO 验证框架
-			// this.addFieldError("Error", "学年不能为空");
+			context.put("actionError", "学年不能为空");
 			return "error";
 		}
 		Departmentinfo di = schoolBiz.findDepartmentInfoById(did);
 		if (di == null) {
 			String errMsg = "后台添加教材使用量失败，院校不存在id=" + did;
 			logger.error(errMsg);
-			// TODO 验证框架
-			// this.addActionError(errMsg);
+			context.put("actionError", errMsg);
 			return "error";
 		}
 		// 从session中提取数据
-		HttpSession session = ServletActionContext.getRequest().getSession();
 		@SuppressWarnings("unchecked")
 		Map<Integer, Bookinfo> map = (Map<Integer, Bookinfo>) session.getAttribute("BookMap");
 		if (map == null) {
 			String errMsg = "未添加图书";
 			logger.error(errMsg);
-			// TODO 验证框架
-			// this.addActionError(errMsg);
+			context.put("actionError", errMsg);
 			return "error";
 		}
 
@@ -100,8 +89,7 @@ public class BookAmountAddController {
 			session.setAttribute("BookMap", null);
 		} catch (Exception e) {
 			logger.error("后台添加教材使用量失败", e);
-			// TODO 验证框架
-			// this.addActionError(e.getMessage());
+			context.put("actionError", e.getMessage());
 			return "error";
 		}
 		return "success";

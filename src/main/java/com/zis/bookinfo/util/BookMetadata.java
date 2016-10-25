@@ -3,11 +3,14 @@ package com.zis.bookinfo.util;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.directwebremoting.annotations.DataTransferObject;
+
 /**
  * 图书元数据，描述图书基本属性的所有字段
  * 
  * @author lvbin 2015-7-23
  */
+@DataTransferObject
 public class BookMetadata {
 
 	private String name;

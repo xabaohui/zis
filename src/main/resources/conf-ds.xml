@@ -64,4 +64,10 @@
 		
 	<!-- Hibernate对Jpa的实现 -->
     <bean id="hibernateJpaVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"/>
+    
+    <!-- 验证配置，告知srpingmvc，我使用的是Hibernate验证框架来完成的验证 -->
+	<bean id="validator"
+		class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
+		<property name="providerClass" value="org.hibernate.validator.HibernateValidator" />
+	</bean>
 </beans>

@@ -1,6 +1,10 @@
 package com.zis.purchase.controller;
 
 import org.apache.commons.lang3.StringUtils;
+import org.directwebremoting.annotations.RemoteMethod;
+import org.directwebremoting.annotations.RemoteProxy;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 
 import com.zis.purchase.biz.DoPurchaseService;
 import com.zis.purchase.dto.InwarehouseCreateDTO;
@@ -17,8 +21,11 @@ import com.zis.purchase.dto.InwarehouseDealtResult;
  * @author yz
  * 
  */
+@Controller
+@RemoteProxy(name = "inwarehouseBO")
 public class InwarehouseBOAction {
-
+	
+	@Autowired
 	private DoPurchaseService doPurchaseService;
 	
 	/**
@@ -50,6 +57,7 @@ public class InwarehouseBOAction {
 	 * @param amount
 	 *            入库数量
 	 */
+	@RemoteMethod
 	public InwarehouseDealtResult doInwarehouse(Integer inwarehouseId, String posLabel, Integer bookId,
 			Integer amount) {
 		try {
@@ -68,6 +76,7 @@ public class InwarehouseBOAction {
 	 * @param detailId
 	 * @return
 	 */
+	@RemoteMethod
 	public String deleteInwarehouseDetail(Integer detailId) {
 		try {
 			this.doPurchaseService.deleteInwarehouseDetail(detailId);
@@ -82,6 +91,7 @@ public class InwarehouseBOAction {
 	 * @param inwarehouseId
 	 * @return
 	 */
+	@RemoteMethod
 	public String deleteInwarehouse(Integer inwarehouseId) {
 		try {
 			this.doPurchaseService.deleteInwarehouse(inwarehouseId);
@@ -89,9 +99,5 @@ public class InwarehouseBOAction {
 		} catch (Exception e) {
 			return "操作失败," + e.getMessage();
 		}
-	}
-	
-	public void setDoPurchaseService(DoPurchaseService doPurchaseService) {
-		this.doPurchaseService = doPurchaseService;
 	}
 }

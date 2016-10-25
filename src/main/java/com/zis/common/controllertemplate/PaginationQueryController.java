@@ -5,10 +5,12 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
-import org.hibernate.criterion.DetachedCriteria;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.ui.ModelMap;
+
+import com.zis.common.mvc.ext.WebHelper;
 
 /**
  * 分页查询Action基类
@@ -24,36 +26,36 @@ public abstract class PaginationQueryController<T> {
 
 	// 传入跳转地址 错误地址
 	@SuppressWarnings("rawtypes")
-	public String executeQuery(ModelMap context, HttpServletRequest request, Page<T> pageList, Pageable page) {
-		if (pageList == null || page == null) {
+	public String executeQuery(ModelMap context, HttpServletRequest request) {
+		try {
+			doBeforeQuery(request);
+			Specification<T> spec = buildQueryCondition(request);
+			Pageable page = WebHelper.buildPageRequest(request);
+			Page<T> plist = buildPageList(spec, page);
+			// 分页查询
+			List<T> list = plist.getContent();
+			// 转换结果
+			List resultList = transformResult(list);
+			// 设置页面参数
+			context.put(setResultListLabel(), resultList);
+			context.put("actionUrl", setActionUrl(request));
+			context.put("queryCondition", setActionUrlQueryCondition(request));
+			context.put("page", page.getPageNumber());
+			if (plist.hasPrevious()) {
+				context.put("prePage", page.previousOrFirst().getPageNumber());
+			}
+			if (plist.hasNext()) {
+				context.put("nextPage", page.next().getPageNumber());
+			}
+			// 设置其他页面参数
+			doBeforeReturn(context, request);
+
+			return getSuccessPage(request);
+		} catch (Exception e) {
+			context.put("actionError", e.getMessage());
+			logger.error("查询临时导入记录时出错，" + e.getMessage(), e);
 			return getFailPage();
 		}
-		doBeforeQuery(request);
-		// 分页查询
-		List<T> list = pageList.getContent();
-		// 转换结果
-		List resultList = transformResult(list);
-		// 设置页面参数
-		context.put(setResultListLabel(), resultList);
-		context.put("actionUrl", setActionUrl(request));
-		context.put("queryCondition", setActionUrlQueryCondition(request));
-		context.put("page", page.getPageNumber());
-		if (pageList.hasPrevious()) {
-			context.put("prePage", page.previousOrFirst().getPageNumber());
-		}
-		if (pageList.hasNext()) {
-			context.put("nextPage", page.next().getPageNumber());
-		}
-		// 设置其他页面参数
-		doBeforeReturn(context, request);
-
-		return getSuccessPage(request);
-		// TODO 验证框架
-		// this.addActionError(e.getMessage());
-		// logger.error("查询临时导入记录时出错，" + e.getMessage(), e); // TODO 验证框架
-		// this.addActionError(e.getMessage());
-		// logger.error("查询临时导入记录时出错，" + e.getMessage(), e);
-
 	}
 
 	/**
@@ -115,6 +117,16 @@ public abstract class PaginationQueryController<T> {
 	 * 
 	 * @return
 	 */
-	protected abstract DetachedCriteria buildQueryCondition(HttpServletRequest request);
+	// protected abstract DetachedCriteria
+	// buildQueryCondition(HttpServletRequest request);
+	protected abstract Specification<T> buildQueryCondition(HttpServletRequest request);
 
+	/**
+	 * 获取子类传入的pagelist
+	 * 
+	 * @return
+	 */
+	// protected abstract DetachedCriteria
+	// buildQueryCondition(HttpServletRequest request);
+	protected abstract Page<T> buildPageList(Specification<T> spec, Pageable page);
 }

@@ -2,11 +2,16 @@ package com.zis.toolkit.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.zis.toolkit.dto.BatchReplaceBookNameDTO;
 import com.zis.toolkit.service.BookInfoToolkit;
 
 /**
@@ -27,11 +32,13 @@ public class BookNameReplaceController extends BaseBookFixController {
 	 * 
 	 * @return
 	 */
-	//TODO 验证框架
-//	@Validations(requiredStrings = { @RequiredStringValidator(fieldName = "orig", trim = true, key = "原始内容不能为空") })
-	@RequestMapping(value="/batchReplaceBookName")
-	public String batchReplaceBookName(ModelMap context, String orig, String replace) {
-		List<String> list = bookInfoToolkit.updateBatchReplaceBookName(orig, replace);
+	@RequestMapping(value = "/batchReplaceBookName")
+	public String batchReplaceBookName(@Valid @ModelAttribute("dto") BatchReplaceBookNameDTO dto, BindingResult br,
+			ModelMap context) {
+		if (br.hasErrors()) {
+			return "toolkit/toolkit";
+		}
+		List<String> list = bookInfoToolkit.updateBatchReplaceBookName(dto.getOrig(), dto.getReplace());
 		showResult(list, context);
 		return "toolkit/toolkit";
 	}

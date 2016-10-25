@@ -5,18 +5,17 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Order;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.zis.common.controllertemplate.PaginationQueryController;
-import com.zis.common.mvc.ext.WebHelper;
+import com.zis.common.mvc.ext.QueryUtil;
 import com.zis.requirement.bean.BookRequireImportTask;
 import com.zis.requirement.bean.BookRequireImportTaskStatus;
 import com.zis.requirement.biz.BookRequireImportBO;
@@ -30,17 +29,14 @@ import com.zis.requirement.dto.BookRequireImportTaskView;
  */
 @Controller
 @RequestMapping(value = "/requirement")
-public class BookRequireImportTaskViewAction extends PaginationQueryController<BookRequireImportTask> {
+public class BookRequireImportTaskViewController extends PaginationQueryController<BookRequireImportTask> {
 
 	@Autowired
 	private BookRequireImportBO bookRequireImportBO;
-	
+
 	@RequestMapping(value = "/viewBookRequireImportTask")
 	public String executeQuery(ModelMap context, HttpServletRequest request) {
-		//TODO 设置查询条件
-		Pageable page = WebHelper.buildPageRequest(request);
-		Page<BookRequireImportTask> pageList = this.bookRequireImportBO.findAllBookRequireImportTask(page);
-		return super.executeQuery(context, request, pageList, page);
+		return super.executeQuery(context, request);
 	}
 
 	@Override
@@ -54,10 +50,10 @@ public class BookRequireImportTaskViewAction extends PaginationQueryController<B
 	}
 
 	@Override
-	protected DetachedCriteria buildQueryCondition(HttpServletRequest request) {
-		DetachedCriteria criteria = DetachedCriteria.forClass(BookRequireImportTask.class);
-		criteria.addOrder(Order.desc("gmtCreate"));
-		return criteria;
+	protected Specification<BookRequireImportTask> buildQueryCondition(HttpServletRequest request) {
+		QueryUtil<BookRequireImportTask> query = new QueryUtil<BookRequireImportTask>();
+		query.desc("gmtCreate");
+		return query.getSpecification();
 	}
 
 	@Override
@@ -80,6 +76,11 @@ public class BookRequireImportTaskViewAction extends PaginationQueryController<B
 	@Override
 	protected String getSuccessPage(HttpServletRequest request) {
 		return "requirement/bookRequireImportTaskList";
+	}
+
+	@Override
+	protected Page<BookRequireImportTask> buildPageList(Specification<BookRequireImportTask> spec, Pageable page) {
+		return this.bookRequireImportBO.findAllBookRequireImportTaskBySpecPage(spec, page);
 	}
 
 }

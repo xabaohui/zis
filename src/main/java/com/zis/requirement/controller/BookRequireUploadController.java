@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,19 +26,20 @@ import com.zis.requirement.dto.BookRequireUploadDTO;
 @RequestMapping(value = "/requirement")
 public class BookRequireUploadController extends CommonImportController<BookRequireUploadDTO> {
 
-	// TODO 验证框架
+	// TODO 验证框架 这里没有college， operator， 
 	// @Validations(requiredFields = {
 	// @RequiredFieldValidator(fieldName = "excelFile", key = "文件必须输入"),
 	// @RequiredFieldValidator(fieldName = "college", key = "操作员必须输入"),
 	// @RequiredFieldValidator(fieldName = "operator", key = "操作员必须输入"),
 	// @RequiredFieldValidator(fieldName = "memo", key = "操作备注必须输入"), })
 	@RequestMapping(value = "/uploadBookRequirement")
-	public String upload(@RequestParam MultipartFile excelFile, String memo) {
+	public String upload(@RequestParam MultipartFile excelFile, String memo, ModelMap map) {
 		try {
 			InputStream fileInputStream = excelFile.getInputStream();
-			return super.upload(fileInputStream, memo);
+			return super.upload(fileInputStream, memo, map);
 		} catch (IOException e) {
 			e.printStackTrace();
+			map.put("actionError", "传入文件为空");
 			return getFailPage();
 		}
 

@@ -22,8 +22,7 @@
 
 <!-- 播放器 -->
 <div style="display:none">
-	<embed src="/zis/resources/scanPass.wav" autoplay="false" Volume="100"
-		id="passVoice">
+	<embed src="/zis/resources/scanPass.wav" autoplay="false" Volume="100" id="passVoice">
 </div>
 
 <div align="center">
@@ -31,8 +30,7 @@
 	<table>
 		<tr>
 			<td></td>
-			<td><input type="button" value="清空" onclick="clearSession()" />
-			</td>
+			<td><input type="button" value="清空" onclick="clearSession()" /></td>
 		</tr>
 	</table>
 	<p />
@@ -40,8 +38,7 @@
 		ISBN<input type="text" name="isbn" id="userInput" />
 	</p>
 	<p />
-	<div id="lastScanResult"
-		style="font-size:35px;color:green;font-weight:bold;font-family:楷体">相关库位</div>
+	<div id="lastScanResult" style="font-size:35px;color:green;font-weight:bold;font-family:楷体">相关库位</div>
 </div>
 
 <div id="bg-to-be-hidden"></div>

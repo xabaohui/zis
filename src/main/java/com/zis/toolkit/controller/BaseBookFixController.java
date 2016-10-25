@@ -10,8 +10,7 @@ public abstract class BaseBookFixController {
 	private Integer maxShowCount = 20;
 
 	protected void showResult(List<String> list, ModelMap context) {
-		// TODO 验证框架
-		// this.addActionMessage("成功处理记录条数：" + list.size());
+		context.put("actionMessage", "成功处理记录条数：" + list.size());
 		Integer max = list.size() > maxShowCount ? maxShowCount : list.size();
 		context.put("showResult", list.subList(0, max));
 	}

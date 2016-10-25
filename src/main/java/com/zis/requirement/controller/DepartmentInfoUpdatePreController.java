@@ -16,22 +16,21 @@ public class DepartmentInfoUpdatePreController {
 	private SchoolBiz schoolBiz;
 
 	// 修改院校信息的回显操作
-	@RequestMapping(value="/updateSchoolPre")
+	@RequestMapping(value = "/updateSchoolPre")
 	public String getInfo(Integer id, ModelMap ctx) {
-		if (id == null){
+		if (id == null) {
 			return "requirement/addSchoolInfo";
-		}else {
+		} else {
 			Departmentinfo dmi = schoolBiz.findDepartmentInfoById(id);
-			if (dmi != null){
+			if (dmi != null) {
 				ctx.put("id", id);
 				ctx.put("college", dmi.getCollege());
 				ctx.put("institute", dmi.getInstitute());
 				ctx.put("partName", dmi.getPartName());
 				ctx.put("years", dmi.getYears());
 				return "requirement/addSchoolInfo";
-			}else {
-				//TODO 验证框架
-//				this.addActionError("院校信息不存在");
+			} else {
+				ctx.put("actionError", "院校信息不存在");
 				return "error";
 			}
 		}

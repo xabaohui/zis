@@ -47,29 +47,25 @@
 			<td></td>
 			<td>
 				<form action="purchase/terminateInwarehouse">
-					<input type="hidden" name="curPosition" id="curPosition"
-						value="${curPosition}"> <input type="hidden"
-						name="bookinfoStr" id="bookinfoStr" value="${bookinfoStr}">
-					<input type="hidden" name="inwarehouseId" id="inwarehouseId"
-						value="${inwarehouseId}"> <input type="submit" value="完成">
+					<input type="hidden" name="curPosition" id="curPosition" value="${curPosition}">
+					<input type="hidden"name="bookinfoStr" id="bookinfoStr" value="${bookinfoStr}">
+					<input type="hidden" name="inwarehouseId" id="inwarehouseId" value="${inwarehouseId}">
+					<input type="submit" value="完成">
 				</form></td>
 		</tr>
 	</table>
 	<p />
-	<div id="currentPosDisplay"
-		style="font-size:50px;color:green;font-weight:bold;font-family:楷体">当前库位
-		${stockPosLabel[0]}  已入库 ${inwarehouse.amount} 个</div>
+	<div id="currentPosDisplay" style="font-size:50px;color:green;font-weight:bold;font-family:楷体">
+		当前库位 ${stockPosLabel[0]}  已入库 ${inwarehouse.amount} 个
+	</div>
 	<table>
 		<tr>
 			<td>数量</td>
-			<td><input type="text" name="amount" id="userInputAmount"
-				value="1" size="1">
-			</td>
+			<td><input type="text" name="amount" id="userInputAmount" value="1" size="1"></td>
 		</tr>
 		<tr>
 			<td>ISBN</td>
-			<td><input type="text" name="isbn" id="userInput" value="${userInput}" >
-			</td>
+			<td><input type="text" name="isbn" id="userInput" value="${userInput}" ></td>
 		</tr>
 	</table>
 	<p />

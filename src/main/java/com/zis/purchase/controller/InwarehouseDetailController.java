@@ -6,12 +6,11 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.service.BookService;
 import com.zis.common.controllertemplate.PaginationQueryController;
-import com.zis.common.mvc.ext.WebHelper;
+import com.zis.common.mvc.ext.QueryUtil;
 import com.zis.purchase.bean.InwarehouseDetail;
 import com.zis.purchase.biz.DoPurchaseService;
 import com.zis.purchase.dto.InwarehouseDetailView;
@@ -33,8 +32,7 @@ import com.zis.purchase.dto.InwarehouseView;
  */
 @Controller
 @RequestMapping(value = "/purchase")
-public class InwarehouseDetailController extends
-		PaginationQueryController<InwarehouseDetail> {
+public class InwarehouseDetailController extends PaginationQueryController<InwarehouseDetail> {
 
 	/**
 	 * 
@@ -46,10 +44,7 @@ public class InwarehouseDetailController extends
 
 	@RequestMapping(value = "/viewInwarehouseDetail")
 	public String executeQuery(ModelMap context, HttpServletRequest request) {
-		//TODO 设置查询条件
-		Pageable page = WebHelper.buildPageRequest(request);
-		Page<InwarehouseDetail> pageList =this.doPurchaseService.findAllInwarehouseDetail(page);
-		return super.executeQuery(context, request, pageList, page);
+		return super.executeQuery(context, request);
 	}
 
 	@Override
@@ -81,26 +76,24 @@ public class InwarehouseDetailController extends
 	@Override
 	protected void doBeforeReturn(ModelMap context, HttpServletRequest request) {
 		String idStr = request.getParameter("inwarehouseId");
-		if(StringUtils.isBlank(idStr)) {
+		if (StringUtils.isBlank(idStr)) {
 			throw new IllegalArgumentException("inwarehouseId is null");
 		}
 		Integer inwarehouseId = Integer.parseInt(idStr);
-		InwarehouseView view = this.doPurchaseService
-				.findInwarehouseViewById(inwarehouseId);
+		InwarehouseView view = this.doPurchaseService.findInwarehouseViewById(inwarehouseId);
 		context.put("inwarehouse", view);
 	}
 
 	@Override
-	protected DetachedCriteria buildQueryCondition(HttpServletRequest request) {
+	protected Specification<InwarehouseDetail> buildQueryCondition(HttpServletRequest request) {
+		QueryUtil<InwarehouseDetail> query = new QueryUtil<InwarehouseDetail>();
 		String idStr = request.getParameter("inwarehouseId");
-		if(StringUtils.isBlank(idStr)) {
+		if (StringUtils.isBlank(idStr)) {
 			throw new IllegalArgumentException("inwarehouseId is null");
 		}
 		Integer inwarehouseId = Integer.parseInt(idStr);
-		DetachedCriteria criteria = DetachedCriteria
-				.forClass(InwarehouseDetail.class);
-		criteria.add(Restrictions.eq("inwarehouseId", inwarehouseId));
-		return criteria;
+		query.eq("inwarehouseId", inwarehouseId);
+		return query.getSpecification();
 	}
 
 	@Override
@@ -111,5 +104,10 @@ public class InwarehouseDetailController extends
 	@Override
 	protected String getSuccessPage(HttpServletRequest request) {
 		return "purchase/inwarehouseDetail";
+	}
+
+	@Override
+	protected Page<InwarehouseDetail> buildPageList(Specification<InwarehouseDetail> spec, Pageable page) {
+		return this.doPurchaseService.findInwarehouseDetailBySpecPage(spec, page);
 	}
 }

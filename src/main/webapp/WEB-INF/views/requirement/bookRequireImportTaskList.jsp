@@ -22,9 +22,7 @@
 			<td>${task.operator}</td>
 			<td>${task.memo}</td>
 			<td>
-				<a href="requirement/viewBookRequireImportDetailForMatched?status=<%=BookRequireImportDetailStatus.BOOK_NOT_MATCHED%>&taskId=${task.id}">
-				${task.totalCount}
-				</a>
+				<a href="requirement/viewBookRequireImportDetailForMatched?status=<%=BookRequireImportDetailStatus.BOOK_NOT_MATCHED%>&taskId=${task.id}">${task.totalCount}</a>
 			</td>
 			<td>${task.statusDisplay}</td>
 		</tr>

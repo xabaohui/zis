@@ -13,18 +13,15 @@
 
 <%-- 记住这里需要设置enctype="multipart/form-data"--%>
 <h2>批量导入教材使用量</h2>
-<form action="requirement/importRequirement" method="post"
-	enctype="multipart/form-data">
+<form action="requirement/importRequirement" method="post" enctype="multipart/form-data">
 	<table>
 		<tr>
 			<td>导入Excel文件</td>
-			<td><input type="file" name="excelFile" id="excelFile" required="required" />
-			</td>
+			<td><input type="file" name="excelFile" id="excelFile" required="required" /></td>
 		</tr>
 		<tr>
 			<td colspan="2"></td>
-			<td><input type="submit" value="导入" onclick="showShadow();"/>
-			</td>
+			<td><input type="submit" value="导入" onclick="showShadow();"/></td>
 		</tr>
 	</table>
 </form>

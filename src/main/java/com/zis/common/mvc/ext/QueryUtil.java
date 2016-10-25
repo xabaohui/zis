@@ -1,8 +1,7 @@
 package com.zis.common.mvc.ext;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -11,28 +10,80 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.domain.Specification;
 
 public class QueryUtil<T> {
 
-	List<T> Classlist = new ArrayList<T>();
-	List<String> conditionList = new ArrayList<String>();
-	Class<T> entityClass;
+	private final Logger logger = LoggerFactory.getLogger(QueryUtil.class);
 
-	public QueryUtil(Class<T> entityClass) {
-		this.entityClass = entityClass;
-	}
+	private final String EQ = "eq";
+	private final String LIKE = "like";
+	private final String NE = "ne";
+	private final String IN = "in";
+	private final String LT = "lt";
+	private final String GE = "ge";
+	private final String LE = "le";
+	private final String BETWEEN = "between";
+	private final String GROUP = "group";
+
+	private List<Condition> conditions = new ArrayList<QueryUtil.Condition>();
+	private List<Order> orderList = new ArrayList<QueryUtil.Order>();
 
 	public QueryUtil<T> eq(String name, Object value) {
-		return savePList(name, value, "eq");
+		conditions.add(new Condition(EQ, name, value));
+		return this;
 	}
 
 	public QueryUtil<T> like(String name, Object value) {
-		return savePList(name, value, "like");
+		conditions.add(new Condition(LIKE, name, value));
+		return this;
 	}
 
 	public QueryUtil<T> ne(String name, Object value) {
-		return savePList(name, value, "ne");
+		conditions.add(new Condition(NE, name, value));
+		return this;
+	}
+
+	public QueryUtil<T> in(String name, Object value) {
+		conditions.add(new Condition(IN, name, value));
+		return this;
+	}
+
+	public QueryUtil<T> lt(String name, Object value) {
+		conditions.add(new Condition(LT, name, value));
+		return this;
+	}
+
+	public QueryUtil<T> ge(String name, Object value) {
+		conditions.add(new Condition(GE, name, value));
+		return this;
+	}
+
+	public QueryUtil<T> le(String name, Object value) {
+		conditions.add(new Condition(LE, name, value));
+		return this;
+	}
+
+	public QueryUtil<T> between(String name, Object max, Object min) {
+		conditions.add(new Condition(BETWEEN, name, max, min));
+		return this;
+	}
+
+	public QueryUtil<T> asc(String name) {
+		orderList.add(new Order(name, true));
+		return this;
+	}
+
+	public QueryUtil<T> desc(String name) {
+		orderList.add(new Order(name, false));
+		return this;
+	}
+
+	public QueryUtil<T> groupBy(String name) {
+		conditions.add(new Condition(GROUP, name));
+		return this;
 	}
 
 	/**
@@ -43,114 +94,123 @@ public class QueryUtil<T> {
 	public Specification<T> getSpecification() {
 		return new Specification<T>() {
 
+			@SuppressWarnings({ "rawtypes", "unchecked" })
 			@Override
 			public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-				final Integer size = Classlist.size();
-				Predicate[] ps = new Predicate[size];
-				for (int i = 0; i < size; i++) {
-					if ("eq".equals(conditionList.get(i))) {
-						Path<String> p = root.get(getName(i));
-						ps[i] = cb.equal(p, getValue(i));
+				List<String> groupNames = null;
+				List<Predicate> psList = new ArrayList<Predicate>();
+				for (Condition c : conditions) {
+					if (EQ.equals(c.condition)) {
+						Path<String> p = root.get(c.name);
+						psList.add(cb.equal(p, c.vals[0]));
 					}
-					if ("like".equals(conditionList.get(i))) {
-						String likeName = getValue(i).toString();
-						Path<String> p = root.get(getName(i));
-						ps[i] = cb.like(p, likeName);
+
+					if (LIKE.equals(c.condition)) {
+						String likeName = c.vals[0].toString();
+						Path<String> p = root.get(c.name);
+						psList.add(cb.like(p, likeName));
 					}
-					if ("ne".equals(conditionList.get(i))) {
-						Path<String> p = root.get(getName(i));
-						ps[i] = cb.notEqual(p, getValue(i));
+
+					if (NE.equals(c.condition)) {
+						Path<String> p = root.get(c.name);
+						psList.add(cb.notEqual(p, c.vals[0]));
+					}
+
+					if (LT.equals(c.condition)) {
+						Object value = c.vals[0];
+						Path<String> p = root.get(c.name);
+						if (value instanceof Date) {
+							psList.add(cb.lessThan(p.as(Date.class), (Date) value));
+						} else if (value instanceof String) {
+							psList.add(cb.lessThan(p.as(String.class), value.toString()));
+						} else {
+							psList.add(cb.lt(p.as(Number.class), (Number) value));
+						}
+					}
+
+					if (IN.equals(c.condition)) {
+						psList.add(root.get(c.name).in(c.vals));
+					}
+
+					if (BETWEEN.equals(c.condition)) {
+						Path p = root.get(c.name);
+						Object max = c.vals[0];
+						Object min = c.vals[1];
+						psList.add(cb.between(p.as(Comparable.class), (Comparable) max, (Comparable) min));
+					}
+
+					if (GE.equals(c.condition)) {
+						Object value = c.vals[0];
+						Path<String> p = root.get(c.name);
+						if (value instanceof Date) {
+							psList.add(cb.greaterThanOrEqualTo(p.as(Date.class), (Date) value));
+						} else if (value instanceof String) {
+							psList.add(cb.greaterThanOrEqualTo(p.as(String.class), value.toString()));
+						} else {
+							psList.add(cb.ge(p.as(Number.class), (Number) value));
+						}
+					}
+
+					if (LE.equals(c.condition)) {
+						Object value = c.vals[0];
+						Path<String> p = root.get(c.name);
+						psList.add(cb.le(p.as(Number.class), (Number) value));
+					}
+
+					if (GROUP.equals(c.condition)) {
+						String name = c.name;
+						if (groupNames == null) {
+							groupNames = new ArrayList<String>();
+						}
+						groupNames.add(name);
+					}
+
+				}
+				Predicate[] ps = new Predicate[psList.size()];
+				query.where(psList.toArray(ps));
+
+				for (Order order : orderList) {
+					String orderName = order.name;
+					if (order.asc) {
+						query.orderBy(cb.asc(root.get(orderName)));
+					} else {
+						query.orderBy(cb.desc(root.get(orderName)));
 					}
 				}
-				return cb.and(ps);
+
+				// 判断集合groupNames是否为空如果不为空则添加group条件
+				if (groupNames != null && !groupNames.isEmpty()) {
+					for (String s : groupNames) {
+						query.groupBy(root.get(s));
+					}
+				}
+				return query.getRestriction();
 			}
 		};
 	}
 
-	/**
-	 * 获取集合中属性不为空的值
-	 * 
-	 * @param i
-	 * @return
-	 */
-	private Object getValue(Integer i) {
-		Object value = null;
-		Method[] mode = Classlist.get(i).getClass().getMethods();
-		for (Method method : mode) {
-			if (method.getName().startsWith("get") && !"getClass".equals(method.getName())) {
-				try {
-					if (method.invoke(Classlist.get(i)) != null) {
-						value = method.invoke(Classlist.get(i));
-						return value;
-					}
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
-					e.printStackTrace();
-				}
-			}
+	public static class Condition {
+
+		private String name;
+		private Object[] vals;
+		private String condition;
+
+		public Condition(String condition, String name, Object... vals) {
+			this.name = name;
+			this.vals = vals;
+			this.condition = condition;
 		}
-		return value;
 	}
 
-	/**
-	 * 获取类中属性不为空的名称
-	 * 
-	 * @param i
-	 * @return
-	 */
-	private String getName(Integer i) {
-		String fieldName = null;
-		Method[] mode = Classlist.get(i).getClass().getMethods();
-		for (Method method : mode) {
-			if (method.getName().startsWith("get") && !"getClass".equals(method.getName())) {
-				try {
-					if (method.invoke(Classlist.get(i)) != null) {
-						String methodName = method.getName().substring(3);
-						fieldName = new StringBuilder().append(Character.toLowerCase(methodName.charAt(0)))
-								.append(methodName.substring(1)).toString();
-						return fieldName;
-					}
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return fieldName;
-	}
+	public static class Order {
 
-	/**
-	 * 存储集合的方式通过反射获取 对应的对象进入
-	 * 
-	 * @param name
-	 * @param value
-	 * @param condition
-	 * @return
-	 */
-	private QueryUtil<T> savePList(String name, Object value, String condition) {
-		try {
-			T newEntity = entityClass.newInstance();
-			Method[] entityMethod = newEntity.getClass().getMethods();
-			for (Method method : entityMethod) {
-				String methodName = method.getName();
-				if (methodName.startsWith("set")) {
-					String methodSetName = method.getName().substring(3);
-					if (methodSetName.equalsIgnoreCase(name)) {
-						method.invoke(newEntity, value);
-					}
-				}
-			}
-			conditionList.add(condition);
-			Classlist.add(newEntity);
-		} catch (Exception e) {
-			e.printStackTrace();
+		private String name;
+		private boolean asc;
+
+		public Order(String name, boolean asc) {
+			super();
+			this.name = name;
+			this.asc = asc;
 		}
-		return this;
 	}
 }

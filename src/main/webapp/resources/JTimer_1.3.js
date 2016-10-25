@@ -195,7 +195,7 @@ var JTC = (function () {
         },
 
         isLeapYear: function (year) {   //是否为闰年
-            return (0 == year % 4 && ((year % 100 != 0) || (year % 400 == 0)))
+            return (0 == year % 4 && ((year % 100 != 0) || (year % 400 == 0)));
         },
 
         getMonthCount: function (yy, mm) {
@@ -554,7 +554,7 @@ var JTC = (function () {
             maxTop = minTop + 190;
 
             var scrol = util.getScrollPos();
-            var mouse = util.getCoords(ev)
+            var mouse = util.getCoords(ev);
             var x = scrol.x + mouse.x;
             var y = scrol.y + mouse.y;
             if (ymFlag == 1) {
@@ -740,6 +740,6 @@ var JTC = (function () {
 
     JTC.setStartDay = function (date) {
         config.startDay = util.setDate(date);
-    }
+    };
     return JTC;
 })();

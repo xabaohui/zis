@@ -5,19 +5,17 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.zis.common.controllertemplate.PaginationQueryController;
-import com.zis.common.mvc.ext.WebHelper;
+import com.zis.common.mvc.ext.QueryUtil;
 import com.zis.purchase.bean.Inwarehouse;
 import com.zis.purchase.bean.InwarehouseBizType;
 import com.zis.purchase.bean.InwarehouseStatus;
@@ -39,10 +37,9 @@ public class InwarehouseViewController extends PaginationQueryController<Inwareh
 
 	@RequestMapping(value = "/viewInwarehouseList")
 	public String executeQuery(ModelMap context, HttpServletRequest request) {
-		//TODO 设置查询条件
-		Pageable page = WebHelper.buildPageRequest(request);
-		Page<Inwarehouse> pageList = this.doPurchaseService.findAllInwarehouse(page);
-		return super.executeQuery(context, request, pageList, page);
+		request.setAttribute("sort", new String[] { "gmtCreate" });
+		System.out.println(request.getParameterValues("sort"));
+		return super.executeQuery(context, request);
 	}
 
 	@Override
@@ -56,11 +53,15 @@ public class InwarehouseViewController extends PaginationQueryController<Inwareh
 	}
 
 	@Override
-	protected DetachedCriteria buildQueryCondition(HttpServletRequest request) {
-		DetachedCriteria criteria = DetachedCriteria.forClass(Inwarehouse.class);
-		criteria.add(Restrictions.ne("status", InwarehouseStatus.CANCEL));
-		criteria.addOrder(Order.desc("gmtCreate"));
-		return criteria;
+	protected Specification<Inwarehouse> buildQueryCondition(HttpServletRequest request) {
+		QueryUtil<Inwarehouse> query = new QueryUtil<Inwarehouse>();
+		query.ne("status", InwarehouseStatus.CANCEL);
+		query.desc("gmtCreate");
+		// DetachedCriteria criteria =
+		// DetachedCriteria.forClass(Inwarehouse.class);
+		// criteria.add(Restrictions.ne("status", InwarehouseStatus.CANCEL));
+		// criteria.addOrder(Order.desc("gmtCreate"));
+		return query.getSpecification();
 	}
 
 	@SuppressWarnings({ "rawtypes" })
@@ -85,6 +86,11 @@ public class InwarehouseViewController extends PaginationQueryController<Inwareh
 	@Override
 	protected String getSuccessPage(HttpServletRequest request) {
 		return "purchase/inwarehouseList";
+	}
+
+	@Override
+	protected Page<Inwarehouse> buildPageList(Specification<Inwarehouse> spec, Pageable page) {
+		return this.doPurchaseService.findInwarehouseBySpecPage(spec, page);
 	}
 
 }

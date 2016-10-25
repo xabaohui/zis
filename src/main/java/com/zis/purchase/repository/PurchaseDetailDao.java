@@ -2,6 +2,7 @@ package com.zis.purchase.repository;
 
 import java.util.List;
 
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
@@ -9,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import com.zis.purchase.bean.PurchaseDetail;
 import com.zis.purchase.bean.PurchaseDetailStatus;
 
-public interface PurchaseDetailDao extends PagingAndSortingRepository<PurchaseDetail, Integer> {
+public interface PurchaseDetailDao extends PagingAndSortingRepository<PurchaseDetail, Integer>, JpaSpecificationExecutor<PurchaseDetail> {
 	
 	/**
 	 * 计算特定图书在途数量总和

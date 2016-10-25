@@ -1,11 +1,14 @@
 package com.zis.purchase.dto;
 
+import org.directwebremoting.annotations.DataTransferObject;
+
 /**
  * 入库操作结果
  * 
  * @author yz
  * 
  */
+@DataTransferObject
 public class InwarehouseDealtResult {
 
 	private boolean success;

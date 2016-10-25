@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.service.BookService;
+import com.zis.common.mvc.ext.QueryUtil;
 import com.zis.common.util.ZisUtils;
 import com.zis.requirement.bean.BookRequireImportDetail;
 import com.zis.requirement.bean.BookRequireImportDetailStatus;
@@ -118,15 +118,26 @@ public class BookRequireImportBO {
 					|| StringUtils.isBlank(detail.getBookEdition()) || StringUtils.isBlank(detail.getBookPublisher())) {
 				continue;
 			}
-			DetachedCriteria criteria = DetachedCriteria.forClass(Bookinfo.class);
-			criteria.add(Restrictions.eq("bookName", detail.getBookName()));
-			criteria.add(Restrictions.eq("bookAuthor", detail.getBookAuthor()));
-			criteria.add(Restrictions.eq("bookEdition", detail.getBookEdition()));
-			criteria.add(Restrictions.eq("bookPublisher", detail.getBookPublisher()));
+			QueryUtil<Bookinfo> query = new QueryUtil<Bookinfo>();
+			query.eq("bookName", detail.getBookName());
+			query.eq("bookAuthor", detail.getBookAuthor());
+			query.eq("bookEdition", detail.getBookEdition());
+			query.eq("bookPublisher", detail.getBookPublisher());
+			// DetachedCriteria criteria =
+			// DetachedCriteria.forClass(Bookinfo.class);
+			// criteria.add(Restrictions.eq("bookName", detail.getBookName()));
+			// criteria.add(Restrictions.eq("bookAuthor",
+			// detail.getBookAuthor()));
+			// criteria.add(Restrictions.eq("bookEdition",
+			// detail.getBookEdition()));
+			// criteria.add(Restrictions.eq("bookPublisher",
+			// detail.getBookPublisher()));
 			if (StringUtils.isNotBlank(detail.getIsbn())) {
-				criteria.add(Restrictions.eq("isbn", detail.getIsbn()));
+				// criteria.add(Restrictions.eq("isbn", detail.getIsbn()));
+				query.eq("isbn", detail.getIsbn());
 			}
-			List<Bookinfo> bookList = this.bookService.findBookByCriteria(criteria);
+			Specification<Bookinfo> spec = query.getSpecification();
+			List<Bookinfo> bookList = this.bookService.findBySpecificationAll(spec);
 			if (bookList != null && bookList.size() == 1) {
 				doMatchBook(detail, bookList.get(0).getId());
 			}
@@ -157,6 +168,18 @@ public class BookRequireImportBO {
 	}
 
 	/**
+	 * 分页查询所有(带条件) BookRequireImportDetail 对象
+	 * 
+	 * @param spec
+	 * @param page
+	 * @return
+	 */
+	public Page<BookRequireImportDetail> findAllBookRequireImportDetailBySpecPage(
+			Specification<BookRequireImportDetail> spec, Pageable page) {
+		return this.bookRequireImportDetailDao.findAll(spec, page);
+	}
+
+	/**
 	 * 分页查询所有 BookRequireImportTask 对象
 	 * 
 	 * @param page
@@ -164,5 +187,17 @@ public class BookRequireImportBO {
 	 */
 	public Page<BookRequireImportTask> findAllBookRequireImportTask(Pageable page) {
 		return this.bookRequireImportTaskDao.findAll(page);
+	}
+
+	/**
+	 * 分页查询所有(带条件) BookRequireImportTask 对象
+	 * 
+	 * @param spec
+	 * @param page
+	 * @return
+	 */
+	public Page<BookRequireImportTask> findAllBookRequireImportTaskBySpecPage(
+			Specification<BookRequireImportTask> spec, Pageable page) {
+		return this.bookRequireImportTaskDao.findAll(spec, page);
 	}
 }

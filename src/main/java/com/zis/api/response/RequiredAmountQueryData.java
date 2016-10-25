@@ -10,7 +10,7 @@ public class RequiredAmountQueryData {
 	private String bookAuthor;
 	private String bookPublisher;
 	private String bookEdition;
-	private String memo = "";// XXX 测试数据，待清理
+	private String memo = "";
 
 	public String getBookName() {
 		return bookName;

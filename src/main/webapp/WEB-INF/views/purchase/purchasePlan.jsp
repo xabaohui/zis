@@ -25,29 +25,23 @@ function showOperate(bookId) {
 			</tr>
 			<tr>
 				<td>书名</td>
-				<td>
-				<input type="text" name="bookName" value="${bookName}"><input type="checkbox" name="strictBookName" value="true"/>精确匹配
-				</td>
+				<td><input type="text" name="bookName" value="${bookName}"><input type="checkbox" name="strictBookName" value="true"/>精确匹配</td>
 			</tr>
 			<tr>
 				<td>作者</td>
-				<td><input type="text" name="bookAuthor" value="${bookAuthor}">
+				<td><input type="text" name="bookAuthor" value="${bookAuthor}"></td>
 			</tr>
 			<tr>
 				<td>出版社</td>
-				<td><input type="text" name="bookPublisher" value="${bookPublisher}">
-				</td>
+				<td><input type="text" name="bookPublisher" value="${bookPublisher}"></td>
 			</tr>
 			<tr>
 				<td>计划量</td>
-				
-				<td><input type="text" name="minPlanAmount" value="${minPlanAmount}" size="4">&nbsp;到&nbsp;<input type="text" name="maxPlanAmount" value="${maxPlanAmount}" size="4">
-				</td>
+				<td><input type="text" name="minPlanAmount" value="${minPlanAmount}" size="4">&nbsp;到&nbsp;<input type="text" name="maxPlanAmount" value="${maxPlanAmount}" size="4"></td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
-				<td align="right">
-				<input type="submit" value="查询">&nbsp;&nbsp;<input type="reset" value="清除条件"></td>
+				<td align="right"><input type="submit" value="查询">&nbsp;&nbsp;<input type="reset" value="清除条件"></td>
 			</tr>
 		</table>
 	</form>
@@ -69,16 +63,16 @@ function showOperate(bookId) {
 		<c:forEach items="${resultList}" var="purchasedPlan">
 			<tr>
 				<td>
-					<a href="bookinfo/getAllBooks?bookISBN=${purchasedPlan.isbn}" target="_blank">
+					<a href="bookInfo/getAllBooks?bookISBN=${purchasedPlan.isbn}" target="_blank">
 					${purchasedPlan.isbn}
 					</a>
-					<c:if test="${purchasedPlan.repeatIsbn} == true">
+					<c:if test="${purchasedPlan.repeatIsbn eq true}">
 						<br /><font style="font-weight:bold;color:red">[多]</font>
 					</c:if>
-					<c:if test="${purchasedPlan.flag} == 'black'">
+					<c:if test="${purchasedPlan.flag eq 'black'}">
 						[黑]
 					</c:if>
-					<c:if test="${purchasedPlan.flag} == 'white'">
+					<c:if test="${purchasedPlan.flag eq 'white'}">
 						[白]
 					</c:if>
 				</td>
@@ -86,41 +80,36 @@ function showOperate(bookId) {
 				 	[<a href="https://s.taobao.com/search?q=${purchasedPlan.isbn}" target="_blank">淘</a>]
 				 	[<a href="http://search.dangdang.com/?key=${purchasedPlan.isbn}" target="_blank">当</a>]
 				</td>
-				<td>${purchasedPlan.bookAuthor}
-				</td>
+				<td>${purchasedPlan.bookAuthor}</td>
 				<td>${purchasedPlan.bookEdition}
-				<c:if test="${purchasedPlan.isNewEdition} == true">
-					<div style="color:green;font-weight:bold">[最新]</div>
-				</c:if>
+					<c:if test="${purchasedPlan.isNewEdition eq true}">
+						<div style="color:green;font-weight:bold">[最新]</div>
+					</c:if>
 				</td>
-				<td>${purchasedPlan.bookPublisher}
-				</td>
+				<td>${purchasedPlan.bookPublisher}</td>
 				<td>${purchasedPlan.publishDate}</td>
-				<td>${purchasedPlan.bookPrice}
+				<td>${purchasedPlan.bookPrice}</td>
 				<td>
 					<a href="#" onclick="return editPurchasePlanManualDecision(${purchasedPlan.bookId});">
-						<c:if test="${purchasedPlan.manualDecisionFlag} == true">
+						<c:if test="${purchasedPlan.manualDecisionFlag eq true}">
 							${purchasedPlan.manualDecision}[人]
 						</c:if>
-						<c:if test="${purchasedPlan.manualDecisionFlag} == false">
+						<c:if test="${purchasedPlan.manualDecisionFlag eq false}">
 							${purchasedPlan.requireAmount}
 						</c:if>
 					</a>
 				</td>
 				<td>
-					<a href="#" onclick="return editPurchasePlanStock(${purchasedPlan.bookId});">
-						${purchasedPlan.stockAmount}
-					</a>
+					<a href="#" onclick="return editPurchasePlanStock(${purchasedPlan.bookId});">${purchasedPlan.stockAmount}</a>
 				</td>
-				<td><c:if test="${purchasedPlan.purchasedAmount} > 0">
+				<td><c:if test="${purchasedPlan.purchasedAmount gt 0}">
 						<a href="purchase/queryPurchaseDetail?bookId=${purchasedPlan.bookId}&status=purchased">${purchasedPlan.purchasedAmount}</a>
 					</c:if>
-					<c:if test="${purchasedPlan.purchasedAmount} <= 0">
+					<c:if test="${purchasedPlan.purchasedAmount le 0}">
 						${purchasedPlan.purchasedAmount}
 					</c:if>
 				</td>
-				<td>${purchasedPlan.stillRequireAmount}
-				</td>
+				<td>${purchasedPlan.stillRequireAmount}</td>
 				<td><a href="javascript:showOperate(${purchasedPlan.bookId})">操作</a></td>
 			</tr>
 			<tr id="hidden_tr_${bookId}" style="display:none">

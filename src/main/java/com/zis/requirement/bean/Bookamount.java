@@ -11,11 +11,14 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
+import org.directwebremoting.annotations.DataTransferObject;
+
 /**
  * BookAmount entity. @author MyEclipse Persistence Tools
  */
 @Entity
 @Table(name = "bookamount")
+@DataTransferObject
 public class BookAmount {
 
 	// Fields

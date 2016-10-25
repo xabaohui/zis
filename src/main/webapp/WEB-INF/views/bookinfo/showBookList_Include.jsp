@@ -20,8 +20,7 @@
 
 	<table id="common-table">
 		<tr>
-			<th><input type="checkbox" name="allCheck" value="checkAll1234"
-				onclick="checkAll()" /></th>
+			<th><input type="checkbox" name="allCheck" value="checkAll1234" onclick="checkAll()" /></th>
 			<th>ID</th>
 			<th>ISBN</th>
 			<th>书名</th>
@@ -34,7 +33,7 @@
 			<th>状态</th>
 			<th height="30" width="100" colspan="3">操作</th>
 		</tr>
-
+		
 		<c:forEach items="${list}" var="book">
 			<tr>
 				<td><input type="checkbox" value="${book.id}"
@@ -43,44 +42,35 @@
 				<td>${book.id}
 				</td>
 				<td>
-					<a href="bookInfo/getAllBooks?bookISBN=${book.isbn}">
-					${book.isbn}
-					</a>
+					<a href="bookInfo/getAllBooks?bookISBN=${book.isbn}">${book.isbn}</a>
 					<c:if test="${book.repeatIsbn} == true">
 						<br /><font style="font-weight:bold;color:red">[一码多书]</font>
 					</c:if>
 				</td>
 				<td>${book.bookName}&nbsp;
-				 [<a href="http://www.youlu.net/${book.outId}" target="_blank">有</a>]
-				 [<a href="https://s.taobao.com/search?q=${book.isbn}" target="_blank">淘</a>]
-				 [<a href="http://search.dangdang.com/?key=${book.isbn}" target="_blank">当</a>]
+					[<a href="http://www.youlu.net/${book.outId}" target="_blank">有</a>]
+					[<a href="https://s.taobao.com/search?q=${book.isbn}" target="_blank">淘</a>]
+					[<a href="http://search.dangdang.com/?key=${book.isbn}" target="_blank">当</a>]
 				</td>
 				<td>${book.bookEdition}
-					<c:if test="${book.isNewEdition} == true"><font style="font-weight:bold;color:green">[最新]</font></c:if>
-					<c:if test="${book.groupId} != null">
+					<c:if test="${book.isNewEdition eq true}"><font style="font-weight:bold;color:green">[最新]</font></c:if>
+					<c:if test="${not empty book.groupId}">
 						<br/>
 						[<a href="bookInfo/showGroupList?groupId=${book.groupId}" target="_blank">其他版本</a>]
 					</c:if>
 				</td>
-				<td><a href="bookInfo/getAllBooks?bookAuthor=${book.bookAuthor}&bookPublisher=${book.bookPublisher}">${book.bookAuthor}</a>
-				</td>
-				<td>${book.bookPublisher}
-				</td>
+				<td><a href="bookInfo/getAllBooks?bookAuthor=${book.bookAuthor}&bookPublisher=${book.bookPublisher}">${book.bookAuthor}</a></td>
+				<td>${book.bookPublisher}</td>
 				<td>${book.publishDate}</td>
-				<td>${book.bookPrice}
-				</td>
+				<td>${book.bookPrice}</td>
 				<td>
-					<c:if test="${book.relateId} != null">
-						<a href="bookInfo/showGroupList?relateId=${book.relateId}"
-							target="_blank">关联图书</a>
+					<c:if test="${not empty book.relateId}">
+						<a href="bookInfo/showGroupList?relateId=${book.relateId}" target="_blank">关联图书</a>
 					</c:if>
 				</td>
-				<td>${book.bookStatus}
-				</td>
-				<td><a href="bookInfo/findBookById?bookId=${book.id}"
-					target="_blank">修改</a></td>
-					<td><a href="#"
-					onclick="return immigrate(${book.id})">迁移</a></td>
+				<td>${book.bookStatus}</td>
+				<td><a href="bookInfo/findBookById?bookId=${book.id}" target="_blank">修改</a></td>
+				<td><a href="#" onclick="return immigrate(${book.id})">迁移</a></td>
 			</tr>
 		</c:forEach>
 	</table>

@@ -22,7 +22,7 @@
 				ISBN：<input type="text" name="isbn" size="10"/>
 				书名：<input type="text" name="bookName" size="30"/>
 				作者：<input type="text" name="bookAuthor" size="7"/>
-				<input type="button" value="查找"/>
+					  <input type="button" value="查找"/>
 			</td>
 		</tr>
 	</c:forEach>

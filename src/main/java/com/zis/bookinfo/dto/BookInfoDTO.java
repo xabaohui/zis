@@ -2,19 +2,35 @@ package com.zis.bookinfo.dto;
 
 import java.util.Date;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.format.annotation.DateTimeFormat;
 
 public class BookInfoDTO {
 
 	private Integer id;
+	@Min(value = 1, message = "外部ID必须大于0")
 	private Integer outId;
+	@NotBlank(message = "isbn不能为空")
+	@Length(max = 30, message = "isbn不能超过30个字符")
 	private String isbn;
+	@NotBlank(message = "书名不能为空")
+	@Length(max = 128, message = "书名不能超过128个字符")
 	private String bookName;
+	@NotBlank(message = "作者不能为空")
+	@Length(max = 50, message = "作者不能超过50个字符")
 	private String bookAuthor;
+	@NotBlank(message = "出版社不能为空")
+	@Length(max = 30, message = "出版社不能超过30个字符")
 	private String bookPublisher;
-	@DateTimeFormat(pattern="yyyy-MM-dd")
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date publishDate;
+	@NotNull(message = "价格不能为空")
 	private Double bookPrice;
+	@NotBlank(message = "版次不能为空")
 	private String bookEdition;
 	private Boolean isNewEdition;
 	private Boolean repeatIsbn;

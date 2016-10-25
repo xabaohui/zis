@@ -57,7 +57,7 @@
     			<td>${detail.bookAuthor}</td>
     			<td>
 	    			${detail.bookEdition}
-	    			<c:if test="${detail.isNewEdition} == true">
+	    			<c:if test="${detail.isNewEdition eq true}">
 						<div style="color:green;font-weight:bold">[最新版]</div>
 					</c:if>
     			</td>

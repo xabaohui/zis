@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +32,7 @@ public class SimilarityBookAnalysisBO extends BookInfoAnalysisBO {
 	private BookInfoAidDao bookinfoAidDao;
 	@Autowired
 	private BookAmountDao bookAmountDao;
-	// FIXME 会有线程安全问题
-	private List<Integer> booksInUse;
-	
+
 	@Override
 	public void processOne(Bookinfo book) {
 		if (book == null) {
@@ -58,8 +57,7 @@ public class SimilarityBookAnalysisBO extends BookInfoAnalysisBO {
 			else if (branch.getShortBookName().contains(pureName)) {
 				branch.setIds(branch.getIds() + "," + book.getId());
 				branch.setTotalCount(branch.getTotalCount() + 1);
-				if (isPureNameMoreShorter(branch.getShortBookName(), pureName,
-						trunkKey)) {
+				if (isPureNameMoreShorter(branch.getShortBookName(), pureName, trunkKey)) {
 					// ShortBookName不是最小子集，则更新最小子集
 					branch.setShortBookName(pureName);
 				}
@@ -80,16 +78,15 @@ public class SimilarityBookAnalysisBO extends BookInfoAnalysisBO {
 	}
 
 	// 检查pureName是否是ShortBookName的子集
-	private boolean isPureNameMoreShorter(String shortBookName,
-			String pureName, String trunkKey) {
+	private boolean isPureNameMoreShorter(String shortBookName, String pureName, String trunkKey) {
 		if (shortBookName.length() <= pureName.length()) {
 			return false;
 		}
 		// 仅当pureName是ShortBookName的子集并且没有 分支名为pureName的记录，才允许更新分支名称
 		if (shortBookName.contains(pureName) && !shortBookName.equals(pureName)) {
-//			BookinfoAid example = new BookinfoAid();
-//			example.setGroupKey(trunkKey);
-//			example.setShortBookName(pureName);
+			// BookinfoAid example = new BookinfoAid();
+			// example.setGroupKey(trunkKey);
+			// example.setShortBookName(pureName);
 			List<BookinfoAid> list = this.bookinfoAidDao.findByGroupKeyAndShortBookName(trunkKey, pureName);
 			if (list.isEmpty()) {
 				return true;
@@ -125,11 +122,12 @@ public class SimilarityBookAnalysisBO extends BookInfoAnalysisBO {
 	 * 3 包含正在使用的教材
 	 */
 	public void afterAnalysis() {
+		List<Integer> booksInUse = new ArrayList<Integer>();
 		// 查出最大ID 和 最小ID
 		Integer minId = bookinfoAidDao.findMaxId();
 		Integer maxId = bookinfoAidDao.findMinId();
 		// 统计正在使用的ISBN
-		initBooksInUse();
+		initBooksInUse(booksInUse);
 		// 逐条遍历，定义检查级别
 		for (int i = minId; i <= maxId; i++) {
 			BookinfoAid aid = this.bookinfoAidDao.findOne(i);
@@ -141,28 +139,26 @@ public class SimilarityBookAnalysisBO extends BookInfoAnalysisBO {
 				this.bookinfoAidDao.delete(aid);
 			} else {
 				// 定义检查级别
-				updateCheckLevel(aid);
+				updateCheckLevel(aid, booksInUse);
 			}
 		}
 	}
 
-	private void initBooksInUse() {
-		if (booksInUse == null) {
-//			DetachedCriteria dc = DetachedCriteria.forClass(Bookamount.class);
-//			dc.setProjection(Projections.distinct(Projections
-//					.property("bookId")));
-			List<Integer> list = this.bookAmountDao.distinctBookId();
-			booksInUse = new ArrayList<Integer>();
-			for (Object record : list) {
-				Integer bookId = (Integer) record;
-				booksInUse.add(bookId);
-			}
-			//select distinct bookId form booamount;
+	private void initBooksInUse(List<Integer> booksInUse) {
+		// DetachedCriteria dc = DetachedCriteria.forClass(Bookamount.class);
+		// dc.setProjection(Projections.distinct(Projections
+		// .property("bookId")));
+		List<Integer> list = this.bookAmountDao.distinctBookId();
+		// 解决方案
+		for (Object record : list) {
+			Integer bookId = (Integer) record;
+			booksInUse.add(bookId);
 		}
+		// select distinct bookId form booamount;
 
 	}
 
-	private void updateCheckLevel(BookinfoAid aid) {
+	private void updateCheckLevel(BookinfoAid aid, List<Integer> booksInUse) {
 		String[] ids = aid.getIds().split(",");
 		Set<String> isbnSet = new HashSet<String>();
 		Integer totalCount = aid.getTotalCount();
@@ -182,13 +178,14 @@ public class SimilarityBookAnalysisBO extends BookInfoAnalysisBO {
 					totalCount--;
 					continue;
 				}
-				// isbn添加到set中（自动去除重复项），如果最后totalCount != isbnSet.size()，则说明有条码重复的记录
+				// isbn添加到set中（自动去除重复项），如果最后totalCount !=
+				// isbnSet.size()，则说明有条码重复的记录
 				isbnSet.add(book.getIsbn());
 				// 包含正在使用的图书，检查级别为3
 				if (booksInUse.contains(bookId)) {
 					isUsed = true;
 				}
-				if (StringUtils.isBlank(book.getGroupId()) &&StringUtils.isBlank(book.getRelateId())) {
+				if (StringUtils.isBlank(book.getGroupId()) && StringUtils.isBlank(book.getRelateId())) {
 					// 部分或全部记录的关联ID为空，表示有部分数据未完成关联操作，检查级别为1
 					notRelated = true;
 				}
@@ -199,15 +196,15 @@ public class SimilarityBookAnalysisBO extends BookInfoAnalysisBO {
 		}
 		Integer checkLevel = 0;// 检查级别默认为0
 		// 已使用过的图书
-		if(isUsed) {
+		if (isUsed) {
 			checkLevel = 3;
 		}
 		// 条形码数量与记录数不同，则说明存在相同条码，检查级别为2
-		else if(isbnSet.size() != totalCount) {
+		else if (isbnSet.size() != totalCount) {
 			checkLevel = 2;
 		}
 		// 未完成关联操作
-		else if(notRelated) {
+		else if (notRelated) {
 			checkLevel = 1;
 		}
 		// 剩余记录

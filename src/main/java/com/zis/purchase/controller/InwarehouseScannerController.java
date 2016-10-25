@@ -3,7 +3,6 @@ package com.zis.purchase.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.zis.purchase.biz.DoPurchaseService;
@@ -20,7 +19,7 @@ import com.zis.purchase.dto.InwarehouseView;
  * 
  */
 @Controller
-@RequestMapping(value="/purchase")
+@RequestMapping(value = "/purchase")
 public class InwarehouseScannerController {
 
 	@Autowired
@@ -31,15 +30,14 @@ public class InwarehouseScannerController {
 	 * 
 	 * @return
 	 */
-	@RequestMapping(value="/recoverScan/{inwarehouseId}.html")
-	public String recoverScan(@PathVariable Integer inwarehouseId,ModelMap context) {
+	@RequestMapping(value = "/recoverScan")
+	public String recoverScan(Integer inwarehouseId, ModelMap context) {
 		try {
-			InwarehouseView view = this.doPurchaseService
-					.findInwarehouseViewById(inwarehouseId);
+			InwarehouseView view = this.doPurchaseService.findInwarehouseViewById(inwarehouseId);
 			String[] positionLabels = view.getPositionLabel();
 			if (positionLabels == null || positionLabels.length == 0) {
 				// 如果没有可用库位，进行如下设置，方便页面展示
-				positionLabels = new String[]{"无可用库位"};
+				positionLabels = new String[] { "无可用库位" };
 			}
 			// 参数传递到下一个页面，展示用
 			context.put("inwarehouse", view);
@@ -53,8 +51,7 @@ public class InwarehouseScannerController {
 			context.put("memo", view.getMemo());
 			return "purchase/inwarehouseScanner";
 		} catch (Exception e) {
-			//TODO 验证框架
-//			this.addActionError(e.getMessage());
+			context.put("actionError", e.getMessage());
 			return "error";
 		}
 	}
@@ -64,14 +61,13 @@ public class InwarehouseScannerController {
 	 * 
 	 * @return
 	 */
-	@RequestMapping(value="/terminateInwarehouse")
-	public String terminate(Integer inwarehouseId) {
+	@RequestMapping(value = "/terminateInwarehouse")
+	public String terminate(Integer inwarehouseId, ModelMap map) {
 		try {
 			this.doPurchaseService.applyTerminateInwarehouse(inwarehouseId);
 			return "redirect:/purchase/viewInwarehouseList";
 		} catch (Exception e) {
-			//TODO 验证框架
-//			this.addActionError(e.getMessage());
+			map.put("actionError", e.getMessage());
 			return "error";
 		}
 	}

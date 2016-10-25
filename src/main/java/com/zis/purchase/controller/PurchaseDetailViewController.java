@@ -6,13 +6,11 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.service.BookService;
 import com.zis.common.controllertemplate.PaginationQueryController;
-import com.zis.common.mvc.ext.WebHelper;
+import com.zis.common.mvc.ext.QueryUtil;
 import com.zis.common.util.ZisUtils;
 import com.zis.purchase.bean.PurchaseDetail;
 import com.zis.purchase.bean.PurchaseDetailStatus;
@@ -39,15 +37,14 @@ public class PurchaseDetailViewController extends PaginationQueryController<Purc
 
 	@Autowired
 	private BookService bookService;
+
 	@Autowired
 	private DoPurchaseService doPurchaseService;
 
 	@RequestMapping(value = "/queryPurchaseDetail")
 	public String executeQuery(ModelMap context, HttpServletRequest request) {
-		//TODO 设置查询条件
-		Pageable page = WebHelper.buildPageRequest(request);
-		Page<PurchaseDetail> pageList = this.doPurchaseService.findAllPurchaseDetail(page);
-		return super.executeQuery(context, request, pageList, page);
+		request.setAttribute("sort", new String[] { "gmtCreate" });
+		return super.executeQuery(context, request);
 	}
 
 	@Override
@@ -95,27 +92,28 @@ public class PurchaseDetailViewController extends PaginationQueryController<Purc
 	}
 
 	@Override
-	protected DetachedCriteria buildQueryCondition(HttpServletRequest request) {
+	protected Specification<PurchaseDetail> buildQueryCondition(HttpServletRequest request) {
 		String isbn = request.getParameter("isbn");
 		String bookIdStr = request.getParameter("bookId");
 		String bookName = request.getParameter("bookName");
 		String operator = request.getParameter("operator");
 		String status = request.getParameter("status");
-		DetachedCriteria dc = DetachedCriteria.forClass(PurchaseDetail.class);
+		QueryUtil<PurchaseDetail> queryPD = new QueryUtil<PurchaseDetail>();
 		if (StringUtils.isNotBlank(bookIdStr)) {
 			Integer bookId = Integer.parseInt(bookIdStr);
-			dc.add(Restrictions.eq("bookId", bookId));
+			queryPD.eq("bookId", bookId);
 		}
 		// 如果输入了isbn或者图书，则先查询图书信息
 		else if (StringUtils.isNotBlank(isbn) || StringUtils.isNotBlank(bookName) || StringUtils.isNotBlank(bookIdStr)) {
-			DetachedCriteria bookCriteria = DetachedCriteria.forClass(Bookinfo.class);
+			QueryUtil<Bookinfo> query = new QueryUtil<Bookinfo>();
 			if (StringUtils.isNotBlank(isbn)) {
-				bookCriteria.add(Restrictions.eq("isbn", isbn));
+				query.eq("isbn", isbn);
 			}
 			if (StringUtils.isNotBlank(bookName)) {
-				bookCriteria.add(Restrictions.like("bookName", "%" + bookName + "%"));
+				query.like("bookName", "%" + bookName + "%");
 			}
-			List<Bookinfo> blist = bookService.findBookByCriteria(bookCriteria);
+			Specification<Bookinfo> specBookInfo = query.getSpecification();
+			List<Bookinfo> blist = bookService.findBySpecificationAll(specBookInfo);
 			List<Integer> bookIds = new ArrayList<Integer>();
 			if (blist == null || blist.isEmpty()) {
 				return null;
@@ -123,17 +121,17 @@ public class PurchaseDetailViewController extends PaginationQueryController<Purc
 			for (Bookinfo bi : blist) {
 				bookIds.add(bi.getId());
 			}
-			dc.add(Restrictions.in("bookId", bookIds));
+			queryPD.in("bookId", bookIds);
 		}
 		// 附加操作员条件
 		if (StringUtils.isNotBlank(operator)) {
-			dc.add(Restrictions.eq("operator", operator));
+			queryPD.eq("operator", operator);
 		}
 		if (StringUtils.isNotBlank(status)) {
-			dc.add(Restrictions.eq("status", status));
+			queryPD.eq("status", status);
 		}
-		dc.addOrder(Order.desc("gmtCreate"));
-		return dc;
+		queryPD.desc("gmtCreate");
+		return queryPD.getSpecification();
 	}
 
 	@SuppressWarnings({ "rawtypes" })
@@ -163,4 +161,10 @@ public class PurchaseDetailViewController extends PaginationQueryController<Purc
 	protected String getSuccessPage(HttpServletRequest request) {
 		return "purchase/purchaseDetail";
 	}
+
+	@Override
+	protected Page<PurchaseDetail> buildPageList(Specification<PurchaseDetail> spec, Pageable page) {
+		return this.doPurchaseService.findPurchaseDetailBySpecPage(spec, page);
+	}
+
 }

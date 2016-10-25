@@ -6,12 +6,11 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.service.BookService;
 import com.zis.common.controllertemplate.PaginationQueryController;
-import com.zis.common.mvc.ext.WebHelper;
+import com.zis.common.mvc.ext.QueryUtil;
 import com.zis.purchase.bean.TempImportDetail;
 import com.zis.purchase.bean.TempImportDetailStatus;
 import com.zis.purchase.bean.TempImportTask;
@@ -48,10 +47,7 @@ public class TempImportDetailViewController extends PaginationQueryController<Te
 
 	@RequestMapping(value = "/viewTempImportDetailForMatched")
 	public String executeQuery(ModelMap context, HttpServletRequest request) {
-		//TODO 设置查询条件
-		Pageable page = WebHelper.buildPageRequest(request);
-		Page<TempImportDetail> pageList = this.doPurchaseService.findAllTempImportDetail(page);
-		return super.executeQuery(context, request, pageList, page);
+		return super.executeQuery(context, request);
 	}
 
 	@Override
@@ -81,15 +77,19 @@ public class TempImportDetailViewController extends PaginationQueryController<Te
 	}
 
 	@Override
-	protected DetachedCriteria buildQueryCondition(HttpServletRequest request) {
+	protected Specification<TempImportDetail> buildQueryCondition(HttpServletRequest request) {
 		String taskIdStr = request.getParameter("taskId");
 		String status = request.getParameter("status");
 		if (StringUtils.isNumeric(taskIdStr)) {
 			Integer taskId = Integer.parseInt(taskIdStr);
-			DetachedCriteria criteria = DetachedCriteria.forClass(TempImportDetail.class);
-			criteria.add(Restrictions.eq("taskId", taskId));
-			criteria.add(Restrictions.eq("status", status));
-			return criteria;
+			QueryUtil<TempImportDetail> query = new QueryUtil<TempImportDetail>();
+			query.eq("taskId", taskId);
+			query.eq("status", status);
+			// DetachedCriteria criteria =
+			// DetachedCriteria.forClass(TempImportDetail.class);
+			// criteria.add(Restrictions.eq("taskId", taskId));
+			// criteria.add(Restrictions.eq("status", status));
+			return query.getSpecification();
 		} else {
 			throw new IllegalArgumentException("taskId 异常");
 		}
@@ -160,5 +160,10 @@ public class TempImportDetailViewController extends PaginationQueryController<Te
 			condition.append("status=" + status + "&");
 		}
 		return condition.toString();
+	}
+
+	@Override
+	protected Page<TempImportDetail> buildPageList(Specification<TempImportDetail> spec, Pageable page) {
+		return this.doPurchaseService.findTempImportDetailBySpecPage(spec, page);
 	}
 }

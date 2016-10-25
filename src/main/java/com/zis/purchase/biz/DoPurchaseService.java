@@ -4,10 +4,13 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.directwebremoting.annotations.RemoteMethod;
+import org.directwebremoting.annotations.RemoteProxy;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.zis.bookinfo.bean.Bookinfo;
@@ -36,8 +39,9 @@ import com.zis.purchase.repository.PurchasePlanDao;
 import com.zis.purchase.repository.TempImportDetailDao;
 
 @Service
+@RemoteProxy(name = "purchaseService")
 public class DoPurchaseService {
-	
+
 	@Autowired
 	private InwarehouseDao inwarehouseDao;
 	@Autowired
@@ -59,9 +63,8 @@ public class DoPurchaseService {
 	@Autowired
 	private TempImportDetailDao tempImportDetailDao;
 
-
 	private static final Logger logger = Logger.getLogger(DoPurchaseService.class);
-	
+
 	@Deprecated
 	public void batchUpdatePurchasePlanForPurchaseAmount() {
 		this.purchaseBO.batchUpdatePurchasePlanForPurchaseAmount();
@@ -73,6 +76,7 @@ public class DoPurchaseService {
 	 * @param bookId
 	 * @return 操作失败原因，如果成功，返回空字符串
 	 */
+	@RemoteMethod
 	public String addBlackList(Integer bookId) {
 		try {
 			purchaseBO.addBlackList(bookId);
@@ -83,12 +87,13 @@ public class DoPurchaseService {
 			return msg;
 		}
 	}
-	
+
 	/**
 	 * 录入白名单
 	 * 
 	 * @return 操作失败原因，如果成功，返回空字符串
 	 */
+	@RemoteMethod
 	public String addWhiteList(Integer bookId) {
 		try {
 			purchaseBO.addWhiteList(bookId);
@@ -99,13 +104,14 @@ public class DoPurchaseService {
 			return msg;
 		}
 	}
-	
+
 	/**
 	 * 删除黑名单或白名单
 	 * 
 	 * @param bookId
 	 * @return 操作失败原因，如果成功，返回空字符串
 	 */
+	@RemoteMethod
 	public String deleteBlackOrWhiteList(Integer bookId) {
 		try {
 			purchaseBO.deleteBlackOrWhiteList(bookId);
@@ -116,7 +122,7 @@ public class DoPurchaseService {
 			return msg;
 		}
 	}
-	
+
 	/**
 	 * 计算仍需采购数量
 	 * 
@@ -126,7 +132,7 @@ public class DoPurchaseService {
 	public Integer calculateStillRequireAmount(PurchasePlan plan) {
 		return purchaseBO.calculateStillRequireAmount(plan);
 	}
-	
+
 	/**
 	 * 添加/更新图书库存
 	 * 
@@ -138,14 +144,13 @@ public class DoPurchaseService {
 		}
 		// 批量保存
 		for (StockDTO record : importList) {
-			String errMsg = updateBookStock(record.getBookId(),
-					record.getStockBalance());
+			String errMsg = updateBookStock(record.getBookId(), record.getStockBalance());
 			if (StringUtils.isNotBlank(errMsg)) {
 				logger.error("更新采购计划中的库存失败:" + errMsg);
 			}
 		}
 	}
-	
+
 	/**
 	 * 更新采购计划中的图书库存
 	 * 
@@ -153,10 +158,11 @@ public class DoPurchaseService {
 	 * @param amount
 	 * @return
 	 */
+	@RemoteMethod
 	public String updateBookStock(Integer bookId, Integer amount) {
 		return purchaseBO.updateBookStock(bookId, amount);
 	}
-	
+
 	/**
 	 * 是否允许手动设置采购量
 	 * 
@@ -165,7 +171,7 @@ public class DoPurchaseService {
 	public boolean isAllowManualDecisionForPurchasePlan() {
 		return purchaseBO.isAllowManualDecisionForPurchasePlan();
 	}
-	
+
 	/**
 	 * 针对特定图书设置需求量
 	 * 
@@ -175,10 +181,11 @@ public class DoPurchaseService {
 	 *            数量
 	 * @return
 	 */
+	@RemoteMethod
 	public String addManualDecision(Integer bookId, Integer amount) {
 		return purchaseBO.addManualDecision(bookId, amount);
 	}
-	
+
 	/**
 	 * 去除人工定量
 	 * 
@@ -186,6 +193,7 @@ public class DoPurchaseService {
 	 *            图书ID
 	 * @return 操作失败原因，如果成功，返回空字符串
 	 */
+	@RemoteMethod
 	public String removeManualDecision(Integer bookId) {
 		try {
 			purchaseBO.removeManualDecision(bookId);
@@ -196,12 +204,14 @@ public class DoPurchaseService {
 			return msg;
 		}
 	}
-	
+
 	/**
 	 * 重新计算计划采购量
+	 * 
 	 * @param bookId
 	 * @return 操作失败原因，如果成功，返回空字符串
 	 */
+	@RemoteMethod
 	public String recalculateRequireAmount(Integer bookId) {
 		try {
 			purchaseBO.recalculateRequireAmount(bookId);
@@ -212,7 +222,7 @@ public class DoPurchaseService {
 			return msg;
 		}
 	}
-	
+
 	/**
 	 * 批量添加采购计划
 	 * 
@@ -221,7 +231,7 @@ public class DoPurchaseService {
 	public void addPurchasePlanForBatch(List<Bookinfo> bookList) {
 		purchaseBO.addPurchasePlanForBatch(bookList);
 	}
-	
+
 	/**
 	 * 添加采购明细，如果不满足采购条件，直接返回失败原因
 	 * 
@@ -232,11 +242,10 @@ public class DoPurchaseService {
 	 * @param memo
 	 * @return 返回失败原因，如果添加成功，返回空字符串
 	 */
-	public String addPurchaseDetail(int bookId, int purchasedAmount,
-			String operator, String position, String memo) {
+	public String addPurchaseDetail(int bookId, int purchasedAmount, String operator, String position, String memo) {
 		return purchaseBO.addPurchaseDetail(bookId, purchasedAmount, operator, position, memo);
 	}
-	
+
 	/**
 	 * 查询采购计划
 	 * 
@@ -246,21 +255,21 @@ public class DoPurchaseService {
 	public List<PurchasePlan> findPurchasePlanByIsbn(String isbn) {
 		return purchasePlanDao.findByIsbn(isbn);
 	}
-	
+
 	/**
 	 * 查询采购计划
+	 * 
 	 * @param bookId
 	 * @return
 	 */
 	public PurchasePlan findPurchasePlanByBookId(int bookId) {
 		return purchaseBO.findPurchasePlanByBookId(bookId);
 	}
-	
+
 	/**
 	 * 添加库存或者采购记录到临时表
 	 */
-	public void addTempImportTask(List<TempImportDTO> list,
-			TempImportTaskBizTypeEnum bizType, String memo) {
+	public void addTempImportTask(List<TempImportDTO> list, TempImportTaskBizTypeEnum bizType, String memo) {
 		tempImportBO.addTempImportTask(list, bizType, memo);
 	}
 
@@ -278,10 +287,9 @@ public class DoPurchaseService {
 	 * @param bookId
 	 * @return
 	 */
-	public String updateAssociateTempImportDetailWithBookInfo(
-			Integer tempImportDetailId, Integer bookId) {
-		return tempImportBO.updateAssociateTempImportDetailWithBookInfo(
-				tempImportDetailId, bookId);
+	@RemoteMethod
+	public String updateAssociateTempImportDetailWithBookInfo(Integer tempImportDetailId, Integer bookId) {
+		return tempImportBO.updateAssociateTempImportDetailWithBookInfo(tempImportDetailId, bookId);
 	}
 
 	/**
@@ -291,10 +299,8 @@ public class DoPurchaseService {
 	 * @param bookId
 	 * @return 失败原因，成功返回null
 	 */
-	public String updateAssociatePurchaseTempImportWithBookInfo(
-			TempImportDetail detail, Bookinfo book) {
-		return tempImportBO.updateAssociatePurchaseTempImportWithBookInfo(
-				detail, book);
+	public String updateAssociatePurchaseTempImportWithBookInfo(TempImportDetail detail, Bookinfo book) {
+		return tempImportBO.updateAssociatePurchaseTempImportWithBookInfo(detail, book);
 	}
 
 	/**
@@ -317,23 +323,19 @@ public class DoPurchaseService {
 	 * @param tempImportDetailStatus
 	 * @return
 	 */
-	public List<TempImportDetailView> findTempImportDetail(Integer taskId,
-			String tempImportDetailStatus) {
-		return tempImportBO
-				.findTempImportDetail(taskId, tempImportDetailStatus);
+	public List<TempImportDetailView> findTempImportDetail(Integer taskId, String tempImportDetailStatus) {
+		return tempImportBO.findTempImportDetail(taskId, tempImportDetailStatus);
 	}
-	
+
 	/**
 	 * 批量更新临时导入记录，使之成功或者失效
 	 * 
 	 * @param taskId
 	 * @return 错误原因，null表示处理成功
 	 */
-	public String updateTempImportTaskStatus(Integer taskId,
-			Integer tempImportTaskStatus) {
+	public String updateTempImportTaskStatus(Integer taskId, Integer tempImportTaskStatus) {
 		try {
-			tempImportBO.updateTempImportTaskStatus(taskId,
-					tempImportTaskStatus);
+			tempImportBO.updateTempImportTaskStatus(taskId, tempImportTaskStatus);
 			return null;
 		} catch (Exception e) {
 			logger.error("更新TempImportTask出错", e);
@@ -347,8 +349,7 @@ public class DoPurchaseService {
 	 * @param inwarehouse
 	 * @return 入库单ID
 	 */
-	public InwarehouseCreateResult createInwarehouse(
-			InwarehouseCreateDTO inwarehouse) {
+	public InwarehouseCreateResult createInwarehouse(InwarehouseCreateDTO inwarehouse) {
 		// 输入有效性检查
 		if (inwarehouse == null) {
 			throw new RuntimeException("illegal argument, for input null");
@@ -375,12 +376,11 @@ public class DoPurchaseService {
 	 * @param amount
 	 *            入库数量
 	 */
-	public InwarehouseDealtResult applyInwarehouse(Integer inwarehouseId,
-			String posLabel, Integer bookId, Integer amount) {
+	public InwarehouseDealtResult applyInwarehouse(Integer inwarehouseId, String posLabel, Integer bookId,
+			Integer amount) {
 		// 参数基本检查
 		if (inwarehouseId == null) {
-			throw new IllegalArgumentException(
-					"inwarehouseId could not be null");
+			throw new IllegalArgumentException("inwarehouseId could not be null");
 		}
 		// 入库单检查，必须存在且状态是处理中
 		Inwarehouse in = this.inwarehouseDao.findOne(inwarehouseId);
@@ -392,13 +392,11 @@ public class DoPurchaseService {
 		}
 		// 采购入库
 		if (InwarehouseBizType.PURCHASE.equals(in.getBizType())) {
-			return this.purchaseInwarehouseBO.doInwarehouse(in, posLabel,
-					bookId, amount);
+			return this.purchaseInwarehouseBO.doInwarehouse(in, posLabel, bookId, amount);
 		}
 		// 退货入库或直接入库
 		else {
-			return this.inwarehouseBO.doInwarehouse(in, posLabel, bookId,
-					amount);
+			return this.inwarehouseBO.doInwarehouse(in, posLabel, bookId, amount);
 		}
 	}
 
@@ -409,18 +407,20 @@ public class DoPurchaseService {
 	public void applyTerminateInwarehouse(Integer inwarehouseId) {
 		this.inwarehouseBO.terminateInwarehouse(inwarehouseId);
 	}
-	
+
 	/**
 	 * 删除入库单(置为无效)
+	 * 
 	 * @param inwarehouseId
 	 * @return
 	 */
 	public void deleteInwarehouse(Integer inwarehouseId) {
 		inwarehouseBO.deleteInwarehouse(inwarehouseId);
 	}
-	
+
 	/**
 	 * 删除入库详细记录
+	 * 
 	 * @param detailId
 	 * @return
 	 */
@@ -430,6 +430,7 @@ public class DoPurchaseService {
 
 	/**
 	 * 查询入库单
+	 * 
 	 * @param inwarehouseId
 	 * @return
 	 */
@@ -452,14 +453,14 @@ public class DoPurchaseService {
 			// criteria.addOrder(Order.asc("gmtCreate"));
 			// List<InwarehousePosition> list = this.inwarehousePositionDao
 			// .findByCriteria(criteria);
-			//按照ID排序，由于是同一时间创建的，如果按照时间排序会导致库位顺序错乱的bug
+			// 按照ID排序，由于是同一时间创建的，如果按照时间排序会导致库位顺序错乱的bug
 			List<InwarehousePosition> list = this.inwarehousePositionDao.findAvailablePosition(inwarehouseId);
 			if (list == null || list.isEmpty()) {
 				return inView;
 			}
 			String[] positionLabel = new String[list.size()];
 			Integer[] capacity = new Integer[list.size()];
-			for (int i=0; i<list.size(); i++) {
+			for (int i = 0; i < list.size(); i++) {
 				positionLabel[i] = list.get(i).getPositionLabel();
 				capacity[i] = list.get(i).getCapacity();
 			}
@@ -468,9 +469,10 @@ public class DoPurchaseService {
 		}
 		return inView;
 	}
-	
+
 	/**
 	 * 按照入库单ID查询入库详情
+	 * 
 	 * @param inwarehouseId
 	 * @return
 	 */
@@ -479,55 +481,115 @@ public class DoPurchaseService {
 	}
 
 	public void deleteOnwayStock(String purchaseOperator) {
-		if(StringUtils.isBlank(purchaseOperator)) {
+		if (StringUtils.isBlank(purchaseOperator)) {
 			return;
 		}
 		this.purchaseBO.deleteOnwayStock(purchaseOperator);
 	}
-	
+
 	/**
 	 * 分页查询所有 PurchasePlan 对象
+	 * 
 	 * @param page
 	 * @return
 	 */
-	public Page<PurchasePlan> findAllPurchasePlan(Pageable page){
+	public Page<PurchasePlan> findAllPurchasePlan(Pageable page) {
 		return this.purchasePlanDao.findAll(page);
 	}
-	
+
 	/**
-	 * 分页查询所有 InwarehouseDetailDao 对象
+	 * 分页查询(带条件) PurchasePlan 对象
+	 * 
+	 * @param spec
 	 * @param page
 	 * @return
 	 */
-	public Page<InwarehouseDetail> findAllInwarehouseDetail(Pageable page){
+	public Page<PurchasePlan> findPurchasePlanBySpecPage(Specification<PurchasePlan> spec, Pageable page) {
+		return this.purchasePlanDao.findAll(spec, page);
+	}
+
+	/**
+	 * 分页查询所有 InwarehouseDetail 对象
+	 * 
+	 * @param page
+	 * @return
+	 */
+	public Page<InwarehouseDetail> findAllInwarehouseDetail(Pageable page) {
 		return this.inwarehouseDetailDao.findAll(page);
 	}
-	
+
+	/**
+	 * 分页查询(带条件) InwarehouseDetail 对象
+	 * 
+	 * @param spec
+	 * @param page
+	 * @return
+	 */
+	public Page<InwarehouseDetail> findInwarehouseDetailBySpecPage(Specification<InwarehouseDetail> spec, Pageable page) {
+		return this.inwarehouseDetailDao.findAll(spec, page);
+	}
+
 	/**
 	 * 分页查询所有 Inwarehouse 对象
+	 * 
 	 * @param page
 	 * @return
 	 */
-	public Page<Inwarehouse> findAllInwarehouse(Pageable page){
+	public Page<Inwarehouse> findAllInwarehouse(Pageable page) {
 		return this.inwarehouseDao.findAll(page);
 	}
-	
+
+	/**
+	 * 分页查询(带条件) Inwarehouse 对象
+	 * 
+	 * @param spec
+	 * @param page
+	 * @return
+	 */
+	public Page<Inwarehouse> findInwarehouseBySpecPage(Specification<Inwarehouse> spec, Pageable page) {
+		return this.inwarehouseDao.findAll(spec, page);
+	}
+
 	/**
 	 * 分页查询所有 PurchaseDetail 对象
+	 * 
 	 * @param page
 	 * @return
 	 */
-	public Page<PurchaseDetail> findAllPurchaseDetail(Pageable page){
+	public Page<PurchaseDetail> findAllPurchaseDetail(Pageable page) {
 		return this.purchaseDetailDao.findAll(page);
 	}
-	
+
 	/**
-	 * 分页查询所有 TempImportDetail 对象
+	 * 分页查询(带条件) PurchaseDetail 对象
+	 * 
+	 * @param spec
 	 * @param page
 	 * @return
 	 */
-	public Page<TempImportDetail> findAllTempImportDetail(Pageable page){
+	public Page<PurchaseDetail> findPurchaseDetailBySpecPage(Specification<PurchaseDetail> spec, Pageable page) {
+		return this.purchaseDetailDao.findAll(spec, page);
+	}
+
+	/**
+	 * 分页查询所有 TempImportDetail 对象
+	 * 
+	 * @param page
+	 * @return
+	 */
+	public Page<TempImportDetail> findAllTempImportDetail(Pageable page) {
 		return this.tempImportDetailDao.findAll(page);
 	}
-	
+
+	/**
+	 * 分页查询(带条件) TempImportDetail 对象
+	 * 
+	 * @param spec
+	 * @param page
+	 * @return
+	 */
+	public Page<TempImportDetail> findTempImportDetailBySpecPage(Specification<TempImportDetail> spec, Pageable page) {
+		return this.tempImportDetailDao.findAll(spec, page);
+	}
+
 }

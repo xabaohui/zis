@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.ui.ModelMap;
 
 import com.zis.common.excel.ExcelImporter;
 import com.zis.common.excel.FileImporter;
@@ -27,12 +28,7 @@ public abstract class CommonImportController<T> {
 	 * 
 	 * @return
 	 */
-	//TODO 验证框架
-	// @Validations(
-	// /* �������� */
-	// requiredFields = { @RequiredFieldValidator(fieldName = "excelFile", key =
-	// "文件必须输入"), })
-	public String upload(InputStream fileInputStream, String memo) {
+	public String upload(InputStream fileInputStream, String memo, ModelMap map) {
 		// 设置模板文件，用于检验导入文件是否合法
 		String templatePath = initTemplatePath();
 		Integer headerRownums = setHeaderRowNums(1);
@@ -44,14 +40,12 @@ public abstract class CommonImportController<T> {
 			// 检验导入文件是否合法
 			String errMsg = im.validate();
 			if (StringUtils.isNotBlank(errMsg)) {
-				// TODO 验证框架
-				// this.addActionError(errMsg);
+				map.put("actionError", errMsg);
 				return getFailPage();
 			}
 			String subCheck = subCheckFileFormat(im.loadFactHeader());
 			if (StringUtils.isNotBlank(subCheck)) {
-				// TODO 验证框架
-				// this.addActionError(subCheck);
+				map.put("actionError", subCheck);
 				return getFailPage();
 			}
 
@@ -60,15 +54,13 @@ public abstract class CommonImportController<T> {
 			T instance = getInstance();
 			List<T> list = im.parse(instance, propMapping);
 			if (list.isEmpty()) {
-				// TODO 验证框架
-				// this.addActionError("导入失败，文件为空");
+				map.put("actionError", "导入失败，文件为空");
 				return getFailPage();
 			}
 			saveImportRecord(list,memo);
 			return getSuccessPage();
 		} catch (Exception e) {
-			// TODO 验证框架
-			// this.addActionError("导入失败: " + e.getMessage());
+			map.put("actionError", "导入失败: " + e.getMessage());
 			e.printStackTrace();
 			logger.error(e.getMessage(), e);
 			return getFailPage();

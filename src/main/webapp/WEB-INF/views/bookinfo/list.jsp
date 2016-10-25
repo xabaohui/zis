@@ -6,7 +6,8 @@
 <h1>图书列表</h1>
 	<div>
 		<a href="bookInfo/getWaitCheckList">还有${waitCheckCount}条待审核</a>
-		
+		<br/>
+		<h3><font color="red">${actionMessage}</font></h3>
 		<form action="bookInfo/getAllBooks" method="post">
 		<table>
 			<tr>

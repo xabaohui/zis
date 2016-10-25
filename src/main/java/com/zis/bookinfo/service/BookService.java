@@ -6,17 +6,19 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
+import org.directwebremoting.annotations.RemoteMethod;
+import org.directwebremoting.annotations.RemoteProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.fastjson.JSON;
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.bean.BookinfoAid;
 import com.zis.bookinfo.bean.BookinfoDetail;
@@ -39,11 +41,13 @@ import com.zis.bookinfo.util.BookMetadata;
 import com.zis.bookinfo.util.BookMetadataSource;
 import com.zis.bookinfo.util.ConstantString;
 import com.zis.common.capture.DefaultBookMetadataCaptureHandler;
+import com.zis.common.mvc.ext.QueryUtil;
 import com.zis.common.util.ZisUtils;
 import com.zis.requirement.bean.BookAmount;
 import com.zis.requirement.repository.BookAmountDao;
 
 @Service
+@RemoteProxy(name = "bookService")
 public class BookService {
 	private static Logger logger = LoggerFactory.getLogger(BookService.class);
 	private static final int MAX_CONTENT_LENGTH = 8192;
@@ -57,15 +61,14 @@ public class BookService {
 	@Autowired
 	private YouluSalesDao youluSalesDao;
 	@Autowired
+	private BookAmountDao bookAmountDao;
+	@Autowired
+	private ShopItemInfoDao shopItemInfoDao;
+
+	@Autowired
 	private DefaultBookMetadataCaptureHandler bookMetadataCapture;
 	@Autowired
 	private ThreadPoolTaskExecutor taskExecutor;
-	@Autowired
-	private BookAmountDao bookAmountDao;
-	// FIXME 是否没删除
-	@Autowired(required = false)
-	private ShopItemInfoDao shopItemInfoDao;
-
 	@Autowired
 	private SimilarityBookAnalysisBO similarityBookAnalysisBO;
 	@Autowired
@@ -83,28 +86,31 @@ public class BookService {
 	 * @param ISBN
 	 * @return
 	 */
+	@RemoteMethod
 	public String getBookInfo(String bookName, String bookAuthor, String ISBN) {
-		DetachedCriteria criteria = this.buildBookInfoCriteria(bookName, bookAuthor, ISBN);
-		// FIXME to be impl
-		return null;
+		// DetachedCriteria criteria = this.buildBookInfoCriteria(bookName,
+		// bookAuthor, ISBN);
+		Specification<Bookinfo> spec = this.buildBookInfoSpec(bookName, bookAuthor, ISBN);
+		Pageable page = new PageRequest(0, 20);
+		List<Bookinfo> list = this.findBySpecification(spec, page).getContent();
 		// List<Bookinfo> list = bookinfoDao
 		// .findByCriteriaLimitCount(criteria, 20);
-		// return JSON.toJSONString(list);
+		return JSON.toJSONString(list);
 	}
 
-	private DetachedCriteria buildBookInfoCriteria(String bookName, String bookAuthor, String ISBN) {
-		DetachedCriteria dc = DetachedCriteria.forClass(Bookinfo.class);
+	private Specification<Bookinfo> buildBookInfoSpec(String bookName, String bookAuthor, String ISBN) {
+		QueryUtil<Bookinfo> query = new QueryUtil<Bookinfo>();
 		if (!StringUtils.isBlank(bookName)) {
-			dc.add(Restrictions.like("bookName", "%" + bookName + "%"));
+			query.like("bookName", "%" + bookName + "%");
 		}
 		if (!StringUtils.isBlank(bookAuthor)) {
-			dc.add(Restrictions.like("bookAuthor", "%" + bookAuthor + "%"));
+			query.like("bookAuthor", "%" + bookAuthor + "%");
 		}
 		if (!StringUtils.isBlank(ISBN)) {
-			dc.add(Restrictions.eq("isbn", ISBN));
+			query.eq("isbn", ISBN);
 		}
-		dc.add(Restrictions.eq("bookStatus", ConstantString.USEFUL));
-		return dc;
+		query.eq("bookStatus", ConstantString.USEFUL);
+		return query.getSpecification();
 	}
 
 	/**
@@ -113,19 +119,16 @@ public class BookService {
 	 * @return true if exist
 	 */
 	public boolean ifBookInfoExist(Bookinfo book) {
-		return false;
-		// FIXME 未完成
-		// DetachedCriteria criteria =
-		// DetachedCriteria.forClass(Bookinfo.class);
-		// criteria.add(Restrictions.eq("bookName", book.getBookName()));
-		// criteria.add(Restrictions.eq("bookAuthor", book.getBookAuthor()));
-		// criteria.add(Restrictions.eq("bookEdition", book.getBookEdition()));
-		// criteria.add(Restrictions.eq("bookPublisher",
-		// book.getBookPublisher()));
-		// criteria.add(Restrictions.eq("isbn", book.getIsbn()));
-		// criteria.add(Restrictions.eq("bookStatus", BookinfoStatus.NORMAL));
-		// List<Bookinfo> list = bookinfoDao.findByCriteria(criteria);
-		// return list != null && !list.isEmpty();
+		QueryUtil<Bookinfo> query = new QueryUtil<Bookinfo>();
+		query.eq("bookName", book.getBookName());
+		query.eq("bookAuthor", book.getBookAuthor());
+		query.eq("bookEdition", book.getBookEdition());
+		query.eq("bookPublisher", book.getBookPublisher());
+		query.eq("isbn", book.getIsbn());
+		query.eq("bookStatus", BookinfoStatus.NORMAL);
+		Specification<Bookinfo> spec = query.getSpecification();
+		List<Bookinfo> list = this.bookinfoDao.findAll(spec);
+		return list != null && !list.isEmpty();
 	}
 
 	/**
@@ -146,7 +149,7 @@ public class BookService {
 		// 新增图书
 		book.setIsNewEdition(true);// 默认设置为最新版
 		book.setRepeatIsbn(false);// 一码多书设置为false
-		// book.setBookStatus(ConstantString.USEFUL);
+		book.setBookStatus(ConstantString.USEFUL);
 		book.setGmtCreate(ZisUtils.getTS());
 		book.setGmtModify(ZisUtils.getTS());
 		book = bookinfoDao.save(book);
@@ -207,18 +210,6 @@ public class BookService {
 		if (book.getBookPrice() == null || book.getBookPrice() <= 0) {
 			throw new IllegalArgumentException("图书价格不能为空且必须大于0");
 		}
-	}
-
-	/**
-	 * ���ز�ѯ����ͼ��
-	 * 
-	 * @param criteria
-	 * @return
-	 */
-	public List<Bookinfo> findBookByCriteria(DetachedCriteria criteria) {
-		return null;
-		// FIXME to be impl
-		// return bookinfoDao.findByCriteria(criteria);
 	}
 
 	/**
@@ -594,7 +585,8 @@ public class BookService {
 		taskExecutor.execute(task);
 		return taskExecutor.getActiveCount();
 	}
-
+	
+	@RemoteMethod
 	public List<Bookinfo> findBookByISBN(String isbn) {
 		if (StringUtils.isBlank(isbn)) {
 			throw new RuntimeException("isbn不能为空");
@@ -612,6 +604,7 @@ public class BookService {
 	 * @param isbn
 	 * @return
 	 */
+	@RemoteMethod
 	public BookInfoSearchResult findAndCaptureBookByISBN(String isbn) {
 		List<Bookinfo> list = this.findBookByISBN(isbn);
 		// 系统中已经存在相关记录，直接保存
@@ -875,14 +868,24 @@ public class BookService {
 	public Page<BookinfoAid> findByCheckLevelAndTotalCountGtOne(Integer checkLevel, Pageable pageable) {
 		return this.bookinfoAidDao.findByCheckLevelAndTotalCountGtOne(checkLevel, pageable);
 	}
-	
-//	/**
-//	 * 分页查询test 动态条件组合
-//	 * 
-//	 * @param pageable
-//	 * @return
-//	 */
-	public Page<Bookinfo> findByTest(Specification<Bookinfo>spec, Pageable pageable) {
+
+	/**
+	 * 分页查询Bookinfo 动态条件组合
+	 * 
+	 * @param pageable
+	 * @return
+	 */
+	public Page<Bookinfo> findBySpecification(Specification<Bookinfo> spec, Pageable pageable) {
 		return this.bookinfoDao.findAll(spec, pageable);
+	}
+
+	/**
+	 * 全查询Bookinfo 动态条件组合
+	 * 
+	 * @param pageable
+	 * @return
+	 */
+	public List<Bookinfo> findBySpecificationAll(Specification<Bookinfo> spec) {
+		return this.bookinfoDao.findAll(spec);
 	}
 }

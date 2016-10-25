@@ -7,24 +7,19 @@
 		<table>
 			<tr>
 				<td>学校</td>
-				<td><input name="school" type="text">
-				</td>
+				<td><input name="school" type="text"></td>
 			</tr>
 			<tr>
 				<td>院系</td>
-				<td><input name="institute" type="text">
-				</td>
+				<td><input name="institute" type="text"></td>
 			</tr>
 			<tr>
 				<td>专业</td>
-				<td><input name="partName" type="text">
-				</td>
+				<td><input name="partName" type="text"></td>
 			</tr>
 			<tr>
-				<td><input value="查询" type="submit">
-				</td>
-				<td><input value="重置" type="reset">
-				</td>
+				<td><input value="查询" type="submit"></td>
+				<td><input value="重置" type="reset"></td>
 			</tr>
 		</table>
 	</form>
@@ -52,14 +47,12 @@
 
 	<!-- 分页查询start -->
 	<c:if test="${not empty prePage}">
-		<a
-			href="requirement/findSchoolInfo?page=${prePage}&school=${school}&institute=${institute}&partName=${partName}">上一页</a>&nbsp;
-		</c:if>
+		<a href="requirement/findSchoolInfo?page=${prePage}&school=${school}&institute=${institute}&partName=${partName}">上一页</a>&nbsp;
+	</c:if>
 	${page} &nbsp;
 	<c:if test="${not empty nextPage}">
-		<a
-			href="requirement/findSchoolInfo?page=${nextPage}&school=${school}&institute=${institute}&partName=${partName}">下一页</a>&nbsp;
-		</c:if>
+		<a href="requirement/findSchoolInfo?page=${nextPage}&school=${school}&institute=${institute}&partName=${partName}">下一页</a>&nbsp;
+	</c:if>
 	<!-- 分页查询end -->
 </center>
 <%@ include file="/footer.jsp"%>

@@ -9,6 +9,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,8 +27,7 @@ import com.zis.purchase.dto.TempImportDTO;
  */
 @Controller
 @RequestMapping(value = "/purchase")
-public class TempImportUploadController extends
-		CommonImportController<TempImportDTO> {
+public class TempImportUploadController extends CommonImportController<TempImportDTO> {
 
 	@Autowired
 	private DoPurchaseService doPurchaseService;
@@ -40,36 +40,21 @@ public class TempImportUploadController extends
 	private static final String HEADER_SHOP_CATEGORY_ID = "类目ID";
 	private static final String HEADER_SHOP_FORBIDDEN = "禁止发布";
 	// 支持的业务类型描述
-	private static String supportedBizTypes = HEADER_STOCK + ","
-			+ HEADER_SHOP_STATUS + "," + HEADER_SHOP_TITLE + ","
+	private static String supportedBizTypes = HEADER_STOCK + "," + HEADER_SHOP_STATUS + "," + HEADER_SHOP_TITLE + ","
 			+ HEADER_SHOP_CATEGORY_ID + "," + HEADER_SHOP_FORBIDDEN;
 
-	@RequestMapping(value="/uploadTempRecord")
-	public String upload(@RequestParam MultipartFile excelFile, String memo) {
+	@RequestMapping(value = "/uploadTempRecord")
+	public String upload(@RequestParam MultipartFile excelFile, String memo, ModelMap map) {
 		try {
 			InputStream fileInputStream = excelFile.getInputStream();
-			return super.upload(fileInputStream, memo);
+			return super.upload(fileInputStream, memo, map);
 		} catch (IOException e) {
 			e.printStackTrace();
+			map.put("actionError", "传入文件为空");
 			return getFailPage();
 		}
-		
-		
-//		String excelFileFileName=excelFile.getOriginalFilename();
-//		System.out.println(excelFileFileName);
-//		
-//		CommonsMultipartFile cf= (CommonsMultipartFile)excelFile;
-//		
-//		DiskFileItem fi = (DiskFileItem)cf.getFileItem(); 
-//		File upLoadFile=fi.getStoreLocation();
-//		System.out.println(upLoadFile);
 	}
 
-	// TODO 验证框架
-	// @Validations(
-	// requiredFields = {
-	// @RequiredFieldValidator(fieldName = "excelFile", key = "文件必须输入"),
-	// })
 	@Override
 	protected String initTemplatePath() {
 		return null;

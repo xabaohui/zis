@@ -1,5 +1,7 @@
 package com.zis.bookinfo.dto;
 
+import org.directwebremoting.annotations.DataTransferObject;
+
 import com.zis.bookinfo.bean.Bookinfo;
 
 /**
@@ -7,6 +9,7 @@ import com.zis.bookinfo.bean.Bookinfo;
  * @author yz
  *
  */
+@DataTransferObject
 public class BookInfoAndDetailDTO extends Bookinfo {
 
 	private static final long serialVersionUID = 3475121159026510230L;

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.zis.bookinfo.bean.Bookinfo;
@@ -29,47 +30,39 @@ import com.zis.purchase.dto.TempImportDetailView;
  */
 @Controller
 @RequestMapping(value = "/purchase")
-public class TaobaoCsvDataExportActionTempRecordImpl extends
-		TaobaoCsvDataExportController {
+public class TaobaoCsvDataExportActionTempRecordImpl extends TaobaoCsvDataExportController {
 
-	// private Integer taskId;
 	@Autowired
 	private DoPurchaseService doPurchaseService;
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(TaobaoCsvDataExportActionTempRecordImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(TaobaoCsvDataExportActionTempRecordImpl.class);
 
 	@RequestMapping(value = "/exportTaobaoItemDataByTempImport")
-	public String export(HttpServletRequest request) {
-		return super.export(request);
+	public String export(HttpServletRequest request, ModelMap map) {
+		return super.export(request, map);
 	}
 
 	@Override
-	protected List<BookInfoAndDetailDTO> queryBookInfoAndDetails(
-			HttpServletRequest request) {
+	protected List<BookInfoAndDetailDTO> queryBookInfoAndDetails(HttpServletRequest request) {
 		String taskIdStr = request.getParameter("taskId");
 		if (StringUtils.isNumeric(taskIdStr)) {
 			Integer taskId = Integer.parseInt(taskIdStr);
 			// 查询相关数据
-			List<TempImportDetailView> inList = this.doPurchaseService
-					.findTempImportDetail(taskId,
-							TempImportDetailStatus.MATCHED);
+			List<TempImportDetailView> inList = this.doPurchaseService.findTempImportDetail(taskId,
+					TempImportDetailStatus.MATCHED);
 			System.out.println(taskId);
 			// 转换成BookInfoAndDetailDTO
 			List<BookInfoAndDetailDTO> resultList = new ArrayList<BookInfoAndDetailDTO>();
 			for (TempImportDetailView tmp : inList) {
 				Bookinfo book = tmp.getAssociateBook();
-				BookinfoDetail detail = bookService
-						.findBookInfoDetailByBookId(book.getId());
+				BookinfoDetail detail = bookService.findBookInfoDetailByBookId(book.getId());
 				// 如果没有图书详情，则从网上采集
 				if (detail == null) {
 					try {
-						detail = bookService.captureBookInfoDetailFromNet(book
-								.getId());
+						detail = bookService.captureBookInfoDetailFromNet(book.getId());
 					} catch (Exception e) {
 						// 单条错误不能影响全部记录
-						logger.error("[数据采集] 采集过程中发生错误，bookId=", book.getId(),
-								e);
+						logger.error("[数据采集] 采集过程中发生错误，bookId=", book.getId(), e);
 					}
 				}
 				// 如果没有采集到图书详情，则跳过此条记录
@@ -77,18 +70,15 @@ public class TaobaoCsvDataExportActionTempRecordImpl extends
 					continue;
 				}
 				// 过滤淘宝黑名单记录
-				if (detail.getTaobaoForbidden() != null
-						&& detail.getTaobaoForbidden() == true) {
+				if (detail.getTaobaoForbidden() != null && detail.getTaobaoForbidden() == true) {
 					continue;
 				}
 				BookInfoAndDetailDTO infoAndDetail = new BookInfoAndDetailDTO();
 				BeanUtils.copyProperties(book, infoAndDetail);
 				BeanUtils.copyProperties(detail, infoAndDetail);
 				// 查询库存量
-				PurchasePlan plan = this.doPurchaseService
-						.findPurchasePlanByBookId(book.getId());
-				if (plan == null || plan.getStockAmount() == null
-						|| plan.getStockAmount() <= 0) {
+				PurchasePlan plan = this.doPurchaseService.findPurchasePlanByBookId(book.getId());
+				if (plan == null || plan.getStockAmount() == null || plan.getStockAmount() <= 0) {
 					continue; // 跳过没有库存的记录
 				}
 				if (plan != null) {
