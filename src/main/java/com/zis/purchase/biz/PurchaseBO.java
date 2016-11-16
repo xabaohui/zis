@@ -4,8 +4,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskRejectedException;
@@ -38,6 +36,7 @@ import com.zis.purchase.repository.PurchasePlanDao;
  */
 @Component
 public class PurchaseBO {
+	
 	@Autowired
 	private SysVarCache sysVarCache;
 	@Autowired

@@ -9,12 +9,6 @@ function checkExistBook() {
 	// 增加遮罩，提示用户系统处理中
 	document.getElementById("float-to-be-show").style.display = "block";
     bookService.findAndCaptureBookByISBN(isbn, showCheckExistBookResult);
-//    alert(dwr.util);
-//	if (typeof window['bookService'] == 'undefined'){
-//		alert(12212);
-//        window.bookService = dwr.util;
-//        bookService.findAndCaptureBookByISBN(isbn, showCheckExistBookResult);
-//    }
 }
 
 function showCheckExistBookResult(data) {
@@ -25,7 +19,6 @@ function showCheckExistBookResult(data) {
 		if(data.sysData) {
 			showExistSysData(data);
 		} else {
-			alert(111);
 			showCapturedData(data.bookCaptured);
 		}
 	}

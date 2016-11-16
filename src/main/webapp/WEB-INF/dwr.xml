@@ -15,11 +15,11 @@
         <create creator="spring" javascript="inwarehouseBO">
             <param name="beanName" value="inwarehouseBOAction"/>
         </create>
-        <!-- 库位校准 -->
+        <!-- 库位校准 
         <create creator="spring" javascript="stockPosCheckBO">
             <param name="beanName" value="stockPosCheckBOAction"/>
-        </create>
-        <convert match="com.zis.requirement.bean.Bookamount" converter="bean" />
+        </create>-->
+        <convert match="com.zis.requirement.bean.BookAmount" converter="bean" />
         <convert match="com.zis.requirement.dto.AddBookToDepartmentResult" converter="bean" />
         <convert match="com.zis.bookinfo.bean.Bookinfo" converter="bean"/>
         <convert match="com.zis.purchase.dto.InwarehouseDealtResult" converter="bean" />

@@ -6,13 +6,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import com.zis.bookinfo.util.BookMetadata;
 import com.zis.bookinfo.util.BookMetadataSource;
@@ -24,7 +22,6 @@ import com.zis.common.util.ZisUtils;
  * @author yz
  * 
  */
-@Component
 public class DangDangBookMetadataCapture extends AbstractBookMetadataCapture {
 
 	private static final String URL_FMT_DETAIL_PAGE = "http://product.dangdang.com/%s.html";

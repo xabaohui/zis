@@ -2,8 +2,7 @@
 <%@ include file="/header.jsp"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
-<h1>出错啦.....</h1>
-
+<h1>出错啦...</h1>
 <h2>
 	<font color="red">${actionError}</font>
 </h2>

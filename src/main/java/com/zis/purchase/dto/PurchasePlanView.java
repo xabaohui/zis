@@ -6,7 +6,6 @@ import com.zis.purchase.bean.PurchasePlan;
 
 public class PurchasePlanView extends PurchasePlan {
 
-	private static final long serialVersionUID = -1040252572666322485L;
 	private Date publishDate;
 	private Float bookPrice;
 	private boolean isNewEdition; // 是否是最新版

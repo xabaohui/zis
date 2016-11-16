@@ -7,6 +7,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.apache.log4j.Logger;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Controller;
@@ -33,7 +34,8 @@ public class BookSaveOrUpdateController {
 
 	@Autowired
 	private BookService bookService;
-
+	
+	@RequiresPermissions(value="bookInfo/saveOrUpdate")
 	@RequestMapping(value = "/saveOrUpdate")
 	public String saveOrUpdate(@Valid @ModelAttribute("bookInfoDTO") BookInfoDTO bookInfoDTO, BindingResult br,
 			ModelMap map) {

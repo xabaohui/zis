@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	 http://www.springframework.org/schema/beans/spring-beans.xsd
+	 http://www.springframework.org/schema/context
+	 http://www.springframework.org/schema/context/spring-context.xsd
+	 http://www.springframework.org/schema/mvc
+	 http://www.springframework.org/schema/mvc/spring-mvc.xsd
+	 http://www.springframework.org/schema/tx
+	 http://www.springframework.org/schema/tx/spring-tx.xsd
+	 http://www.springframework.org/schema/data/jpa
+	 http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+	 ">
+	<!-- Shiro 的Web过滤器 -->
+	<!--================================================1、与web.xml对应的bean=================================== -->
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<property name="securityManager" ref="securityManager" />
+		<!-- 如果没有认证将要跳转的登陆地址，http可访问的url，如果不在表单认证过虑器FormAuthenticationFilter中指定此地址就为身份认证地址 -->
+		<property name="loginUrl" value="/tologin" />
+		<!-- 成功登陆地址 -->
+		<property name="successUrl" value="/goIndex" />
+		<!-- 没有权限跳转的地址 -->
+		<property name="unauthorizedUrl" value="/pages/jsp/refuse.jsp" />
+		<!-- 自定义filter配置 -->
+		<property name="filters">
+			<map>
+				<!-- 将自定义 的FormAuthenticationFilter注入shiroFilter中 -->
+				<entry key="authc" value-ref="formAuthenticationFilter" />
+				<entry key="kickout" value-ref="kickoutSessionControlFilter" />
+			</map>
+		</property>
+		<!--过滤定义，从上而下，蒋匿名的anon放最下面 -->
+		<property name="filterChainDefinitions">
+			<value>
+				<!-- 自定义认证不拦截 -->
+				/loginAuthc = anon
+				<!-- 静态资源通过 -->
+				<!-- /resources/** = anon -->
+				<!--请求logout，shrio擦除sssion -->
+				/logout = logout
+				<!--表示所有请求url必须通过认证 -->
+				/** = authc,kickout
+			</value>
+		</property>
+	</bean>
+
+	<!-- ==============================================2、安全管理器============================================== -->
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		<property name="realm" ref="userRealm" />
+		<!--缓存管理 -->
+		<property name="sessionManager" ref="sessionManager" />
+		<property name="cacheManager" ref="cacheManager" />
+	</bean>
+	<!-- 缓存管理器 -->
+	<bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+		<property name="cacheManagerConfigFile" value="classpath:cache/ehcache.xml" />
+	</bean>
+	<!-- ================================================会话管理========================================================== -->
+	<!-- 会话ID生成器 -->
+	<bean id="sessionIdGenerator"
+		class="org.apache.shiro.session.mgt.eis.JavaUuidSessionIdGenerator" />
+	<!-- 会话DAO -->
+	<bean id="sessionDAO"
+		class="org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO">
+		<property name="activeSessionsCacheName" value="shiro-activeSessionCache" />
+		<property name="sessionIdGenerator" ref="sessionIdGenerator" />
+	</bean>
+
+	<!-- 会话验证调度器 使用修改过的定时器,支持quartz 2.2.1版本-->
+	<bean id="sessionValidationScheduler"
+		class="com.zis.shiro.quartz.QuartzSessionValidationScheduler2">
+		<property name="sessionValidationInterval" value="3600000" />
+		<property name="sessionManager" ref="sessionManager" />
+	</bean>
+	<!-- 会话Cookie模板 -->
+	<bean id="sessionIdCookie" class="org.apache.shiro.web.servlet.SimpleCookie">
+		<constructor-arg value="sid" />
+		<property name="httpOnly" value="true" />
+		<property name="maxAge" value="3600000" />
+	</bean>
+	<!-- 会话管理器 -->
+	<bean id="sessionManager"
+		class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager">
+		<!-- session的失效时长，单位毫秒 -->
+		<!-- 失效时间为1小时 -->
+		<property name="globalSessionTimeout" value="3600000" />
+		<!-- 删除失效的session -->
+		<property name="deleteInvalidSessions" value="true" />
+		<property name="sessionValidationSchedulerEnabled" value="true" />
+		<property name="sessionValidationScheduler" ref="sessionValidationScheduler" />
+		<property name="sessionDAO" ref="sessionDAO" />
+		<property name="sessionIdCookieEnabled" value="true" />
+		<property name="sessionIdCookie" ref="sessionIdCookie" />
+	</bean>
+	<!--==============================================3、realm=================================================== -->
+	<!-- Shiro配置,继承自AuthorizingRealm的自定义Realm (解决初始化时的依赖循环问题，通过这里向realm中注入userservice实现) -->
+	<bean id="userRealm" class="com.zis.shiro.realm.CustomRealm">
+		<property name="credentialsMatcher" ref="credentialsMatcher" />
+		<property name="cachingEnabled" value="true" />
+		<property name="authenticationCachingEnabled" value="true" />
+		<property name="authenticationCacheName" value="authenticationCache" />
+		<property name="authorizationCachingEnabled" value="true" />
+		<property name="authorizationCacheName" value="authorizationCache" />
+	</bean>
+	<!-- 相当于调用SecurityUtils.setSecurityManager(securityManager) -->
+	<bean
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="staticMethod"
+			value="org.apache.shiro.SecurityUtils.setSecurityManager" />
+		<property name="arguments" ref="securityManager" />
+	</bean>
+	<!-- 基于Form表单的身份验证过滤器 -->
+	<bean id="formAuthenticationFilter"
+		class="org.apache.shiro.web.filter.authc.FormAuthenticationFilter">
+		<property name="usernameParam" value="username" />
+		<property name="passwordParam" value="password" />
+	</bean>
+
+	<!--4 凭证匹配器 -->
+	<bean id="credentialsMatcher"
+		class="com.zis.shiro.filter.RetryLimitHashedCredentialsMatcher">
+		<constructor-arg ref="cacheManager"/>
+		<property name="hashAlgorithmName" value="md5" />
+		<property name="hashIterations" value="1" />
+		<property name="storedCredentialsHexEncoded" value="true" />
+	</bean>
+	<!-- ==============================================并发人员控制登录================================================== -->
+	<bean id="kickoutSessionControlFilter"
+		class="com.zis.shiro.filter.KickoutSessionControlFilter">
+		<property name="cacheManager" ref="cacheManager" />
+		<property name="sessionManager" ref="sessionManager" />
+		<property name="kickoutAfter" value="false" />
+		<property name="maxSession" value="1" />
+		<property name="kickoutUrl" value="/tologin?kickout=1" />
+	</bean>
+	<!-- Shiro生命周期处理器 -->
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
+</beans>

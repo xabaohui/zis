@@ -10,6 +10,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.directwebremoting.annotations.RemoteMethod;
 import org.directwebremoting.annotations.RemoteProxy;
+import org.directwebremoting.annotations.ScriptScope;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -30,7 +31,7 @@ import com.zis.requirement.repository.BookAmountDao;
 import com.zis.requirement.repository.DepartmentInfoDao;
 
 @Service
-@RemoteProxy(name = "addAmountBiz")
+@RemoteProxy(name = "addAmountBiz", scope=ScriptScope.PAGE)
 public class BookAmountService {
 
 	private static Logger logger = Logger.getLogger(BookAmountService.class);
@@ -50,6 +51,7 @@ public class BookAmountService {
 	 * @throws RuntimeException
 	 *             如果出现重复记录，会抛出异常。注意：BookId、专业、年纪、学期完全相同，才可定义为重复
 	 */
+	@RemoteMethod
 	public void saveBookAmount(BookAmount ba) {
 		// DetachedCriteria criteria =
 		// DetachedCriteria.forClass(Bookamount.class);
@@ -165,6 +167,7 @@ public class BookAmountService {
 	 * 
 	 * @param requestDTO
 	 */
+	@RemoteMethod
 	public void addBookAmount(BookAmountAddApiRequestDTO requestDTO) {
 		Departmentinfo di = departmentInfoDao.findOne(requestDTO.getDepartId());
 		for (Integer bookId : requestDTO.getBookIdList()) {
@@ -193,6 +196,7 @@ public class BookAmountService {
 	 * 
 	 * @param list
 	 */
+	@RemoteMethod
 	public void saveBookAmountList(List<BookAmount> list) {
 		for (BookAmount bookamount : list) {
 			this.saveBookAmount(bookamount);
@@ -204,6 +208,7 @@ public class BookAmountService {
 	 * 
 	 * @return
 	 */
+	@RemoteMethod
 	public List<RequirementCollectScheduleDTO> findRequirementCollectSchedule(boolean groupByOperator) {
 		// 查询所有采集过数据的 学校
 		// DetachedCriteria dc = DetachedCriteria.forClass(Bookamount.class);

@@ -15,7 +15,6 @@ import java.util.Map.Entry;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import com.zis.bookinfo.util.BookMetadata;
 import com.zis.common.util.CosineSimilarAlgorithm;
@@ -27,7 +26,6 @@ import com.zis.common.util.ImageUtils;
  * @author yz
  *
  */
-@Component
 public class DefaultBookMetadataCaptureHandler {
 	
 	// 所有的抓取类

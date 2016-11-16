@@ -13,7 +13,6 @@ import com.zis.purchase.bean.TempImportDetail;
  */
 public class TempImportDetailView extends TempImportDetail{
 
-	private static final long serialVersionUID = -8516149873314319649L;
 	private Bookinfo associateBook;// 对应图书
 	private List<Bookinfo> relatedBooks;// 关联图书
 

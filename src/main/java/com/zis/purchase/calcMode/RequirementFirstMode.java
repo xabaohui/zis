@@ -2,7 +2,6 @@ package com.zis.purchase.calcMode;
 
 import javax.annotation.Resource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.zis.purchase.calculate.BookAmountCalculateInterface;
