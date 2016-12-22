@@ -1,5 +1,6 @@
 package com.zis.requirement.controller;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -16,6 +17,7 @@ public class DepartmentInfoUpdatePreController {
 	private SchoolBiz schoolBiz;
 
 	// 修改院校信息的回显操作
+	@RequiresPermissions(value = { "requirement:updateSchoolPre" })
 	@RequestMapping(value = "/updateSchoolPre")
 	public String getInfo(Integer id, ModelMap ctx) {
 		if (id == null) {

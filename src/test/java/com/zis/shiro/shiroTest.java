@@ -18,6 +18,7 @@ import com.zis.shiro.bean.Role;
 import com.zis.shiro.bean.RolePermission;
 import com.zis.shiro.bean.User;
 import com.zis.shiro.dto.ShiroRealmDto;
+import com.zis.shiro.dto.UpdateUserInfo;
 import com.zis.shiro.repository.PermissionDao;
 import com.zis.shiro.repository.RoleDao;
 import com.zis.shiro.repository.RolePermissionDao;
@@ -75,7 +76,7 @@ public class shiroTest {
 			p.setPermissionDescription(getRandomJianHan(10));
 			p.setCreateTime(new Date());
 			p.setUpdateTime(new Date());
-			p.setUrl("bookInfo/saveOrUpdate"+i);
+			p.setUrl("bookInfo/saveOrUpdate" + i);
 			permissionDao.save(p);
 		}
 	}
@@ -94,7 +95,7 @@ public class shiroTest {
 	}
 
 	@Test
-	public void gethehe1() {
+	public void findUserAllInfoHQL() {
 		List<ShiroRealmDto> list1 = userDao.findUserAllInfoHQL("liumang6");
 		for (ShiroRealmDto s : list1) {
 			System.out.println(s);
@@ -102,7 +103,7 @@ public class shiroTest {
 	}
 
 	@Test
-	public void gethehe2() {
+	public void findPermissionByUserId() {
 		List<Permission> list1 = permissionDao.findPermissionByUserId(7);
 		for (Permission permission : list1) {
 			System.out.println(permission);

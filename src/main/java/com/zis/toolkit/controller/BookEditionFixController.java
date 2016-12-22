@@ -2,6 +2,7 @@ package com.zis.toolkit.controller;
 
 import java.util.List;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -27,6 +28,7 @@ public class BookEditionFixController extends BaseBookFixController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value = { "toolkit:batchFixEditionByBookName" })
 	@RequestMapping(value = "/batchFixEditionByBookName")
 	public String batchFixEditionByBookName(ModelMap context) {
 		List<String> list = bookInfoToolkit.updateFixEditionByBookName("修订版");
@@ -41,6 +43,7 @@ public class BookEditionFixController extends BaseBookFixController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value = { "toolkit:batchReplaceEditionByBookName" })
 	@RequestMapping(value = "/batchReplaceEditionByBookName")
 	public String batchReplaceEditionByBookName(ModelMap context) {
 		List<String> list = bookInfoToolkit.updateReplaceEditionByBookName();

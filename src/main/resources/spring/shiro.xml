@@ -29,6 +29,12 @@
 			<map>
 				<!-- 将自定义 的FormAuthenticationFilter注入shiroFilter中 -->
 				<entry key="authc" value-ref="formAuthenticationFilter" />
+				<entry key="roles" >
+					<bean class = "com.zis.shiro.filter.RoleAuthorizationFilter"></bean>
+				</entry>
+				<entry key="perms" >
+					<bean class = "com.zis.shiro.filter.RoleAuthorizationFilter"></bean>
+				</entry>
 				<entry key="kickout" value-ref="kickoutSessionControlFilter" />
 			</map>
 		</property>

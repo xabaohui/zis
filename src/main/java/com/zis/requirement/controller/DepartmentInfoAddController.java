@@ -3,6 +3,7 @@ package com.zis.requirement.controller;
 import javax.validation.Valid;
 
 import org.apache.log4j.Logger;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -22,7 +23,8 @@ public class DepartmentInfoAddController {
 	private static Logger logger = Logger.getLogger(DepartmentInfoAddController.class);
 	@Autowired
 	private SchoolBiz schoolBiz;
-
+	
+	@RequiresPermissions(value = { "requirement:addSchoolAction" })
 	@RequestMapping(value = "/addSchoolAction")
 	public String addSchool(@Valid @ModelAttribute("dto") AddSchoolDTO dto, BindingResult br, Integer id, ModelMap ctx) {
 

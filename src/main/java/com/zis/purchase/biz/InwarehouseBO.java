@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.directwebremoting.annotations.RemoteProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -36,7 +35,6 @@ import com.zis.purchase.repository.PurchasePlanDao;
  * 
  */
 @Component
-@RemoteProxy(name = "inwarehouseBOAction")
 public class InwarehouseBO {
 	
 	@Autowired
@@ -68,6 +66,9 @@ public class InwarehouseBO {
 		}
 		if (labels.length != capacities.length) {
 			throw new RuntimeException("库位名称和库位容量不匹配");
+		}
+		if(!StringUtils.isNoneBlank(labels)){
+			throw new RuntimeException("库位名称不能为空");
 		}
 		for (int i = 0; i < labels.length; i++) {
 			if(StringUtils.isBlank(labels[i])) {

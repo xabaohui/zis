@@ -9,6 +9,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +35,7 @@ public class RequirementCollectScheduleController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value = { "requirement:exportRequirementCollectSchedule" })
 	@RequestMapping(value = "/exportRequirementCollectSchedule")
 	public String exportSchedule(HttpServletResponse response, Boolean groupByOperator) {
 		List<RequirementCollectScheduleDTO> list = bookAmountService.findRequirementCollectSchedule(groupByOperator);

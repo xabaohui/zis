@@ -1,6 +1,11 @@
 package com.zis.shiro.dto;
 
-
+/**
+ * 用户获取前端List帮助DTO
+ * 
+ * @author think
+ * 
+ */
 public class ShowPermissionDto {
 
 	private String registList;
@@ -48,5 +53,5 @@ public class ShowPermissionDto {
 	public void setToolkitList(String toolkitList) {
 		this.toolkitList = toolkitList;
 	}
-	
+
 }

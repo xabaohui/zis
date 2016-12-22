@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,12 +31,14 @@ public class DoPurchaseController {
 	private BookService bookService;
 
 	@SuppressWarnings("deprecation")
+	@RequiresPermissions(value = {"purchase:batchUpdatePurchasePlanForPurchaseAmount"})
 	@RequestMapping(value = "/batchUpdatePurchasePlanForPurchaseAmount")
 	public String batchUpdatePurchasePlanForPurchaseAmount() {
 		this.doPurchaseService.batchUpdatePurchasePlanForPurchaseAmount();
 		return "success";
 	}
-
+	
+	@RequiresPermissions(value = "purchase:doPurchase")
 	@RequestMapping(value = "/doPurchase", method = RequestMethod.POST)
 	public String doPurchase(String isbn) {
 		// 如果指定了bookId则只处理这一条
@@ -85,6 +88,7 @@ public class DoPurchaseController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value = "purchase:clearOnwayStock")
 	@RequestMapping(value = "/clearOnwayStock")
 	public String clearOnwayStock(String purchaseOperator) {
 		this.doPurchaseService.deleteOnwayStock(purchaseOperator);
@@ -96,6 +100,7 @@ public class DoPurchaseController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value = "purchase:batchAddIntoBlackList")
 	@RequestMapping(value = "/batchAddIntoBlackList")
 	public String batchAddIntoBlackList(String keyword) {
 		if (StringUtils.isBlank(keyword)) {

@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -32,6 +33,7 @@ public class BookNameFixController extends BaseBookFixController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value = { "toolkit:batchFixBookName" })
 	@RequestMapping(value = "/batchFixBookName")
 	public String fixBookName(@Valid @ModelAttribute("fixBookNameDTO") FixBookNameDTO fixBookNameDTO, BindingResult br,
 			ModelMap context) {

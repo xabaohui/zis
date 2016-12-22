@@ -29,6 +29,27 @@ function comparePasswordSubmit() {
 		document.getElementById('registFrom').submit();
 }
 
+//判断密码是否重复，如果不重复form表单提交
+function passwordSubmit() {
+	var password = document.getElementById('password').value;
+	var passwordAgain = document.getElementById('passwordAgain').value;
+	var hideErrors = document.getElementsByClassName('showError');
+	if(!(password == passwordAgain)) {
+		document.getElementById('errorPasswordAgain').style="display:block;";
+		return;
+	}
+	document.getElementById('errorPasswordAgain').style="display:none";
+	document.getElementById('registFrom').submit();
+}
+
+//判断是否选择了权限
+function permissionCheckedSubmit() {
+	if(!isChecked()){
+		return;
+	}
+	document.getElementById('registFrom').submit();
+}
+
 //全选
 function checkAll(ClassName, idName){
 	var all = document.getElementById(idName);

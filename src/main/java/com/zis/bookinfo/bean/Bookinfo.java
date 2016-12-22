@@ -12,6 +12,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
 import org.directwebremoting.annotations.DataTransferObject;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * Bookinfo entity. @author MyEclipse Persistence Tools
@@ -47,6 +48,7 @@ public class Bookinfo implements java.io.Serializable {
 	
 	@Column(name="publishDate")
 	@Temporal(TemporalType.TIMESTAMP)
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date publishDate;
 	
 	@Column(name="bookPrice", precision=10, scale=2)

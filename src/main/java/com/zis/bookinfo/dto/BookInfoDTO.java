@@ -9,7 +9,10 @@ import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.format.annotation.DateTimeFormat;
 
-public class BookInfoDTO {
+import com.zis.bookinfo.bean.Bookinfo;
+import com.zis.bookinfo.bean.BookinfoDetail;
+
+public class BookInfoDTO extends Bookinfo{
 
 	private Integer id;
 	@Min(value = 1, message = "外部ID必须大于0")
@@ -42,6 +45,8 @@ public class BookInfoDTO {
 	private Integer taobaoCatagoryId;
 	private String summary;
 	private String catalog;
+	
+	private String urlType;
 
 	public Integer getId() {
 		return id;
@@ -187,4 +192,11 @@ public class BookInfoDTO {
 		this.catalog = catalog;
 	}
 
+	public String getUrlType() {
+		return urlType;
+	}
+
+	public void setUrlType(String urlType) {
+		this.urlType = urlType;
+	}
 }

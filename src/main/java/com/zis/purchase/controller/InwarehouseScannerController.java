@@ -1,5 +1,6 @@
 package com.zis.purchase.controller;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -30,6 +31,7 @@ public class InwarehouseScannerController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value = {"purchase:recoverScan"})
 	@RequestMapping(value = "/recoverScan")
 	public String recoverScan(Integer inwarehouseId, ModelMap context) {
 		try {
@@ -61,6 +63,7 @@ public class InwarehouseScannerController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value = {"purchase:terminateInwarehouse"})
 	@RequestMapping(value = "/terminateInwarehouse")
 	public String terminate(Integer inwarehouseId, ModelMap map) {
 		try {

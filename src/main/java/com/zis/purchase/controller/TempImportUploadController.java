@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -43,6 +44,7 @@ public class TempImportUploadController extends CommonImportController<TempImpor
 	private static String supportedBizTypes = HEADER_STOCK + "," + HEADER_SHOP_STATUS + "," + HEADER_SHOP_TITLE + ","
 			+ HEADER_SHOP_CATEGORY_ID + "," + HEADER_SHOP_FORBIDDEN;
 
+	@RequiresPermissions(value = { "purchase:uploadTempRecord" })
 	@RequestMapping(value = "/uploadTempRecord")
 	public String upload(@RequestParam MultipartFile excelFile, String memo, ModelMap map) {
 		try {

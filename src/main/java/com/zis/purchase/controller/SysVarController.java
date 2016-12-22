@@ -2,6 +2,7 @@ package com.zis.purchase.controller;
 
 import java.util.List;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -23,6 +24,7 @@ public class SysVarController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value = { "toolkit:querySysVarAction" })
 	@RequestMapping(value="/querySysVarAction")
 	public String queryAllSysVar(ModelMap context) {
 		List<SysVar> list = sysVarCache.getAllSysVars();
@@ -35,6 +37,7 @@ public class SysVarController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value = { "toolkit:updateSysVarPreAction" })
 	@RequestMapping(value="/updateSysVarPreAction")
 	public String updateSysVarPre(ModelMap context,String depKey) {
 		Integer depValue = sysVarCache.getSystemVar(depKey);

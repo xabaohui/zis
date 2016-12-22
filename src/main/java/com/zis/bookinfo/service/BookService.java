@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.directwebremoting.annotations.RemoteMethod;
 import org.directwebremoting.annotations.RemoteProxy;
 import org.slf4j.Logger;
@@ -604,6 +605,7 @@ public class BookService {
 	 * @param isbn
 	 * @return
 	 */
+	@RequiresPermissions(value = "bookInfo:getAllBooks")
 	@RemoteMethod
 	public BookInfoSearchResult findAndCaptureBookByISBN(String isbn) {
 		List<Bookinfo> list = this.findBookByISBN(isbn);

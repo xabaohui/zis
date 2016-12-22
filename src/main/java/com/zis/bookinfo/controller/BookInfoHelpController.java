@@ -5,15 +5,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequiresPermissions(value = "ssss/ssssss")
 @RequestMapping(value = "/bookInfo")
 public class BookInfoHelpController {
-
+	
+	@RequiresPermissions(value = "bookInfo:gotoAddBook")
 	@RequestMapping(value = "gotoAddBook")
 	public String gotoAddBook() {
 		return "bookinfo/addBook";
 	}
-
+	
+	@RequiresPermissions(value = "bookInfo:gotoAddYouLuData")
 	@RequestMapping(value = "gotoAddYouLuData")
 	public String gotoAddYouLuData() {
 		return "bookinfo/addYouLuData";

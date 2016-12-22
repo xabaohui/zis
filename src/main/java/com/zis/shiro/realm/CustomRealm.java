@@ -21,7 +21,6 @@ import com.zis.shiro.bean.User;
 import com.zis.shiro.dto.ActiveUser;
 import com.zis.shiro.service.SysService;
 
-
 /**
  * 
  * <p>
@@ -54,11 +53,7 @@ public class CustomRealm extends AuthorizingRealm {
 
 		// 第二步：根据用户输入的userCode从数据库查询
 		User sysUser = null;
-		try {
-			sysUser = sysService.findSysUserByUserName(userCode);
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
+		sysUser = sysService.findSysUserByUserName(userCode);
 
 		// 如果查询不到返回null
 		if (sysUser == null) {//
@@ -150,6 +145,34 @@ public class CustomRealm extends AuthorizingRealm {
 	public void clearCached() {
 		PrincipalCollection principals = SecurityUtils.getSubject().getPrincipals();
 		super.clearCache(principals);
+	}
+
+	@Override
+	public void clearCachedAuthorizationInfo(PrincipalCollection principals) {
+		super.clearCachedAuthorizationInfo(principals);
+	}
+
+	@Override
+	public void clearCachedAuthenticationInfo(PrincipalCollection principals) {
+		super.clearCachedAuthenticationInfo(principals);
+	}
+
+	@Override
+	public void clearCache(PrincipalCollection principals) {
+		super.clearCache(principals);
+	}
+
+	public void clearAllCachedAuthorizationInfo() {
+		getAuthorizationCache().clear();
+	}
+
+	public void clearAllCachedAuthenticationInfo() {
+		getAuthenticationCache().clear();
+	}
+
+	public void clearAllCache() {
+		clearAllCachedAuthenticationInfo();
+		clearAllCachedAuthorizationInfo();
 	}
 
 }

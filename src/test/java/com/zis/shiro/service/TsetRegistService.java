@@ -14,6 +14,7 @@ import org.springframework.test.context.transaction.TransactionConfiguration;
 import com.sun.org.apache.bcel.internal.generic.ARRAYLENGTH;
 import com.zis.shiro.bean.Permission;
 import com.zis.shiro.bean.Role;
+import com.zis.shiro.dto.UpdateUserRoleAndPermissions;
 import com.zis.shiro.repository.PermissionDao;
 import com.zis.shiro.repository.RoleDao;
 
@@ -23,7 +24,7 @@ import com.zis.shiro.repository.RoleDao;
 public class TsetRegistService {
 
 	@Autowired
-	private RegistService registService;
+	private RegistAndUpdateService registAndUpdateService;
 	@Autowired
 	private RoleDao roleDao;
 	
@@ -61,4 +62,5 @@ public class TsetRegistService {
 //		List<Permission> list1=this.permissionDao.findByPermissionNameIn(list);
 //		System.out.println(list1);
 	}
+
 }

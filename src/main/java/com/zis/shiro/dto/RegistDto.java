@@ -7,6 +7,11 @@ import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+/**
+ * 新建用户信息DTO用于验证
+ * @author think
+ *
+ */
 public class RegistDto extends ShowPermissionDto{
 
 	@NotBlank(message = "用户名不能为空")

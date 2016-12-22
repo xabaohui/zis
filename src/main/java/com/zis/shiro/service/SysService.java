@@ -2,6 +2,7 @@ package com.zis.shiro.service;
 
 import java.util.List;
 
+import org.apache.shiro.authc.DisabledAccountException;
 import org.apache.shiro.authc.LockedAccountException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,9 @@ public class SysService {
 		}
 		if (list.size() > 1) {
 			throw new LockedAccountException("账号已锁定，原因为账号重复");
+		}
+		if (list.get(0).getIsDelete().equals("yes")) {
+			throw new DisabledAccountException("账号已锁定，原因账号已删除");
 		}
 		return list.get(0);
 	}

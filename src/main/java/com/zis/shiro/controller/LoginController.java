@@ -1,6 +1,7 @@
 package com.zis.shiro.controller;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.DisabledAccountException;
 import org.apache.shiro.authc.ExcessiveAttemptsException;
@@ -17,11 +18,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class LoginController {
 
+	private final Logger logger = Logger.getLogger(LoginController.class);
+
 	@RequestMapping(value = "/tologin")
 	public String login() {
 		return "shiro/login";
 	}
-	
+
 	@RequestMapping(value = "/goIndex")
 	public String Index() {
 		return "index";
@@ -62,18 +65,20 @@ public class LoginController {
 			msg = "登录失败次数过多";
 			model.addAttribute("message", msg);
 		} catch (LockedAccountException e) {
-			msg = "帐号已被锁定.";
+			msg = e.getMessage();
 			model.addAttribute("message", msg);
+			logger.info(e.getMessage(), e);
 		} catch (DisabledAccountException e) {
-			msg = "帐号已被禁用.";
+			msg = e.getMessage();
 			model.addAttribute("message", msg);
+			logger.info(e.getMessage(), e);
 		} catch (ExpiredCredentialsException e) {
 			msg = "帐号已过期. ";
 			model.addAttribute("message", msg);
 		} catch (UnknownAccountException e) {
 			msg = token.getPrincipal() + "帐号不存在. ";
 			model.addAttribute("userNameError", msg);
-		} 
+		}
 		return "shiro/login";
 	}
 }

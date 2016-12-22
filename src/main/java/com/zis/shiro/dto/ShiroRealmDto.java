@@ -1,5 +1,10 @@
 package com.zis.shiro.dto;
 
+/**
+ * ShiroRealm 的帮助DTO
+ * @author think
+ *
+ */
 public class ShiroRealmDto {
 
 	private Integer userId;

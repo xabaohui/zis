@@ -1,5 +1,6 @@
 package com.zis.purchase.controller;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,11 +17,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 @RequestMapping(value = "/purchase")
 public class InwarehouseDataExportDispatcherController {
-
+	
+	@RequiresPermissions(value = {"purchase:exportInwarehouseData"})
 	@RequestMapping(value = "/exportInwarehouseData",method=RequestMethod.POST)
 	public String export(Integer[] batchSelectedItem, String operateType,
 			ModelMap map) {
 		if(batchSelectedItem==null){
+			map.put("errorAction", "没有选择导出数据");
 			return "error";
 		}
 		map.put("batchSelectedItem", batchSelectedItem);

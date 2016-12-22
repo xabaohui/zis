@@ -90,6 +90,10 @@
         	 	list-style-type: none;
         	 	line-height: 30px;
         	 }
+        	 .showListTop{
+        	 	position: relative;
+        	 	margin-left: -40px;
+        	 }
         	 .uls{
         	 margin-left: -10px;
         	 }
@@ -114,7 +118,9 @@
 		<div class="left" style="height: 100%;">
 			<br />
 			<br />
-			<b>&nbsp;欢迎<font color="green">[<shiro:principal property="realName"/>]</font>登录</b>
+			<b>&nbsp;欢迎<font color="green">[<shiro:principal property="realName"/>]</font></b>
+			<br />
+			&nbsp;&nbsp;<b>登录</b>
 			<br />
 			<br />
 			<br />
@@ -124,42 +130,77 @@
 			&nbsp;
 			<ul class = "uls" onclick="checked(this);">
 			<font style="font-weight: bolder;">图书相关</font>
-				<ul name = "showListTop" style="display: none;" >
+				<ul name = "showListTop" style="display: none;" class = "showListTop">
+					<shiro:hasPermission name="bookInfo:getAllBooks">
 					<li><a href="<%=basePath%>bookInfo/getAllBooks">图书列表</a></li>
+					</shiro:hasPermission>
+					<shiro:hasPermission name="bookInfo:gotoAddBook">
 					<li><a href="<%=basePath%>bookInfo/gotoAddBook">新增图书</a></li>
+					</shiro:hasPermission>
+					<shiro:hasPermission name="bookInfo:gotoAddYouLuData">
 					<li><a href="<%=basePath%>bookInfo/gotoAddYouLuData">批量增加</a></li>
+					</shiro:hasPermission>
 				</ul>
 			</ul>
 			<ul class = "uls" onclick="checked(this);">
 			<font style="font-weight: bolder;">院校相关</font>
-				<ul name = "showListTop" style="display: none">
-					<li><a href="<%=basePath%>/requirement/findSchoolInfo">院校信息</a></li>
-					<li><a href="<%=basePath%>/requirement/updateSchoolPre">添加院校</a></li>
-					<li><a href="<%=basePath%>/requirement/getAmountAction">教材使用量</a></li>
+				<ul name = "showListTop" style="display: none" class = "showListTop">
+					<shiro:hasPermission name="requirement:findSchoolInfo">
+						<li><a href="<%=basePath%>/requirement/findSchoolInfo">院校信息</a></li>
+					</shiro:hasPermission>
+					<shiro:hasPermission name="requirement:updateSchoolPre">
+						<li><a href="<%=basePath%>/requirement/updateSchoolPre">添加院校</a></li>
+					</shiro:hasPermission>
+					<shiro:hasPermission name="requirement:getAmountAction">
+						<li><a href="<%=basePath%>/requirement/getAmountAction">教材使用量</a></li>
+					</shiro:hasPermission>
 				</ul>
 			</ul>
 			<ul class = "uls" onclick="checked(this);">
 			<font style="font-weight: bolder;">采购相关</font>
-				<ul name = "showListTop" style="display: none">
-					<li><a href="<%=basePath%>purchase/queryPurchasePlan">采购计划</a></li>
-					<li><a href="<%=basePath%>purchase/queryPurchaseDetail">采购明细</a></li>
-					<li><a href="<%=basePath%>purchase/viewTempImportTask">数据导入</a></li>
-					<li><a href="<%=basePath%>purchase/gotoInWarehouse">扫描入库</a></li>
+				<ul name = "showListTop" style="display: none" class = "showListTop">
+					<shiro:hasPermission name="purchase:queryPurchasePlan">
+						<li><a href="<%=basePath%>purchase/queryPurchasePlan">采购计划</a></li>
+					</shiro:hasPermission>
+					<shiro:hasPermission name="purchase:queryPurchaseDetail">
+						<li><a href="<%=basePath%>purchase/queryPurchaseDetail">采购明细</a></li>
+					</shiro:hasPermission>
+					<shiro:hasPermission name="purchase:viewTempImportTask">
+						<li><a href="<%=basePath%>purchase/viewTempImportTask">数据导入</a></li>
+					</shiro:hasPermission>
+					<shiro:hasPermission name="purchase:gotoInWarehouse">
+						<li><a href="<%=basePath%>purchase/gotoInWarehouse">扫描入库</a></li>
+					</shiro:hasPermission>
 				</ul>
 			</ul>
 			<ul class = "uls" onclick="checked(this);">
 			<font style="font-weight: bolder;">系统相关</font>
-				<ul name = "showListTop" style="display: none">
-					<li><a href="<%=basePath%>/purchase/gotoSysFunc">系统功能</a></li>
-					<li><a href="<%=basePath%>/purchase/querySysVarAction">系统设置</a></li>
-					<li><a href="<%=basePath%>/toolkit/gotoToolkit">内容修复</a></li>
+				<ul name = "showListTop" style="display: none" class = "showListTop">
+					<shiro:hasPermission name="toolkit:gotoSysFunc">
+						<li><a href="<%=basePath%>/purchase/gotoSysFunc">系统功能</a></li>
+					</shiro:hasPermission>
+					<shiro:hasPermission name="toolkit:querySysVarAction">
+						<li><a href="<%=basePath%>/purchase/querySysVarAction">系统设置</a></li>
+					</shiro:hasPermission>
+					<shiro:hasPermission name="toolkit:gotoToolkit">
+						<li><a href="<%=basePath%>/toolkit/gotoToolkit">内容修复</a></li>
+					</shiro:hasPermission>
 					<li><a href="https://github.com/xabaohui/zis/issues" target="_blank" onclick="alert('账户名：zisuser，密码：hello1234')">提个建议</a></li>
 				</ul>
 			</ul>
 			<ul class = "uls" onclick="checked(this);">
 			<font style="font-weight: bolder;">用户相关</font>
-				<ul name = "showListTop" style="display: none">
-					<li><a href="<%=basePath%>shiro/showRegist">新建用户</a></li>
+				<ul name = "showListTop" style="display: none" class = "showListTop">
+					<shiro:hasPermission name="shiro:gotoCreatePermission">
+						<li><a href="<%=basePath%>shiro/gotoCreatePermission">创建权限测试用</a></li>
+					</shiro:hasPermission>
+					<shiro:hasPermission name="shiro:showUpdate">
+						<li><a href="<%=basePath%>shiro/showUpdate">查询用户</a></li> 
+					</shiro:hasPermission>
+					<shiro:hasPermission name="shiro:showUpdateRole">
+						<li><a href="<%=basePath%>shiro/showUpdateRole">查询角色</a></li> 
+					</shiro:hasPermission>
+					<li><a href="<%=basePath%>shiro/gotoGeneralUserUpdatePassword">密码修改</a></li>
 				</ul>
 			</ul>
 		</div>

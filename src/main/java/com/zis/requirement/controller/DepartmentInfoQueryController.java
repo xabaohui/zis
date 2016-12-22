@@ -3,6 +3,7 @@ package com.zis.requirement.controller;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,7 @@ public class DepartmentInfoQueryController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value = { "requirement:findSchoolInfo" })
 	@RequestMapping("/findSchoolInfo")
 	public String findInfo(String school, String institute, String partName, HttpServletRequest request, ModelMap ctx) {
 		// 分页查询
@@ -54,6 +56,7 @@ public class DepartmentInfoQueryController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value = { "requirement:findAllSchoolInfo" })
 	@RequestMapping("/findAllSchoolInfo")
 	public String getAllInfo(String school, String institute, String partName, HttpServletRequest request, ModelMap ctx) {
 		// 分页查询
@@ -97,18 +100,4 @@ public class DepartmentInfoQueryController {
 		query.asc("college").asc("institute").asc("partName");
 		return query.getSpecification();
 	}
-	// private DetachedCriteria buildCriteria() {
-	// DetachedCriteria dc = DetachedCriteria.forClass(Departmentinfo.class);
-	// if (!StringUtils.isBlank(school)) {
-	// dc.add(Restrictions.like("college", "%" + school + "%"));
-	// }
-	// if (!StringUtils.isBlank(institute)) {
-	// dc.add(Restrictions.like("institute", "%" + institute + "%"));
-	// }
-	// if (!StringUtils.isBlank(partName)) {
-	// dc.add(Restrictions.like("partName", "%" + partName + "%"));
-	// }
-	// dc.addOrder(Order.asc("college")).addOrder(Order.asc("institute")).addOrder(Order.asc("partName"));
-	// return dc;
-	// }
 }

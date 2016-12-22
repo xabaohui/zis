@@ -2,6 +2,7 @@ package com.zis.purchase.controller;
 
 import javax.validation.Valid;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -23,6 +24,7 @@ public class SysVarUpdateController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value = { "toolkit:updateSysVarAction" })
 	@RequestMapping(value = "/updateSysVarAction")
 	public String updateSysVar(@Valid @ModelAttribute("dto") UpdateSysVarDTO dto, BindingResult br) {
 		if(br.hasErrors()){

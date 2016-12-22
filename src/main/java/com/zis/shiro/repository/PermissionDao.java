@@ -16,6 +16,11 @@ public interface PermissionDao extends PagingAndSortingRepository<Permission, In
 
 	public List<Permission> findByPermissionCodeIn(List<String> permissionCodes);
 
-	public List<Permission> findByGroupNameAndIdIn(String GroupName, List<Integer> ids);
+	public List<Permission> findByGroupNameAndIdIn(String gsroupName, List<Integer> ids);
 
+	public List<Permission> findByGroupName(String groupName);
+
+	public List<Permission> findByPermissionCode(String permissionCode);
+
+	public List<Permission> findByUrl(String url);
 }

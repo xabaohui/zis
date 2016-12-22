@@ -50,14 +50,6 @@
 	<div align="center">
 		<table>
 			<tr>
-				<td>用户名:</td>
-				<td><input type="text" name="userName" value="${param.userName}" style="display: block;"  readonly="readonly"/></td>
-			</tr>
-			<tr>
-				<td>使用者姓名:</td>
-				<td><input type="text" name="realName" value="${param.realName}" readonly="readonly"/></td>
-			</tr>
-			<tr>
 				<td>使用者角色:</td>
 				<td><input type="text" name="roleName" value="${param.roleName}" readonly="readonly"/></td>
 			</tr>
@@ -197,6 +189,9 @@
 				</c:forEach>
 			</table>
 		</div>
+	</div>
+	<div align="center">
+		<a href="goIndex">返回首页</a>
 	</div>
 	<br>
 	<br>

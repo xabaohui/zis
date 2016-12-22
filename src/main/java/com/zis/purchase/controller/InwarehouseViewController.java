@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -34,11 +35,11 @@ public class InwarehouseViewController extends PaginationQueryController<Inwareh
 
 	@Autowired
 	private DoPurchaseService doPurchaseService;
-
+	
+	@RequiresPermissions(value = {"purchase:viewInwarehouseList"})
 	@RequestMapping(value = "/viewInwarehouseList")
 	public String executeQuery(ModelMap context, HttpServletRequest request) {
 		request.setAttribute("sort", new String[] { "gmtCreate" });
-		System.out.println(request.getParameterValues("sort"));
 		return super.executeQuery(context, request);
 	}
 
