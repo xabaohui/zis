@@ -67,6 +67,9 @@ public class InwarehouseBO {
 		if (labels.length != capacities.length) {
 			throw new RuntimeException("库位名称和库位容量不匹配");
 		}
+		if(!StringUtils.isNoneBlank(labels)){
+			throw new RuntimeException("库位名称不能为空");
+		}
 		for (int i = 0; i < labels.length; i++) {
 			if(StringUtils.isBlank(labels[i])) {
 				throw new RuntimeException("库位名称不能为空");

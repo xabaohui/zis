@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,6 +37,7 @@ public class WangqubaoInwarehouseExportController extends
 	@Autowired
 	private DoPurchaseService doPurchaseService;
 	
+	@RequiresPermissions(value = { "purchase:exportWangqubaoInwarehouse" })
 	@RequestMapping(value="/exportWangqubaoInwarehouse")
 	public String export(HttpServletRequest request,HttpServletResponse response){
 		return super.export(request, response);

@@ -6,6 +6,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -45,6 +46,7 @@ public class TempImportDetailViewController extends PaginationQueryController<Te
 	@Autowired
 	private DoPurchaseService doPurchaseService;
 
+	@RequiresPermissions(value = { "purchase:viewTempImportDetailForMatched" })
 	@RequestMapping(value = "/viewTempImportDetailForMatched")
 	public String executeQuery(ModelMap context, HttpServletRequest request) {
 		return super.executeQuery(context, request);

@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -30,8 +31,6 @@ import com.zis.purchase.dto.TempImportTaskView;
 @RequestMapping(value = "/purchase")
 public class TempImportViewController {
 
-	// private Integer taskId;
-	// private String status;
 	@Autowired
 	private DoPurchaseService doPurchaseService;
 
@@ -40,6 +39,7 @@ public class TempImportViewController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value = { "purchase:viewTempImportTask" })
 	@RequestMapping(value = "/viewTempImportTask")
 	public String viewTask(ModelMap context, HttpServletRequest request) {
 

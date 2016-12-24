@@ -3,6 +3,7 @@ package com.zis.toolkit.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,6 +37,7 @@ public class BookAuthorFixController extends BaseBookFixController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value = { "toolkit:fixBookAuthor" })
 	@RequestMapping(value = "/fixBookAuthor")
 	public String fixBookAuthor(ModelMap context) {
 		Pageable page = new PageRequest(0, 500);

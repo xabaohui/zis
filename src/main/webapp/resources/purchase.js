@@ -173,8 +173,15 @@ function showInwarehouseResult(result) {
 
 // 导出网渠宝入库单
 function exportInwarehouseData(operateType) {
-	document.getElementById('operateType').value = operateType;
-	document.getElementById('form_checkBox').submit();
+	var batchSelectedItem = document.getElementsByName("batchSelectedItem");
+	for(var i = 0;i < batchSelectedItem.length ;i++){
+		if(batchSelectedItem[i].checked){
+			document.getElementById('operateType').value = operateType;
+			document.getElementById('form_checkBox').submit();
+			return;
+		}
+	}
+	alert("您没有选择导出的数据");
 }
 
 // 删除入库明细记录

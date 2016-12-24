@@ -7,6 +7,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.apache.log4j.Logger;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Controller;
@@ -30,15 +31,21 @@ import com.zis.common.util.ZisUtils;
 public class BookSaveOrUpdateController {
 
 	private static Logger logger = Logger.getLogger(BookSaveOrUpdateController.class);
+	
+	//跳转地址标示 修改跳入ALTER_BOOK，新增跳入ADD_BOOK
+	private final String ALTER_BOOK = "alterBook";
+	private final String ADD_BOOK = "addBook";
 
 	@Autowired
 	private BookService bookService;
-
+	
+	@RequiresPermissions(value="bookInfo:saveOrUpdate")
 	@RequestMapping(value = "/saveOrUpdate")
 	public String saveOrUpdate(@Valid @ModelAttribute("bookInfoDTO") BookInfoDTO bookInfoDTO, BindingResult br,
 			ModelMap map) {
+		map.put("book", bookInfoDTO);
 		if (br.hasErrors()) {
-			return "bookinfo/addBook";
+			return getUrl(bookInfoDTO.getUrlType());
 		}
 		if (bookInfoDTO.getBookPrice() < 0) {
 			map.put("actionError", "bookPrice 价格必须大于0");
@@ -86,7 +93,7 @@ public class BookSaveOrUpdateController {
 				}
 			}
 			map.put("actionMessage", bookInfoDTO.getBookName() + "已保存");
-			return "bookinfo/addBook";
+			return getUrl(bookInfoDTO.getUrlType());
 		} catch (Exception e) {
 			map.put("actionError", "操作失败:" + e.getMessage());
 			e.printStackTrace();
@@ -107,7 +114,17 @@ public class BookSaveOrUpdateController {
 		book.setRepeatIsbn(bookInfoDTO.getRepeatIsbn());
 		return book;
 	}
-
+	
+	private String getUrl(String type){
+		if(ADD_BOOK.equals(type)){
+			return "bookinfo/addBook";
+		} 
+		if(ALTER_BOOK.equals(type)){
+			return "bookinfo/alterBook";
+		}
+		return "error";
+	}
+	
 	private BookinfoDetail buildBookInfoDetail(BookInfoDTO bookInfoDTO) {
 		// 如果页面中未填写任何信息，返回null（业务层不会对detail做任何处理）
 		if (isBlank(bookInfoDTO.getImageUrl()) && isBlank(bookInfoDTO.getTaobaoTitle())

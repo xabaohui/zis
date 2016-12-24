@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -32,6 +33,7 @@ public class BookNameReplaceController extends BaseBookFixController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value = { "toolkit:batchReplaceBookName" })
 	@RequestMapping(value = "/batchReplaceBookName")
 	public String batchReplaceBookName(@Valid @ModelAttribute("dto") BatchReplaceBookNameDTO dto, BindingResult br,
 			ModelMap context) {

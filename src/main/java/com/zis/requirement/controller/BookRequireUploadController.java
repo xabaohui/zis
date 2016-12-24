@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +33,7 @@ public class BookRequireUploadController extends CommonImportController<BookRequ
 	// @RequiredFieldValidator(fieldName = "college", key = "操作员必须输入"),
 	// @RequiredFieldValidator(fieldName = "operator", key = "操作员必须输入"),
 	// @RequiredFieldValidator(fieldName = "memo", key = "操作备注必须输入"), })
+	@RequiresPermissions(value = { "requirement:uploadBookRequirement" })
 	@RequestMapping(value = "/uploadBookRequirement")
 	public String upload(@RequestParam MultipartFile excelFile, String memo, ModelMap map) {
 		try {

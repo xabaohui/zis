@@ -9,7 +9,9 @@
 <script type="text/javascript">
 // 展示操作区
 function showOperate(bookId) {
-	document.getElementById('hidden_tr_' + bookId).removeAttribute("style");
+	var id = "hidden_tr_" + bookId;
+	document.getElementById(id).removeAttribute("style");
+	
 }
 </script>
 
@@ -112,7 +114,7 @@ function showOperate(bookId) {
 				<td>${purchasedPlan.stillRequireAmount}</td>
 				<td><a href="javascript:showOperate(${purchasedPlan.bookId})">操作</a></td>
 			</tr>
-			<tr id="hidden_tr_${bookId}" style="display:none">
+			<tr id="hidden_tr_${purchasedPlan.bookId}" style="display:none">
 				<td colspan="12" align="right">
 					<a href="#" onclick="return addToBlackList(${purchasedPlan.bookId});">设为黑名单</a>&emsp;
 					<a href="#" onclick="return addToWhiteList(${purchasedPlan.bookId});">设为白名单</a>&emsp;

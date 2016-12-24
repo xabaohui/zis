@@ -2,6 +2,7 @@ package com.zis.bookinfo.controller;
 
 import javax.validation.Valid;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -18,7 +19,8 @@ public class AddYouLuDataController {
 
 	@Autowired
 	private BookService bookService;
-
+	
+	@RequiresPermissions(value = "bookInfo:addYouLuData")
 	@RequestMapping(value = "/addYouLuData")
 	public String addYouLuData(@Valid @ModelAttribute("addYouLuDataDTO") AddYouLuDataDTO addYouLuDataDTO,
 			BindingResult br, ModelMap context) {

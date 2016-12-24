@@ -9,6 +9,7 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.apache.log4j.Logger;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -41,6 +42,7 @@ public class BookAmountAddController {
 	private SchoolBiz schoolBiz;
 
 	// 添加教材使用量
+	@RequiresPermissions(value = { "requirement:addAmount" })
 	@RequestMapping(value = "/addAmount")
 	public String addAmount(@Valid @ModelAttribute("dto") AddAmountDTO dto, BindingResult br, ModelMap context,
 			HttpSession session) {

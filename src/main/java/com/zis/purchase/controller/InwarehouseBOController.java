@@ -1,8 +1,8 @@
 package com.zis.purchase.controller;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.directwebremoting.annotations.RemoteMethod;
-import org.directwebremoting.annotations.RemoteProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -22,8 +22,7 @@ import com.zis.purchase.dto.InwarehouseDealtResult;
  * 
  */
 @Controller
-@RemoteProxy(name = "inwarehouseBO")
-public class InwarehouseBOAction {
+public class InwarehouseBOController {
 	
 	@Autowired
 	private DoPurchaseService doPurchaseService;
@@ -34,6 +33,8 @@ public class InwarehouseBOAction {
 	 * @param inwarehouse
 	 * @return 入库单ID
 	 */
+	@RemoteMethod
+	@RequiresPermissions(value = "purchase:createInwarehouse")
 	public InwarehouseCreateResult createInwarehouse(InwarehouseCreateDTO inwarehouse) {
 		try {
 			return this.doPurchaseService.createInwarehouse(inwarehouse);
@@ -58,6 +59,7 @@ public class InwarehouseBOAction {
 	 *            入库数量
 	 */
 	@RemoteMethod
+	@RequiresPermissions(value = "purchase:doInwarehouse")
 	public InwarehouseDealtResult doInwarehouse(Integer inwarehouseId, String posLabel, Integer bookId,
 			Integer amount) {
 		try {
@@ -77,6 +79,7 @@ public class InwarehouseBOAction {
 	 * @return
 	 */
 	@RemoteMethod
+	@RequiresPermissions(value = "purchase:deleteInwarehouseDetail")
 	public String deleteInwarehouseDetail(Integer detailId) {
 		try {
 			this.doPurchaseService.deleteInwarehouseDetail(detailId);
@@ -92,6 +95,7 @@ public class InwarehouseBOAction {
 	 * @return
 	 */
 	@RemoteMethod
+	@RequiresPermissions(value = "purchase:deleteInwarehouse")
 	public String deleteInwarehouse(Integer inwarehouseId) {
 		try {
 			this.doPurchaseService.deleteInwarehouse(inwarehouseId);

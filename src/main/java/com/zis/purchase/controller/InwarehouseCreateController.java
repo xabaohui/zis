@@ -4,13 +4,13 @@ import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.zis.purchase.bean.InwarehouseBizType;
 import com.zis.purchase.biz.DoPurchaseService;
@@ -37,15 +37,20 @@ public class InwarehouseCreateController {
 	 * 
 	 * @return
 	 */
-	@RequestMapping(value = "/inWarehouse", method = RequestMethod.POST)
-	public String createBatch(@Valid @ModelAttribute("dto") CreateBatchDTO dto, BindingResult br, ModelMap context) {
-
-		String bizType = dto.getBizType(); // 业务类型
-		String purchaseOperator = dto.getPurchaseOperator(); // 采购员
-		String inwarehouseOperator = dto.getInwarehouseOperator(); // 入库操作员
-		String[] stockPosLabel = dto.getStockPosLabel(); // 库位名称
-		Integer[] stockPosCapacity = dto.getStockPosCapacity(); // 库位容量
-		String memo = dto.getMemo(); // 备注
+	@RequiresPermissions(value = {"purchase:inWarehouse"})
+	@RequestMapping(value = "/inWarehouse")
+	public String createBatch(@Valid @ModelAttribute("createBatchDTO") CreateBatchDTO createBatchDTO, BindingResult br, ModelMap context) {
+		
+		if(br.hasErrors()){
+			return "purchase/inwarehouse";
+		}
+		
+		String bizType = createBatchDTO.getBizType(); // 业务类型
+		String purchaseOperator = createBatchDTO.getPurchaseOperator(); // 采购员
+		String inwarehouseOperator = createBatchDTO.getInwarehouseOperator(); // 入库操作员
+		String[] stockPosLabel = createBatchDTO.getStockPosLabel(); // 库位名称
+		Integer[] stockPosCapacity = createBatchDTO.getStockPosCapacity(); // 库位容量
+		String memo = createBatchDTO.getMemo(); // 备注
 
 		if (InwarehouseBizType.PURCHASE.equals(bizType)) {
 			if (StringUtils.isBlank(purchaseOperator)) {

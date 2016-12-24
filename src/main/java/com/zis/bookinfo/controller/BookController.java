@@ -10,6 +10,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -51,6 +52,7 @@ public class BookController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value = "bookInfo:getAllBooks")
 	@RequestMapping(value = "/getAllBooks")
 	public String getAllBooks(ModelMap model, String bookName, Boolean strictBookName, String bookISBN,
 			String bookAuthor, String bookPublisher, HttpServletRequest request) {
@@ -83,6 +85,7 @@ public class BookController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value="bookInfo:findBookById")
 	@RequestMapping(value = "/findBookById")
 	public String findBookById(Integer bookId, ModelMap ctx) {
 		Bookinfo book = bookService.findBookById(bookId);
@@ -108,6 +111,7 @@ public class BookController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value="bookInfo:batchOperateBooks")
 	@RequestMapping(value = "/batchOperateBooks")
 	public String batchOperate(Integer[] batchSelectedItem, String operateType, ModelMap map) {
 		try {
@@ -148,6 +152,7 @@ public class BookController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value="bookInfo:showGroupList")
 	@RequestMapping(value = "/showGroupList")
 	public String showGroupList(String relateId, String groupId, HttpSession session, ModelMap map) {
 		// 通过组的id将查询到的集合放入容器
@@ -171,6 +176,7 @@ public class BookController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value="bookInfo:removeRelateId")
 	@RequestMapping(value = "/removeRelateId")
 	public String removeRelateId(Integer id, String pageType, ModelMap map) {
 		bookService.removeRelateId(id, pageType);
@@ -183,6 +189,7 @@ public class BookController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value="bookInfo:removeAll")
 	@RequestMapping(value = "/removeAll")
 	public String removeAll(HttpSession session, String pageType) {
 		@SuppressWarnings("unchecked")
@@ -190,7 +197,8 @@ public class BookController {
 		this.bookService.removeAllRelation(list, pageType);
 		return "success";
 	}
-
+	
+	@RequiresPermissions(value="bookInfo:getWaitCheckList")
 	@RequestMapping(value = "/getWaitCheckList")
 	public String getWaitCheckList(ModelMap context, HttpServletRequest request) {
 		Pageable page = WebHelper.buildPageRequest(request);
@@ -212,6 +220,7 @@ public class BookController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value="bookInfo:adjustBooks")
 	@RequestMapping(value = "/adjustBooks")
 	public String adjustBooks() {
 		bookService.processOneISBNToMultiBooks();
@@ -224,6 +233,7 @@ public class BookController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value="bookInfo:analysisSameBook")
 	@RequestMapping(value = "/analysisSameBook")
 	public String analysisSameBook() {
 		this.bookService.analysisSimilarityBook();
@@ -235,6 +245,7 @@ public class BookController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value="bookInfo:showSameBooksList")
 	@RequestMapping(value = "/showSameBooksList")
 	public String showSameBookList(ModelMap context, String similarityCheckLevel, HttpServletRequest request) {
 		Integer checkLevel = buildSimilaritySearchContition(similarityCheckLevel);
@@ -269,6 +280,7 @@ public class BookController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value="bookInfo:showSameBooks")
 	@RequestMapping(value = "/showSameBooks")
 	public String showSameBooks(@PathVariable String sameBookIds, ModelMap context) {
 		if (StringUtils.isBlank(sameBookIds)) {

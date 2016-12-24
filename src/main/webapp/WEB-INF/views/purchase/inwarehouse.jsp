@@ -12,7 +12,7 @@
 请使用IE浏览器，其他浏览器可能无法正确播放声音提示
 <p />
 <font color="red">${actionError}</font>
-<spring:form action="purchase/inWarehouse" method="post" modelAttribute="dto">
+<spring:form action="purchase/inWarehouse" modelAttribute="createBatchDTO">
 	<table>
 		<tr>
 			<td>

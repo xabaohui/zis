@@ -2,29 +2,39 @@
 <!DOCTYPE dwr PUBLIC "-//GetAhead Limited//DTD Direct Web Remoting 3.0//EN"
      "http://getahead.org/dwr/dwr30.dtd">
 <dwr>
-    <allow>
-        <create creator="spring" javascript="addAmountBiz">
-            <param name="beanName" value="bookAmountService"/>
-        </create>
-        <create creator="spring" javascript="bookService">
-            <param name="beanName" value="bookService"/>
-        </create>
-        <create creator="spring" javascript="purchaseService">
-            <param name="beanName" value="doPurchaseService"/>
-        </create>
-        <create creator="spring" javascript="inwarehouseBO">
-            <param name="beanName" value="inwarehouseBOAction"/>
-        </create>
-        <!-- 库位校准 -->
-        <create creator="spring" javascript="stockPosCheckBO">
-            <param name="beanName" value="stockPosCheckBOAction"/>
-        </create>
-        <convert match="com.zis.requirement.bean.Bookamount" converter="bean" />
-        <convert match="com.zis.requirement.dto.AddBookToDepartmentResult" converter="bean" />
-        <convert match="com.zis.bookinfo.bean.Bookinfo" converter="bean"/>
-        <convert match="com.zis.purchase.dto.InwarehouseDealtResult" converter="bean" />
-        <convert match="com.zis.bookinfo.dto.BookInfoSearchResult" converter="bean" />
-        <convert match="com.zis.bookinfo.dto.BookInfoAndDetailDTO" converter="bean" />
-        <convert match="com.zis.bookinfo.util.BookMetadata" converter="bean" />
-    </allow>
+	<allow>
+		<create creator="spring" javascript="addAmountBiz">
+			<param name="beanName" value="bookAmountService" />
+		</create>
+		<create creator="spring" javascript="bookService">
+			<param name="beanName" value="bookService" />
+		</create>
+		<create creator="spring" javascript="purchaseService">
+			<param name="beanName" value="doPurchaseService" />
+		</create>
+		<create creator="spring" javascript="inwarehouseBO">
+			<param name="beanName" value="inwarehouseBOController" />
+		</create>
+		<!-- 库位校准 <create creator="spring" javascript="stockPosCheckBO"> <param 
+			name="beanName" value="stockPosCheckBOAction"/> </create> -->
+		<convert match="com.zis.requirement.bean.BookAmount"
+			converter="bean" />
+		<convert match="com.zis.requirement.dto.AddBookToDepartmentResult"
+			converter="bean" />
+		<convert match="com.zis.bookinfo.bean.Bookinfo" converter="bean" />
+		<convert match="com.zis.purchase.dto.InwarehouseDealtResult"
+			converter="bean" />
+		<convert match="com.zis.bookinfo.dto.BookInfoSearchResult"
+			converter="bean" />
+		<convert match="com.zis.bookinfo.dto.BookInfoAndDetailDTO"
+			converter="bean" />
+		<convert match="com.zis.bookinfo.util.BookMetadata" converter="bean" />
+
+		<!-- 异常处理 -->
+		<convert converter="exception"
+			match="org.apache.shiro.authz.UnauthorizedException">
+			<param name='include' value='message,lineNumber' />
+		</convert>
+		<convert converter="bean" match="java.lang.StackTraceElement" />
+	</allow>
 </dwr>

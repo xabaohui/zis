@@ -1,5 +1,6 @@
 package com.zis.requirement.controller;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -22,6 +23,7 @@ public class BookAmountAddPreController {
 	@Autowired
 	private SchoolBiz schoolBiz;
 	
+	@RequiresPermissions(value = { "requirement:addAmountPreAction" })
 	@RequestMapping(value="/addAmountPreAction")
 	public String amountPre(Integer id, ModelMap ctx){
 		if (id == null){

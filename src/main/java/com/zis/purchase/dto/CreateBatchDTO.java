@@ -11,7 +11,7 @@ public class CreateBatchDTO {
 	private String purchaseOperator;
 	@NotBlank(message = "入库操作员必须输入")
 	private String inwarehouseOperator;
-	@NotBlank(message = "库位名称必须输入")
+	@NotNull(message = "库位名称必须输入")
 	private String[] stockPosLabel;
 	@NotNull(message = "库位容量必须输入")
 	private Integer[] stockPosCapacity;

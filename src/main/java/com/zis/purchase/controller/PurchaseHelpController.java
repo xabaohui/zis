@@ -1,5 +1,6 @@
 package com.zis.purchase.controller;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -7,16 +8,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(value = "/purchase")
 public class PurchaseHelpController {
 
-	@RequestMapping(value="/gotoInWarehouse")
-	public String gotoInWarehouse(){
+	@RequiresPermissions(value = { "purchase:gotoInWarehouse" })
+	@RequestMapping(value = "/gotoInWarehouse")
+	public String gotoInWarehouse() {
 		return "purchase/inwarehouse";
 	}
-	@RequestMapping(value="/gotoTempImportUpload")
-	public String gotoTempImportUpload(){
+
+	@RequiresPermissions(value = { "purchase:gotoTempImportUpload" })
+	@RequestMapping(value = "/gotoTempImportUpload")
+	public String gotoTempImportUpload() {
 		return "purchase/tempImportUpload";
 	}
-	@RequestMapping(value="/gotoSysFunc")
-	public String gotoSysFunc(){
+
+	@RequiresPermissions(value = { "toolkit:gotoSysFunc" })
+	@RequestMapping(value = "/gotoSysFunc")
+	public String gotoSysFunc() {
 		return "purchase/sysFunc";
 	}
 }

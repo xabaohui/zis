@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +62,7 @@ public class RequirementImportController {
 	// /* �������� */
 	// requiredFields = { @RequiredFieldValidator(fieldName = "excelFile", key =
 	// "文件必须输入"), })
+	@RequiresPermissions(value = { "requirement:importRequirement" })
 	@RequestMapping(value = "/importRequirement")
 	public String upload(@RequestParam MultipartFile excelFile) {
 		try {

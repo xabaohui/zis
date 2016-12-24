@@ -17,6 +17,7 @@
 <p />
 <div id="showExistBook" style="font-weight: bold;color: green"></div>
 <spring:form action="bookInfo/saveOrUpdate" method="post" modelAttribute="bookInfoDTO">
+	<input type="hidden" name="urlType" value="addBook" />
 	<table>
 		<tr>
 			<td>ISBN</td>
