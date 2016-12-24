@@ -28,7 +28,8 @@ import com.zis.requirement.repository.BookAmountDao;
 @Component(value = "requirementCalculater")
 public class RequirementCalculater implements BookAmountCalculateInterface {
 
-	@Resource(name = "bookAmountDao")
+//	@Resource(name = "bookAmountDao")
+	@Autowired
 	private BookAmountDao bookAmountDao;
 	@Autowired
 	private SysVarCache sysVarCache;

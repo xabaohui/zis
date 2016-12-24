@@ -10,37 +10,9 @@
 	http://www.springframework.org/schema/aop 
 	http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
 	http://www.springframework.org/schema/data/jpa 
-	http://www.springframework.org/schema/data/jpa/spring-jpa-1.2.xsd
-	">
+	http://www.springframework.org/schema/data/jpa/spring-jpa-1.2.xsd">
+	
 	<jpa:repositories base-package="com.zis.requirement.repository"
 		entity-manager-factory-ref="entityManagerFactory"
 		transaction-manager-ref="transactionManager" />
-		<!--  
-	<bean id="departmentinfoDAO" class="com.zis.requirement.daoImpl.DepartmentinfoDAOImpl">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>
-	<bean id="bookamountDAO" class="com.zis.requirement.daoImpl.BookamountDAOImpl">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>
-	<bean id="bookRequireImportTaskDao"
-		class="com.zis.requirement.daoImpl.BookRequireImportTaskDaoImpl">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>
-	<bean id="bookRequireImportDetailDao"
-		class="com.zis.requirement.daoImpl.BookRequireImportDetailDaoImpl">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>
-	<bean id="sysVarDao" class="com.zis.requirement.daoImpl.SysVarDAOImpl">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>-->
 </beans>

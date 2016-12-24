@@ -17,12 +17,12 @@
 			<ref bean="sessionFactory" />
 		</property>
 	</bean>
-	<bean id="bookamountDAO"
-		class="com.zis.requirement.daoImpl.BookamountDAOImpl">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>
+<!-- 	<bean id="bookamountDAO" -->
+<!-- 		class="com.zis.requirement.daoImpl.BookamountDAOImpl"> -->
+<!-- 		<property name="sessionFactory"> -->
+<!-- 			<ref bean="sessionFactory" /> -->
+<!-- 		</property> -->
+<!-- 	</bean> -->
 <!-- 	<bean id="bookRequireImportTaskDao" -->
 <!-- 		class="com.zis.requirement.daoImpl.BookRequireImportTaskDaoImpl"> -->
 <!-- 		<property name="sessionFactory"> -->
