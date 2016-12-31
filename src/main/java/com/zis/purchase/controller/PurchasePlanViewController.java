@@ -6,6 +6,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class PurchasePlanViewController extends PaginationQueryController<Purcha
 	@Autowired
 	private DoPurchaseService doPurchaseService;
 
-	@RequiresPermissions(value = { "purchase:queryPurchasePlan" })
+	@RequiresPermissions(value = { "purchase:view", "purchase:management" }, logical = Logical.OR)
 	@RequestMapping(value = "/queryPurchasePlan")
 	public String executeQuery(ModelMap context, HttpServletRequest request) {
 		return super.executeQuery(context, request);

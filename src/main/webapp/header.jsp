@@ -102,6 +102,7 @@
 		function checked(obj){
 			var objThis = obj.childNodes[3];
 			var uls = document.getElementsByName("showListTop");
+			//var getIdPage = document.getElementById("getIdPage");
 			var thisDisplay = objThis.style.display; 
 			if (thisDisplay == "block") {
 				objThis.style.display= "none";

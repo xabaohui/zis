@@ -583,7 +583,6 @@ public class BookService {
 		return taskExecutor.getActiveCount();
 	}
 	
-	@RemoteMethod
 	public List<Bookinfo> findBookByISBN(String isbn) {
 		if (StringUtils.isBlank(isbn)) {
 			throw new RuntimeException("isbn不能为空");

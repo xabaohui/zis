@@ -1,10 +1,13 @@
 package com.zis.bookinfo.service;
 
+import java.util.List;
+
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.dto.BookInfoSearchResult;
 
 @Service
@@ -36,5 +39,10 @@ public class BookServiceDWR {
 	@RequiresPermissions(value = "bookInfo:delete")
 	public void updateBookForBatchDelete(Integer ids[]) {
 		this.bookService.updateBookForBatchDelete(ids);
+	}
+
+	@RequiresPermissions(value = "stock:input")
+	public List<Bookinfo> findBookByISBN(String isbn) {
+		return this.bookService.findBookByISBN(isbn);
 	}
 }

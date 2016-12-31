@@ -9,16 +9,21 @@
 	<jpa:repositories base-package="com.zis.bookinfo.repository"
 		entity-manager-factory-ref="entityManagerFactory"
 		transaction-manager-ref="transactionManager" />
-		<bean id="youluBookMetadataCapture" class="com.zis.common.capture.YouluBookMetadataCapture"/>
-		<bean id="dangdangBookMetadataCapture" class="com.zis.common.capture.DangDangBookMetadataCapture"/>
-		<bean id="defaultBookMetadataCapture"
-			class="com.zis.common.capture.DefaultBookMetadataCaptureHandler">
-			<property name="baseDir" value="/var/tmp/zis/img/" />
-			<property name="captureMap">
+		
+	<bean id="youluBookMetadataCapture" class="com.zis.common.capture.YouluBookMetadataCapture" />
+	<bean id="dangdangBookMetadataCapture" class="com.zis.common.capture.DangDangBookMetadataCapture" />
+	<bean id="defaultBookMetadataCapture"
+		class="com.zis.common.capture.DefaultBookMetadataCaptureHandler">
+		<property name="baseDir" value="E:/var/tmp/zis/img/" />
+		<property name="captureMap">
 			<map>
 				<entry key="dangdang" value-ref="dangdangBookMetadataCapture" />
 				<entry key="youlu" value-ref="youluBookMetadataCapture" />
 			</map>
 		</property>
+	</bean>
+	
+	<bean id="taobaoCsvDataGenerateBO" class="com.zis.bookinfo.bo.TaobaoCsvDataGenerateBO">
+		<property name="baseDir" value="E:/var/tmp/zis/taobaoCsv/"/>
 	</bean>
 </beans>

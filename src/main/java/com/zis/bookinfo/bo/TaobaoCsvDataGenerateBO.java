@@ -26,7 +26,6 @@ import com.zis.common.util.ZisUtils;
  * @author lvbin
  * 
  */
-@Component
 public class TaobaoCsvDataGenerateBO {
 
 	private static final Logger logger = LoggerFactory.getLogger(TaobaoCsvDataGenerateBO.class);
@@ -77,7 +76,7 @@ public class TaobaoCsvDataGenerateBO {
 		basicCheck();
 		// 创建临时文件夹
 		try {
-			String batchId = ZisUtils.getDateString("yyyy-MM-dd_HH:mm:ss");
+			String batchId = ZisUtils.getDateString("yyyy-MM-dd_HHmmss");
 			String tmpDir = baseDir + batchId;
 			String picDir = tmpDir + "/data/";
 			FileUtils.forceMkdir(new File(tmpDir));
