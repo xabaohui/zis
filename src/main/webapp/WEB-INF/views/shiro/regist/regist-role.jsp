@@ -19,54 +19,6 @@
 		}
 	};
 </script>
-<style type="text/css">
-#registDiv table tr td, #registDiv table tr th{
-	z-index: 1;
-	font-size:1em;
-	border:1px solid #98bf21;
-	text-align: center;
-}
-#bookInfoDiv table tr td, #bookInfoDiv table tr th{
-	z-index: 2;
-	font-size:1em;
-	border:1px solid #98bf21;
-	text-align: center;
-}
-#purchaseDiv table tr td, #purchaseDiv table tr th{
-	z-index: 3;
-	font-size:1em;
-	border:1px solid #98bf21;
-	text-align: center;
-}
-#requirementDiv table tr td, #requirementDiv table tr th{
-	z-index: 4;
-	font-size:1em;
-	border:1px solid #98bf21;
-	text-align: center;
-}
-#toolkitDiv table tr td, #toolkitDiv table tr th{
-	z-index: 5;
-	font-size:1em;
-	border:1px solid #98bf21;
-	text-align: center;
-}
-#stockDiv table tr td, #stockDiv table tr th{
-	z-index: 6;
-	font-size:1em;
-	border:1px solid #98bf21;
-	text-align: center;
-}
-#dataDiv table tr td, #dataDiv table tr th{
-	z-index: 7;
-	font-size:1em;
-	border:1px solid #98bf21;
-	text-align: center;
-}
-#allPermissionDiv div{
-	float:inherit;
-	display: inline-table;
-}
-</style>
 <div align="center">
 	<h1 >新建角色及授权</h1>
 	<br/>
@@ -101,11 +53,12 @@
 			</tr>
 		</table>
 	</div>
-	<div id="allPermissionDiv" style="width: 100%">
-		<div style="width: 420px" id = "registDiv">
-			<table >
+	<p/>
+	<div id="common-table" style="width: 100%">
+		<div id = "registDiv">
+			<table>
 			<tr>
-			<th colspan="3" width="420px" height="40px" bgcolor="cyan">用户相关权限</th>
+			<th colspan="3">用户相关权限</th>
 			</tr>
 			<tr>
 				<th><input type="checkbox" id="check-allRegist" onclick="checkAll('registList', 'check-allRegist')" />全选</th>
@@ -114,23 +67,24 @@
 			</tr>
 				<c:forEach items="${registList}" var="regist">
 					<tr>
-						<td width="3%">
+						<td>
 							<input type="checkbox" name="permissionIds" class="registList" value="${regist.id}"/>
 						</td>
-						<td width="6%">
+						<td>
 							${regist.permissionName}
 						</td>
-						<td width="13%">
+						<td>
 							${regist.permissionDescription}
 						</td>
 					</tr>
 				</c:forEach>
 			</table>
 		</div>
-		<div style="width: 420px" id = "bookInfoDiv">
-			<table >
+		<p/>
+		<div id = "bookInfoDiv">
+			<table>
 			<tr>
-			<th colspan="3" width="420px" height="40px" bgcolor="cyan">图书相关权限</th>
+			<th colspan="3">图书相关权限</th>
 			</tr>
 			<tr>
 				<th><input type="checkbox" id="check-allBookInfo" onclick="checkAll('bookInfoList', 'check-allBookInfo')" />全选</th>
@@ -139,23 +93,24 @@
 			</tr>
 				<c:forEach items="${bookInfoList}" var="bookInfo">
 					<tr>
-						<td width="3%">
+						<td>
 							<input type="checkbox" name="permissionIds" class="bookInfoList" value="${bookInfo.id}"/>
 						</td>
-						<td width="6%">
+						<td>
 							${bookInfo.permissionName}
 						</td>
-						<td width="13%">
+						<td>
 							${bookInfo.permissionDescription}
 						</td>
 					</tr>
 				</c:forEach>
 			</table>
 		</div>
-		<div style="width: 420px" id = "purchaseDiv">
-			<table >
+		<p/>
+		<div id = "purchaseDiv">
+			<table>
 			<tr>
-			<th colspan="3" width="420px" height="40px" bgcolor="cyan">采购相关权限</th>
+			<th colspan="3">采购相关权限</th>
 			</tr>
 			<tr>
 				<th><input type="checkbox" id="check-allPurchase" onclick="checkAll('purchaseList', 'check-allPurchase')" />全选</th>
@@ -164,23 +119,24 @@
 			</tr>
 				<c:forEach items="${purchaseList}" var="purchase">
 					<tr>
-						<td width="3%">
+						<td>
 							<input type="checkbox" name="permissionIds" class="purchaseList" value="${purchase.id}"/>
 						</td>
-						<td width="6%">
+						<td>
 							${purchase.permissionName}
 						</td>
-						<td width="13%">
+						<td>
 							${purchase.permissionDescription}
 						</td>
 					</tr>
 				</c:forEach>
 			</table>
 		</div>
-		<div style="width: 420px" id = "requirementDiv">
-			<table >
+		<p/>
+		<div id = "requirementDiv">
+			<table>
 			<tr>
-			<th colspan="3" width="420px" height="40px" bgcolor="cyan">院校相关权限</th>
+			<th colspan="3">院校相关权限</th>
 			</tr>
 			<tr>
 				<th><input type="checkbox" id="check-allRequirement" onclick="checkAll('requirementList', 'check-allRequirement')" />全选</th>
@@ -189,23 +145,24 @@
 			</tr>
 				<c:forEach items="${requirementList}" var="requirement">
 					<tr>
-						<td width="3%">
+						<td>
 							<input type="checkbox" name="permissionIds" class="requirementList" value="${requirement.id}"/>
 						</td>
-						<td width="6%">
+						<td>
 							${requirement.permissionName}
 						</td>
-						<td width="13%">
+						<td>
 							${requirement.permissionDescription}
 						</td>
 					</tr>
 				</c:forEach>
 			</table>
 		</div>
-		<div style="width: 420px" id = "toolkitDiv">
-			<table >
+		<p/>
+		<div id = "toolkitDiv">
+			<table>
 			<tr>
-			<th colspan="3" width="420px" height="40px" bgcolor="cyan">系统相关权限</th>
+			<th colspan="3">系统相关权限</th>
 			</tr>
 			<tr>
 				<th><input type="checkbox" id="check-allToolkit" onclick="checkAll('toolkitList', 'check-allToolkit')" />全选</th>
@@ -214,23 +171,24 @@
 			</tr>
 				<c:forEach items="${toolkitList}" var="toolkit">
 					<tr>
-						<td width="3%">
+						<td>
 							<input type="checkbox" name="permissionIds" class="toolkitList" value="${toolkit.id}"/>
 						</td>
-						<td width="6%">
+						<td>
 							${toolkit.permissionName}
 						</td>
-						<td width="13%">
+						<td>
 							${toolkit.permissionDescription}
 						</td>
 					</tr>
 				</c:forEach>
 			</table>
 		</div>
-		<div style="width: 420px" id = "stockDiv">
-			<table >
+		<p/>
+		<div id = "stockDiv">
+			<table>
 			<tr>
-			<th colspan="3" width="420px" height="40px" bgcolor="cyan">库存相关权限</th>
+			<th colspan="3">库存相关权限</th>
 			</tr>
 			<tr>
 				<th><input type="checkbox" id="check-allStock" onclick="checkAll('stockList', 'check-allStock')" />全选</th>
@@ -239,23 +197,24 @@
 			</tr>
 				<c:forEach items="${stockList}" var="stock">
 					<tr>
-						<td width="3%">
+						<td>
 							<input type="checkbox" name="permissionIds" class="stockList" value="${stock.id}"/>
 						</td>
-						<td width="6%">
+						<td>
 							${stock.permissionName}
 						</td>
-						<td width="13%">
+						<td>
 							${stock.permissionDescription}
 						</td>
 					</tr>
 				</c:forEach>
 			</table>
 		</div>
-		<div style="width: 420px" id = "dataDiv">
-			<table >
+		<p/>
+		<div id = "dataDiv">
+			<table>
 			<tr>
-			<th colspan="3" width="420px" height="40px" bgcolor="cyan">数据处理权限</th>
+			<th colspan="3">数据处理权限</th>
 			</tr>
 			<tr>
 				<th><input type="checkbox" id="check-allData" onclick="checkAll('dataList', 'check-allData')" />全选</th>
@@ -264,13 +223,13 @@
 			</tr>
 				<c:forEach items="${dataList}" var="datas">
 					<tr>
-						<td width="3%">
+						<td>
 							<input type="checkbox" name="permissionIds" class="dataList" value="${datas.id}"/>
 						</td>
-						<td width="6%">
+						<td>
 							${datas.permissionName}
 						</td>
-						<td width="13%">
+						<td>
 							${datas.permissionDescription}
 						</td>
 					</tr>
