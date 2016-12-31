@@ -17,7 +17,7 @@ public class DepartmentInfoUpdatePreController {
 	private SchoolBiz schoolBiz;
 
 	// 修改院校信息的回显操作
-	@RequiresPermissions(value = { "requirement:updateSchoolPre" })
+	@RequiresPermissions(value = { "requirement:school:saveOrUpdate" })
 	@RequestMapping(value = "/updateSchoolPre")
 	public String getInfo(Integer id, ModelMap ctx) {
 		if (id == null) {

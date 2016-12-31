@@ -20,7 +20,7 @@ public class AddYouLuDataController {
 	@Autowired
 	private BookService bookService;
 	
-	@RequiresPermissions(value = "bookInfo:addYouLuData")
+	@RequiresPermissions(value = "bookInfo:saveOrUpdate")
 	@RequestMapping(value = "/addYouLuData")
 	public String addYouLuData(@Valid @ModelAttribute("addYouLuDataDTO") AddYouLuDataDTO addYouLuDataDTO,
 			BindingResult br, ModelMap context) {

@@ -31,7 +31,7 @@ public class InwarehouseScannerController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value = {"purchase:recoverScan"})
+	@RequiresPermissions(value = {"stock:input"})
 	@RequestMapping(value = "/recoverScan")
 	public String recoverScan(Integer inwarehouseId, ModelMap context) {
 		try {
@@ -63,7 +63,7 @@ public class InwarehouseScannerController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value = {"purchase:terminateInwarehouse"})
+	@RequiresPermissions(value = {"stock:input"})
 	@RequestMapping(value = "/terminateInwarehouse")
 	public String terminate(Integer inwarehouseId, ModelMap map) {
 		try {

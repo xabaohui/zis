@@ -105,7 +105,7 @@ public interface BookInfoDao  extends
 	 * 查询待审核的记录数
 	 * @return
 	 */
-	@Query("select count(*) from Bookinfo where bookStatus != '" + BookinfoStatus.WAITCHECK + "'")
+	@Query("select count(*) from Bookinfo where bookStatus = '" + BookinfoStatus.WAITCHECK + "'")
 	Integer countWaitingBooks();
 	
 }

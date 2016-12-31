@@ -37,7 +37,7 @@ public class BookAuthorFixController extends BaseBookFixController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value = { "toolkit:fixBookAuthor" })
+	@RequiresPermissions(value = { "toolkit:toolkit" })
 	@RequestMapping(value = "/fixBookAuthor")
 	public String fixBookAuthor(ModelMap context) {
 		Pageable page = new PageRequest(0, 500);

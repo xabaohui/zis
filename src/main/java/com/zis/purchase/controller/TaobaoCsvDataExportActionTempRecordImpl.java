@@ -38,7 +38,7 @@ public class TaobaoCsvDataExportActionTempRecordImpl extends TaobaoCsvDataExport
 
 	private static final Logger logger = LoggerFactory.getLogger(TaobaoCsvDataExportActionTempRecordImpl.class);
 	
-	@RequiresPermissions(value = { "purchase:exportTaobaoItemDataByTempImport" })
+	@RequiresPermissions(value = { "data:dataInfo" })
 	@RequestMapping(value = "/exportTaobaoItemDataByTempImport")
 	public String export(HttpServletRequest request, ModelMap map) {
 		return super.export(request, map);

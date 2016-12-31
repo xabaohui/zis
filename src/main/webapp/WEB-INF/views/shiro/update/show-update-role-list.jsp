@@ -9,6 +9,10 @@ function updateRole(roleId){
 function rigistRoleUser(){
 	window.location.href="shiro/gotoRegistRole";
 }
+function clearAll(){
+	document.getElementById('roleName').value = "";
+	document.getElementById('roleCode').value = "";
+}
 </script>
 <style type="text/css">
 
@@ -36,18 +40,20 @@ function rigistRoleUser(){
 		<table>
 			<tr>
 				<td>角色名:</td>
-				<td colspan="2"><input type="text" name="roleName" value="${param.roleName}" style="display: block;"/>
+				<td colspan="3"><input type="text" id = "roleName" name="roleName" value="${param.roleName}" style="display: block;"/>
 				</td>
 			</tr>
 			<tr>
 				<td>角色CODE:</td>
-				<td colspan="2"><input type="text" name="roleCode" value="${param.roleCode}" />
+				<td colspan="3"><input type="text" id = "roleCode" name="roleCode" value="${param.roleCode}" />
 				</td>
 			</tr>
 			<tr>
 				<td><input type="submit" value="查询" />
 				</td>
 				<td><input type="reset" value="重置" />
+				</td>
+				<td><input type="button" value="清除条件" onclick="clearAll()"/>
 				</td>
 				<td align="right"><input type="button" value="新增角色" onclick="rigistRoleUser();"/>
 				</td>

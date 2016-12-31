@@ -62,7 +62,7 @@ public class RequirementImportController {
 	// /* �������� */
 	// requiredFields = { @RequiredFieldValidator(fieldName = "excelFile", key =
 	// "文件必须输入"), })
-	@RequiresPermissions(value = { "requirement:importRequirement" })
+	@RequiresPermissions(value = { "requirement:books:input" })
 	@RequestMapping(value = "/importRequirement")
 	public String upload(@RequestParam MultipartFile excelFile) {
 		try {

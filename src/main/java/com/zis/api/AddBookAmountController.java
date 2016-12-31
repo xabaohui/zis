@@ -5,8 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.zis.api.response.BaseApiResponse;
 import com.zis.bookinfo.service.BookService;
@@ -17,63 +22,67 @@ import com.zis.requirement.dto.BookAmountAddApiRequestDTO;
 
 /**
  * 添加教材使用量
+ * 
  * @author yz
- *
+ * 
  */
-public class AddBookAmountAction extends BaseApiAction {
+@Controller
+@RequestMapping(value = "/api")
+public class AddBookAmountController extends BaseApiController {
 
-	private static final long serialVersionUID = 1L;
-
+	@Autowired
 	private BookAmountService addAmountBiz;
+	@Autowired
 	private BookService bookService;
+	@Autowired
 	private SchoolBiz schoolBiz;
-	private String departId;
-	private String amount;
-	private String operator;
-	private String bookIds;
-	private String grade;
-	private String term;
+	// private String departId;
+	// private String amount;
+	// private String operator;
+	// private String bookIds;
+	// private String grade;
+	// private String term;
 
-	private static Logger logger = Logger.getLogger(AddBookAmountAction.class);
+	private static Logger logger = Logger.getLogger(AddBookAmountController.class);
 	private Map<String, Object> map = new HashMap<String, Object>();
 
-	public String addBookAmount() {
-		logger.info("api.AddBookRequirement.addBookAmount--" + "departId="
-				+ departId + " amount=" + amount + " operator=" + operator
-				+ " bookIds=" + bookIds);
+	@RequestMapping(value = "/addBookRequirement", produces = "text/plain; charset=utf-8")
+	public String addBookAmount(String departId, String amount, String operator, String bookIds, String grade,
+			String term, HttpServletResponse response, String token) {
+		logger.info("api.AddBookRequirement.addBookAmount--" + "departId=" + departId + " amount=" + amount
+				+ " operator=" + operator + " bookIds=" + bookIds);
 		// 参数检查
-		String errMsg = validateParam();
+		String errMsg = validateParam(grade, term, departId, bookIds, operator, amount);
 		if (StringUtils.isNotBlank(errMsg)) {
-			renderErrResult(errMsg);
-			logger.info("api.AddBookRequirement.addBookAmount--参数校验失败，"
-					+ errMsg);
-			return SUCCESS;
+			renderErrResult(errMsg, response);
+			logger.info("api.AddBookRequirement.addBookAmount--参数校验失败，" + errMsg);
+			return "";
 		}
 		// token检查
-		String tokenCheckResult = checkToken();
-		if(StringUtils.isNotBlank(tokenCheckResult)) {
-			renderErrResult(tokenCheckResult);
+		String tokenCheckResult = checkToken(token);
+		if (StringUtils.isNotBlank(tokenCheckResult)) {
+			renderErrResult(tokenCheckResult, response);
 			logger.info("api.AddBookRequirement.addBookAmount--" + tokenCheckResult);
-			return SUCCESS;
+			return "";
 		}
-		
+
 		// 保存记录
 		try {
-			addAmountBiz.addBookAmount(buildRequestDTO());
+			addAmountBiz.addBookAmount(buildRequestDTO(operator));
 			// 清理token
 			clearSessionToken();
 			// 渲染结果
-			renderSuccessResult();
+			renderSuccessResult(response);
 			logger.info("api.AddBookRequirement--添加教材使用量成功");
-			return SUCCESS;
+			return "";
 		} catch (Exception e) {
 			logger.error("api invoke failed, for AddBookAmount", e);
-			renderErrResult(e.getMessage());
-			return SUCCESS;
+			renderErrResult(e.getMessage(), response);
+			return "";
 		}
 	}
 
-	private BookAmountAddApiRequestDTO buildRequestDTO() {
+	private BookAmountAddApiRequestDTO buildRequestDTO(String operator) {
 		@SuppressWarnings("unchecked")
 		List<Integer> bookIdList = (List<Integer>) map.get("bookIdList");
 		BookAmountAddApiRequestDTO dto = new BookAmountAddApiRequestDTO();
@@ -98,7 +107,8 @@ public class AddBookAmountAction extends BaseApiAction {
 		}
 	}
 
-	private String validateParam() {
+	private String validateParam(String grade, String term, String departId, String bookIds, String operator,
+			String amount) {
 		// 年级
 		Integer grade1 = parseInt(grade);
 		if (grade1 == null) {
@@ -108,7 +118,7 @@ public class AddBookAmountAction extends BaseApiAction {
 			return "grade在1到5之间";
 		}
 		map.put("grade", grade1);
-		
+
 		// 学期
 		Integer term1 = parseInt(term);
 		if (term1 == null) {
@@ -118,7 +128,7 @@ public class AddBookAmountAction extends BaseApiAction {
 			return "term在1到2之间";
 		}
 		map.put("term", term1);
-		
+
 		// 检查院校id
 		Integer departid = parseInt(departId);
 		if (departid == null) {
@@ -161,86 +171,14 @@ public class AddBookAmountAction extends BaseApiAction {
 			return "书的数量必须为数字";
 		}
 		map.put("amount", amount1);
-		
+
 		// 返回空，代表没有错误
 		return "";
 	}
 
-	private void renderSuccessResult() {
+	private void renderSuccessResult(HttpServletResponse resp) {
 		BaseApiResponse response = new BaseApiResponse();
 		response.setCode(BaseApiResponse.CODE_SUCCESS);
-		renderResult(response);
-	}
-
-	public String getOperator() {
-		return operator;
-	}
-
-	public void setOperator(String operator) {
-		this.operator = operator;
-	}
-
-	public String getBookIds() {
-		return bookIds;
-	}
-
-	public void setBookIds(String bookIds) {
-		this.bookIds = bookIds;
-	}
-
-	public String getDepartId() {
-		return departId;
-	}
-
-	public void setDepartId(String departId) {
-		this.departId = departId;
-	}
-
-	public String getAmount() {
-		return amount;
-	}
-
-	public void setAmount(String amount) {
-		this.amount = amount;
-	}
-
-	public String getGrade() {
-		return grade;
-	}
-
-	public void setGrade(String grade) {
-		this.grade = grade;
-	}
-
-	public String getTerm() {
-		return term;
-	}
-
-	public void setTerm(String term) {
-		this.term = term;
-	}
-
-	public BookAmountService getAddAmountBiz() {
-		return addAmountBiz;
-	}
-
-	public void setAddAmountBiz(BookAmountService addAmountBiz) {
-		this.addAmountBiz = addAmountBiz;
-	}
-
-	public SchoolBiz getSchoolBiz() {
-		return schoolBiz;
-	}
-
-	public void setSchoolBiz(SchoolBiz schoolBiz) {
-		this.schoolBiz = schoolBiz;
-	}
-
-	public BookService getBookService() {
-		return bookService;
-	}
-
-	public void setBookService(BookService bookService) {
-		this.bookService = bookService;
+		renderResult(response, resp);
 	}
 }

@@ -35,7 +35,7 @@ public class WangqubaoItemExportByInwarehouseController extends CommonExcelExpor
 	@Autowired
 	private DoPurchaseService doPurchaseService;
 
-	@RequiresPermissions(value = { "purchase:exportWangqubaoItemByInwarehouse" })
+	@RequiresPermissions(value = { "stock:output" })
 	@RequestMapping(value = "/exportWangqubaoItemByInwarehouse")
 	public String export(HttpServletRequest request, HttpServletResponse response) {
 		return super.export(request, response);

@@ -4,8 +4,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.directwebremoting.annotations.RemoteMethod;
-import org.directwebremoting.annotations.RemoteProxy;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -39,7 +37,6 @@ import com.zis.purchase.repository.PurchasePlanDao;
 import com.zis.purchase.repository.TempImportDetailDao;
 
 @Service
-@RemoteProxy(name = "purchaseService")
 public class DoPurchaseService {
 
 	@Autowired
@@ -76,7 +73,6 @@ public class DoPurchaseService {
 	 * @param bookId
 	 * @return 操作失败原因，如果成功，返回空字符串
 	 */
-	@RemoteMethod
 	public String addBlackList(Integer bookId) {
 		try {
 			purchaseBO.addBlackList(bookId);
@@ -93,7 +89,6 @@ public class DoPurchaseService {
 	 * 
 	 * @return 操作失败原因，如果成功，返回空字符串
 	 */
-	@RemoteMethod
 	public String addWhiteList(Integer bookId) {
 		try {
 			purchaseBO.addWhiteList(bookId);
@@ -111,7 +106,6 @@ public class DoPurchaseService {
 	 * @param bookId
 	 * @return 操作失败原因，如果成功，返回空字符串
 	 */
-	@RemoteMethod
 	public String deleteBlackOrWhiteList(Integer bookId) {
 		try {
 			purchaseBO.deleteBlackOrWhiteList(bookId);
@@ -158,7 +152,6 @@ public class DoPurchaseService {
 	 * @param amount
 	 * @return
 	 */
-	@RemoteMethod
 	public String updateBookStock(Integer bookId, Integer amount) {
 		return purchaseBO.updateBookStock(bookId, amount);
 	}
@@ -181,7 +174,6 @@ public class DoPurchaseService {
 	 *            数量
 	 * @return
 	 */
-	@RemoteMethod
 	public String addManualDecision(Integer bookId, Integer amount) {
 		return purchaseBO.addManualDecision(bookId, amount);
 	}
@@ -193,7 +185,6 @@ public class DoPurchaseService {
 	 *            图书ID
 	 * @return 操作失败原因，如果成功，返回空字符串
 	 */
-	@RemoteMethod
 	public String removeManualDecision(Integer bookId) {
 		try {
 			purchaseBO.removeManualDecision(bookId);
@@ -211,7 +202,6 @@ public class DoPurchaseService {
 	 * @param bookId
 	 * @return 操作失败原因，如果成功，返回空字符串
 	 */
-	@RemoteMethod
 	public String recalculateRequireAmount(Integer bookId) {
 		try {
 			purchaseBO.recalculateRequireAmount(bookId);
@@ -287,7 +277,6 @@ public class DoPurchaseService {
 	 * @param bookId
 	 * @return
 	 */
-	@RemoteMethod
 	public String updateAssociateTempImportDetailWithBookInfo(Integer tempImportDetailId, Integer bookId) {
 		return tempImportBO.updateAssociateTempImportDetailWithBookInfo(tempImportDetailId, bookId);
 	}

@@ -6,6 +6,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,8 +42,8 @@ public class PurchaseDetailViewController extends PaginationQueryController<Purc
 
 	@Autowired
 	private DoPurchaseService doPurchaseService;
-	
-	@RequiresPermissions(value = {"purchase:queryPurchaseDetail"})
+
+	@RequiresPermissions(value = { "purchase:view", "purchase:management" }, logical = Logical.OR)
 	@RequestMapping(value = "/queryPurchaseDetail")
 	public String executeQuery(ModelMap context, HttpServletRequest request) {
 		request.setAttribute("sort", new String[] { "gmtCreate" });

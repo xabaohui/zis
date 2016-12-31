@@ -1,5 +1,7 @@
 package com.zis.shiro.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -35,7 +37,6 @@ public class RegistAndUpdateController extends ActionHelpUtil {
 	@Autowired
 	private RegistAndUpdateService registAndUpdateService;
 
-
 	/**
 	 * 新建角色及授权controller
 	 * 
@@ -44,7 +45,7 @@ public class RegistAndUpdateController extends ActionHelpUtil {
 	 * @param map
 	 * @return
 	 */
-	@RequiresPermissions(value = { "shiro:registRole" })
+	@RequiresPermissions(value = { "shiro:shiro" })
 	@RequestMapping(value = "/registRole")
 	public String registRole(@Valid @ModelAttribute("registRoleDto") RegistRoleDto registRoleDto, BindingResult br,
 			ModelMap map) {
@@ -73,7 +74,7 @@ public class RegistAndUpdateController extends ActionHelpUtil {
 	 * @param map
 	 * @return
 	 */
-	@RequiresPermissions(value = { "shiro:updateForRole" })
+	@RequiresPermissions(value = { "shiro:shiro" })
 	@RequestMapping(value = "/updateForRole")
 	public String updateRole(@Valid @ModelAttribute("registRoleDto") RegistRoleDto registRoleDto, BindingResult br,
 			ModelMap map) {
@@ -103,7 +104,7 @@ public class RegistAndUpdateController extends ActionHelpUtil {
 	 * @param map
 	 * @return
 	 */
-	@RequiresPermissions(value = { "shiro:regist" })
+	@RequiresPermissions(value = { "shiro:shiro" })
 	@RequestMapping(value = "/regist")
 	public String regist(@Valid @ModelAttribute("registUserDto") RegistUserDto registUserDto, BindingResult br,
 			ModelMap map) {
@@ -131,7 +132,7 @@ public class RegistAndUpdateController extends ActionHelpUtil {
 		return "shiro/regist/regist-user-success";
 	}
 
-	@RequiresPermissions(value = { "shiro:deleteUser" })
+	@RequiresPermissions(value = { "shiro:shiro" })
 	@RequestMapping(value = "/deleteUser")
 	public String deleteUser(Integer id, ModelMap map) {
 		if (id == null) {
@@ -153,7 +154,7 @@ public class RegistAndUpdateController extends ActionHelpUtil {
 	 * @return
 	 */
 	@RequiresPermissions(value = { "xxxx:createPermission" })
-	@RequestMapping(value = "createPermission")
+	@RequestMapping(value = "/createPermission")
 	public String createPermission(
 			@Valid @ModelAttribute("createPermissionDto") CreatePermissionDto createPermissionDto, BindingResult br,
 			ModelMap map) {
@@ -179,13 +180,14 @@ public class RegistAndUpdateController extends ActionHelpUtil {
 	 * @param map
 	 * @return
 	 */
-	@RequiresPermissions(value = { "shiro:updateWaitUser" })
+	@RequiresPermissions(value = { "shiro:shiro" })
 	@RequestMapping(value = "/updateWaitUser")
 	public String updateWaitUser(String userName, String realName, ModelMap map, HttpServletRequest request) {
 		Pageable page = WebHelper.buildPageRequest(request);
 		Page<UpdateUserInfo> userList = this.registAndUpdateService.findUserInfo(userName, realName, page);
 		if (!userList.getContent().isEmpty()) {
-			map.put("userList", userList.getContent());
+			List<UpdateUserInfo> list = userList.getContent();
+			map.put("userList", list);
 			map.put("page", page.getPageNumber() + 1);
 			setQueryConditionToPage("", "", userName, realName, map);
 			if (userList.hasPrevious()) {
@@ -209,7 +211,7 @@ public class RegistAndUpdateController extends ActionHelpUtil {
 	 * @param request
 	 * @return
 	 */
-	@RequiresPermissions(value = { "shiro:updateWaitRole" })
+	@RequiresPermissions(value = { "shiro:shiro" })
 	@RequestMapping(value = "/updateWaitRole")
 	public String updateWaitRole(String roleName, String roleCode, ModelMap map, HttpServletRequest request) {
 		Pageable page = WebHelper.buildPageRequest(request);
@@ -229,7 +231,7 @@ public class RegistAndUpdateController extends ActionHelpUtil {
 		map.put("notResult", "未找到结果,您输入的角色或者角色CODE不在服务区");
 		return "shiro/update/show-update-role-list";
 	}
-	
+
 	/**
 	 * 修改用户 controller
 	 * 
@@ -239,8 +241,8 @@ public class RegistAndUpdateController extends ActionHelpUtil {
 	 * @param id
 	 * @return
 	 */
-	@RequiresPermissions(value = { "shiro:updateForUser" })
-	@RequestMapping(value = "updateForUser")
+	@RequiresPermissions(value = { "shiro:shiro" })
+	@RequestMapping(value = "/updateForUser")
 	public String updateForUser(@Valid @ModelAttribute("registUserDto") RegistUserDto registUserDto, BindingResult br,
 			ModelMap map) {
 		map.put("checkedId", registUserDto.getRoleId());
@@ -270,12 +272,13 @@ public class RegistAndUpdateController extends ActionHelpUtil {
 
 	/**
 	 * 普通用户修改密码
+	 * 
 	 * @param generalUserPasswordUpdateDTO
 	 * @param br
 	 * @param map
 	 * @return
 	 */
-	@RequestMapping(value = "updateGeneralUserPassword")
+	@RequestMapping(value = "/updateGeneralUserPassword")
 	public String updateGeneralUserPassword(
 			@Valid @ModelAttribute("generalUserPasswordUpdateDTO") GeneralUserPasswordUpdateDTO generalUserPasswordUpdateDTO,
 			BindingResult br, ModelMap map) {
@@ -316,24 +319,4 @@ public class RegistAndUpdateController extends ActionHelpUtil {
 		}
 		map.put("queryCondition", condition.toString());
 	}
-
-	// // TODO 未完成需要添加
-	// @RequestMapping(value = "/updateUsertodo")
-	// public String updateUser(@Valid @ModelAttribute("updateDto") UpdateDto
-	// updateDto, BindingResult br, ModelMap map) {
-	// map.put("isDelete", updateDto.getIsDelete());
-	// map.put("userName", updateDto.getUserName());
-	// map.put("realName", updateDto.getRealName());
-	// map.put("password", updateDto.getPassword());
-	// map.put("passwordAgain", updateDto.getPasswordAgain());
-	// map.put("roleName", updateDto.getRoleName());
-	// map.put("roleCode", updateDto.getRoleCode());
-	// map.put("roleDescription", updateDto.getRoleDescription());
-	// map.put("roleId", updateDto.getIsDelete());
-	// if (br.hasErrors()) {
-	// return "shiro/update/update";
-	// }
-	// System.out.println(updateDto.getIsDelete());
-	// return "shiro/update/update";
-	// }
 }

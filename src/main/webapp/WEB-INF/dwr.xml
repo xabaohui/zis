@@ -4,13 +4,13 @@
 <dwr>
 	<allow>
 		<create creator="spring" javascript="addAmountBiz">
-			<param name="beanName" value="bookAmountService" />
+			<param name="beanName" value="bookAmountServiceDWR" />
 		</create>
 		<create creator="spring" javascript="bookService">
-			<param name="beanName" value="bookService" />
+			<param name="beanName" value="bookServiceDWR" />
 		</create>
 		<create creator="spring" javascript="purchaseService">
-			<param name="beanName" value="doPurchaseService" />
+			<param name="beanName" value="doPurchaseServiceDWR" />
 		</create>
 		<create creator="spring" javascript="inwarehouseBO">
 			<param name="beanName" value="inwarehouseBOController" />

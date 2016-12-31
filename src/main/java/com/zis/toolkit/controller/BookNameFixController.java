@@ -33,7 +33,7 @@ public class BookNameFixController extends BaseBookFixController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value = { "toolkit:batchFixBookName" })
+	@RequiresPermissions(value = { "toolkit:toolkit" })
 	@RequestMapping(value = "/batchFixBookName")
 	public String fixBookName(@Valid @ModelAttribute("fixBookNameDTO") FixBookNameDTO fixBookNameDTO, BindingResult br,
 			ModelMap context) {

@@ -2,6 +2,7 @@
 <%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
 <%@ include file="/header.jsp"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags" %>
 
 <script type="text/javascript" src='resources/common.js'></script>
 <script type="text/javascript" src='resources/purchase.js'></script>
@@ -25,7 +26,7 @@
 			<th>书名/版次/作者/出版社</th>
 			<th>数量</th>
 			<th>入库时间</th>
-			<th>&nbsp;</th>
+			<th>操作</th>
 		</tr>
 		<c:forEach items="${resultList}" var="record">
 			<tr>
@@ -43,7 +44,10 @@
 				</td>
 				<td>${record.gmtCreate}
 				</td>
-				<td><input type="button" value="删除" onclick="return deleteInwarehouseDetail('${record.id}')"/>
+				<td>
+					<shiro:hasPermission name="stock:delete">
+						<input type="button" value="删除" onclick="return deleteInwarehouseDetail('${record.id}')"/>
+					</shiro:hasPermission>
 				</td>
 			</tr>
 		</c:forEach>

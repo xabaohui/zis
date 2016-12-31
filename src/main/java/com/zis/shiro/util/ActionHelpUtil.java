@@ -22,6 +22,8 @@ public class ActionHelpUtil {
 	protected final String REQUIREMENT = "requirement";
 	protected final String TOOLKIT = "toolkit";
 	protected final String SHIRO = "shiro";
+	protected final String STOCK = "stock";
+	protected final String DATA = "data";
 
 	@Autowired
 	private RegistAndUpdateService registAndUpdateService;
@@ -38,6 +40,8 @@ public class ActionHelpUtil {
 		list.add(REQUIREMENT);
 		list.add(TOOLKIT);
 		list.add(SHIRO);
+		list.add(STOCK);
+		list.add(DATA);
 		return list;
 	}
 	
@@ -47,6 +51,8 @@ public class ActionHelpUtil {
 		map.put("requirementList", this.registAndUpdateService.getGroupPermissions(REQUIREMENT));
 		map.put("bookInfoList", this.registAndUpdateService.getGroupPermissions(BOOK_INFO));
 		map.put("toolkitList", this.registAndUpdateService.getGroupPermissions(TOOLKIT));
+		map.put("stockList", this.registAndUpdateService.getGroupPermissions(STOCK));
+		map.put("dataList", this.registAndUpdateService.getGroupPermissions(DATA));
 	}
 	
 	/**

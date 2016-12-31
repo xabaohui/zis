@@ -28,7 +28,7 @@ public class BookEditionFixController extends BaseBookFixController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value = { "toolkit:batchFixEditionByBookName" })
+	@RequiresPermissions(value = { "toolkit:toolkit" })
 	@RequestMapping(value = "/batchFixEditionByBookName")
 	public String batchFixEditionByBookName(ModelMap context) {
 		List<String> list = bookInfoToolkit.updateFixEditionByBookName("修订版");
@@ -43,7 +43,7 @@ public class BookEditionFixController extends BaseBookFixController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value = { "toolkit:batchReplaceEditionByBookName" })
+	@RequiresPermissions(value = { "toolkit:toolkit" })
 	@RequestMapping(value = "/batchReplaceEditionByBookName")
 	public String batchReplaceEditionByBookName(ModelMap context) {
 		List<String> list = bookInfoToolkit.updateReplaceEditionByBookName();

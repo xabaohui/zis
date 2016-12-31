@@ -24,6 +24,10 @@
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
+	<!-- 获取Response监听器 -->
+	<listener>  
+      <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>  
+	</listener> 
 
 	<!--============================= shiro 安全过滤器=============================== -->
 	<filter>

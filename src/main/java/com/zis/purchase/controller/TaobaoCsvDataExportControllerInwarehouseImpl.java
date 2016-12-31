@@ -38,7 +38,7 @@ public class TaobaoCsvDataExportControllerInwarehouseImpl extends TaobaoCsvDataE
 
 	private static final Logger logger = LoggerFactory.getLogger(TaobaoCsvDataExportControllerInwarehouseImpl.class);
 	
-	@RequiresPermissions(value = { "purchase:exportTaobaoItemDataByInwarehouse" })
+	@RequiresPermissions(value = { "stock:output" })
 	@RequestMapping(value = "/exportTaobaoItemDataByInwarehouse")
 	public String export(HttpServletRequest request, ModelMap map) {
 		return super.export(request, map);

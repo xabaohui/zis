@@ -7,7 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "role_permission_tab")
+@Table(name = "acl_role_permission_tab")
 public class RolePermission {
 
 	@Id

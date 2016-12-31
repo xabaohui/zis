@@ -31,14 +31,14 @@ public class DoPurchaseController {
 	private BookService bookService;
 
 	@SuppressWarnings("deprecation")
-	@RequiresPermissions(value = {"purchase:batchUpdatePurchasePlanForPurchaseAmount"})
+	@RequiresPermissions(value = {"toolkit:toolkit"})
 	@RequestMapping(value = "/batchUpdatePurchasePlanForPurchaseAmount")
 	public String batchUpdatePurchasePlanForPurchaseAmount() {
 		this.doPurchaseService.batchUpdatePurchasePlanForPurchaseAmount();
 		return "success";
 	}
 	
-	@RequiresPermissions(value = "purchase:doPurchase")
+	@RequiresPermissions(value = "toolkit:toolkit")
 	@RequestMapping(value = "/doPurchase", method = RequestMethod.POST)
 	public String doPurchase(String isbn) {
 		// 如果指定了bookId则只处理这一条
@@ -88,7 +88,7 @@ public class DoPurchaseController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value = "purchase:clearOnwayStock")
+	@RequiresPermissions(value = "toolkit:toolkit")
 	@RequestMapping(value = "/clearOnwayStock")
 	public String clearOnwayStock(String purchaseOperator) {
 		this.doPurchaseService.deleteOnwayStock(purchaseOperator);
@@ -100,7 +100,7 @@ public class DoPurchaseController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value = "purchase:batchAddIntoBlackList")
+	@RequiresPermissions(value = "toolkit:toolkit")
 	@RequestMapping(value = "/batchAddIntoBlackList")
 	public String batchAddIntoBlackList(String keyword) {
 		if (StringUtils.isBlank(keyword)) {

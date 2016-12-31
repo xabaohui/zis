@@ -1,6 +1,7 @@
 <%@page import="com.zis.bookinfo.action.BookBatchOperateType"%>
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags" %> 
 
 <script type='text/javascript' src='dwr/engine.js'></script>
 <script type='text/javascript' src='dwr/util.js'></script>
@@ -11,10 +12,16 @@
 <form action="bookInfo/batchOperateBooks" method="post" id="form_checkBox">
 	<input type="hidden" name="operateType" id="operateType"/>
 	<div align="left">
-		<input type="button" value="设置成不同版本" onclick="batchOperate('<%=BookBatchOperateType.SET_TO_GROUP %>')" />
-		<input type="button" value="设置成关联图书" onclick="batchOperate('<%=BookBatchOperateType.SET_TO_RELATED %>')" />
-		<input type="button" value="批量删除" onclick="batchOperate('<%=BookBatchOperateType.BATCH_DELETE %>')" />
-		<input type="button" value="批量拉黑" onclick="batchOperate('<%=BookBatchOperateType.BATCH_ADD_TO_BLACK_LIST %>')" />
+		<shiro:hasPermission name="bookInfo:saveOrUpdate">
+			<input type="button" value="设置成不同版本" onclick="batchOperate('<%=BookBatchOperateType.SET_TO_GROUP %>')" />
+			<input type="button" value="设置成关联图书" onclick="batchOperate('<%=BookBatchOperateType.SET_TO_RELATED %>')" />
+		</shiro:hasPermission>
+		<shiro:hasPermission name="bookInfo:delete">
+			<input type="button" value="批量删除" onclick="batchOperate('<%=BookBatchOperateType.BATCH_DELETE %>')" />
+		</shiro:hasPermission>
+		<shiro:hasPermission name="purchase:management">
+			<input type="button" value="批量拉黑" onclick="batchOperate('<%=BookBatchOperateType.BATCH_ADD_TO_BLACK_LIST %>')" />
+		</shiro:hasPermission>
 	<p/>
 	</div>
 
@@ -56,7 +63,7 @@
 					<c:if test="${book.isNewEdition eq true}"><font style="font-weight:bold;color:green">[最新]</font></c:if>
 					<c:if test="${not empty book.groupId}">
 						<br/>
-						[<a href="bookInfo/showGroupList?groupId=${book.groupId}" target="_blank">其他版本</a>]
+							[<a href="bookInfo/showGroupList?groupId=${book.groupId}" target="_blank">其他版本</a>]
 					</c:if>
 				</td>
 				<td><a href="bookInfo/getAllBooks?bookAuthor=${book.bookAuthor}&bookPublisher=${book.bookPublisher}">${book.bookAuthor}</a></td>
@@ -65,12 +72,17 @@
 				<td>${book.bookPrice}</td>
 				<td>
 					<c:if test="${not empty book.relateId}">
-						<a href="bookInfo/showGroupList?relateId=${book.relateId}" target="_blank">关联图书</a>
+							<a href="bookInfo/showGroupList?relateId=${book.relateId}" target="_blank">关联图书</a>
 					</c:if>
 				</td>
 				<td>${book.bookStatus}</td>
-				<td><a href="bookInfo/findBookById?bookId=${book.id}" target="_blank">修改</a></td>
-				<td><a href="#" onclick="return immigrate(${book.id})">迁移</a></td>
+				<shiro:hasPermission name="bookInfo:saveOrUpdate">
+					<td><a href="bookInfo/findBookById?bookId=${book.id}" target="_blank">修改</a></td>
+					<td><a href="#" onclick="return immigrate(${book.id})">迁移</a></td>
+				</shiro:hasPermission>
+				<shiro:lacksPermission name="bookInfo:saveOrUpdate">
+					<td></td>
+				</shiro:lacksPermission>
 			</tr>
 		</c:forEach>
 	</table>

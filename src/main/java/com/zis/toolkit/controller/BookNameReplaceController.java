@@ -33,7 +33,7 @@ public class BookNameReplaceController extends BaseBookFixController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value = { "toolkit:batchReplaceBookName" })
+	@RequiresPermissions(value = { "toolkit:toolkit" })
 	@RequestMapping(value = "/batchReplaceBookName")
 	public String batchReplaceBookName(@Valid @ModelAttribute("dto") BatchReplaceBookNameDTO dto, BindingResult br,
 			ModelMap context) {

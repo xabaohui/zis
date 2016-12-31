@@ -36,7 +36,7 @@ public class BookInfoExportController extends CommonExcelExportController<TempIm
 		return new String[] { "条形码", "条形码（带后缀）", "书名", "版次", "作者", "出版社", "出版日期", "标价", "辅助1", "辅助2", "辅助3" };
 	}
 	
-	@RequiresPermissions(value = {"purchase:exportBookInfoByTempImport"})
+	@RequiresPermissions(value = {"data:dataInfo"})
 	@RequestMapping(value = "/exportBookInfoByTempImport")
 	public String export(HttpServletRequest request, HttpServletResponse response) {
 		return super.export(request, response);

@@ -3,7 +3,7 @@
 <%@ include file="/header.jsp"%>
 <center>
 	<h1>导入数据列表</h1>
-	<h3><a href="purchase/gotoTempImportUpload">新表导入</a></h3>
+	<h3></h3>
 	<table id="common-table">
 		<tr>
 		<th>日期</th>

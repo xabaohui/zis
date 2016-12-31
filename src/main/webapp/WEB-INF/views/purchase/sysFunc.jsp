@@ -1,5 +1,6 @@
 <%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
 <%@ include file="/header.jsp"%>
+<%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags" %>
 <center>
 	<h1>系统功能</h1>
 	<form action="purchase/doPurchase" method="post">
@@ -35,10 +36,12 @@
 	<form action="bookInfo/analysisSameBook" method="post" target="_blank">
 		<input type="submit" value="智能分析相似图书" />
 	</form>
-	查看相似图书(<a href="<%=basePath%>/bookInfo/showSameBooksList?similarityCheckLevel=3">使用中</a>
-				|<a href="<%=basePath%>/bookInfo/showSameBooksList?similarityCheckLevel=2">重复</a>
-				|<a href="<%=basePath%>/bookInfo/showSameBooksList?similarityCheckLevel=1">未关联</a>
-				|<a href="<%=basePath%>/bookInfo/showSameBooksList">其他</a>)
+				<shiro:hasPermission name="bookInfo:view">
+				查看相似图书(<a href="<%=basePath%>/bookInfo/showSameBooksList?similarityCheckLevel=3">使用中</a>
+							|<a href="<%=basePath%>/bookInfo/showSameBooksList?similarityCheckLevel=2">重复</a>
+							|<a href="<%=basePath%>/bookInfo/showSameBooksList?similarityCheckLevel=1">未关联</a>
+							|<a href="<%=basePath%>/bookInfo/showSameBooksList">其他</a>)
+				</shiro:hasPermission>
 				<p />
 				<a href="<%=basePath%>/toolkit/gotoStockPosCheck">库位校准</a>
 </center>

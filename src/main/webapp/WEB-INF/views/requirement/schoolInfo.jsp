@@ -1,6 +1,7 @@
 <%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
 <%@ include file="/header.jsp"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags"%>
 <center>
 	<h1>院校信息</h1>
 	<form action="requirement/findSchoolInfo" method="post">
@@ -38,8 +39,15 @@
 				<td>${st.institute}</td>
 				<td>${st.partName}</td>
 				<td>${st.years}</td>
-				<td><a href="requirement/updateSchoolPre?id=${st.did}">修改</a></td>
-				<td><a href="requirement/addAmountPreAction?id=${st.did}">录入教材</a>
+				<td>
+					<shiro:hasPermission name="requirement:school:saveOrUpdate">
+						<a href="requirement/updateSchoolPre?id=${st.did}">修改</a>
+					</shiro:hasPermission>					
+				</td>
+				<td>
+					<shiro:hasPermission name="requirement:books:input">
+						<a href="requirement/addAmountPreAction?id=${st.did}">录入教材</a>
+					</shiro:hasPermission>
 				</td>
 			</tr>
 		</c:forEach>

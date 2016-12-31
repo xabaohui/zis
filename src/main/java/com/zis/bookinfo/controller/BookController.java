@@ -10,6 +10,8 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.shiro.authz.UnauthorizedException;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +28,11 @@ import com.zis.bookinfo.bean.BookinfoAid;
 import com.zis.bookinfo.bean.BookinfoDetail;
 import com.zis.bookinfo.dto.BookInfoAndDetailDTO;
 import com.zis.bookinfo.service.BookService;
+import com.zis.bookinfo.service.BookServiceDWR;
 import com.zis.bookinfo.util.ConstantString;
 import com.zis.common.mvc.ext.QueryUtil;
 import com.zis.common.mvc.ext.WebHelper;
-import com.zis.purchase.biz.DoPurchaseService;
+import com.zis.purchase.biz.DoPurchaseServiceDWR;
 
 @Controller
 @RequestMapping(value = "/bookInfo")
@@ -45,14 +48,16 @@ public class BookController {
 	@Autowired
 	private BookService bookService;
 	@Autowired
-	private DoPurchaseService doPurchaseService;
+	private BookServiceDWR bookServiceDWR;
+	@Autowired
+	private DoPurchaseServiceDWR doPurchaseServiceDWR;
 
 	/**
 	 * 查询所有图书
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value = "bookInfo:getAllBooks")
+	@RequiresPermissions(value = "bookInfo:view")
 	@RequestMapping(value = "/getAllBooks")
 	public String getAllBooks(ModelMap model, String bookName, Boolean strictBookName, String bookISBN,
 			String bookAuthor, String bookPublisher, HttpServletRequest request) {
@@ -85,7 +90,7 @@ public class BookController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value="bookInfo:findBookById")
+	@RequiresPermissions(value = "bookInfo:saveOrUpdate")
 	@RequestMapping(value = "/findBookById")
 	public String findBookById(Integer bookId, ModelMap ctx) {
 		Bookinfo book = bookService.findBookById(bookId);
@@ -111,29 +116,29 @@ public class BookController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value="bookInfo:batchOperateBooks")
+	@RequiresPermissions(value = { "bookInfo:saveOrUpdate", "bookInfo:delete", "purchase:management" }, logical = Logical.OR)
 	@RequestMapping(value = "/batchOperateBooks")
 	public String batchOperate(Integer[] batchSelectedItem, String operateType, ModelMap map) {
 		try {
 			// 设置成不同版本
 			if (BookBatchOperateType.SET_TO_GROUP.equals(operateType)) {
-				bookService.updateSameBooksToOneGroup(batchSelectedItem);
+				bookServiceDWR.updateSameBooksToOneGroup(batchSelectedItem);
 				return "success";
 			}
 			// 设置成相关图书
 			else if (BookBatchOperateType.SET_TO_RELATED.equals(operateType)) {
-				bookService.updateRelatedBooksToOneGroup(batchSelectedItem);
+				bookServiceDWR.updateRelatedBooksToOneGroup(batchSelectedItem);
 				return "success";
 			}
 			// 批量删除
 			else if (BookBatchOperateType.BATCH_DELETE.equals(operateType)) {
-				bookService.updateBookForBatchDelete(batchSelectedItem);
+				bookServiceDWR.updateBookForBatchDelete(batchSelectedItem);
 				return "success";
 			}
 			// 批量拉黑
 			else if (BookBatchOperateType.BATCH_ADD_TO_BLACK_LIST.equals(operateType)) {
 				for (Integer bookId : batchSelectedItem) {
-					doPurchaseService.addBlackList(bookId);
+					doPurchaseServiceDWR.addBlackList(bookId);
 				}
 				return "success";
 			} else {
@@ -141,6 +146,11 @@ public class BookController {
 				return "error";
 			}
 		} catch (Exception e) {
+			if (e instanceof UnauthorizedException) {
+				map.put("exception", "未经授权，无法访问");
+				map.put("exceptions", e.getMessage());
+				return "unauthorized";
+			}
 			logger.error("操作失败，" + e.getMessage(), e);
 			map.put("actionError", "操作失败，" + e.getMessage());
 			return "error";
@@ -152,7 +162,7 @@ public class BookController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value="bookInfo:showGroupList")
+	@RequiresPermissions(value = "bookInfo:view")
 	@RequestMapping(value = "/showGroupList")
 	public String showGroupList(String relateId, String groupId, HttpSession session, ModelMap map) {
 		// 通过组的id将查询到的集合放入容器
@@ -176,7 +186,7 @@ public class BookController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value="bookInfo:removeRelateId")
+	@RequiresPermissions(value = "bookInfo:saveOrUpdate")
 	@RequestMapping(value = "/removeRelateId")
 	public String removeRelateId(Integer id, String pageType, ModelMap map) {
 		bookService.removeRelateId(id, pageType);
@@ -189,7 +199,7 @@ public class BookController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value="bookInfo:removeAll")
+	@RequiresPermissions(value = "bookInfo:saveOrUpdate")
 	@RequestMapping(value = "/removeAll")
 	public String removeAll(HttpSession session, String pageType) {
 		@SuppressWarnings("unchecked")
@@ -197,8 +207,8 @@ public class BookController {
 		this.bookService.removeAllRelation(list, pageType);
 		return "success";
 	}
-	
-	@RequiresPermissions(value="bookInfo:getWaitCheckList")
+
+	@RequiresPermissions(value = "bookInfo:view")
 	@RequestMapping(value = "/getWaitCheckList")
 	public String getWaitCheckList(ModelMap context, HttpServletRequest request) {
 		Pageable page = WebHelper.buildPageRequest(request);
@@ -209,7 +219,7 @@ public class BookController {
 		if (list.hasNext()) {
 			context.put("nextPage", page.next().getPageNumber());
 		}
-		context.put("ALLBOOKS", list);
+		context.put("list", list.getContent());
 		return "bookinfo/dealWaitCheck";
 	}
 
@@ -220,7 +230,7 @@ public class BookController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value="bookInfo:adjustBooks")
+	@RequiresPermissions(value = "toolkit:toolkit")
 	@RequestMapping(value = "/adjustBooks")
 	public String adjustBooks() {
 		bookService.processOneISBNToMultiBooks();
@@ -233,7 +243,7 @@ public class BookController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value="bookInfo:analysisSameBook")
+	@RequiresPermissions(value = "toolkit:toolkit")
 	@RequestMapping(value = "/analysisSameBook")
 	public String analysisSameBook() {
 		this.bookService.analysisSimilarityBook();
@@ -245,7 +255,7 @@ public class BookController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value="bookInfo:showSameBooksList")
+	@RequiresPermissions(value = { "bookInfo:bookInfo:view", "toolkit:toolkit" }, logical = Logical.OR)
 	@RequestMapping(value = "/showSameBooksList")
 	public String showSameBookList(ModelMap context, String similarityCheckLevel, HttpServletRequest request) {
 		Integer checkLevel = buildSimilaritySearchContition(similarityCheckLevel);
@@ -280,7 +290,7 @@ public class BookController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value="bookInfo:showSameBooks")
+	@RequiresPermissions(value = "bookInfo:view")
 	@RequestMapping(value = "/showSameBooks")
 	public String showSameBooks(@PathVariable String sameBookIds, ModelMap context) {
 		if (StringUtils.isBlank(sameBookIds)) {

@@ -37,7 +37,7 @@ public class SoldOutItemExportByInwarehouseController extends CommonExcelExportC
 	@Autowired
 	private DoPurchaseService doPurchaseService;
 	
-	@RequiresPermissions(value = { "purchase:exportSoldOutItem" })
+	@RequiresPermissions(value = { "stock:output" })
 	@RequestMapping(value="/exportSoldOutItem")
 	public String export(HttpServletRequest request,HttpServletResponse response){
 		return super.export(request, response);

@@ -1,3 +1,38 @@
+//表单提交验证
+function submitForm(){
+	var gradeChecked = isRadioChecked('grade');
+	if(gradeChecked == false) {
+		alert('请选择年级');
+		return;
+	}
+	// 检查学期
+	var termChecked = isRadioChecked('term');
+	if(termChecked == false) {
+		alert('请选择学期');
+		return;
+	}
+	document.getElementById("addAmountForm").submit();
+}
+function selectRadio(){
+	var isGrade = document.getElementById("isGrade");
+	var isTerm = document.getElementById("term");
+	var terms= document.getElementsByName("term");
+	var grades= document.getElementsByName("grade");
+	var isGradeValue = isGrade.value;
+	var isTermValue = isTerm.value;
+		for(var j = 0; j < grades.length; j++){
+			var gradesValue = grades[j].value;
+			if(+isGradeValue == +gradesValue){
+				grades[j].checked=true;
+			}
+		}
+		for(var j = 0; j < terms.length; j++){
+			var termsValue = terms[j].value;
+			if(+isTermValue == +termsValue){
+				terms[j].checked=true;
+			}
+		}
+}
 // 添加新记录
 function addNewBook() {
 	// 检查年级

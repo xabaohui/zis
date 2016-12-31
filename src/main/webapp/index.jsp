@@ -4,7 +4,7 @@
 
 <h1>欢迎使用系统...</h1>
 <div align="center">
-	<c:if test="${waitCheckCount le 1}">
+	<c:if test="${waitCheckCount ge 1}">
 		<a href="bookinfo/getWaitCheckList">您有${waitCheckCount }条待审核的数据 </a>
 	</c:if>
 </div>

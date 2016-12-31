@@ -28,8 +28,7 @@ public abstract class BookInfoAnalysisBO {
 		for (int i = 1; i <= maxId; i++) {
 			Bookinfo book = this.bookinfoDao.findOne(i);
 			// 只处理状态不为“废弃”的记录
-			if (book != null
-					&& !book.getBookStatus().equals(ConstantString.ABANDON)) {
+			if (book != null && !book.getBookStatus().equals(ConstantString.ABANDON)) {
 				try {
 					processOne(book);
 				} catch (Exception e) {
@@ -41,20 +40,21 @@ public abstract class BookInfoAnalysisBO {
 
 	/**
 	 * 处理某一条特定记录
+	 * 
 	 * @param book
 	 */
 	public abstract void processOne(Bookinfo book);
 
-//	private Integer getMaxBookId() {
-//		// 查出最大ID 和 最小ID
-//		DetachedCriteria dc = DetachedCriteria.forClass(Bookinfo.class);
-//		ProjectionList pList = Projections.projectionList();
-//		pList.add(Projections.min("id")).add(Projections.max("id"));
-//		dc.setProjection(pList);
-//		List list = this.bookinfoDao.findByCriteria(dc);
-//		Object[] ids = (Object[]) list.get(0);
-////		Integer minId = (Integer) ids[0];
-//		Integer maxId = (Integer) ids[1];
-//		return maxId;
-//	}
+	// private Integer getMaxBookId() {
+	// // 查出最大ID 和 最小ID
+	// DetachedCriteria dc = DetachedCriteria.forClass(Bookinfo.class);
+	// ProjectionList pList = Projections.projectionList();
+	// pList.add(Projections.min("id")).add(Projections.max("id"));
+	// dc.setProjection(pList);
+	// List list = this.bookinfoDao.findByCriteria(dc);
+	// Object[] ids = (Object[]) list.get(0);
+	// // Integer minId = (Integer) ids[0];
+	// Integer maxId = (Integer) ids[1];
+	// return maxId;
+	// }
 }

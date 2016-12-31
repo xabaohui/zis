@@ -51,6 +51,8 @@ public class RegistAndUpdateService {
 	protected final String REQUIREMENT = "requirement";
 	protected final String TOOLKIT = "toolkit";
 	protected final String SHIRO = "shiro";
+	protected final String STOCK = "stock";
+	protected final String DATA = "data";
 
 	@Autowired
 	private UserDao userDao;
@@ -60,8 +62,8 @@ public class RegistAndUpdateService {
 	private PermissionDao permissionDao;
 	@Autowired
 	private RolePermissionDao rolePermissionDao;
-	
-	//获取分组所有的权限MAP
+
+	// 获取分组所有的权限MAP
 	private HashMap<String, List<Permission>> permissions;
 
 	/**
@@ -80,6 +82,7 @@ public class RegistAndUpdateService {
 
 	/**
 	 * save权限，注入后删除
+	 * 
 	 * @param createPermissionDto
 	 * @return
 	 */
@@ -106,7 +109,7 @@ public class RegistAndUpdateService {
 	}
 
 	/**
-	 * 新建角色，及授权
+	 * 新建和修改角色，及授权
 	 * 
 	 * @param registRoleDto
 	 * @return
@@ -193,7 +196,12 @@ public class RegistAndUpdateService {
 			user.setSalt(salt);
 			user.setCreateTime(new Date());
 			user.setUpdateTime(new Date());
-			user.setRoleId(registUserDto.getRoleId());
+			if (registUserDto.getRoleId() != null) {
+				user.setRoleId(registUserDto.getRoleId());
+			}else{
+				user.setRoleId(0);
+			}
+
 		} else {
 			// 修改用户
 			if (!user.getPassword().equals(registUserDto.getPassword())) {
@@ -235,7 +243,7 @@ public class RegistAndUpdateService {
 	 * @return
 	 */
 	public List<Role> findAllRole() {
-		List<Role> roleList = (List<Role>) this.roleDao.findAll();
+		List<Role> roleList = (List<Role>) this.roleDao.findByIdNotEqZeroAll();
 		return roleList;
 	}
 
@@ -326,6 +334,8 @@ public class RegistAndUpdateService {
 			permissions.put(REQUIREMENT, this.permissionDao.findByGroupName(REQUIREMENT));
 			permissions.put(TOOLKIT, this.permissionDao.findByGroupName(TOOLKIT));
 			permissions.put(SHIRO, this.permissionDao.findByGroupName(SHIRO));
+			permissions.put(STOCK, this.permissionDao.findByGroupName(STOCK));
+			permissions.put(DATA, this.permissionDao.findByGroupName(DATA));
 		}
 	}
 

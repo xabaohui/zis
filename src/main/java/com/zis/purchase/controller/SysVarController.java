@@ -24,7 +24,7 @@ public class SysVarController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value = { "toolkit:querySysVarAction" })
+	@RequiresPermissions(value = { "toolkit:toolkit" })
 	@RequestMapping(value="/querySysVarAction")
 	public String queryAllSysVar(ModelMap context) {
 		List<SysVar> list = sysVarCache.getAllSysVars();
@@ -37,7 +37,7 @@ public class SysVarController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value = { "toolkit:updateSysVarPreAction" })
+	@RequiresPermissions(value = { "toolkit:toolkit" })
 	@RequestMapping(value="/updateSysVarPreAction")
 	public String updateSysVarPre(ModelMap context,String depKey) {
 		Integer depValue = sysVarCache.getSystemVar(depKey);

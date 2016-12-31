@@ -1,5 +1,6 @@
 <%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags"%>
 <%@ include file="/header.jsp"%>
 <%@	taglib prefix="spring"
 	uri="http://www.springframework.org/tags/form"%>
@@ -7,16 +8,20 @@
 
 	<table>
 		<tr>
-			<td><h1>图书使用量</h1>&nbsp;&nbsp;<a
-				href="requirement/gotoImportRequirement">批量导入</a>
+			<td><h1>图书使用量</h1>&nbsp;&nbsp;
+			<shiro:hasPermission name="requirement:books:input">
+				<a href="requirement/gotoImportRequirement">批量导入</a>
+			</shiro:hasPermission>
 			</td>
 			<td>
+			<shiro:hasPermission name="requirement:books:output">
 				<form action="requirement/exportRequirementCollectSchedule?groupByOperator=true" method="post" target="_blank">
 					<input type="submit" value="导出进度(分操作员)">
 				</form>
 				<form action="requirement/exportRequirementCollectSchedule?groupByOperator=false" method="post" target="_blank">
 					<input type="submit" value="导出进度(不分操作员)">
 				</form>
+			</shiro:hasPermission>
 			</td>
 		</tr>
 	</table>

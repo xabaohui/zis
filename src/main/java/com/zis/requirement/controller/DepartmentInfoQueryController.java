@@ -29,7 +29,7 @@ public class DepartmentInfoQueryController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value = { "requirement:findSchoolInfo" })
+	@RequiresPermissions(value = { "requirement:school:view" })
 	@RequestMapping("/findSchoolInfo")
 	public String findInfo(String school, String institute, String partName, HttpServletRequest request, ModelMap ctx) {
 		// 分页查询

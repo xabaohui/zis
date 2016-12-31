@@ -8,13 +8,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(value = "/toolkit")
 public class ToolkitHelpController {
 	
-	@RequiresPermissions(value = { "toolkit:gotoToolkit" })
+	@RequiresPermissions(value = { "toolkit:toolkit" })
 	@RequestMapping(value="/gotoToolkit")
 	public String gotoToolkit(){
 		return "toolkit/toolkit";
 	}
 	
-	@RequiresPermissions(value = { "toolkit:gotoStockPosCheck" })
+	@RequiresPermissions(value = { "toolkit:toolkit" })
 	@RequestMapping(value="/gotoStockPosCheck")
 	public String gotoStockPosCheck(){
 		return "toolkit/stockPosCheck";

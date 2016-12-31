@@ -36,6 +36,18 @@
 	border:1px solid #98bf21;
 	text-align: center;
 }
+#stockDiv table tr td, #stockDiv table tr th{
+	z-index: 6;
+	font-size:1em;
+	border:1px solid #98bf21;
+	text-align: center;
+}
+#dataDiv table tr td, #dataDiv table tr th{
+	z-index: 7;
+	font-size:1em;
+	border:1px solid #98bf21;
+	text-align: center;
+}
 #allPermissionDiv div{
 	float:inherit;
 	display: inline-table;
@@ -67,7 +79,7 @@
 		<div style="width: 420px" id = "registDiv">
 			<table >
 			<tr>
-			<th colspan="3" width="420px" height="40px" bgcolor="cyan">注册权限</th>
+			<th colspan="3" width="420px" height="40px" bgcolor="cyan">用户权限</th>
 			</tr>
 			<tr>
 				<th>id</th>
@@ -184,6 +196,56 @@
 						</td>
 						<td width="13%">
 							${toolkit.permissionDescription}
+						</td>
+					</tr>
+				</c:forEach>
+			</table>
+		</div>
+		<div style="width: 420px" id = "stockDiv">
+			<table >
+			<tr>
+			<th colspan="3" width="420px" height="40px" bgcolor="cyan">库存相关权限</th>
+			</tr>
+			<tr>
+				<th>id</th>
+				<th>权限名称</th>
+				<th>权限描述</th>
+			</tr>
+				<c:forEach items="${stockList}" var="stock">
+					<tr>
+						<td width="3%">
+							${stock.id}
+						</td>
+						<td width="6%">
+							${stock.permissionName}
+						</td>
+						<td width="13%">
+							${stock.permissionDescription}
+						</td>
+					</tr>
+				</c:forEach>
+			</table>
+		</div>
+		<div style="width: 420px" id = "dataDiv">
+			<table >
+			<tr>
+			<th colspan="3" width="420px" height="40px" bgcolor="cyan">数据相关权限</th>
+			</tr>
+			<tr>
+				<th>id</th>
+				<th>权限名称</th>
+				<th>权限描述</th>
+			</tr>
+				<c:forEach items="${dataList}" var="data">
+					<tr>
+						<td width="3%">
+							${data.id}
+						</td>
+						<td width="6%">
+							${data.permissionName}
+						</td>
+						<td width="13%">
+							${data.permissionDescription}
 						</td>
 					</tr>
 				</c:forEach>

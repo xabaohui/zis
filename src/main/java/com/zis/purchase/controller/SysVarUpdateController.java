@@ -24,7 +24,7 @@ public class SysVarUpdateController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value = { "toolkit:updateSysVarAction" })
+	@RequiresPermissions(value = { "toolkit:toolkit" })
 	@RequestMapping(value = "/updateSysVarAction")
 	public String updateSysVar(@Valid @ModelAttribute("dto") UpdateSysVarDTO dto, BindingResult br) {
 		if(br.hasErrors()){

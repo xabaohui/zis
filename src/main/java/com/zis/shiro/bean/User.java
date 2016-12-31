@@ -12,7 +12,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
 @Entity
-@Table(name = "user_tab")
+@Table(name = "acl_user_tab")
 public class User {
 
 	@Id

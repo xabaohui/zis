@@ -42,7 +42,7 @@ public class TempImportDetailTransferController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value = { "purchase:transferTempImportDetailForMatched" })
+	@RequiresPermissions(value = { "data:dataInfo" })
 	@RequestMapping(value = "/transferTempImportDetailForMatched")
 	public String transfer(Integer taskId, ModelMap map) {
 		TempImportTask task = doPurchaseService.findTempImportTaskByTaskId(taskId);

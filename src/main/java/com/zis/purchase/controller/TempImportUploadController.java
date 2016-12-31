@@ -44,7 +44,7 @@ public class TempImportUploadController extends CommonImportController<TempImpor
 	private static String supportedBizTypes = HEADER_STOCK + "," + HEADER_SHOP_STATUS + "," + HEADER_SHOP_TITLE + ","
 			+ HEADER_SHOP_CATEGORY_ID + "," + HEADER_SHOP_FORBIDDEN;
 
-	@RequiresPermissions(value = { "purchase:uploadTempRecord" })
+	@RequiresPermissions(value = { "data:dataInfo" })
 	@RequestMapping(value = "/uploadTempRecord")
 	public String upload(@RequestParam MultipartFile excelFile, String memo, ModelMap map) {
 		try {

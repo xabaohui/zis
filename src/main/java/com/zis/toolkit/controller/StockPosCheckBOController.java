@@ -20,6 +20,7 @@ import com.zis.purchase.repository.TempImportDetailDao;
  * 
  */
 @Deprecated
+//@Controller
 public class StockPosCheckBOController {
 
 	private static final String SESSION_KEY_RECORDS = "stockPosCheck.InputRecords";

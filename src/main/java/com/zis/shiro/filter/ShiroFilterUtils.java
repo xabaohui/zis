@@ -1,7 +1,6 @@
 package com.zis.shiro.filter;
 
 import java.io.PrintWriter;
-import java.util.Map;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;

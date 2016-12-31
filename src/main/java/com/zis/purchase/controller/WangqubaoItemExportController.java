@@ -37,7 +37,7 @@ public class WangqubaoItemExportController extends
 	@Autowired
 	private DoPurchaseService doPurchaseService;
 	
-	@RequiresPermissions(value = { "purchase:exportWangqubaoItemDataByTempImport" })
+	@RequiresPermissions(value = { "data:dataInfo" })
 	@RequestMapping(value="/exportWangqubaoItemDataByTempImport")
 	public String export(HttpServletRequest request,HttpServletResponse response){
 		return super.export(request, response);

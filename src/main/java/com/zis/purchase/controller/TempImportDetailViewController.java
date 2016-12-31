@@ -46,7 +46,7 @@ public class TempImportDetailViewController extends PaginationQueryController<Te
 	@Autowired
 	private DoPurchaseService doPurchaseService;
 
-	@RequiresPermissions(value = { "purchase:viewTempImportDetailForMatched" })
+	@RequiresPermissions(value = { "data:dataInfo" })
 	@RequestMapping(value = "/viewTempImportDetailForMatched")
 	public String executeQuery(ModelMap context, HttpServletRequest request) {
 		return super.executeQuery(context, request);

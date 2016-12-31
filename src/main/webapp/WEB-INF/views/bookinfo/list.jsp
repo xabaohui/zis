@@ -1,6 +1,13 @@
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%@ include file="/header.jsp"%>
-
+<script type="text/javascript">
+function clearAll() {
+	var list = document.getElementsByTagName('text');
+	for ( var i = 0; i < list.length; i++) {
+		list[i].value = "";
+	}
+}
+</script>
 
 <div align="center">
 <h1>图书列表</h1>
@@ -32,7 +39,7 @@
 			</tr>
 			<tr>
 				<td><input type="submit" value="查询"></td>
-				<td><input type="reset" value="清除条件"></td>
+				<td><input type="button" value="清除条件" onclick="clearAll();"></td>
 				<td></td>
 			</tr>
 		</table>

@@ -1,6 +1,7 @@
 <%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
 <%@ include file="/header.jsp"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags" %>
 
 <script type='text/javascript' src='dwr/engine.js'></script>
 <script type='text/javascript' src='dwr/util.js'></script>
@@ -65,9 +66,14 @@ function showOperate(bookId) {
 		<c:forEach items="${resultList}" var="purchasedPlan">
 			<tr>
 				<td>
-					<a href="bookInfo/getAllBooks?bookISBN=${purchasedPlan.isbn}" target="_blank">
-					${purchasedPlan.isbn}
-					</a>
+					<shiro:hasPermission name="bookInfo:view">
+						<a href="bookInfo/getAllBooks?bookISBN=${purchasedPlan.isbn}" target="_blank">
+						${purchasedPlan.isbn}
+						</a>
+					</shiro:hasPermission>
+					<shiro:lacksPermission name="bookInfo:view">
+						${purchasedPlan.isbn}
+					</shiro:lacksPermission>
 					<c:if test="${purchasedPlan.repeatIsbn eq true}">
 						<br /><font style="font-weight:bold;color:red">[多]</font>
 					</c:if>
@@ -92,37 +98,66 @@ function showOperate(bookId) {
 				<td>${purchasedPlan.publishDate}</td>
 				<td>${purchasedPlan.bookPrice}</td>
 				<td>
-					<a href="#" onclick="return editPurchasePlanManualDecision(${purchasedPlan.bookId});">
-						<c:if test="${purchasedPlan.manualDecisionFlag eq true}">
-							${purchasedPlan.manualDecision}[人]
-						</c:if>
-						<c:if test="${purchasedPlan.manualDecisionFlag eq false}">
-							${purchasedPlan.requireAmount}
-						</c:if>
-					</a>
+					<shiro:hasPermission name="purchase:management">
+						<a href="#" onclick="return editPurchasePlanManualDecision(${purchasedPlan.bookId});">
+							<c:if test="${purchasedPlan.manualDecisionFlag eq true}">
+								${purchasedPlan.manualDecision}[人]
+							</c:if>
+							<c:if test="${purchasedPlan.manualDecisionFlag eq false}">
+								${purchasedPlan.requireAmount}
+							</c:if>
+						</a>
+					</shiro:hasPermission>
+					<shiro:lacksPermission name="purchase:management">
+							<c:if test="${purchasedPlan.manualDecisionFlag eq true}">
+								${purchasedPlan.manualDecision}[人]
+							</c:if>
+							<c:if test="${purchasedPlan.manualDecisionFlag eq false}">
+								${purchasedPlan.requireAmount}
+							</c:if>
+					</shiro:lacksPermission>
 				</td>
 				<td>
-					<a href="#" onclick="return editPurchasePlanStock(${purchasedPlan.bookId});">${purchasedPlan.stockAmount}</a>
+					<shiro:hasPermission name="purchase:management">
+						<a href="#" onclick="return editPurchasePlanStock(${purchasedPlan.bookId});">${purchasedPlan.stockAmount}</a>
+					</shiro:hasPermission>
+					<shiro:lacksPermission name="purchase:management">
+						${purchasedPlan.stockAmount}
+					</shiro:lacksPermission>
 				</td>
-				<td><c:if test="${purchasedPlan.purchasedAmount gt 0}">
-						<a href="purchase/queryPurchaseDetail?bookId=${purchasedPlan.bookId}&status=purchased">${purchasedPlan.purchasedAmount}</a>
-					</c:if>
+				<td>
+					<shiro:hasPermission name="purchase:management">
+						<c:if test="${purchasedPlan.purchasedAmount gt 0}">
+							<a href="purchase/queryPurchaseDetail?bookId=${purchasedPlan.bookId}&status=purchased">${purchasedPlan.purchasedAmount}</a>
+						</c:if>
+					</shiro:hasPermission>
+					<shiro:lacksPermission name="purchase:management">
+						<c:if test="${purchasedPlan.purchasedAmount gt 0}">
+							${purchasedPlan.purchasedAmount}
+						</c:if>
+					</shiro:lacksPermission>
 					<c:if test="${purchasedPlan.purchasedAmount le 0}">
 						${purchasedPlan.purchasedAmount}
 					</c:if>
 				</td>
 				<td>${purchasedPlan.stillRequireAmount}</td>
-				<td><a href="javascript:showOperate(${purchasedPlan.bookId})">操作</a></td>
+				<td>
+					<shiro:hasPermission name="purchase:management">
+						<a href="javascript:showOperate(${purchasedPlan.bookId})">操作</a>
+					</shiro:hasPermission>
+				</td>
 			</tr>
 			<tr id="hidden_tr_${purchasedPlan.bookId}" style="display:none">
-				<td colspan="12" align="right">
-					<a href="#" onclick="return addToBlackList(${purchasedPlan.bookId});">设为黑名单</a>&emsp;
-					<a href="#" onclick="return addToWhiteList(${purchasedPlan.bookId});">设为白名单</a>&emsp;
-					<a href="#" onclick="return removePurchasePlanFlag(${purchasedPlan.bookId});">取消黑白名单标记</a>&emsp;
-					<a href="#" onclick="return removeManualDecision(${purchasedPlan.bookId});">删除人工定量</a>&emsp;
-					<a href="#" onclick="return recalculatePurchasePlan(${purchasedPlan.bookId});">重新计算</a>&emsp;
-					<p/>
-				</td>
+				<shiro:hasPermission name="purchase:management">
+					<td colspan="12" align="right">
+						<a href="#" onclick="return addToBlackList(${purchasedPlan.bookId});">设为黑名单</a>&emsp;
+						<a href="#" onclick="return addToWhiteList(${purchasedPlan.bookId});">设为白名单</a>&emsp;
+						<a href="#" onclick="return removePurchasePlanFlag(${purchasedPlan.bookId});">取消黑白名单标记</a>&emsp;
+						<a href="#" onclick="return removeManualDecision(${purchasedPlan.bookId});">删除人工定量</a>&emsp;
+						<a href="#" onclick="return recalculatePurchasePlan(${purchasedPlan.bookId});">重新计算</a>&emsp;
+						<p/>
+					</td>
+				</shiro:hasPermission>
 			</tr>
 			
 		</c:forEach>

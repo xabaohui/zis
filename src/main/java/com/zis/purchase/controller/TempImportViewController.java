@@ -39,7 +39,7 @@ public class TempImportViewController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value = { "purchase:viewTempImportTask" })
+	@RequiresPermissions(value = { "data:dataInfo" })
 	@RequestMapping(value = "/viewTempImportTask")
 	public String viewTask(ModelMap context, HttpServletRequest request) {
 

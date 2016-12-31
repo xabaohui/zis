@@ -12,7 +12,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
 @Entity
-@Table(name = "role_tab")
+@Table(name = "acl_role_tab")
 public class Role {
 
 	@Id

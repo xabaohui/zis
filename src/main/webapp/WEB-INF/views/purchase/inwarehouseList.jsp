@@ -14,10 +14,12 @@
 	<h1>入库单</h1>
 </center>
 	<p>
-	<input type="button" value="导出网渠宝入库单" onclick="exportInwarehouseData('<%=InwarehouseDataExportType.WANGQUBAO_INWAREHOUSE%>')"/>
-	<input type="button" value="导出网渠宝商品资料" onclick="exportInwarehouseData('<%=InwarehouseDataExportType.WANGQUBAO_ITEM_DATA%>')"/>
-	<input type="button" value="导出淘宝数据包(新品)" onclick="exportInwarehouseData('<%=InwarehouseDataExportType.TAOBAO_ITEM_DATA%>')"/>
-	<input type="button" value="导出售罄清单" onclick="exportInwarehouseData('<%=InwarehouseDataExportType.TAOBAO_ITEM_SOLD_OUT%>')"/>
+	<shiro:hasPermission name="stock:output">
+		<input type="button" value="导出网渠宝入库单" onclick="exportInwarehouseData('<%=InwarehouseDataExportType.WANGQUBAO_INWAREHOUSE%>')"/>
+		<input type="button" value="导出网渠宝商品资料" onclick="exportInwarehouseData('<%=InwarehouseDataExportType.WANGQUBAO_ITEM_DATA%>')"/>
+		<input type="button" value="导出淘宝数据包(新品)" onclick="exportInwarehouseData('<%=InwarehouseDataExportType.TAOBAO_ITEM_DATA%>')"/>
+		<input type="button" value="导出售罄清单" onclick="exportInwarehouseData('<%=InwarehouseDataExportType.TAOBAO_ITEM_SOLD_OUT%>')"/>
+	</shiro:hasPermission>
 	</p>
 	<form action="purchase/exportInwarehouseData" method="post" id="form_checkBox">
 	<input type="hidden" name="operateType" id="operateType" value="${operateType}">
@@ -44,8 +46,13 @@
 				<td><a href="purchase/viewInwarehouseDetail?inwarehouseId=${record.id}">${record.amount}</a></td>
 				<td>${record.statusDisplay}
 					<c:if test="${record.status eq 'processing'}">
-						<a href="purchase/recoverScan?inwarehouseId=${record.id}">继续扫描</a> 
-						| <a href="#" onclick="return deleteInwarehouse('${record.id}');">删除</a>
+						<shiro:hasPermission name="stock:input">
+							<a href="purchase/recoverScan?inwarehouseId=${record.id}">继续扫描</a> 
+						</shiro:hasPermission>
+						| 
+						<shiro:hasPermission name="stock:delete">
+							<a href="#" onclick="return deleteInwarehouse('${record.id}');">删除</a>
+						</shiro:hasPermission>
 					</c:if>
 				</td>
 			</tr>

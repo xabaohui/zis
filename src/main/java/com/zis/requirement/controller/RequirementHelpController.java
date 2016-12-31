@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(value = "/requirement")
 public class RequirementHelpController {
 	
-	@RequiresPermissions(value = { "requirement:gotoImportRequirement" })
+	@RequiresPermissions(value = { "requirement:books:input" })
 	@RequestMapping(value="/gotoImportRequirement")
 	public String gotoImportRequirement(){
 		return "requirement/importRequirement";

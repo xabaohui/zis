@@ -43,7 +43,7 @@ public class InwarehouseDetailController extends PaginationQueryController<Inwar
 	@Autowired
 	private DoPurchaseService doPurchaseService;
 
-	@RequiresPermissions(value = {"purchase:viewInwarehouseDetail"})
+	@RequiresPermissions(value = {"stock:view"})
 	@RequestMapping(value = "/viewInwarehouseDetail")
 	public String executeQuery(ModelMap context, HttpServletRequest request) {
 		return super.executeQuery(context, request);

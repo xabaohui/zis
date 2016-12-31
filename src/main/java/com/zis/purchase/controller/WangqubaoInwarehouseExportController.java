@@ -37,7 +37,7 @@ public class WangqubaoInwarehouseExportController extends
 	@Autowired
 	private DoPurchaseService doPurchaseService;
 	
-	@RequiresPermissions(value = { "purchase:exportWangqubaoInwarehouse" })
+	@RequiresPermissions(value = { "stock:output" })
 	@RequestMapping(value="/exportWangqubaoInwarehouse")
 	public String export(HttpServletRequest request,HttpServletResponse response){
 		return super.export(request, response);

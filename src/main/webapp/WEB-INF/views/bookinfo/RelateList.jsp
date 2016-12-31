@@ -9,8 +9,9 @@
 		<c:if test="${pageType == 'pageRelate'}">相关图书</c:if> 
 	</font>
 </h2>
-
-<form action="bookInfo/removeAll" method="post" id="from_checkBox">
+<shiro:hasPermission name="bookInfo:saveOrUpdate">
+	<form action="bookInfo/removeAll" method="post" id="from_checkBox">
+</shiro:hasPermission>
 	<input type="hidden" name="pageType" value="${pageType}">
 	<table id="common-table">
 		<tr>
@@ -49,18 +50,22 @@
 				<td>${book.bookPrice}</td>
 				<td>${book.bookStatus}</td>
 				<td>
-					<c:if test="${pageType == 'pageGroup'}">
-						<a href="bookInfo/removeRelateId?id=${book.id}&pageType=${pageType}&groupId=${book.groupId}">解除关联</a>
-					</c:if>
-					<c:if test="${pageType == 'pageRelate'}">	
-						<a href="bookInfo/removeRelateId?id=${book.id}&pageType=${pageType}&relateId=${book.relateId}">解除关联</a>
-					</c:if>
+					<shiro:hasPermission name="bookInfo:saveOrUpdate">
+						<c:if test="${pageType eq 'pageGroup'}">
+							<a href="bookInfo/removeRelateId?id=${book.id}&pageType=${pageType}&groupId=${book.groupId}">解除关联</a>
+						</c:if>
+						<c:if test="${pageType eq 'pageRelate'}">	
+							<a href="bookInfo/removeRelateId?id=${book.id}&pageType=${pageType}&relateId=${book.relateId}">解除关联</a>
+						</c:if>
+					</shiro:hasPermission>
 				</td>
 			</tr>
 		</c:forEach>
 	</table>
-	<input type="submit" value="解除所有关联">
-
-</form>
-
+	<shiro:hasPermission name="bookInfo:saveOrUpdate">
+		<input type="submit" value="解除所有关联">
+	</shiro:hasPermission>
+	<shiro:hasPermission name="bookInfo:saveOrUpdate">
+		</form>
+	</shiro:hasPermission>
 <%@ include file="/footer.jsp"%>

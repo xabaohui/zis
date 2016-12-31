@@ -23,7 +23,7 @@ public class BookAmountAddPreController {
 	@Autowired
 	private SchoolBiz schoolBiz;
 	
-	@RequiresPermissions(value = { "requirement:addAmountPreAction" })
+	@RequiresPermissions(value = { "requirement:books:input" })
 	@RequestMapping(value="/addAmountPreAction")
 	public String amountPre(Integer id, ModelMap ctx){
 		if (id == null){

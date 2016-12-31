@@ -36,7 +36,7 @@ public class InwarehouseViewController extends PaginationQueryController<Inwareh
 	@Autowired
 	private DoPurchaseService doPurchaseService;
 	
-	@RequiresPermissions(value = {"purchase:viewInwarehouseList"})
+	@RequiresPermissions(value = {"stock:view"})
 	@RequestMapping(value = "/viewInwarehouseList")
 	public String executeQuery(ModelMap context, HttpServletRequest request) {
 		request.setAttribute("sort", new String[] { "gmtCreate" });

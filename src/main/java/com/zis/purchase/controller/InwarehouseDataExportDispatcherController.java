@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @RequestMapping(value = "/purchase")
 public class InwarehouseDataExportDispatcherController {
 	
-	@RequiresPermissions(value = {"purchase:exportInwarehouseData"})
+	@RequiresPermissions(value = {"stock:output"})
 	@RequestMapping(value = "/exportInwarehouseData",method=RequestMethod.POST)
 	public String export(Integer[] batchSelectedItem, String operateType,
 			ModelMap map) {

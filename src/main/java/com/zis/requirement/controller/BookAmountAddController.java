@@ -42,10 +42,15 @@ public class BookAmountAddController {
 	private SchoolBiz schoolBiz;
 
 	// 添加教材使用量
-	@RequiresPermissions(value = { "requirement:addAmount" })
+	@RequiresPermissions(value = { "requirement:books:input" })
 	@RequestMapping(value = "/addAmount")
 	public String addAmount(@Valid @ModelAttribute("dto") AddAmountDTO dto, BindingResult br, ModelMap context,
 			HttpSession session) {
+		context.put("did", dto.getDid());
+		context.put("college", dto.getCollege());
+		context.put("institute", dto.getInstitute());
+		context.put("partName", dto.getPartName());
+		context.put("grade", dto.getGrade());
 		if(br.hasErrors()){
 			return "requirement/amountInfo";
 		}

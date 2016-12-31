@@ -43,6 +43,9 @@
 			<value>
 				<!-- 自定义认证不拦截 -->
 				/loginAuthc = anon
+				<!-- api通过 -->
+				/api/** = anon
+				/indexApi.jsp = anon
 				<!-- 静态资源通过 -->
 				<!-- /resources/** = anon -->
 				<!--请求logout，shrio擦除sssion -->

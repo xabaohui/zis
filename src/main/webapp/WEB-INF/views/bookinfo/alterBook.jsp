@@ -3,6 +3,7 @@
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags"%>
 <%@ include file="/header.jsp"%>
 <%@ taglib prefix="spring"
 	uri="http://www.springframework.org/tags/form"%>
@@ -139,8 +140,9 @@
 		<input type="button" value="修改" onclick="doModify('update')">
 		<input type="reset" value="恢复">
    		&nbsp;&nbsp;&nbsp;
-    	<input type="button" value="删除" onclick="doModify('notuse')">
-
+   		<shiro:hasPermission name="bookInfo:delete">
+    		<input type="button" value="删除" onclick="doModify('notuse')">
+		</shiro:hasPermission>
 
 		<%
 			//当为待审核数据时候显示审核和废弃
@@ -151,8 +153,9 @@
 		<input type="button" value="审核" onclick="doModify('checkok')">
 		<input type="reset" value="恢复">
     	&nbsp;&nbsp;&nbsp;
-    	<input type="button" value="删除" onclick="doModify('notuse')">
-
+    	<shiro:hasPermission name="bookInfo:delete">
+    		<input type="button" value="删除" onclick="doModify('notuse')">
+		</shiro:hasPermission>
 		<%
 			}
 		%>

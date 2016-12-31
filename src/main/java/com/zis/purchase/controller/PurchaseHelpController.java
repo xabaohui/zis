@@ -8,19 +8,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(value = "/purchase")
 public class PurchaseHelpController {
 
-	@RequiresPermissions(value = { "purchase:gotoInWarehouse" })
+	@RequiresPermissions(value = { "stock:input" })
 	@RequestMapping(value = "/gotoInWarehouse")
 	public String gotoInWarehouse() {
 		return "purchase/inwarehouse";
 	}
 
-	@RequiresPermissions(value = { "purchase:gotoTempImportUpload" })
+	@RequiresPermissions(value = { "data:dataInfo" })
 	@RequestMapping(value = "/gotoTempImportUpload")
 	public String gotoTempImportUpload() {
 		return "purchase/tempImportUpload";
 	}
 
-	@RequiresPermissions(value = { "toolkit:gotoSysFunc" })
+	@RequiresPermissions(value = { "toolkit:toolkit" })
 	@RequestMapping(value = "/gotoSysFunc")
 	public String gotoSysFunc() {
 		return "purchase/sysFunc";

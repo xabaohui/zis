@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.directwebremoting.annotations.RemoteMethod;
-import org.directwebremoting.annotations.RemoteProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +46,6 @@ import com.zis.requirement.bean.BookAmount;
 import com.zis.requirement.repository.BookAmountDao;
 
 @Service
-@RemoteProxy(name = "bookService")
 public class BookService {
 	private static Logger logger = LoggerFactory.getLogger(BookService.class);
 	private static final int MAX_CONTENT_LENGTH = 8192;
@@ -87,7 +84,6 @@ public class BookService {
 	 * @param ISBN
 	 * @return
 	 */
-	@RemoteMethod
 	public String getBookInfo(String bookName, String bookAuthor, String ISBN) {
 		// DetachedCriteria criteria = this.buildBookInfoCriteria(bookName,
 		// bookAuthor, ISBN);
@@ -605,8 +601,6 @@ public class BookService {
 	 * @param isbn
 	 * @return
 	 */
-	@RequiresPermissions(value = "bookInfo:getAllBooks")
-	@RemoteMethod
 	public BookInfoSearchResult findAndCaptureBookByISBN(String isbn) {
 		List<Bookinfo> list = this.findBookByISBN(isbn);
 		// 系统中已经存在相关记录，直接保存

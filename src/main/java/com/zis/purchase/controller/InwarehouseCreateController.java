@@ -37,7 +37,7 @@ public class InwarehouseCreateController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value = {"purchase:inWarehouse"})
+	@RequiresPermissions(value = {"stock:input"})
 	@RequestMapping(value = "/inWarehouse")
 	public String createBatch(@Valid @ModelAttribute("createBatchDTO") CreateBatchDTO createBatchDTO, BindingResult br, ModelMap context) {
 		

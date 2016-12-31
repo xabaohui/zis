@@ -33,7 +33,7 @@ public class HelpController extends ActionHelpUtil {
 		return "shiro/update/alter-general-user-password";
 	}
 	
-	@RequiresPermissions(value = { "shiro:gotoRegistRole" })
+	@RequiresPermissions(value = { "shiro:shiro" })
 	@RequestMapping(value = "/gotoRegistRole")
 	public String showRegistRole(ModelMap map) {
 		map.put("registList", this.registAndUpdateService.getGroupPermissions(SHIRO));
@@ -41,10 +41,12 @@ public class HelpController extends ActionHelpUtil {
 		map.put("requirementList", this.registAndUpdateService.getGroupPermissions(REQUIREMENT));
 		map.put("bookInfoList", this.registAndUpdateService.getGroupPermissions(BOOK_INFO));
 		map.put("toolkitList", this.registAndUpdateService.getGroupPermissions(TOOLKIT));
+		map.put("stockList", this.registAndUpdateService.getGroupPermissions(STOCK));
+		map.put("dataList", this.registAndUpdateService.getGroupPermissions(DATA));
 		return "shiro/regist/regist-role";
 	}
 	
-	@RequiresPermissions(value = { "shiro:gotoRegistUser" })
+	@RequiresPermissions(value = { "shiro:shiro" })
 	@RequestMapping(value = "/gotoRegistUser")
 	public String gotoRegistUser(ModelMap map) {
 		List<Role> roleList = this.registAndUpdateService.findAllRole();
@@ -52,13 +54,13 @@ public class HelpController extends ActionHelpUtil {
 		return "shiro/regist/regist-user";
 	}
 	
-	@RequiresPermissions(value = { "shiro:showUpdate" })
+	@RequiresPermissions(value = { "shiro:shiro" })
 	@RequestMapping(value = "/showUpdate")
 	public String showUpdate(ModelMap map) {
 		return "shiro/update/show_update_list";
 	}
 	
-	@RequiresPermissions(value = { "shiro:showUpdateRole" })
+	@RequiresPermissions(value = { "shiro:shiro" })
 	@RequestMapping(value = "/showUpdateRole")
 	public String showUpdateRole(ModelMap map) {
 		return "shiro/update/show-update-role-list";
@@ -71,7 +73,7 @@ public class HelpController extends ActionHelpUtil {
 	 * @param map
 	 * @return
 	 */
-	@RequiresPermissions(value = { "shiro:updateUser" })
+	@RequiresPermissions(value = { "shiro:shiro" })
 	@RequestMapping(value = "/updateUser")
 	public String updateUser(RegistUserDto registUserDto, ModelMap map) {
 		if (registUserDto.getId() == null) {
@@ -106,7 +108,7 @@ public class HelpController extends ActionHelpUtil {
 	 * @param map
 	 * @return
 	 */
-	@RequiresPermissions(value = { "shiro:updateRole" })
+	@RequiresPermissions(value = { "shiro:shiro" })
 	@RequestMapping(value = "updateRole")
 	public String updateRole(RegistRoleDto registRoleDto, ModelMap map) {
 		if (registRoleDto.getId() == null) {

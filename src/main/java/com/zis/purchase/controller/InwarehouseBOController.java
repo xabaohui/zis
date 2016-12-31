@@ -34,7 +34,7 @@ public class InwarehouseBOController {
 	 * @return 入库单ID
 	 */
 	@RemoteMethod
-	@RequiresPermissions(value = "purchase:createInwarehouse")
+	@RequiresPermissions(value = "stock:input")
 	public InwarehouseCreateResult createInwarehouse(InwarehouseCreateDTO inwarehouse) {
 		try {
 			return this.doPurchaseService.createInwarehouse(inwarehouse);
@@ -59,7 +59,7 @@ public class InwarehouseBOController {
 	 *            入库数量
 	 */
 	@RemoteMethod
-	@RequiresPermissions(value = "purchase:doInwarehouse")
+	@RequiresPermissions(value = "stock:input")
 	public InwarehouseDealtResult doInwarehouse(Integer inwarehouseId, String posLabel, Integer bookId,
 			Integer amount) {
 		try {
@@ -79,7 +79,7 @@ public class InwarehouseBOController {
 	 * @return
 	 */
 	@RemoteMethod
-	@RequiresPermissions(value = "purchase:deleteInwarehouseDetail")
+	@RequiresPermissions(value = "stock:delete")
 	public String deleteInwarehouseDetail(Integer detailId) {
 		try {
 			this.doPurchaseService.deleteInwarehouseDetail(detailId);
@@ -95,7 +95,7 @@ public class InwarehouseBOController {
 	 * @return
 	 */
 	@RemoteMethod
-	@RequiresPermissions(value = "purchase:deleteInwarehouse")
+	@RequiresPermissions(value = "stock:delete")
 	public String deleteInwarehouse(Integer inwarehouseId) {
 		try {
 			this.doPurchaseService.deleteInwarehouse(inwarehouseId);

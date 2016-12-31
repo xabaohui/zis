@@ -8,13 +8,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(value = "/bookInfo")
 public class BookInfoHelpController {
 	
-	@RequiresPermissions(value = "bookInfo:gotoAddBook")
+	@RequiresPermissions(value = "bookInfo:saveOrUpdate")
 	@RequestMapping(value = "gotoAddBook")
 	public String gotoAddBook() {
 		return "bookinfo/addBook";
 	}
 	
-	@RequiresPermissions(value = "bookInfo:gotoAddYouLuData")
+	@RequiresPermissions(value = "bookInfo:saveOrUpdate")
 	@RequestMapping(value = "gotoAddYouLuData")
 	public String gotoAddYouLuData() {
 		return "bookinfo/addYouLuData";

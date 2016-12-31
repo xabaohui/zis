@@ -33,7 +33,7 @@ public class BookAmountQueryController {
 	 * 
 	 * @return
 	 */
-	@RequiresPermissions(value = { "requirement:getAmountAction" })
+	@RequiresPermissions(value = { "requirement:books:view" })
 	@RequestMapping(value = "/getAmountAction")
 	public String getAmount(@Valid @ModelAttribute("getAmountDTO") GetAmountDTO getAmountDTO, BindingResult br,
 			HttpServletRequest request, ModelMap context) {
@@ -116,6 +116,7 @@ public class BookAmountQueryController {
 	 * 
 	 * @return
 	 */
+	@RequiresPermissions(value = { "requirement:books:view" })
 	@RequestMapping(value = "/getAmountForStu")
 	public String getAmountForStu(String isbn, String bookName, String school, String institute, String partName,
 			Integer grade, Integer term, String operator, HttpServletRequest request, ModelMap context) {

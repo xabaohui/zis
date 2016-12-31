@@ -6,7 +6,7 @@
 
 <h1>新建入库单</h1>
 <h3>
-	<a href="purchase/viewInwarehouseList">入库单列表</a>
+	
 </h3>
 <p />
 请使用IE浏览器，其他浏览器可能无法正确播放声音提示
