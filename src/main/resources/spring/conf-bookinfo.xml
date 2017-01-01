@@ -14,7 +14,7 @@
 	<bean id="dangdangBookMetadataCapture" class="com.zis.common.capture.DangDangBookMetadataCapture" />
 	<bean id="defaultBookMetadataCapture"
 		class="com.zis.common.capture.DefaultBookMetadataCaptureHandler">
-		<property name="baseDir" value="E:/var/tmp/zis/img/" />
+		<property name="baseDir" value="var/tmp/zis/img/" />
 		<property name="captureMap">
 			<map>
 				<entry key="dangdang" value-ref="dangdangBookMetadataCapture" />
@@ -24,6 +24,6 @@
 	</bean>
 	
 	<bean id="taobaoCsvDataGenerateBO" class="com.zis.bookinfo.bo.TaobaoCsvDataGenerateBO">
-		<property name="baseDir" value="E:/var/tmp/zis/taobaoCsv/"/>
+		<property name="baseDir" value="var/tmp/zis/taobaoCsv/"/>
 	</bean>
 </beans>

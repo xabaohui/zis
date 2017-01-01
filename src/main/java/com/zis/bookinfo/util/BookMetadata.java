@@ -159,14 +159,56 @@ public class BookMetadata {
 	public void setPublishDateStr(String publishDateStr) {
 		this.publishDateStr = publishDateStr;
 	}
+	
+	
 
 	@Override
 	public String toString() {
-		return "BookMetadata [name=" + name + ", publisher=" + publisher
-				+ ", publishDate=" + publishDateStr + ", edition=" + edition
-				+ ", author=" + author + ", price=" + price + ", isbnCode="
-				+ isbnCode + ", imageUrl=" + imageUrl + ", stock=" + stock
-				+ ", salesPrice=" + salesPrice + ", sales=" + sales
-				+ ", outId=" + outId + ", source=" + source + "]";
+		StringBuilder builder = new StringBuilder();
+		builder.append("BookMetadata [name=");
+		builder.append(name);
+		builder.append(", publisher=");
+		builder.append(publisher);
+		builder.append(", publishDate=");
+		builder.append(publishDate);
+		builder.append(", publishDateStr=");
+		builder.append(publishDateStr);
+		builder.append(", edition=");
+		builder.append(edition);
+		builder.append(", author=");
+		builder.append(author);
+		builder.append(", price=");
+		builder.append(price);
+		builder.append(", isbnCode=");
+		builder.append(isbnCode);
+		builder.append(", summary=");
+		builder.append(getDigest(summary));
+		builder.append(", catalog=");
+		builder.append(getDigest(catalog));
+		builder.append(", imageUrl=");
+		builder.append(imageUrl);
+		builder.append(", stock=");
+		builder.append(stock);
+		builder.append(", salesPrice=");
+		builder.append(salesPrice);
+		builder.append(", sales=");
+		builder.append(sales);
+		builder.append(", outId=");
+		builder.append(outId);
+		builder.append(", source=");
+		builder.append(source);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+	private String getDigest(String str) {
+		if (str == null) {
+			return "";
+		}
+		if (str.length() > 10) {
+			return str.substring(0, 10) + "...";
+		} else {
+			return str;
+		}
 	}
 }

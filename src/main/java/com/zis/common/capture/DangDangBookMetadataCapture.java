@@ -54,7 +54,7 @@ public class DangDangBookMetadataCapture extends AbstractBookMetadataCapture {
 		List<BookMetadata> list = new ArrayList<BookMetadata>();
 		for (Element item : items) {
 			try {
-				String itemId = item.attr("id").substring(1); // <li class="line1" id="p23764025">
+				String itemId = item.child(0).attr("id").substring(1); // <li class="line1" id="p23764025">
 				BookMetadata meta = super.captureDetailPage(itemId);
 				if(meta != null) {
 					list.add(meta);
@@ -87,13 +87,15 @@ public class DangDangBookMetadataCapture extends AbstractBookMetadataCapture {
 		}
 		// 是否是当当直营（直营和入驻店铺详情页不同）
 		boolean isDirect = false;
-		if(doc.html().contains("自营图书 详情页")) {
+		if(doc.html().contains("当当自营")) {
 			isDirect = true;
 		}
 		//ItemId
-		// <span id="stock_span" prd_id="23311588">
-		Element itemIdElem = doc.getElementById("stock_span");
-		String itemId = itemIdElem.attr("prd_id");
+		// <div class="share_div clearfix">
+		// ...
+		// <a href="javascript:;" class="btn_scsp" title="收藏" dd_name="收藏商品" data-prd="24058225" ...>
+		Element itemIdElem = doc.getElementsByClass("share_div").get(0);
+		String itemId = itemIdElem.child(2).attr("data-prd");
 		logger.debug("[数据抓取-当当网] 商品ID={}", itemId);
 		
 		// 标题
@@ -148,12 +150,22 @@ public class DangDangBookMetadataCapture extends AbstractBookMetadataCapture {
 				}
 			}
 		} else {
-			Elements infos = getUniqueElementByClass(doc, "book_messbox").children();
-			author = infos.get(0).child(1).text();
-			publisher = infos.get(1).child(1).text();
+			Elements infos = getUniqueElementByClass(doc, "messbox_info").children();
+			// <span class="t1" id="author" dd_name="作者">作者:<a href="...">邵光远</a>主编</span>
+			author = infos.get(0).childNode(1).childNode(0).toString();
+			// <span class="t1" dd_name="出版社">出版社:<a href="...">内蒙古人民出版社</a></span>
+			publisher = infos.get(1).childNode(1).childNode(0).toString();
 			publisher = formatPublisher(publisher);
-			publishDate = ZisUtils.stringToDate(infos.get(2).child(1).text(), "yyyy-MM-dd");
-			isbn = infos.get(3).child(1).text();
+			// <span class="t1">出版时间:2006年08月&nbsp;</span>
+			publishDate = ZisUtils.stringToDate(infos.get(2).text(), "出版时间:yyyy年MM月");
+			// <div class="pro_content" id="detail_describe">
+			Element detail = doc.getElementById("detail_describe");
+			// <li>国际标准书号ISBN：7204083857474</li>
+			String isbnTxt = detail.child(0).child(9).html();
+			Matcher m = Pattern.compile("(?<=国际标准书号ISBN：).*?(?=$)").matcher(isbnTxt);
+			while(m.find()) {
+				isbn = m.group().trim();
+			}
 		}
 		logger.debug("[数据抓取-当当网] 作者=\t{}", author);
 		logger.debug("[数据抓取-当当网] 出版社=\t{}", publisher);
@@ -163,13 +175,13 @@ public class DangDangBookMetadataCapture extends AbstractBookMetadataCapture {
 		Double tagPrice = null;
 		if(isDirect) {
 			// <span class="price_m">&yen;99.00</span>
-			Element priceElement = getUniqueElementByClass(doc, "d15_price_info").child(0).child(2);
+			Element priceElement = getUniqueElementByClass(doc, "price_pc").child(3);
 			logger.debug("[数据抓取-当当网] 定价相关数据={}", priceElement.text());
 			tagPrice = Double.valueOf(priceElement.text().substring(1));
 		} else {
-			// <span id="originalPriceTag">37.70</span>
-			Element priceElement = doc.getElementById("originalPriceTag");
-			tagPrice = Double.valueOf(priceElement.text());
+			// <div class="price_m" id='original-price'> <span class="yen">&yen;</span>1780</div>
+			String priceStr = doc.getElementById("original-price").childNode(2).toString();
+			tagPrice = Double.valueOf(priceStr);
 		}
 		logger.debug("[数据抓取-当当网] 定价=\t{}", tagPrice);
 		
@@ -187,7 +199,7 @@ public class DangDangBookMetadataCapture extends AbstractBookMetadataCapture {
 		logger.debug("[数据抓取-当当网] ISBN=\t{}", isbn);
 		// 图片
 		Element detailPic = doc.getElementById("detailPic");
-		String imageUrl = detailPic.child(0).attr("src");
+		String imageUrl = detailPic.attr("src");
 		logger.debug("[数据抓取-当当网] 图片URL={}", imageUrl);
 		
 		// 摘要
@@ -234,8 +246,9 @@ public class DangDangBookMetadataCapture extends AbstractBookMetadataCapture {
 			Element h1 = getUniqueElementByTag(doc, "h1");
 			return h1.text();
 		} else {
-			Element t = getUniqueElementByClass(doc, "head");
-			Matcher m = Pattern.compile("^.*?(?=<span)").matcher(t.child(0).html());
+			// <head><title>《现代时尚》 【简介_书评_在线阅读】 - 当当 - 思宇图书专营店</title></head>
+			Element t = doc.head().child(0);
+			Matcher m = Pattern.compile("(?<=《).*?(?=》)").matcher(t.html());
 			while(m.find()) {
 				return m.group();
 			}

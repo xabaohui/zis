@@ -49,7 +49,7 @@ public class BookRequireUploadController extends CommonImportController<BookRequ
 
 	@Override
 	protected String initTemplatePath() {
-		return "书单模板.xls";
+		return "booklist.xls";
 	}
 
 	@Override

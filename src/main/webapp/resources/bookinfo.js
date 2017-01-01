@@ -54,12 +54,16 @@ function showCapturedData(bookCaptured) {
 		// 未采集到任何记录，不做任何操作
 		return;
 	}
-	alert($("bookName").value);
 	$("bookName").value = bookCaptured.name;
 	$("bookAuthor").value = bookCaptured.author;
 	$("bookPublisher").value = bookCaptured.publisher;
 	$("publishDate").value = bookCaptured.publishDateStr;
 	$("bookPrice").value = bookCaptured.price;
+	$("bookEdition").value = bookCaptured.edition;
+	$("imageUrl").value = bookCaptured.imageUrl;
+	$("summary").value = bookCaptured.summary;
+	$("catalog").value = bookCaptured.catalog;
+	$("bookEdition").value = bookCaptured.edition;
 	$("bookEdition").value = bookCaptured.edition;
 }
 

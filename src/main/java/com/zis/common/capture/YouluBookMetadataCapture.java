@@ -109,7 +109,7 @@ public class YouluBookMetadataCapture extends AbstractBookMetadataCapture {
 					REGEX_USELESS_BRACKETS, "");
 		} else {
 			edition = "第一版";
-			bookName = title;
+			bookName = title.replaceAll(REGEX_USELESS_BRACKETS, "");
 			logger.debug("[数据抓取-有路网] 版次(默认)\t{}", edition);
 		}
 		logger.debug("[数据抓取-有路网] 书名\t{}", bookName);
@@ -157,6 +157,9 @@ public class YouluBookMetadataCapture extends AbstractBookMetadataCapture {
 					publishDate = m.group();
 					logger.debug("[数据抓取-有路网] 出版日期=\t{}", publishDate);
 				}
+				if("--".equals(publishDate)) {
+					publishDate = null;
+				}
 			}
 			if (txt.contains("定价")) {
 				logger.debug("[数据抓取-有路网] 定价相关数据\t{}", txt);
@@ -194,7 +197,9 @@ public class YouluBookMetadataCapture extends AbstractBookMetadataCapture {
 		meta.setName(bookName);
 		meta.setOutId(itemId);
 		meta.setPrice(tagPrice);
-		meta.setPublishDate(ZisUtils.stringToDate(publishDate, "yyyy年MM月"));
+		if(publishDate != null) {
+			meta.setPublishDate(ZisUtils.stringToDate(publishDate, "yyyy年MM月"));
+		}
 		meta.setPublisher(publisher);
 		meta.setSummary(summary);
 		meta.setSource(BookMetadataSource.YOU_LU);

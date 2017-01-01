@@ -24,7 +24,7 @@ public class YouluBookMetadataCaptureTest {
 	
 	@Test
 	public void testCapatureListPage() {
-		List<BookMetadata> resultList = capture.captureListPage("9787010075471");
+		List<BookMetadata> resultList = capture.captureListPage("9787539996295");
 		for (BookMetadata bookMetadata : resultList) {
 			System.out.println(bookMetadata);
 		}

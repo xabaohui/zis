@@ -59,27 +59,27 @@
 		</tr>
 		<tr>
 			<td>图片网址</td>
-			<td><input type="text" name="imageUrl" value="${param.imageUrl}" /></td>
+			<td><input type="text" name="imageUrl" id="imageUrl" value="${param.imageUrl}" /></td>
 			<td></td>
 		</tr>
 		<tr>
 			<td>网店标题</td>
-			<td><input type="text" name="taobaoTitle" value="${param.taobaoTitle}" /></td>
+			<td><input type="text" name="taobaoTitle" id="taobaoTitle" value="${param.taobaoTitle}" /></td>
 			<td></td>
 		</tr>
 		<tr>
 			<td>淘宝类目ID</td>
-			<td><input type="text" name="taobaoCatagoryId" value="${param.taobaoCatagoryId}" /></td>
+			<td><input type="text" name="taobaoCatagoryId" id="taobaoCatagoryId" value="${param.taobaoCatagoryId}" /></td>
 			<td></td>
 		</tr>
 		<tr>
 			<td>内容摘要</td>
-			<td><textarea name="summary" cols="25" rows="5">${param.summary}</textarea></td>
+			<td><textarea name="summary" id="summary" cols="25" rows="5">${param.summary}</textarea></td>
 			<td></td>
 		</tr>
 		<tr>
 			<td>目录</td>
-			<td><textarea name="catalog" cols="25" rows="5">${param.catalog}</textarea></td>
+			<td><textarea name="catalog" id="catalog" cols="25" rows="5">${param.catalog}</textarea></td>
 			<td></td>
 		</tr>
 	</table>

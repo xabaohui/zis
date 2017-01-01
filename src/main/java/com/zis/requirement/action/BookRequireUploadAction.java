@@ -35,7 +35,7 @@ public class BookRequireUploadAction extends
 			@RequiredFieldValidator(fieldName = "memo", key = "操作备注必须输入"), })
 	@Override
 	protected String initTemplatePath() {
-		return "书单模板.xls";
+		return "booklist.xls";
 	}
 
 	@Override

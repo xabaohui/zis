@@ -20,7 +20,7 @@ import com.zis.bookinfo.service.BookService;
  */
 public abstract class TaobaoCsvDataExportController {
 
-	protected String[] emails = { "to_shaowei@163.com", "sw119088324@163.com" };
+	protected String[] emails = {"lvbin0502@126.com", "tech_tiandi@163.com"};
 	@Autowired
 	protected BookService bookService;
 	@Autowired

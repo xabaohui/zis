@@ -1,5 +1,7 @@
 package com.zis.common.capture;
 
+import java.util.List;
+
 import org.junit.Test;
 
 import com.zis.bookinfo.util.BookMetadata;
@@ -10,12 +12,15 @@ public class DangDangBookMetadataCaptureTest {
 	
 	@Test
 	public void testCaptureListPage() {
-		capture.captureListPage("Java从入门到精通");
+		List<BookMetadata> list = capture.captureListPage("9787539996295");
+		for (BookMetadata data : list) {
+			System.out.println(data);
+		}
 	}
 	
 	@Test
 	public void testCaptureDetailPage() {
-		BookMetadata meta = capture.captureDetailPage("1446314046");
+		BookMetadata meta = capture.captureDetailPage("1479837742");
 		System.out.println(meta);
 		BookMetadata meta2 = capture.captureDetailPage("23056713");
 		System.out.println(meta2);
