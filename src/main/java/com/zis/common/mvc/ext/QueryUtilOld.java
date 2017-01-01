@@ -10,14 +10,13 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.domain.Specification;
 
-public class QueryUtil<T> {
+public class QueryUtilOld<T> {
 
-	private final Logger logger = LoggerFactory.getLogger(QueryUtil.class);
+	private final Logger logger = LoggerFactory.getLogger(QueryUtilOld.class);
 
 	private final String EQ = "eq";
 	private final String LIKE = "like";
@@ -29,85 +28,62 @@ public class QueryUtil<T> {
 	private final String BETWEEN = "between";
 	private final String GROUP = "group";
 
-	private List<Condition> conditions = new ArrayList<QueryUtil.Condition>();
-	private List<Order> orderList = new ArrayList<QueryUtil.Order>();
+	private List<Condition> conditions = new ArrayList<QueryUtilOld.Condition>();
+	private List<Order> orderList = new ArrayList<QueryUtilOld.Order>();
 
-	public QueryUtil<T> eq(String name, Object value) {
-		isNotEmpty(EQ, value);
+	public QueryUtilOld<T> eq(String name, Object value) {
 		conditions.add(new Condition(EQ, name, value));
 		return this;
 	}
 
-	public QueryUtil<T> like(String name, Object value) {
-		isNotEmpty(LIKE, value);
+	public QueryUtilOld<T> like(String name, Object value) {
 		conditions.add(new Condition(LIKE, name, value));
 		return this;
 	}
 
-	public QueryUtil<T> ne(String name, Object value) {
-		isNotEmpty(NE, value);
+	public QueryUtilOld<T> ne(String name, Object value) {
 		conditions.add(new Condition(NE, name, value));
 		return this;
 	}
 
-	public QueryUtil<T> in(String name, Object value) {
-		isNotEmpty(IN, value);
+	public QueryUtilOld<T> in(String name, Object value) {
 		conditions.add(new Condition(IN, name, value));
 		return this;
 	}
 
-	public QueryUtil<T> lt(String name, Object value) {
-		isNotEmpty(LT, value);
+	public QueryUtilOld<T> lt(String name, Object value) {
 		conditions.add(new Condition(LT, name, value));
 		return this;
 	}
 
-	public QueryUtil<T> ge(String name, Object value) {
-		isNotEmpty(GE, value);
+	public QueryUtilOld<T> ge(String name, Object value) {
 		conditions.add(new Condition(GE, name, value));
 		return this;
 	}
 
-	public QueryUtil<T> le(String name, Object value) {
-		isNotEmpty(LE, value);
+	public QueryUtilOld<T> le(String name, Object value) {
 		conditions.add(new Condition(LE, name, value));
 		return this;
 	}
 
-	public QueryUtil<T> between(String name, Object max, Object min) {
-		isNotEmpty(BETWEEN, max);
-		isNotEmpty(BETWEEN, min);
+	public QueryUtilOld<T> between(String name, Object max, Object min) {
 		conditions.add(new Condition(BETWEEN, name, max, min));
 		return this;
 	}
 
-	public QueryUtil<T> asc(String name) {
+	public QueryUtilOld<T> asc(String name) {
 		orderList.add(new Order(name, true));
 		return this;
 	}
 
-	public QueryUtil<T> desc(String name) {
+	public QueryUtilOld<T> desc(String name) {
 		orderList.add(new Order(name, false));
 		return this;
 	}
 
-	public QueryUtil<T> groupBy(String name) {
+	public QueryUtilOld<T> groupBy(String name) {
 		conditions.add(new Condition(GROUP, name));
 		return this;
-	}
-
-	private void isNotEmpty(String methodName, Object value) {
-		final String error = methodName + " 方法传入值为空";
-		if (null == value) {
-			logger.error(error);
-			throw new RuntimeException(error);
-		}
-		if (value instanceof String) {
-			if (StringUtils.isBlank(value.toString())) {
-				logger.error(error);
-				throw new RuntimeException(error);
-			}
-		}
 	}
 
 	/**

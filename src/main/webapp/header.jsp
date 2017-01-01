@@ -126,7 +126,7 @@
 			<br />
 			<br />
 			<shiro:authenticated>
-				&nbsp;&nbsp;&nbsp;<b><a href="logout">注销</a></b>
+				&nbsp;&nbsp;&nbsp;<b><a href="logout">退出</a></b>
 			</shiro:authenticated>
 			<br />
 			<br />
@@ -216,10 +216,10 @@
 						<li><a href="<%=basePath%>shiro/gotoCreatePermission">创建权限测试用</a></li>
 					</shiro:hasPermission>
 					<shiro:hasPermission name="shiro:shiro">
-						<li><a href="<%=basePath%>shiro/showUpdate">查询用户</a></li> 
+						<li><a href="<%=basePath%>shiro/updateWaitUser">用户管理</a></li> 
 					</shiro:hasPermission>
 					<shiro:hasPermission name="shiro:shiro">
-						<li><a href="<%=basePath%>shiro/showUpdateRole">查询角色</a></li> 
+						<li><a href="<%=basePath%>shiro/updateWaitRole">角色管理</a></li> 
 					</shiro:hasPermission>
 					<shiro:authenticated>
 						<li><a href="<%=basePath%>shiro/gotoGeneralUserUpdatePassword">密码修改</a></li>

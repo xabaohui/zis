@@ -2,6 +2,7 @@
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags" %> 
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %> 
 
 <script type='text/javascript' src='dwr/engine.js'></script>
 <script type='text/javascript' src='dwr/util.js'></script>
@@ -68,7 +69,7 @@
 				</td>
 				<td><a href="bookInfo/getAllBooks?bookAuthor=${book.bookAuthor}&bookPublisher=${book.bookPublisher}">${book.bookAuthor}</a></td>
 				<td>${book.bookPublisher}</td>
-				<td>${book.publishDate}</td>
+				<td><fmt:formatDate value="${book.publishDate}" pattern="yyyy年MM月"/></td>
 				<td>${book.bookPrice}</td>
 				<td>
 					<c:if test="${not empty book.relateId}">
