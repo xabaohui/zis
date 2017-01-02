@@ -7,10 +7,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -69,17 +65,17 @@ public class ApiDepartmentInfoQueryController extends BaseApiController {
 		coveredCollege.add("陕西科技大学");
 		coveredCollege.add("A测试专用");
 		// 查询学校名称和ID，按照学校名称去重
-		DetachedCriteria dc = DetachedCriteria.forClass(Departmentinfo.class);
-		dc.setProjection(Projections.projectionList().add(Projections.groupProperty("college"))
-				.add(Projections.property("did")));
-		dc.add(Restrictions.in("college", coveredCollege));
-		dc.addOrder(Order.asc("college"));
+//		DetachedCriteria dc = DetachedCriteria.forClass(Departmentinfo.class);
+//		dc.setProjection(Projections.projectionList().add(Projections.groupProperty("college"))
+//				.add(Projections.property("did")));
+//		dc.add(Restrictions.in("college", coveredCollege));
+//		dc.addOrder(Order.asc("college"));
 		List<DepartmentQueryData> list = schoolBiz.findByCollegeListGroupByCollegeOrderByCollege(coveredCollege);
 
 		// 准备返回结果
-		List<DepartmentQueryData> result = fillResultDataToMap(list);
+//		List<DepartmentQueryData> result = fillResultDataToMap(list);
 		// 渲染结果
-		renderSuccessResult(result, response);
+		renderSuccessResult(list, response);
 		return "";
 	}
 
@@ -103,21 +99,20 @@ public class ApiDepartmentInfoQueryController extends BaseApiController {
 		List list = querySpecifiedInstitute(id);
 
 		// 准备返回结果
-		List<DepartmentQueryData> result = fillResultDataToMap(list);
+//		List<DepartmentQueryData> result = fillResultDataToMap(list);
 		// 渲染结果
-		renderSuccessResult(result, response);
+		renderSuccessResult(list, response);
 		return "";
 	}
 
 	// 查找学校下面的所有学院
-	@SuppressWarnings("rawtypes")
-	private List querySpecifiedInstitute(String id) {
+	private List<DepartmentQueryData> querySpecifiedInstitute(String id) {
 		Integer departId = Integer.parseInt(id);
 		Departmentinfo di = this.schoolBiz.findDepartmentInfoById(departId);
 		if (di == null) {
 			// 如果查不到院校信息，则返回空list
 			logger.warn("api invoke warn, no such departmentInfo where id = " + departId);
-			return new ArrayList<Departmentinfo>();
+			return new ArrayList<DepartmentQueryData>();
 		}
 		// DetachedCriteria dc =
 		// DetachedCriteria.forClass(Departmentinfo.class);
@@ -149,9 +144,9 @@ public class ApiDepartmentInfoQueryController extends BaseApiController {
 		List<DepartmentQueryData> list = querySpecifiedDepartment(id);
 
 		// 准备返回结果
-		List<DepartmentQueryData> result = fillResultDataToMap(list);
+//		List<DepartmentQueryData> result = fillResultDataToMap(list);
 		// 渲染结果
-		renderSuccessResult(result, response);
+		renderSuccessResult(list, response);
 		return "";
 	}
 

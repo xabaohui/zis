@@ -69,8 +69,6 @@ public class AddBookAmountController extends BaseApiController {
 		// 保存记录
 		try {
 			addAmountBiz.addBookAmount(buildRequestDTO(operator));
-			// 清理token
-			clearSessionToken();
 			// 渲染结果
 			renderSuccessResult(response);
 			logger.info("api.AddBookRequirement--添加教材使用量成功");
@@ -79,6 +77,9 @@ public class AddBookAmountController extends BaseApiController {
 			logger.error("api invoke failed, for AddBookAmount", e);
 			renderErrResult(e.getMessage(), response);
 			return "";
+		} finally {
+			// 清理token
+			clearSessionToken();
 		}
 	}
 

@@ -234,7 +234,9 @@ public class DangDangBookMetadataCapture extends AbstractBookMetadataCapture {
 		meta.setName(bookName);
 		meta.setOutId(itemId);
 		meta.setPrice(tagPrice);
-		meta.setPublishDate(publishDate);
+		if(publishDate != null) {
+			meta.setPublishDate(publishDate);
+		}
 		meta.setPublisher(publisher);
 		meta.setSummary(summary);
 		meta.setSource(BookMetadataSource.DANG_DANG);

@@ -27,9 +27,7 @@ public abstract class BaseApiController {
 
 	private static Logger logger = Logger.getLogger(BaseApiController.class);
 	public static final String ZIS_TOKEN = "zis.token";
-
-//	protected String token;
-
+	
 	/**
 	 * 检查token是否有效
 	 * 
@@ -79,8 +77,7 @@ public abstract class BaseApiController {
 	 */
 	protected void setSessionToken(String sessionToken) {
 		ShiroHttpServletRequest request = getRequest();
-		request.getSession().setAttribute("ZIS_TOKEN", sessionToken);
-//		ctx.getSession().put(ZIS_TOKEN, sessionToken);
+		request.getSession().setAttribute(ZIS_TOKEN, sessionToken);
 		String sessionId = request.getSession().getId();;
 		logger.info("sessionId = " + sessionId);
 	}
@@ -88,17 +85,20 @@ public abstract class BaseApiController {
 	/**
 	 * 移除session中记录的token
 	 */
-	@SuppressWarnings("unchecked")
 	protected void clearSessionToken() {
 		ShiroHttpServletRequest request = (ShiroHttpServletRequest) getRequest();
 		ShiroHttpSession session =  (ShiroHttpSession) request.getSession();
-		Enumeration<Object> keys = session.getAttributeNames(); 
-		while(keys.hasMoreElements()){
-			Object o = keys.nextElement();
-			if(o.equals(ZIS_TOKEN)){
-				session.removeAttribute(ZIS_TOKEN);
-			}
+		Object token = session.getAttribute(ZIS_TOKEN);
+		if(token != null) {
+			session.removeAttribute(ZIS_TOKEN);
 		}
+//		Enumeration<Object> keys = session.getAttributeNames(); 
+//		while(keys.hasMoreElements()){
+//			Object o = keys.nextElement();
+//			if(o.equals(ZIS_TOKEN)){
+//				session.removeAttribute(ZIS_TOKEN);
+//			}
+//		}
 	}
 
 	protected void renderErrResult(String errMsg, HttpServletResponse response) {

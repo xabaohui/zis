@@ -5,9 +5,10 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.struts2.ServletActionContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -42,13 +43,14 @@ public class ApiPurchasedAmountQueryController {
 	 * 采购查询接口，已废弃，使用v2
 	 * @return
 	 */
-	public String queryRequiredAmount(String isbn) {
+	@RequestMapping(value = "/queryPurchaseAmount", produces = "text/plain; charset=utf-8")
+	public String queryRequiredAmount(String isbn, HttpServletResponse resp) {
 		logger.info("api.ApiPuchasedAmountQueryAction invoke, isbn=" + isbn);
 		RequiredAmountQueryResponse response = new RequiredAmountQueryResponse();
 		if (StringUtils.isBlank(isbn)) {
 			response.setCode(BaseApiResponse.CODE_ILLEGAL_ARGUMENT);
 			response.setMsg("ISNB不能为空!");
-			renderResult(response);
+			renderResult(response, resp);
 			return "";
 		}
 		List<PurchasePlan> list = doPurchaseService.findPurchasePlanByIsbn(isbn);
@@ -74,7 +76,7 @@ public class ApiPurchasedAmountQueryController {
 		}
 		response.setCode(BaseApiResponse.CODE_SUCCESS);
 		response.setResultList(resultList);
-		renderResult(response);
+		renderResult(response, resp);
 		return "";
 	}
 	
@@ -83,13 +85,13 @@ public class ApiPurchasedAmountQueryController {
 	 * @return
 	 */
 	@RequestMapping(value = "/queryPurchaseAmountV2", produces = "text/plain; charset=utf-8")
-	public String queryRequiredAmountV2(String isbn) {
+	public String queryRequiredAmountV2(String isbn, HttpServletResponse resp) {
 		logger.info("api.ApiPuchasedAmountQueryAction invoke, isbn=" + isbn);
 		RequiredAmountQueryResponseV2 response = new RequiredAmountQueryResponseV2();
 		if (StringUtils.isBlank(isbn)) {
 			response.setCode(BaseApiResponse.CODE_ILLEGAL_ARGUMENT);
 			response.setMsg("ISNB不能为空!");
-			renderResult(response);
+			renderResult(response, resp);
 			return "";
 		}
 		List<PurchasePlan> list = doPurchaseService.findPurchasePlanByIsbn(isbn);
@@ -119,17 +121,16 @@ public class ApiPurchasedAmountQueryController {
 		}
 		response.setCode(BaseApiResponse.CODE_SUCCESS);
 		response.setResultList(resultList);
-		renderResult(response);
+		renderResult(response, resp);
 		return "";
 	}
 
-	private void renderResult(Object obj) {
+	private void renderResult(Object obj, HttpServletResponse resp) {
 		// json序列化
 		String content = JSON.toJSONString(obj);
-		ServletActionContext.getResponse().setContentType(
-				"text/html;charset=utf-8");
+		resp.setContentType("text/html;charset=utf-8");
 		try {
-			PrintWriter out = ServletActionContext.getResponse().getWriter();
+			PrintWriter out = resp.getWriter();
 			out.print(content);
 			out.flush();
 			out.close();

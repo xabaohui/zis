@@ -69,8 +69,6 @@ public class ApiPurchasedAmountAddController extends BaseApiController {
 			String result = doPurchaseService
 					.addPurchaseDetail(intBookId, intPurchasedAmount, operator, position, memo);
 			if (StringUtils.isNotBlank(result)) {
-				// 清理token
-				clearSessionToken();
 				// 渲染结果
 				renderResponse(BaseApiResponse.CODE_INNER_ERROR, result, response);
 				return "";
@@ -83,6 +81,9 @@ public class ApiPurchasedAmountAddController extends BaseApiController {
 			logger.error("api.ApiPurchasedAmountAddAction--系统内部错误", e);
 			renderResponse(BaseApiResponse.CODE_INNER_ERROR, "系统内部错误" + e.getMessage(), response);
 			return "";
+		} finally {
+			// 清理token
+			clearSessionToken();
 		}
 	}
 

@@ -25,7 +25,7 @@ import com.zis.common.util.ZisUtils;
  * @author lvbin 2015-10-7
  */
 @Controller
-@RequestMapping(value = "/default2")
+@RequestMapping(value = "/api")
 public class InterfaceBooksToMoblieinfoController extends BaseApiController {
 
 	@Autowired
@@ -60,20 +60,21 @@ public class InterfaceBooksToMoblieinfoController extends BaseApiController {
 		try {
 			Bookinfo book = buildBookInfo(publishDate, bookName, edition, publisher, price, bookAuthor, isbn);
 			bookService.addBook(book, null); // XXX 暂时不处理图书详情
-			// 清理token
-			clearSessionToken();
+			// 返回结果
+			response.setCode(BaseApiResponse.CODE_SUCCESS);
+			renderResult(response, resp);
+			logger.info("api.InterfaceBooksToMoblieinfoAction.addBookInfo.response successful..");
+			return "";
 		} catch (Exception e) {
 			logger.error("添加图书失败: " + e.getMessage(), e);
 			response.setCode(BaseApiResponse.CODE_INNER_ERROR);
 			response.setMsg(e.getMessage());
 			renderResult(response, resp);
 			return "";
+		} finally {
+			// 清理token
+			clearSessionToken();
 		}
-		// 返回结果
-		response.setCode(BaseApiResponse.CODE_SUCCESS);
-		renderResult(response, resp);
-		logger.info("api.InterfaceBooksToMoblieinfoAction.addBookInfo.response successful..");
-		return "";
 	}
 
 	private Bookinfo buildBookInfo(String publishDate, String bookName, String edition, String publisher, String price,
