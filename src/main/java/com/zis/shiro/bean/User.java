@@ -28,6 +28,7 @@ public class User {
 
 	private String salt;
 
+	@Column(name = "isDelete")
 	private String isDelete;
 
 	@Column(name = "create_time")
