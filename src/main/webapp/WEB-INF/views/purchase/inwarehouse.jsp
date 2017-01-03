@@ -53,7 +53,7 @@
 							<input type="text" name="memo" value="${memo}">
 						</td>
 						<td>
-							<spring:errors delimiter="," path="memo"cssStyle="color:red" />
+							<spring:errors delimiter="," path="memo" cssStyle="color:red" />
 						</td>
 					</tr>
 				</table>
