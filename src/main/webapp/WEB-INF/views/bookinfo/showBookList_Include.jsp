@@ -25,7 +25,6 @@
 		</shiro:hasPermission>
 	<p/>
 	</div>
-
 	<table id="common-table">
 		<tr>
 			<th><input type="checkbox" name="allCheck" value="checkAll1234" onclick="checkAll()" /></th>

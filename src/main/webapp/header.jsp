@@ -7,6 +7,7 @@
 			+ path + "/";
 %>
 <%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags" %> 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
 <html>
 	<head>
 		<base href="<%=basePath%>">
@@ -102,7 +103,6 @@
 		function checked(obj){
 			var objThis = obj.childNodes[3];
 			var uls = document.getElementsByName("showListTop");
-			//var getIdPage = document.getElementById("getIdPage");
 			var thisDisplay = objThis.style.display; 
 			if (thisDisplay == "block") {
 				objThis.style.display= "none";
@@ -112,6 +112,8 @@
 				}
 				objThis.style.display= "block";
 			}
+		}
+		function rs(rs){
 		}
 		</script>
 	</head>
@@ -130,10 +132,14 @@
 			</shiro:authenticated>
 			<br />
 			<br />
+			<c:if test="${headerChecked eq '1'}"></c:if>
 			&nbsp;
 			<ul class = "uls" onclick="checked(this);">
 			<font style="font-weight: bolder;">图书管理</font>
-				<ul name = "showListTop" style="display: none;" class = "showListTop">
+				<ul name = "showListTop" 
+				<c:if test="${headerChecked != '1'}"> style="display: none;" </c:if>
+				<c:if test="${headerChecked eq '1'}"> style="display: block;" </c:if>
+				  class = "showListTop" >
 					<shiro:hasPermission name="bookInfo:view">
 						<li><a href="<%=basePath%>bookInfo/getAllBooks">图书列表</a></li>
 					</shiro:hasPermission>

@@ -2,15 +2,19 @@
 <%@ include file="/header.jsp"%>
 <script type="text/javascript">
 function clearAll() {
-	var list = document.getElementsByTagName('text');
+	var list = document.getElementsByTagName('input');
 	for ( var i = 0; i < list.length; i++) {
-		list[i].value = "";
+		if(list[i].getAttribute("type") == "text"){
+			list[i].value = "";
+		}
 	}
 }
 </script>
 
 <div align="center">
 <h1>图书列表</h1>
+<p/>
+<h2><font color="red">${actionError}</font></h2>
 	<div>
 		<a href="bookInfo/getWaitCheckList">还有${waitCheckCount}条待审核</a>
 		<br/>

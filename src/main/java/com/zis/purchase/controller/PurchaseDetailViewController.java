@@ -110,21 +110,28 @@ public class PurchaseDetailViewController extends PaginationQueryController<Purc
 		else if (StringUtils.isNotBlank(isbn) || StringUtils.isNotBlank(bookName) || StringUtils.isNotBlank(bookIdStr)) {
 			QueryUtil<Bookinfo> query = new QueryUtil<Bookinfo>();
 			if (StringUtils.isNotBlank(isbn)) {
-				query.eq("isbn", isbn);
+				String[] isbnStr = isbn.split(",");
+				if(isbnStr.length > 1){
+					throw new RuntimeException("采购明细查询isbn不能输入多个");
+				}
+				if(!StringUtils.isNumeric(isbn.trim())){
+					throw new RuntimeException("isbn存在非法字符");
+				}
+				query.eq("isbn", isbn.trim());
 			}
 			if (StringUtils.isNotBlank(bookName)) {
 				query.like("bookName", "%" + bookName + "%");
 			}
 			Specification<Bookinfo> specBookInfo = query.getSpecification();
 			List<Bookinfo> blist = bookService.findBySpecificationAll(specBookInfo);
-			List<Integer> bookIds = new ArrayList<Integer>();
 			if (blist == null || blist.isEmpty()) {
 				return null;
 			}
-			for (Bookinfo bi : blist) {
-				bookIds.add(bi.getId());
+			Integer[] bs = new Integer[blist.size()];
+			for (int i = 0; i < bs.length; i++) {
+				bs[i] = blist.get(i).getId();
 			}
-			queryPD.in("bookId", bookIds);
+			queryPD.in("bookId", (Object[])bs);
 		}
 		// 附加操作员条件
 		if (StringUtils.isNotBlank(operator)) {
@@ -169,5 +176,4 @@ public class PurchaseDetailViewController extends PaginationQueryController<Purc
 	protected Page<PurchaseDetail> buildPageList(Specification<PurchaseDetail> spec, Pageable page) {
 		return this.doPurchaseService.findPurchaseDetailBySpecPage(spec, page);
 	}
-
 }

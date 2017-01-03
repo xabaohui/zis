@@ -1,6 +1,7 @@
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%@ taglib prefix="spring"
 	uri="http://www.springframework.org/tags/form"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ include file="/header.jsp"%>
 <script type="text/javascript" src="resources/purchase.js"></script>
 
@@ -64,11 +65,15 @@
 		<tr>
 			<td align="center">库位标签&nbsp;&nbsp;库位容量
 				<p />
-					<input type="text" name="stockPosLabel" size="15" />&nbsp;<input type="text" name="stockPosCapacity" size="3" />
+					<input type="text" name="stockPosLabel" size="15" />&nbsp;
+					<input type="text" name="stockPosCapacity" size="3" />
 				<p />
-					<spring:errors delimiter="," path="stockPosLabel"cssStyle="color:red" />&nbsp;<spring:errors delimiter="," path="stockPosCapacity" cssStyle="color:red" />
+					<spring:errors delimiter="," path="stockPosLabel" cssStyle="color:red" />
+					&nbsp;
+					<spring:errors delimiter="," path="stockPosCapacity" cssStyle="color:red" />
 				<p />
-					<div id="purchaseInStockPos"></div> <input type="button" value="添加" onclick="addStockPosition()" />
+					<div id="purchaseInStockPos"></div> 
+					<input type="button" value="添加" onclick="addStockPosition()" />
 			</td>
 		</tr>
 		<tr>

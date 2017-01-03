@@ -2,6 +2,7 @@
 <%@ include file="/header.jsp"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <script type='text/javascript' src='dwr/engine.js'></script>
 <script type='text/javascript' src='dwr/util.js'></script>
@@ -18,29 +19,32 @@ function showOperate(bookId) {
 
 <center>
 	<h1>采购计划</h1>
+	<p/>
+	<h2><font color="red">${actionError}</font></h2>
 	<form action="purchase/queryPurchasePlan" method="post">
 		<table>
 			<tr>
 				<td>ISBN</td>
 				<td>
-				<input type="text" name="isbn" value="${isbn}">
+				<input type="text" name="isbn" value="${param.isbn}">
 				</td>
 			</tr>
 			<tr>
 				<td>书名</td>
-				<td><input type="text" name="bookName" value="${bookName}"><input type="checkbox" name="strictBookName" value="true"/>精确匹配</td>
+				<td><input type="text" name="bookName" value="${param.bookName}">
+				<input type="checkbox" name="strictBookName" value="true"/>精确匹配</td>
 			</tr>
 			<tr>
 				<td>作者</td>
-				<td><input type="text" name="bookAuthor" value="${bookAuthor}"></td>
+				<td><input type="text" name="bookAuthor" value="${param.bookAuthor}"></td>
 			</tr>
 			<tr>
 				<td>出版社</td>
-				<td><input type="text" name="bookPublisher" value="${bookPublisher}"></td>
+				<td><input type="text" name="bookPublisher" value="${param.bookPublisher}"></td>
 			</tr>
 			<tr>
 				<td>计划量</td>
-				<td><input type="text" name="minPlanAmount" value="${minPlanAmount}" size="4">&nbsp;到&nbsp;<input type="text" name="maxPlanAmount" value="${maxPlanAmount}" size="4"></td>
+				<td><input type="text" name="minPlanAmount" value="${param.minPlanAmount}" size="4">&nbsp;到&nbsp;<input type="text" name="maxPlanAmount" value="${maxPlanAmount}" size="4"></td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
@@ -95,7 +99,7 @@ function showOperate(bookId) {
 					</c:if>
 				</td>
 				<td>${purchasedPlan.bookPublisher}</td>
-				<td>${purchasedPlan.publishDate}</td>
+				<td><fmt:formatDate value="${purchasedPlan.publishDate}" pattern="yyyy年MM月"/></td>
 				<td>${purchasedPlan.bookPrice}</td>
 				<td>
 					<shiro:hasPermission name="purchase:management">

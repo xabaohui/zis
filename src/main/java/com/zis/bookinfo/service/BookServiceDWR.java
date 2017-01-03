@@ -45,4 +45,16 @@ public class BookServiceDWR {
 	public List<Bookinfo> findBookByISBN(String isbn) {
 		return this.bookService.findBookByISBN(isbn);
 	}
+	
+//	private void setCheckenSession(String headerChecked) {
+//		HttpServletRequest req = getRequest();
+//		HttpSession session = req.getSession();
+//		session.setAttribute("headerChecked", headerChecked);
+//	}
+	
+//	private HttpServletRequest getRequest(){
+//		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+//		HttpServletRequest request = attributes.getRequest();
+//		return request;
+//	}
 }

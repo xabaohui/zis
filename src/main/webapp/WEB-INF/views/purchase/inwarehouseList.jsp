@@ -2,6 +2,7 @@
 <%@page import="com.zis.purchase.bean.InwarehouseStatus"%>
 <%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ include file="/header.jsp"%>
 
 <script type="text/javascript" src='resources/common.js'></script>
@@ -39,7 +40,7 @@
 					<input type="checkbox" value="${record.id}" name="batchSelectedItem" 
 					<c:if test="${record.status eq 'processing'}">disabled</c:if>/>
 				</td>
-				<td>${record.gmtCreate}</td>
+				<td><fmt:formatDate value="${record.gmtCreate}" pattern="yyyy年MM月dd日HH时mm分"/></td>
 				<td>${record.bizTypeDisplay}${record.source}</td>
 				<td>${record.inwarehouseOperator}</td>
 				<td>${record.memo}</td>

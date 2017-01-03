@@ -20,6 +20,7 @@ public class QueryUtil<T> {
 	private final Logger logger = LoggerFactory.getLogger(QueryUtil.class);
 
 	private final String EQ = "eq";
+	private final String NOTEQ = "notEq";
 	private final String LIKE = "like";
 	private final String NE = "ne";
 	private final String IN = "in";
@@ -37,6 +38,11 @@ public class QueryUtil<T> {
 		conditions.add(new Condition(EQ, name, value));
 		return this;
 	}
+	public QueryUtil<T> notEq(String name, Object value) {
+		isNotEmpty(NOTEQ, value);
+		conditions.add(new Condition(NOTEQ, name, value));
+		return this;
+	}
 
 	public QueryUtil<T> like(String name, Object value) {
 		isNotEmpty(LIKE, value);
@@ -50,7 +56,7 @@ public class QueryUtil<T> {
 		return this;
 	}
 
-	public QueryUtil<T> in(String name, Object value) {
+	public QueryUtil<T> in(String name, Object... value) {
 		isNotEmpty(IN, value);
 		conditions.add(new Condition(IN, name, value));
 		return this;
@@ -108,6 +114,15 @@ public class QueryUtil<T> {
 				throw new RuntimeException(error);
 			}
 		}
+		if (value instanceof String[]) {
+			Object[] val = (Object[]) value;
+			for (Object o : val) {
+				if (StringUtils.isBlank(o.toString())) {
+					logger.error(error);
+					throw new RuntimeException(error);
+				}
+			}
+		}
 	}
 
 	/**
@@ -127,6 +142,10 @@ public class QueryUtil<T> {
 					if (EQ.equals(c.condition)) {
 						Path<String> p = root.get(c.name);
 						psList.add(cb.equal(p, c.vals[0]));
+					}
+					if (NOTEQ.equals(c.condition)) {
+						Path<String> p = root.get(c.name);
+						psList.add(cb.notEqual(p, c.vals[0]));
 					}
 
 					if (LIKE.equals(c.condition)) {

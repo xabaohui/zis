@@ -63,7 +63,14 @@ public class BookController {
 			String bookAuthor, String bookPublisher, HttpServletRequest request) {
 		logger.debug("start:" + System.currentTimeMillis());
 		// 创建查询条件
-		Specification<Bookinfo> spec = buildSpec(bookName, strictBookName, bookISBN, bookAuthor, bookPublisher);
+		Specification<Bookinfo> spec;
+		try {
+			spec = buildSpec(bookName, strictBookName, bookISBN, bookAuthor, bookPublisher);
+		} catch (Exception e) {
+			model.put("actionError", e.getMessage());
+			logger.error(e.getMessage(), e);
+			return "bookinfo/list";
+		}
 		// 分页查询
 		Pageable page = WebHelper.buildPageRequest(request);
 		Page<Bookinfo> list = this.bookService.findBySpecification(spec, page);
@@ -416,11 +423,17 @@ public class BookController {
 		// ISBN不为空则添加条件
 		if (!StringUtils.isBlank(bookISBN)) {
 			String[] isbns = bookISBN.split(",");
+			for (int i = 0; i < isbns.length; i++) {
+				isbns[i] = isbns[i].trim();
+				if(!StringUtils.isNumeric(isbns[i])){
+					throw new RuntimeException("isbn输入了非法字符");
+				}
+			}
 			if (isbns.length == 1) {
-				query.eq("isbn", bookISBN);
+				query.eq("isbn", isbns[0]);
 			} else {
 				// criteria.add(Restrictions.in("isbn", isbns));
-				query.in("isbn", isbns);
+				query.in("isbn", (Object[])isbns);
 			}
 		}
 		// 模糊查询作者
@@ -434,7 +447,6 @@ public class BookController {
 		return query.getSpecification();
 
 	}
-
 	// public static Specification<Bookinfo> test(final String bookName, final
 	// Boolean strictBookName, final String bookISBN,
 	// final String bookAuthor, final String bookPublisher) {

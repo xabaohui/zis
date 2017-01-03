@@ -117,8 +117,15 @@ public class PurchasePlanViewController extends PaginationQueryController<Purcha
 		String minPlanAmountStr = request.getParameter("minPlanAmount");
 		String maxPlanAmountStr = request.getParameter("minPlanAmount");
 		if (StringUtils.isNotBlank(isbn)) {
+			String[] isbnStr = isbn.split(",");
+			if(isbnStr.length > 1){
+				throw new RuntimeException("采购计划查询isbn不能输入多个");
+			}
+			if(!StringUtils.isNumeric(isbn.trim())){
+				throw new RuntimeException("isbn存在非法字符");
+			}
 			// dc.add(Restrictions.eq("isbn", isbn));
-			query.eq("isbn", isbn);
+			query.eq("isbn", isbn.trim());
 		}
 		if (StringUtils.isNotBlank(bookName)) {
 			if (StringUtils.isNotBlank(strictBookName) && Boolean.valueOf(strictBookName) == true) {

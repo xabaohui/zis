@@ -39,6 +39,7 @@ public abstract class PaginationQueryController<T> {
 			// 设置页面参数
 			context.put(setResultListLabel(), resultList);
 			context.put("actionUrl", setActionUrl(request));
+			context.put("status", request.getParameter("status"));
 			context.put("queryCondition", setActionUrlQueryCondition(request));
 			context.put("page", page.getPageNumber());
 			if (plist.hasPrevious()) {

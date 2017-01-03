@@ -31,20 +31,22 @@ public class DoPurchaseController {
 	private BookService bookService;
 
 	@SuppressWarnings("deprecation")
-	@RequiresPermissions(value = {"toolkit:toolkit"})
+	@RequiresPermissions(value = { "toolkit:toolkit" })
 	@RequestMapping(value = "/batchUpdatePurchasePlanForPurchaseAmount")
 	public String batchUpdatePurchasePlanForPurchaseAmount() {
 		this.doPurchaseService.batchUpdatePurchasePlanForPurchaseAmount();
 		return "success";
 	}
-	
+
 	@RequiresPermissions(value = "toolkit:toolkit")
 	@RequestMapping(value = "/doPurchase", method = RequestMethod.POST)
 	public String doPurchase(String isbn) {
 		// 如果指定了bookId则只处理这一条
 		if (StringUtils.isNotBlank(isbn)) {
 			QueryUtil<Bookinfo> query = new QueryUtil<Bookinfo>();
-			query.eq("isbn", isbn);
+			query.eq("isbn", isbn.trim());
+			// FIXME 重新计划采购量，是否要在此处添加查找限制为正式图书
+			// query.eq("bookStatus", ConstantString.USEFUL);
 			Specification<Bookinfo> spec = query.getSpecification();
 			// DetachedCriteria dc = DetachedCriteria.forClass(Bookinfo.class);
 			// dc.add(Restrictions.eq("isbn", isbn));
@@ -60,9 +62,9 @@ public class DoPurchaseController {
 		do {
 			logger.info("采购计划开始，from=" + beginIndex + ", to=" + (beginIndex + batchSize));
 			try {
-			plist = this.bookService.findAll(page);
-			doPurchaseService.addPurchasePlanForBatch(plist.getContent());
-			page = plist.nextPageable();
+				plist = this.bookService.findAll(page);
+				doPurchaseService.addPurchasePlanForBatch(plist.getContent());
+				page = plist.nextPageable();
 			} catch (Exception e) {
 				logger.error("执行采购计划过程中出错" + e);
 			}
@@ -71,16 +73,16 @@ public class DoPurchaseController {
 		// DetachedCriteria dc = DetachedCriteria.forClass(Bookinfo.class);
 		// Integer totalCount = PaginationQueryUtil.getTotalCount(dc);
 		// Page page = Page.createPage(1, batchSize, totalCount);
-//		for (int i = 0; i < page.getTotalPageCount(); i++) {
-//			page = Page.createPage(i + 1, batchSize, totalCount);
-//			try {
-//				@SuppressWarnings("unchecked")
-//				List<Bookinfo> list = PaginationQueryUtil.paginationQuery(dc, page);
-//			} catch (Exception e) {
-//				logger.error("执行采购计划过程中出错" + e);
-//			}
-//		}
-//		return "success";
+		// for (int i = 0; i < page.getTotalPageCount(); i++) {
+		// page = Page.createPage(i + 1, batchSize, totalCount);
+		// try {
+		// @SuppressWarnings("unchecked")
+		// List<Bookinfo> list = PaginationQueryUtil.paginationQuery(dc, page);
+		// } catch (Exception e) {
+		// logger.error("执行采购计划过程中出错" + e);
+		// }
+		// }
+		// return "success";
 	}
 
 	/**
