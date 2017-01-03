@@ -44,7 +44,8 @@ function showOperate(bookId) {
 			</tr>
 			<tr>
 				<td>计划量</td>
-				<td><input type="text" name="minPlanAmount" value="${param.minPlanAmount}" size="4">&nbsp;到&nbsp;<input type="text" name="maxPlanAmount" value="${maxPlanAmount}" size="4"></td>
+				<td><input type="text" name="minPlanAmount" value="${param.minPlanAmount}" size="4">&nbsp;到&nbsp;
+				<input type="text" name="maxPlanAmount" value="${param.maxPlanAmount}" size="4"></td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
