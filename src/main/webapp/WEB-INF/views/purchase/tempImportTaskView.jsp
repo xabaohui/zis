@@ -1,5 +1,6 @@
 <%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ include file="/header.jsp"%>
 <center>
 	<h1>导入数据列表</h1>
@@ -15,7 +16,7 @@
 		</tr>
 	<c:forEach items="${taskList}" var="task">
 		<tr>
-			<td>${task.gmtCreate}</td>
+			<td><fmt:formatDate value="${task.gmtCreate}" pattern="yyyy年MM月dd日hh时mm分"/></td>
 			<td>${task.bizTypeDisplay}</td>
 			<td>${task.memo}</td>
 			<td>${task.totalCount}</td>
