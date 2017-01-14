@@ -49,6 +49,7 @@ public class ApiPurchasedAmountAddController extends BaseApiController {
 						bookId, purchasedAmount, operator, position, memo);
 		logger.info(logMsg);
 		// 参数检验
+		operator = operator.trim();
 		String errMsg = validateParam(bookId, purchasedAmount, operator, map);
 		if (StringUtils.isNotBlank(errMsg)) {
 			logger.info("api.AddBookRequirement--参数校验失败:" + errMsg);
@@ -121,7 +122,6 @@ public class ApiPurchasedAmountAddController extends BaseApiController {
 			return "操作员不能为空";
 		}
 		// 操作员名称中带回车不允许提交
-		operator = operator.trim();
 		if (operator.contains("\n")) {
 			return "操作员名称中不能含有回车等特殊符号";
 		}
