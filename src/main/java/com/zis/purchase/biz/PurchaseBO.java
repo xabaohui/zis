@@ -129,6 +129,8 @@ public class PurchaseBO {
 			plan.setStatus(PurchasePlanStatus.NORMAL);
 			plan.setGmtCreate(ZisUtils.getTS());
 			plan.setGmtModify(ZisUtils.getTS());
+			plan.setId(null);
+			plan.setVersion(0);
 			this.purchasePlanDao.save(plan);
 			logger.info("add new purchasePlan, bookId=" + bi.getId());
 		}
