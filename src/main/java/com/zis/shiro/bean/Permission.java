@@ -11,7 +11,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 @Entity
-@Table(name = "acl_permission_tab")
+@Table(name = "acl_permission")
 public class Permission {
 
 	@Id

@@ -44,6 +44,7 @@ public class ApiPurchasedAmountAddController extends BaseApiController {
 	public String addRequirementAmount(String memo, String operator, String bookId, String purchasedAmount,
 			String position, HttpServletResponse response, String token) {
 		Map<String, Object> map = new HashMap<String, Object>();
+		operator = operator.trim();
 		String logMsg = String
 				.format("api.ApiPurchasedAmountAddAction invoke, bookId=%s, purchasedAmount=%s, operator=%s, position=%s, memo=%s",
 						bookId, purchasedAmount, operator, position, memo);
@@ -121,8 +122,7 @@ public class ApiPurchasedAmountAddController extends BaseApiController {
 			return "操作员不能为空";
 		}
 		// 操作员名称中带回车不允许提交
-		operator = operator.trim();
-		if (operator.contains("\n")) {
+		if (operator.contains("\n") || operator.contains("\r")) {
 			return "操作员名称中不能含有回车等特殊符号";
 		}
 		// if (StringUtils.isBlank(position)) {

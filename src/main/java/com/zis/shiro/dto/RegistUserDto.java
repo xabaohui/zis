@@ -6,13 +6,14 @@ import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * 新建用户信息DTO用于验证
+ * 
  * @author think
- *
+ * 
  */
 public class RegistUserDto {
-	
+
 	private Integer id;
-	
+
 	@NotBlank(message = "用户名不能为空")
 	@Pattern(regexp = "^[A-Za-z0-9]+$", message = "用户名只能为数字与字母的组合")
 	private String userName;
@@ -25,12 +26,30 @@ public class RegistUserDto {
 
 	@NotBlank(message = "密码不能为空")
 	private String passwordAgain;
-	
+
 	private Integer roleId;
-	
+
 	private String roleName;
-	
-	
+
+	private Integer companyId;
+
+	private String companyName;
+
+	public RegistUserDto() {
+	}
+
+	public RegistUserDto(Integer id, String userName, String realName, String password, String passwordAgain,
+			Integer roleId, String roleName, Integer companyId, String companyName) {
+		this.id = id;
+		this.userName = userName;
+		this.realName = realName;
+		this.password = password;
+		this.passwordAgain = passwordAgain;
+		this.roleId = roleId;
+		this.roleName = roleName;
+		this.companyId = companyId;
+		this.companyName = companyName;
+	}
 
 	public Integer getId() {
 		return id;
@@ -88,9 +107,26 @@ public class RegistUserDto {
 		this.roleName = roleName;
 	}
 
+	public Integer getCompanyId() {
+		return companyId;
+	}
+
+	public void setCompanyId(Integer companyId) {
+		this.companyId = companyId;
+	}
+
+	public String getCompanyName() {
+		return companyName;
+	}
+
+	public void setCompanyName(String companyName) {
+		this.companyName = companyName;
+	}
+
 	@Override
 	public String toString() {
 		return "RegistUserDto [id=" + id + ", userName=" + userName + ", realName=" + realName + ", password="
-				+ password + ", passwordAgain=" + passwordAgain + ", roleId=" + roleId + ", roleName=" + roleName + "]";
+				+ password + ", passwordAgain=" + passwordAgain + ", roleId=" + roleId + ", roleName=" + roleName
+				+ ", companyId=" + companyId + ", companyName=" + companyName + "]";
 	}
 }

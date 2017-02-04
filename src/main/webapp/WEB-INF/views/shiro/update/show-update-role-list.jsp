@@ -2,6 +2,7 @@
 <%@ include file="/header.jsp"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags/form"%>
+<script type="text/javascript" src="resources/regist.js"></script>
 <script type="text/javascript">
 function updateRole(roleId){
 	window.location.href="/zis/shiro/updateRole?id="+roleId;
@@ -9,9 +10,12 @@ function updateRole(roleId){
 function rigistRoleUser(){
 	window.location.href="shiro/gotoRegistRole";
 }
-function clearAll(){
-	document.getElementById('roleName').value = "";
-	document.getElementById('roleCode').value = "";
+
+function deleteRole(roleId) {
+		if (confirm("你确定删除吗？,（请谨慎使用，删除后此角色后，相关用户的角色将被清空）")) {
+			window.location.href = "/zis/shiro/deleteRole?id=" + roleId;
+		} else {
+		}
 }
 </script>
 <style type="text/css">
@@ -78,7 +82,9 @@ function clearAll(){
 				<td width="30%">${roles.roleDescription}</td>
 				<td>${roles.createUserName}</td>
 				<td>
-				<input type="button" value = "修改" onclick="updateRole('${roles.id}')"/>
+					<input type="button" value = "修改" onclick="updateRole('${roles.id}')"/>
+					&nbsp; &nbsp;
+					<input type="button" value = "删除" onclick="deleteRole('${roles.id}')"/>
 				</td>
 			</tr>
 		</c:forEach>

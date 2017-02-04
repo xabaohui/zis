@@ -136,10 +136,7 @@
 			&nbsp;
 			<ul class = "uls" onclick="checked(this);">
 			<font style="font-weight: bolder;">图书管理</font>
-				<ul name = "showListTop" 
-				<c:if test="${headerChecked != '1'}"> style="display: none;" </c:if>
-				<c:if test="${headerChecked eq '1'}"> style="display: block;" </c:if>
-				  class = "showListTop" >
+				<ul name = "showListTop" style="display: none" class = "showListTop" >
 					<shiro:hasPermission name="bookInfo:view">
 						<li><a href="<%=basePath%>bookInfo/getAllBooks">图书列表</a></li>
 					</shiro:hasPermission>
@@ -149,6 +146,7 @@
 					<shiro:hasPermission name="bookInfo:saveOrUpdate">
 						<li><a href="<%=basePath%>bookInfo/gotoAddYouLuData">批量增加</a></li>
 					</shiro:hasPermission>
+						<li><a href="<%=basePath%>shop/showCompanyInfo">公司管理</a></li>
 				</ul>
 			</ul>
 			<ul class = "uls" onclick="checked(this);">
@@ -226,6 +224,9 @@
 					</shiro:hasPermission>
 					<shiro:hasPermission name="shiro:shiro">
 						<li><a href="<%=basePath%>shiro/updateWaitRole">角色管理</a></li> 
+					</shiro:hasPermission>
+					<shiro:hasPermission name="shiro:shiro">
+						<li><a href="<%=basePath%>shop/showCompanys">公司管理</a></li> 
 					</shiro:hasPermission>
 					<shiro:authenticated>
 						<li><a href="<%=basePath%>shiro/gotoGeneralUserUpdatePassword">密码修改</a></li>

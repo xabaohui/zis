@@ -31,10 +31,10 @@ import com.zis.shiro.service.SysService;
  * </p>
  */
 public class CustomRealm extends AuthorizingRealm {
-	
-	private static final String OR_OPERATOR = " or ";  
-	private static final String AND_OPERATOR = " and ";  
-	private static final String NOT_OPERATOR = " not "; 
+
+	private static final String OR_OPERATOR = " or ";
+	private static final String AND_OPERATOR = " and ";
+	private static final String NOT_OPERATOR = " not ";
 
 	// 注入service
 	@Autowired
@@ -88,6 +88,7 @@ public class CustomRealm extends AuthorizingRealm {
 		}
 		// 将用户菜单 设置到activeUser
 		activeUser.setPermissions(permissions);
+		activeUser.setCompanyId(sysUser.getCompanyId());
 
 		// 将activeUser设置simpleAuthenticationInfo
 		SimpleAuthenticationInfo simpleAuthenticationInfo = new SimpleAuthenticationInfo(activeUser, password,
@@ -144,39 +145,39 @@ public class CustomRealm extends AuthorizingRealm {
 
 		return simpleAuthorizationInfo;
 	}
-	
+
 	/**
 	 * shiro 标签兼容 or ，not ，and 写法 ，例：xxxx:xxxx or xxx2:xxxx or .....
 	 */
-	public boolean isPermitted(PrincipalCollection principals, String permission) {  
-	    if(permission.contains(OR_OPERATOR)) {  
-	        String[] permissions = permission.split(OR_OPERATOR);  
-	        for(String orPermission : permissions) {  
-	            if(isPermittedWithNotOperator(principals, orPermission)) {  
-	                return true;  
-	            }  
-	        }  
-	        return false;  
-	    } else if(permission.contains(AND_OPERATOR)) {  
-	        String[] permissions = permission.split(AND_OPERATOR);  
-	        for(String orPermission : permissions) {  
-	            if(!isPermittedWithNotOperator(principals, orPermission)) {  
-	                return false;  
-	            }  
-	        }  
-	        return true;  
-	    } else {  
-	        return isPermittedWithNotOperator(principals, permission);  
-	    }  
-	}  
-	  
-	private boolean isPermittedWithNotOperator(PrincipalCollection principals, String permission) {  
-	    if(permission.startsWith(NOT_OPERATOR)) {  
-	        return !super.isPermitted(principals, permission.substring(NOT_OPERATOR.length()));  
-	    } else {  
-	        return super.isPermitted(principals, permission);  
-	    }  
-	}  
+	public boolean isPermitted(PrincipalCollection principals, String permission) {
+		if (permission.contains(OR_OPERATOR)) {
+			String[] permissions = permission.split(OR_OPERATOR);
+			for (String orPermission : permissions) {
+				if (isPermittedWithNotOperator(principals, orPermission)) {
+					return true;
+				}
+			}
+			return false;
+		} else if (permission.contains(AND_OPERATOR)) {
+			String[] permissions = permission.split(AND_OPERATOR);
+			for (String orPermission : permissions) {
+				if (!isPermittedWithNotOperator(principals, orPermission)) {
+					return false;
+				}
+			}
+			return true;
+		} else {
+			return isPermittedWithNotOperator(principals, permission);
+		}
+	}
+
+	private boolean isPermittedWithNotOperator(PrincipalCollection principals, String permission) {
+		if (permission.startsWith(NOT_OPERATOR)) {
+			return !super.isPermitted(principals, permission.substring(NOT_OPERATOR.length()));
+		} else {
+			return super.isPermitted(principals, permission);
+		}
+	}
 
 	// ========================================清除缓存=====================================================
 	public void clearCached() {

@@ -14,22 +14,29 @@ public interface RoleDao extends PagingAndSortingRepository<Role, Integer> {
 
 	final String ADMIN = "adminTest";
 
-	@Query(value = "SELECT rt FROM User ut, Role rt WHERE rt.id = ut.roleId AND ut.id = :userId")
+	final String NORMAL = "normal";
+	final String DELETE = "delete";
+	
+	@Query(value = "FROM Role WHERE id =:id AND roleCode <> '" + ADMIN + "' AND status = '" + NORMAL + "'")
+	public Role findRoleByRoleId(@Param("id") Integer id);
+	
+	@Query(value = "SELECT rt FROM User ut, Role rt WHERE rt.status = '" + NORMAL
+			+ "' AND rt.id = ut.roleId AND ut.id = :userId")
 	public List<Role> findRoleByUserId(@Param("userId") Integer userId);
 
-	@Query(value = "SELECT rt FROM Role rt WHERE rt.roleCode <> '" + ADMIN
+	@Query(value = "SELECT rt FROM Role rt WHERE rt.roleCode <> '" + ADMIN + "' AND rt.status = '" + NORMAL
 			+ "' AND rt.id <> 0 AND rt.roleName LIKE %:roleName% ORDER BY rt.updateTime DESC")
 	public Page<Role> findByRoleNameLikeOrderByUpdateTimeDesc(@Param("roleName") String roleName, Pageable page);
 
-	@Query(value = "SELECT rt FROM Role rt WHERE rt.roleCode <> '" + ADMIN
+	@Query(value = "SELECT rt FROM Role rt WHERE rt.roleCode <> '" + ADMIN + "' AND rt.status = '" + NORMAL
 			+ "' AND rt.id <> 0 AND rt.roleCode = :roleCode")
 	public Page<Role> findByRoleCode(@Param("roleCode") String roleCode, Pageable page);
 
-	@Query(value = "SELECT rt FROM Role rt WHERE rt.roleCode <> '" + ADMIN
+	@Query(value = "SELECT rt FROM Role rt WHERE rt.roleCode <> '" + ADMIN + "' AND rt.status = '" + NORMAL
 			+ "' AND rt.id <> 0 ORDER BY rt.updateTime DESC")
 	public Page<Role> findAllOrderByUpdateTimeDesc(Pageable page);
 
-	@Query(value = "SELECT rt FROM Role rt WHERE rt.roleCode <> '" + ADMIN
+	@Query(value = "SELECT rt FROM Role rt WHERE rt.roleCode <> '" + ADMIN + "' AND rt.status = '" + NORMAL
 			+ "' AND rt.id <> 0 ORDER BY rt.updateTime DESC")
 	public List<Role> findByIdNotEqZeroAll();
 }

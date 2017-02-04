@@ -12,7 +12,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
 @Entity
-@Table(name = "acl_role_tab")
+@Table(name = "acl_role")
 public class Role {
 
 	@Id
@@ -38,17 +38,19 @@ public class Role {
 
 	@Column(name = "create_username")
 	private String createUserName;
-	
+
 	@Version
-	@Column(name="Version")
+	@Column(name = "version")
 	private Integer version;
-	
+
+	@Column(name = "status")
+	private String status;
+
 	public Role() {
 	}
 
 	public Role(Integer id, String roleName, String roleDescription, String roleCode, Date createTime, Date updateTime,
-			String createUserName, Integer version) {
-		super();
+			String createUserName, Integer version, String status) {
 		this.id = id;
 		this.roleName = roleName;
 		this.roleDescription = roleDescription;
@@ -57,6 +59,7 @@ public class Role {
 		this.updateTime = updateTime;
 		this.createUserName = createUserName;
 		this.version = version;
+		this.status = status;
 	}
 
 	public Integer getId() {
@@ -79,16 +82,16 @@ public class Role {
 		return roleDescription;
 	}
 
+	public void setRoleDescription(String roleDescription) {
+		this.roleDescription = roleDescription;
+	}
+
 	public String getRoleCode() {
 		return roleCode;
 	}
 
 	public void setRoleCode(String roleCode) {
 		this.roleCode = roleCode;
-	}
-
-	public void setRoleDescription(String roleDescription) {
-		this.roleDescription = roleDescription;
 	}
 
 	public Date getCreateTime() {
@@ -123,10 +126,18 @@ public class Role {
 		this.version = version;
 	}
 
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
 	@Override
 	public String toString() {
 		return "Role [id=" + id + ", roleName=" + roleName + ", roleDescription=" + roleDescription + ", roleCode="
 				+ roleCode + ", createTime=" + createTime + ", updateTime=" + updateTime + ", createUserName="
-				+ createUserName + ", version=" + version + "]";
+				+ createUserName + ", version=" + version + ", status=" + status + "]";
 	}
 }

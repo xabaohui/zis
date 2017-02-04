@@ -6,33 +6,7 @@
 <script type="text/javascript" src='resources/regist.js'></script>
 <script type="text/javascript">
 	window.onload = function() {
-		var checkedIds = document.getElementById("checkedId");
-		var roleIds= document.getElementsByName("roleId");
-			var checkedIdValue = checkedIds.value;
-			for(var j = 0; j < roleIds.length; j++){
-				var roleIdValue = roleIds[j].value;
-				if(+checkedIdValue == +roleIdValue){
-					roleIds[j].checked=true;
-				}
-			}
-	};
-	
-	function getRoleName(roleName){
-		document.getElementById("roleName").value = roleName;
-	};
-	
-	function updateCheck(){
-		var checkUpdate = document.getElementById("updatePassword");
-		var passwordClass = document.getElementsByClassName("passwordClass");
-		if(checkUpdate.checked){
-			for(var i = 0; i < passwordClass.length; i++){
-				passwordClass[i].style="display:inherit;";
-			}
-		}else{
-			for(var i = 0; i < passwordClass.length; i++){
-				passwordClass[i].style="display:none;";
-			}
-		}
+		checkRoleIdAndCompanyId();
 	};
 </script>
 <style type="text/css">
@@ -92,10 +66,22 @@ tr{
 						</c:if>
 					</c:forEach>
 				</td>
-				
+			</tr>
+			<tr>
+				<td>公司:</td>
+				<td>
+					<c:forEach items="${companyList}" var="company" varStatus="i">
+						<input type="radio" name = "companyId" value="${company.companyId}" onclick="getCompanyName('${company.companyName}');"/>
+						<font style="font-size: 10px;">${company.companyName}</font>
+						<c:if test="${((i.index + 1) mod 5) eq 0}">
+							<p/>
+						</c:if>
+					</c:forEach>
+				</td>
 			</tr>
 		</table>
-		<input type="hidden" name = "roleName" id = "roleName"/>
+		<input type="hidden" name = "roleName" id = "roleName" value ="${roleName}"/>
+		<input type="hidden" name = "companyName" id = "companyName" value ="${companyName}"/>
 	</div>
 	<br>
 	<br>
@@ -104,4 +90,5 @@ tr{
 	</div>
 </spring:form>
 	<input type="hidden" name = "checkedId" id = "checkedId" value="${checkedId}"/>
+	<input type="hidden" name = "checkedCompanyId" id = "checkedCompanyId" value="${checkedCompanyId}"/>
 <%@ include file="/footer.jsp"%>

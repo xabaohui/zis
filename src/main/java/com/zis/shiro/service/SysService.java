@@ -13,6 +13,8 @@ import com.zis.shiro.bean.User;
 import com.zis.shiro.repository.PermissionDao;
 import com.zis.shiro.repository.RoleDao;
 import com.zis.shiro.repository.UserDao;
+import com.zis.shop.bean.Company;
+import com.zis.shop.repository.CompanyDao;
 
 
 @Service
@@ -23,6 +25,9 @@ public class SysService {
 
 	@Autowired
 	private PermissionDao permissionDao;
+	
+	@Autowired
+	private CompanyDao companyDao;
 
 	@Autowired
 	private RoleDao roleDao;
@@ -49,5 +54,10 @@ public class SysService {
 	public List<Role> findRoleByUserId(Integer userId) {
 		List<Role> list = this.roleDao.findRoleByUserId(userId);
 		return list;
+	}
+	
+	public Company findCompanyByCompanyId(Integer companyId) {
+		Company company = this.companyDao.findBySysCompanyId(companyId);
+		return company;
 	}
 }

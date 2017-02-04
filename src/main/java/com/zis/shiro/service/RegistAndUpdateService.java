@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.crypto.hash.SimpleHash;
@@ -32,6 +33,8 @@ import com.zis.shiro.repository.PermissionDao;
 import com.zis.shiro.repository.RoleDao;
 import com.zis.shiro.repository.RolePermissionDao;
 import com.zis.shiro.repository.UserDao;
+import com.zis.shop.bean.Company;
+import com.zis.shop.repository.CompanyDao;
 
 /**
  * @author think
@@ -45,6 +48,8 @@ public class RegistAndUpdateService {
 	// 用户是否删除
 	protected final String NO = "no";
 	protected final String YES = "yes";
+	protected final String NORMAL = "normal";
+	protected final String DELETE = "delete";
 	// 权限分组
 	protected final String BOOK_INFO = "bookInfo";
 	protected final String PURCHASE = "purchase";
@@ -62,6 +67,8 @@ public class RegistAndUpdateService {
 	private PermissionDao permissionDao;
 	@Autowired
 	private RolePermissionDao rolePermissionDao;
+	@Autowired
+	private CompanyDao companyDao;
 
 	// 获取分组所有的权限MAP
 	private HashMap<String, List<Permission>> permissions;
@@ -120,7 +127,7 @@ public class RegistAndUpdateService {
 		// 新建角色
 		Role role = null;
 		if (registRoleDto.getId() != null) {
-			role = this.roleDao.findOne(registRoleDto.getId());
+			role = this.roleDao.findRoleByRoleId(registRoleDto.getId());
 		}
 		if (role == null) {
 			role = new Role();
@@ -138,7 +145,12 @@ public class RegistAndUpdateService {
 			// 删除原有角色权限关系
 			List<RolePermission> list = this.rolePermissionDao.findByRoleId(role.getId());
 			if (!list.isEmpty()) {
-				this.rolePermissionDao.delete(list);
+				for (RolePermission r : list) {
+					r.setUpdateTime(new Date());
+					r.setStatus(DELETE);
+				}
+				this.rolePermissionDao.save(list);
+
 			}
 		}
 		try {
@@ -159,6 +171,9 @@ public class RegistAndUpdateService {
 			RolePermission rp = new RolePermission();
 			rp.setPermissionId(p.getId());
 			rp.setRoleId(role.getId());
+			rp.setCreateTime(new Date());
+			rp.setUpdateTime(new Date());
+			rp.setStatus(NORMAL);
 			this.rolePermissionDao.save(rp);
 		}
 		return registRoleDto.getRoleName();
@@ -169,7 +184,11 @@ public class RegistAndUpdateService {
 	}
 
 	public Role findRoleByRoleId(Integer roleId) {
-		return this.roleDao.findOne(roleId);
+		return this.roleDao.findRoleByRoleId(roleId);
+	}
+	
+	public Company findCompanyById(Integer companyId) {
+		return this.companyDao.findByCompanyId(companyId);
 	}
 
 	/**
@@ -198,8 +217,13 @@ public class RegistAndUpdateService {
 			user.setUpdateTime(new Date());
 			if (registUserDto.getRoleId() != null) {
 				user.setRoleId(registUserDto.getRoleId());
-			}else{
+			} else {
 				user.setRoleId(0);
+			}
+			if (registUserDto.getCompanyId() != null) {
+				user.setCompanyId(registUserDto.getCompanyId());
+			} else {
+				user.setCompanyId(0);
 			}
 
 		} else {
@@ -213,7 +237,16 @@ public class RegistAndUpdateService {
 			user.setRealName(registUserDto.getRealName());
 			user.setIsDelete(NO);
 			user.setUpdateTime(new Date());
-			user.setRoleId(registUserDto.getRoleId());
+			if (registUserDto.getRoleId() != null) {
+				user.setRoleId(registUserDto.getRoleId());
+			} else {
+				user.setRoleId(0);
+			}
+			if (registUserDto.getCompanyId() != null) {
+				user.setCompanyId(registUserDto.getCompanyId());
+			} else {
+				user.setCompanyId(0);
+			}
 		}
 		try {
 			this.userDao.save(user);
@@ -231,10 +264,66 @@ public class RegistAndUpdateService {
 	@Transactional
 	public void deleteUser(Integer userId) {
 		User user = this.userDao.findOne(userId);
+		user.setUpdateTime(new Date());
 		user.setIsDelete(YES);
 		this.userDao.save(user);
 		// 清除缓存
 		clearAllCached();
+	}
+
+	/**
+	 * 删除角色
+	 * 
+	 * @param roleId
+	 */
+	@Transactional
+	public void deleteRole(Integer roleId) {
+		Role role = this.roleDao.findOne(roleId);
+		//删除角色时查询所有有权限的用户，将其权限值设置成空
+		List<User> list = this.userDao.findByRoleId(roleId);
+		for (User u : list) {
+			u.setUpdateTime(new Date());
+			u.setRoleId(0);
+		}
+		role.setUpdateTime(new Date());
+		role.setStatus(DELETE);
+		this.userDao.save(list);
+		this.roleDao.save(role);
+		// 清除缓存
+		clearAllCached();
+	}
+	
+	/**
+	 * 公司员工注册 及修改
+	 * @param dto
+	 */
+	public void saveOrUpdateCompanyUser(RegistUserDto dto){
+		User user ;
+		if(dto.getId()!=null){
+			user = this.userDao.findAllUserByCompanyIdAndUserId(dto.getCompanyId(), dto.getId());
+			if(user == null){
+				throw new RuntimeException("请联系管理员，页面可能被篡改");
+			}
+			if(!user.getPassword().equals(dto.getPassword())){
+				user.setPassword(getPasswordMD5(dto.getPassword(), user.getSalt()));
+			}
+			user.setRealName(dto.getRealName());
+			user.setUpdateTime(new Date());
+			this.userDao.save(user);
+			clearAllCached();
+		}else{
+			user = new User();
+			String salt = getSalt();
+			user.setCreateTime(new Date());
+			user.setUpdateTime(new Date());
+			user.setCompanyId(dto.getCompanyId());
+			user.setIsDelete(NO);
+			user.setPassword(getPasswordMD5(dto.getPassword(), salt));
+			user.setRealName(dto.getRealName());
+			user.setRoleId(0);
+			user.setSalt(salt);
+			user.setUserName(dto.getUserName());
+		}
 	}
 
 	/**
@@ -248,14 +337,45 @@ public class RegistAndUpdateService {
 	}
 
 	/**
+	 * 获取所有公司
+	 * 
+	 * @return
+	 */
+	public List<Company> findAllCompany() {
+		List<Company> companyList = this.companyDao.findAllByStatusIsNormal();
+		return companyList;
+	}
+	
+	/**
+	 * 根据公司id查找公司下所有员工
+	 * @param companyId
+	 * @return
+	 */
+	public List<UpdateUserInfo> findAllUserByCompanyId(Integer companyId){
+		List<UpdateUserInfo> list = this.userDao.findAllUserByCompanyId(companyId);
+		return list;
+	}
+	
+	/**
 	 * 根据id 查询user
 	 * 
 	 * @param userId
 	 * @return
 	 */
 	public User findOneUser(Integer userId) {
-		User user = this.userDao.findOne(userId);
+		User user = this.userDao.findUserByUserId(userId);
 		return user;
+	}
+
+	/**
+	 * 根据id 查询Role
+	 * 
+	 * @param userId
+	 * @return
+	 */
+	public Role findOneRole(Integer roleId) {
+		Role role = this.roleDao.findOne(roleId);
+		return role;
 	}
 
 	/**
@@ -263,11 +383,17 @@ public class RegistAndUpdateService {
 	 * 
 	 * @return
 	 */
-	public Page<UpdateUserInfo> findUserInfo(String userName, String realName, Pageable page) {
+	public Page<UpdateUserInfo> findUserInfo(String userName, String realName, String companyName, Pageable page) {
 		if (StringUtil.isBlank(userName)) {
-			if (!StringUtil.isBlank(realName)) {
+			if (!StringUtil.isBlank(companyName) && !StringUtils.isBlank(realName)) {
+				// 查询出来可能为多条记录
+				return this.userDao.findUpdateUserInfoByCompanyNameLikeAndRealName(companyName, realName, page);
+			} else if (!StringUtils.isBlank(realName)) {
 				// 查询出来可能为多条记录
 				return this.userDao.findUpdateUserInfoByRealName(realName, page);
+			} else if (!StringUtil.isBlank(companyName)) {
+				// 查询出来为多条记录
+				return this.userDao.findUpdateUserInfoByCompanyNameLike(companyName, page);
 			} else {
 				// 查询出来为多条记录
 				return this.userDao.findUserAllOrderByUserUpdateTimeDesc(page);

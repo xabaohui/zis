@@ -23,6 +23,7 @@
 	<context:component-scan base-package="com.zis.toolkit.controller" />
 	<context:component-scan base-package="com.zis.shiro.controller" />
 	<context:component-scan base-package="com.zis.api" />
+	<context:component-scan base-package="com.zis.shop.controller" />
 
 	<!-- 静态资源访问 -->
 	<mvc:resources location="/resources/" mapping="/resources/**" />

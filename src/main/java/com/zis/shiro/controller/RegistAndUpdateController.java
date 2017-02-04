@@ -3,11 +3,13 @@ package com.zis.shiro.controller;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.web.servlet.ShiroHttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +18,8 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.zis.common.mvc.ext.WebHelper;
 import com.zis.shiro.bean.Role;
@@ -62,8 +66,38 @@ public class RegistAndUpdateController extends ActionHelpUtil {
 			logger.error("操作失败:" + e.getMessage(), e);
 			return "shiro/regist/regist-role";
 		}
-		map.put("actionMessage", actionMessage + " 新建成功");
+		map.put("actionMessage", "[" + actionMessage + "]" + " 新建成功");
 		return "shiro/update/show-update-role-list";
+	}
+	
+	/**
+	 * 删除角色
+	 * 
+	 * @param id
+	 * @param map
+	 * @return
+	 */
+	@RequiresPermissions(value = { "shiro:shiro" })
+	@RequestMapping(value = "/deleteRole")
+	public String deleteRole(Integer id, ModelMap map) {
+		if (id == null) {
+			map.put("errorAction", "userId为空");
+			logger.error("userId删除时 为空");
+			return "error";
+		}
+		HttpSession session = getRequest().getSession();
+		Integer deleteRoleId = (Integer) session.getAttribute("deleteRoleId");
+		if(id.equals(deleteRoleId)){
+			return "redirect:/shiro/updateWaitRole";
+		}
+		Role role = this.registAndUpdateService.findOneRole(id);
+			session.setAttribute("deleteRoleId", id);
+		if(role == null){
+			return "redirect:/shiro/updateWaitRole";
+		}
+		map.put("actionMessage", "[" + role.getRoleName() + "]" + " 删除成功");
+		this.registAndUpdateService.deleteRole(id);
+		return "forward:/shiro/updateWaitRole";
 	}
 
 	/**
@@ -109,7 +143,11 @@ public class RegistAndUpdateController extends ActionHelpUtil {
 	public String regist(@Valid @ModelAttribute("registUserDto") RegistUserDto registUserDto, BindingResult br,
 			ModelMap map) {
 		map.put("checkedId", registUserDto.getRoleId());
+		map.put("checkedCompanyId", registUserDto.getCompanyId());
 		map.put("roleList", this.registAndUpdateService.findAllRole());
+		map.put("companyList", this.registAndUpdateService.findAllCompany());
+		map.put("companyName", registUserDto.getCompanyName());
+		map.put("roleName", registUserDto.getRoleName());
 		if (br.hasErrors()) {
 			return "shiro/regist/regist-user";
 		}
@@ -127,11 +165,18 @@ public class RegistAndUpdateController extends ActionHelpUtil {
 			logger.error("操作失败:" + e.getMessage(), e);
 			return "shiro/regist/regist-user";
 		}
-		map.put("actionMessage", actionMessage + " 创建成功");
-		map.put("roleName", registUserDto.getRoleName());
-		return "shiro/regist/regist-user-success";
+		map.put("actionMessage", "[" + actionMessage + "]" + " 创建成功");
+		map.put("companyName", registUserDto.getCompanyName());
+		return "shiro/update/show-update-list";
 	}
 
+	/**
+	 * 删除用户
+	 * 
+	 * @param id
+	 * @param map
+	 * @return
+	 */
 	@RequiresPermissions(value = { "shiro:shiro" })
 	@RequestMapping(value = "/deleteUser")
 	public String deleteUser(Integer id, ModelMap map) {
@@ -140,11 +185,60 @@ public class RegistAndUpdateController extends ActionHelpUtil {
 			logger.error("userId删除时 为空");
 			return "error";
 		}
+		HttpSession session = getRequest().getSession();
+		Integer deleteUserId = (Integer) session.getAttribute("deleteUserId");
+		if(id.equals(deleteUserId)){
+			return "redirect:/shiro/updateWaitUser";
+		}
 		User user = this.registAndUpdateService.findOneUser(id);
-		map.put("actionMessage", user.getUserName() + " 删除成功");
-		map.put("user", user);
+			session.setAttribute("deleteUserId", id);
+		if(user == null){
+			return "redirect:/shiro/updateWaitUser";
+		}
+		map.put("actionMessage", "[" + user.getUserName() + "]" + " 删除成功");
 		this.registAndUpdateService.deleteUser(id);
-		return "shiro/delete/delete-user-success";
+		return "forward:/shiro/updateWaitUser";
+	}
+
+	/**
+	 * 修改用户 controller
+	 * 
+	 * @param registDto
+	 * @param br
+	 * @param map
+	 * @param id
+	 * @return
+	 */
+	@RequiresPermissions(value = { "shiro:shiro" })
+	@RequestMapping(value = "/updateForUser")
+	public String updateForUser(@Valid @ModelAttribute("registUserDto") RegistUserDto registUserDto, BindingResult br,
+			ModelMap map) {
+		map.put("user", registUserDto);
+		map.put("checkedId", registUserDto.getRoleId());
+		map.put("checkedCompanyId", registUserDto.getCompanyId());
+		map.put("roleList", this.registAndUpdateService.findAllRole());
+		map.put("companyList", this.registAndUpdateService.findAllCompany());
+		map.put("companyName", registUserDto.getCompanyName());
+		map.put("roleName", registUserDto.getRoleName());
+		if (br.hasErrors()) {
+			return "shiro/update/alter-user";
+		}
+		String password = registUserDto.getPassword();
+		String passwordAgain = registUserDto.getPasswordAgain();
+		if (!password.equals(passwordAgain)) {
+			map.put("passwordError", "两次密码不一致");
+			return "shiro/update/alter-user";
+		}
+		String actionMessage = "";
+		try {
+			actionMessage = this.registAndUpdateService.registAndUpdateUser(registUserDto);
+		} catch (Exception e) {
+			map.put("errorAction", e.getMessage());
+			logger.error("操作失败:" + e.getMessage(), e);
+			return "shiro/update/alter-user";
+		}
+		map.put("actionMessage", "[" + actionMessage + "]" + "修改成功");
+		return "shiro/update/show-update-list";
 	}
 
 	// TODO 测试用
@@ -182,9 +276,11 @@ public class RegistAndUpdateController extends ActionHelpUtil {
 	 */
 	@RequiresPermissions(value = { "shiro:shiro" })
 	@RequestMapping(value = "/updateWaitUser")
-	public String updateWaitUser(String userName, String realName, ModelMap map, HttpServletRequest request) {
+	public String updateWaitUser(String userName, String realName, String companyName, ModelMap map,
+			HttpServletRequest request) {
+		map.put("companyName", companyName);
 		Pageable page = WebHelper.buildPageRequest(request);
-		Page<UpdateUserInfo> userList = this.registAndUpdateService.findUserInfo(userName, realName, page);
+		Page<UpdateUserInfo> userList = this.registAndUpdateService.findUserInfo(userName, realName, companyName, page);
 		if (!userList.getContent().isEmpty()) {
 			List<UpdateUserInfo> list = userList.getContent();
 			map.put("userList", list);
@@ -196,10 +292,10 @@ public class RegistAndUpdateController extends ActionHelpUtil {
 			if (userList.hasNext()) {
 				map.put("nextPage", page.next().getPageNumber());
 			}
-			return "shiro/update/show_update_list";
+			return "shiro/update/show-update-list";
 		}
 		map.put("notResult", "未找到结果,您输入的用户名称或者使用者姓名不在服务区");
-		return "shiro/update/show_update_list";
+		return "shiro/update/show-update-list";
 	}
 
 	/**
@@ -230,44 +326,6 @@ public class RegistAndUpdateController extends ActionHelpUtil {
 		}
 		map.put("notResult", "未找到结果,您输入的角色或者角色CODE不在服务区");
 		return "shiro/update/show-update-role-list";
-	}
-
-	/**
-	 * 修改用户 controller
-	 * 
-	 * @param registDto
-	 * @param br
-	 * @param map
-	 * @param id
-	 * @return
-	 */
-	@RequiresPermissions(value = { "shiro:shiro" })
-	@RequestMapping(value = "/updateForUser")
-	public String updateForUser(@Valid @ModelAttribute("registUserDto") RegistUserDto registUserDto, BindingResult br,
-			ModelMap map) {
-		map.put("checkedId", registUserDto.getRoleId());
-		map.put("user", registUserDto);
-		map.put("roleList", this.registAndUpdateService.findAllRole());
-		if (br.hasErrors()) {
-			return "shiro/update/alter-user";
-		}
-		String password = registUserDto.getPassword();
-		String passwordAgain = registUserDto.getPasswordAgain();
-		if (!password.equals(passwordAgain)) {
-			map.put("passwordError", "两次密码不一致");
-			return "shiro/update/alter-user";
-		}
-		String actionMessage = "";
-		try {
-			actionMessage = this.registAndUpdateService.registAndUpdateUser(registUserDto);
-		} catch (Exception e) {
-			map.put("errorAction", e.getMessage());
-			logger.error("操作失败:" + e.getMessage(), e);
-			return "shiro/update/alter-user";
-		}
-		map.put("actionMessage", actionMessage + "修改成功");
-		map.put("roleName", registUserDto.getRoleName());
-		return "shiro/update/alter-user-success";
 	}
 
 	/**
@@ -318,5 +376,11 @@ public class RegistAndUpdateController extends ActionHelpUtil {
 			condition.append("realName=" + realName + "&");
 		}
 		map.put("queryCondition", condition.toString());
+	}
+	
+	private ShiroHttpServletRequest getRequest(){
+		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+		HttpServletRequest request = attributes.getRequest();
+		return (ShiroHttpServletRequest)request;
 	}
 }

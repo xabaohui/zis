@@ -12,15 +12,16 @@ import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
 @Entity
-@Table(name = "acl_user_tab")
+@Table(name = "acl_user")
 public class User {
 
 	@Id
 	@GeneratedValue
 	private Integer id;
 
+	@Column(name = "user_name")
 	private String userName;
-	
+
 	@Column(name = "real_name")
 	private String realName;
 
@@ -28,7 +29,7 @@ public class User {
 
 	private String salt;
 
-	@Column(name = "isDelete")
+	@Column(name = "is_delete")
 	private String isDelete;
 
 	@Column(name = "create_time")
@@ -38,20 +39,22 @@ public class User {
 	@Column(name = "update_time")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date updateTime;
-	
+
 	@Version
-	@Column(name="Version")
+	@Column(name = "version")
 	private Integer version;
 
 	@Column(name = "role_id")
 	private Integer roleId;
 
+	@Column(name = "company_id")
+	private Integer companyId;
+
 	public User() {
 	}
 
 	public User(Integer id, String userName, String realName, String password, String salt, String isDelete,
-			Date createTime, Date updateTime, Integer version, Integer roleId) {
-		super();
+			Date createTime, Date updateTime, Integer version, Integer roleId, Integer companyId) {
 		this.id = id;
 		this.userName = userName;
 		this.realName = realName;
@@ -62,6 +65,7 @@ public class User {
 		this.updateTime = updateTime;
 		this.version = version;
 		this.roleId = roleId;
+		this.companyId = companyId;
 	}
 
 	public Integer getId() {
@@ -144,10 +148,18 @@ public class User {
 		this.roleId = roleId;
 	}
 
+	public Integer getCompanyId() {
+		return companyId;
+	}
+
+	public void setCompanyId(Integer companyId) {
+		this.companyId = companyId;
+	}
+
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", userName=" + userName + ", realName=" + realName + ", password=" + password
 				+ ", salt=" + salt + ", isDelete=" + isDelete + ", createTime=" + createTime + ", updateTime="
-				+ updateTime + ", version=" + version + ", roleId=" + roleId + "]";
+				+ updateTime + ", version=" + version + ", roleId=" + roleId + ", companyId=" + companyId + "]";
 	}
 }

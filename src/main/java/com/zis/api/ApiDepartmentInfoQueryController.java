@@ -172,17 +172,17 @@ public class ApiDepartmentInfoQueryController extends BaseApiController {
 		return schoolBiz.findByCollegeAndInstituteGroupByPartNameOrderByPartName(di.getCollege(), di.getInstitute());
 	}
 
-	// 查询结果封装到map中
-	private List<DepartmentQueryData> fillResultDataToMap(List<DepartmentQueryData> list) {
-		List<DepartmentQueryData> result = new ArrayList<DepartmentQueryData>();
-		for (Object entry : list) {
-			Object[] data = (Object[]) entry;
-			// result.put(data[0].toString(),
-			// Integer.parseInt(data[1].toString()));
-			result.add(new DepartmentQueryData(Integer.parseInt(data[1].toString()), data[0].toString()));
-		}
-		return result;
-	}
+//	// 查询结果封装到map中
+//	private List<DepartmentQueryData> fillResultDataToMap(List<DepartmentQueryData> list) {
+//		List<DepartmentQueryData> result = new ArrayList<DepartmentQueryData>();
+//		for (Object entry : list) {
+//			Object[] data = (Object[]) entry;
+//			// result.put(data[0].toString(),
+//			// Integer.parseInt(data[1].toString()));
+//			result.add(new DepartmentQueryData(Integer.parseInt(data[1].toString()), data[0].toString()));
+//		}
+//		return result;
+//	}
 
 	private String validateParams(String id) {
 		if (StringUtils.isBlank(id)) {

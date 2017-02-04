@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -77,22 +78,35 @@ public class KdtApiClient {
 
 		return response;
 	}
+	
+	public HttpResponse post2(String method, HashMap<String, String> parames)
+			throws Exception {
+		String url = apiEntry + getParamStr(method, parames);
+		
+		HttpClient client = new DefaultHttpClient();
+		HttpPost httppost = new HttpPost(url);
+		httppost.addHeader("User-Agent", DefaultUserAgent);
+		
+		System.out.println("executing request " + httppost.getRequestLine());
+		HttpResponse response = client.execute(httppost);
+		
+		return response;
+	}
 
 	public HttpResponse post1(String method, HashMap<String, String> parames, byte[][] imageIpnput, String fileKey)
 			throws Exception {
 		String url = apiEntry + getParamStr(method, parames);
-
 		HttpClient client = new DefaultHttpClient();
 		HttpPost httppost = new HttpPost(url);
 		httppost.addHeader("User-Agent", DefaultUserAgent);
 
-		if (null != imageIpnput && imageIpnput.length > 0 && null != fileKey && !"".equals(fileKey)) {
+		if (null != imageIpnput && imageIpnput.length > 0 && StringUtils.isNotBlank(fileKey)) {
 			MultipartEntity mpEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 			for (int i = 0; i < imageIpnput.length; i++) {
 				if (imageIpnput[i] == null) {
 					break;
 				}
-				ContentBody cbFile = new ByteArrayBody(imageIpnput[i], "id.jpg");
+				ContentBody cbFile = new ByteArrayBody(imageIpnput[i], "page"+i+".jpg");
 				mpEntity.addPart(fileKey, cbFile);
 			}
 

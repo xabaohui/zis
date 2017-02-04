@@ -18,6 +18,7 @@ import com.zis.shiro.dto.RegistRoleDto;
 import com.zis.shiro.dto.RegistUserDto;
 import com.zis.shiro.service.RegistAndUpdateService;
 import com.zis.shiro.util.ActionHelpUtil;
+import com.zis.shop.bean.Company;
 
 @Controller
 @RequestMapping(value = "/shiro")
@@ -48,23 +49,26 @@ public class HelpController extends ActionHelpUtil {
 	
 	@RequiresPermissions(value = { "shiro:shiro" })
 	@RequestMapping(value = "/gotoRegistUser")
-	public String gotoRegistUser(ModelMap map) {
+	public String gotoRegistUser(ModelMap map,Integer companyId) {
 		List<Role> roleList = this.registAndUpdateService.findAllRole();
+		List<Company> companyList = this.registAndUpdateService.findAllCompany();
+		map.put("checkedCompanyId", companyId);
 		map.put("roleList", roleList);
+		map.put("companyList", companyList);
 		return "shiro/regist/regist-user";
 	}
 	
-	@RequiresPermissions(value = { "shiro:shiro" })
-	@RequestMapping(value = "/showUpdate")
-	public String showUpdate(ModelMap map) {
-		return "shiro/update/show_update_list";
-	}
+//	@RequiresPermissions(value = { "shiro:shiro" })
+//	@RequestMapping(value = "/showUpdate")
+//	public String showUpdate(ModelMap map) {
+//		return "shiro/update/show_update_list";
+//	}
 	
-	@RequiresPermissions(value = { "shiro:shiro" })
-	@RequestMapping(value = "/showUpdateRole")
-	public String showUpdateRole(ModelMap map) {
-		return "shiro/update/show-update-role-list";
-	}
+//	@RequiresPermissions(value = { "shiro:shiro" })
+//	@RequestMapping(value = "/showUpdateRole")
+//	public String showUpdateRole(ModelMap map) {
+//		return "shiro/update/show-update-role-list";
+//	}
 
 	/**
 	 * 修改用户 帮助action
@@ -89,15 +93,21 @@ public class HelpController extends ActionHelpUtil {
 				map.put("actionError", "用户ID非法使用");
 				return "error";
 			}
+			Company company = this.registAndUpdateService.findCompanyById(user.getCompanyId());
 			registUserDto.setUserName(user.getUserName());
 			registUserDto.setPasswordAgain(user.getPassword());
 			registUserDto.setPassword(user.getPassword());
 			registUserDto.setRoleId(user.getRoleId());
 			registUserDto.setRealName(user.getRealName());
+			registUserDto.setCompanyId(user.getCompanyId());
+			registUserDto.setCompanyName(company.getCompanyName());
 		}
 		map.put("checkedId", registUserDto.getRoleId());
+		map.put("checkedCompanyId", registUserDto.getCompanyId());
 		map.put("user", registUserDto);
 		map.put("roleList", this.registAndUpdateService.findAllRole());
+		map.put("companyList", this.registAndUpdateService.findAllCompany());
+		map.put("companyName", registUserDto.getCompanyName());
 		return "shiro/update/alter-user";
 	}
 

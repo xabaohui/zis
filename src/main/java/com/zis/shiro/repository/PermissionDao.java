@@ -10,8 +10,14 @@ import com.zis.shiro.bean.Permission;
 
 public interface PermissionDao extends PagingAndSortingRepository<Permission, Integer> {
 
-	@Query(value = "SELECT pt " + "FROM User ut, Role rt , RolePermission rpt , Permission pt "
-			+ "WHERE rt.id= ut.roleId AND rt.id = rpt.roleId AND pt.id = rpt.permissionId AND ut.id = :userId")
+	final String YES = "yes";
+	final String NO = "no";
+	final String NORMAL = "normal";
+	final String DELETE = "delete";
+
+	@Query(value = "SELECT pt FROM User ut, Role rt , RolePermission rpt , Permission pt "
+			+ "WHERE rt.id= ut.roleId AND rt.id = rpt.roleId AND pt.id = rpt.permissionId AND ut.id = :userId"
+			+ " AND ut.isDelete = '" + NO + "' AND rt.status = '" + NORMAL + "' AND rpt.status = '" + NORMAL + "'")
 	public List<Permission> findPermissionByUserId(@Param("userId") Integer userId);
 
 	public List<Permission> findByPermissionCodeIn(List<String> permissionCodes);
