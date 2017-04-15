@@ -1,9 +1,12 @@
 package com.zis.storage.controller;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -12,15 +15,17 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.zis.common.util.ZisUtils;
-import com.zis.purchase.bean.Inwarehouse;
+import com.zis.purchase.bean.InwarehouseBizType;
 import com.zis.purchase.bean.InwarehousePosition;
 import com.zis.purchase.bean.InwarehouseStatus;
 import com.zis.purchase.dto.InwarehouseCreateResult;
 import com.zis.purchase.repository.InwarehousePositionDao;
 import com.zis.shop.util.ShopUtil;
 import com.zis.storage.dto.InwarehouseCreateDto;
+import com.zis.storage.dto.InwarehouseViewDTO;
 import com.zis.storage.entity.StorageIoBatch;
 import com.zis.storage.entity.StoragePosition;
+import com.zis.storage.repository.StorageIoBatchDao;
 import com.zis.storage.repository.StoragePositionDao;
 import com.zis.storage.service.StorageService;
 import com.zis.storage.util.StorageUtil;
@@ -43,8 +48,39 @@ public class StorageInwarehouseCreateController {
 
 	@Autowired
 	private StoragePositionDao storagePositionDao;
+	
+	@Autowired
+	private StorageIoBatchDao storageIoBatchDao;
 
 	private Logger logger = Logger.getLogger(StorageInwarehouseCreateController.class);
+	
+	/**
+	 * 继续扫描之前未完成的入库单
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/recoverScan")
+	public String recoverScan(Integer ioBatchId, ModelMap context) {
+		try {
+			InwarehouseViewDTO view = this.findInwarehouseViewById(ioBatchId);
+			String[] positionLabels = view.getPositionLabel();
+			if (positionLabels == null || positionLabels.length == 0) {
+				// 如果没有可用库位，进行如下设置，方便页面展示
+				positionLabels = new String[] { "无可用库位" };
+			}
+			// 参数传递到下一个页面，展示用
+			context.put("inwarehouse", view);
+			context.put("ioBatchId", view.getBatchId());
+			context.put("stockPosLabel", positionLabels);
+			context.put("inwarehouseOperator", StorageUtil.getUserName());
+			context.put("curPosition", positionLabels[0]);
+			context.put("memo", view.getMemo());
+			return "storage/inwarehouse/inwarehouseScanner";
+		} catch (Exception e) {
+			context.put("actionError", e.getMessage());
+			return "error";
+		}
+	}
 
 	/**
 	 * 创建采购入库单
@@ -208,5 +244,47 @@ public class StorageInwarehouseCreateController {
 		pos.setGmtModify(ZisUtils.getTS());
 		this.inwarehousePositionDao.save(pos);
 		return pos.getId();
+	}
+	
+	/**
+	 * 查询入库单
+	 * 
+	 * @param inwarehouseId
+	 * @return
+	 */
+	public InwarehouseViewDTO findInwarehouseViewById(Integer ioBatchId) {
+		// 查询入库单
+		StorageIoBatch in = this.storageIoBatchDao.findOne(ioBatchId);
+		if (in == null) {
+			return null;
+		}
+		InwarehouseViewDTO inView = new InwarehouseViewDTO();
+		BeanUtils.copyProperties(in, inView);
+		inView.setBizTypeDisplay(in.getBizType());
+		inView.setStatusDisplay(in.getStatus());
+		if (StorageIoBatch.Status.CREATED.getValue().equals(in.getStatus())) {
+			// 查询入库单下的可用库位
+			// DetachedCriteria criteria = DetachedCriteria
+			// .forClass(InwarehousePosition.class);
+			// criteria.add(Restrictions.eq("inwarehouseId", inwarehouseId));
+			// criteria.add(Restrictions.eq("isFull", false));
+			// criteria.addOrder(Order.asc("gmtCreate"));
+			// List<InwarehousePosition> list = this.inwarehousePositionDao
+			// .findByCriteria(criteria);
+			// 按照ID排序，由于是同一时间创建的，如果按照时间排序会导致库位顺序错乱的bug
+			List<InwarehousePosition> list = this.inwarehousePositionDao.findAvailablePosition(ioBatchId);
+			if (list == null || list.isEmpty()) {
+				return inView;
+			}
+			String[] positionLabel = new String[list.size()];
+			Integer[] capacity = new Integer[list.size()];
+			for (int i = 0; i < list.size(); i++) {
+				positionLabel[i] = list.get(i).getPositionLabel();
+				capacity[i] = list.get(i).getCapacity();
+			}
+			inView.setPositionLabel(positionLabel);
+			inView.setCapacity(capacity);
+		}
+		return inView;
 	}
 }

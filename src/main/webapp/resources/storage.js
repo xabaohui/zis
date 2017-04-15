@@ -150,3 +150,41 @@ function cancelInStorage() {
 	alert(i);
 	document.getElementById("storageForm").submit();
 }
+
+function checkAllOId() {
+	var orderIds = document.getElementsByName('oId');
+	var checkAll = document.getElementById('checkAll');
+	for ( var i = 0; i < batchIds.length; i++) {
+		if (checkAll.checked) {
+			batchIds[i].checked = true;
+		} else {
+			batchIds[i].checked = false;
+		}
+	}
+}
+
+/**
+ * 选择状态
+ */
+function checkStatus() {
+	var status = document.getElementById("systemStatus");
+	var checkValue = document.getElementById("sendStatus").value;
+	for(var i = 0; i < status.options.length; i++){
+		if(status.options[i].value == checkValue){
+			status.options[i].selected = true; 
+			break;
+		}
+	}
+}
+
+/**
+ * 清除所有查询框
+ */
+function clearAll() {
+	var list = document.getElementsByTagName('input');
+	for ( var i = 0; i < list.length; i++) {
+		if(list[i].getAttribute("type") == "text"){
+			list[i].value = "";
+		}
+	}
+}

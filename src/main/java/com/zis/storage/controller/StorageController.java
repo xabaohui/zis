@@ -45,9 +45,11 @@ public class StorageController {
 
 	@Autowired
 	private BookService bookService;
+	
+	private final Integer DEFAULT_SIZE = 100;
 
 	private final String[] allStatus = { TradeStatus.CREATED.getValue(), TradeStatus.PROCESSING.getValue(),
-			TradeStatus.CANCEL.getValue() };
+			TradeStatus.CANCEL.getValue(), TradeStatus.SENT.getValue() };
 
 	/**
 	 * 扫描入库跳转
@@ -77,20 +79,23 @@ public class StorageController {
 	 * @param map
 	 * @param outTradeNo
 	 *            外部订单编号
-	 * @param addressee
+	 * @param buyerName
 	 *            收件人
 	 * @param status
 	 *            订单状态
 	 * @return
 	 */
-	public String queryStorageOrder(HttpServletRequest request, ModelMap map, String outTradeNo, String addressee,
+	@RequestMapping(value = "/queryStorageOrder")
+	public String queryStorageOrder(HttpServletRequest request, ModelMap map, String outTradeNo, String buyerName,
 			String status) {
 		List<String> sList = Arrays.asList(allStatus);
 		if (!sList.contains(status)) {
 			map.put("actionError", "错误的订单状态");
 			return "error";
 		}
-		pageInfo(request, map, outTradeNo, addressee, status);
+		//创建分页查询
+		pageInfo(request, map, outTradeNo, buyerName, status);
+		map.put("sendStatus", status);
 		return "";
 	}
 
@@ -217,7 +222,7 @@ public class StorageController {
 		this.storageRepoInfoDao.save(info);
 		return true;
 	}
-	
+
 	/**
 	 * 分页查询
 	 * 
@@ -227,22 +232,20 @@ public class StorageController {
 	 * @param status
 	 * @param isbn
 	 */
-	private void pageInfo(HttpServletRequest request, ModelMap map, String outTradeNo, String addressee, String status) {
+	private void pageInfo(HttpServletRequest request, ModelMap map, String outTradeNo, String buyerName, String status) {
 		Pageable page = WebHelper.buildPageRequest(request);
-		Specification<StorageOrder> spec = null;
-		if (StringUtils.isNotBlank(addressee)) {
-			spec = buildSpec(status, outTradeNo);// FIXME 暂时不定义,待订单系统开发好后注入
-			// TODO 收件人按照收件人方式查询 将订单list放入查询包含此订单号关联查询，如果订单号为空全查询，不包含返回无结果
-		} else {
-			spec = buildSpec(status, outTradeNo);
+		//如果状态为空默认选择新创建状态
+		if (StringUtils.isBlank(status)) {
+			status = StorageOrder.TradeStatus.CREATED.getValue();
 		}
+		Specification<StorageOrder> spec = buildSpec(status, outTradeNo, buyerName);
 		Page<StorageOrder> orderList = this.storageOrderDao.findAll(spec, page);
 		if (!orderList.getContent().isEmpty()) {
 			List<StorageOrder> list = orderList.getContent();
 			List<StorageOrderDto> oList = buildOList(list);
 			map.put("orderList", oList);
 			map.put("page", page.getPageNumber() + 1);
-			setQueryConditionToPage(outTradeNo, addressee, status, map);
+			setQueryConditionToPage(outTradeNo, buyerName, status, map);
 			if (orderList.hasPrevious()) {
 				map.put("prePage", page.previousOrFirst().getPageNumber());
 			}
@@ -256,6 +259,7 @@ public class StorageController {
 
 	/**
 	 * 获取展示的list
+	 * 
 	 * @param list
 	 * @return
 	 */
@@ -279,7 +283,7 @@ public class StorageController {
 		}
 		return dList;
 	}
-	
+
 	/**
 	 * 获取每条订单中详细的物品数量及其名称
 	 * 
@@ -319,17 +323,16 @@ public class StorageController {
 	 * @param outTradeNo
 	 * @return
 	 */
-	private Specification<StorageOrder> buildSpec(String status, String... outTradeNo) {
+	private Specification<StorageOrder> buildSpec(String status, String outTradeNo, String buyerName) {
 		QueryUtil<StorageOrder> query = new QueryUtil<StorageOrder>();
-		if (StringUtils.isNoneBlank(outTradeNo)) {
-			if (outTradeNo.length == 1) {
-				query.eq("outTradeNo", outTradeNo[0]);
-			} else {
-				query.in("outTradeNo", (Object[]) outTradeNo);
-			}
+		if (StringUtils.isNotBlank(status)) {
+			query.eq("status", status);
 		}
-		if (!StringUtils.isBlank(status)) {
-			query.eq("outTradeNo", outTradeNo[0]);
+		if (StringUtils.isNotBlank(buyerName)) {
+			query.eq("buyerName", buyerName);
+		}
+		if (StringUtils.isNotBlank(outTradeNo)) {
+			query.eq("outTradeNo", outTradeNo);
 		}
 		return query.getSpecification();
 	}
@@ -340,17 +343,18 @@ public class StorageController {
 	 * @param shopId
 	 * @param map
 	 */
-	private void setQueryConditionToPage(String outTradeNo, String addressee, String status, ModelMap map) {
+	private void setQueryConditionToPage(String outTradeNo, String buyerName, String status, ModelMap map) {
 		StringBuilder condition = new StringBuilder();
 		if (StringUtils.isNotBlank(outTradeNo)) {
 			condition.append("outTradeNo=" + outTradeNo + "&");
 		}
-		if (StringUtils.isNotBlank(addressee)) {
-			condition.append("addressee=" + addressee + "&");
+		if (StringUtils.isNotBlank(buyerName)) {
+			condition.append("buyerName=" + buyerName + "&");
 		}
 		if (StringUtils.isNotBlank(status)) {
 			condition.append("status=" + status + "&");
 		}
+		condition.append("size=" + DEFAULT_SIZE + "&");
 		map.put("queryCondition", condition.toString());
 	}
 }

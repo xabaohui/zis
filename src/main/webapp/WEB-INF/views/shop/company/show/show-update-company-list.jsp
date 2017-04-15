@@ -88,7 +88,6 @@
 			</tr>
 		</c:forEach>
 	</table>
-	
 </div>
 <div align="center">
 	<!-- 分页查询start-->
