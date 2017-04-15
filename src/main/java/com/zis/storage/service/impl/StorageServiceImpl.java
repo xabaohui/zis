@@ -123,6 +123,7 @@ public class StorageServiceImpl implements StorageService {
 		Date now = new Date();
 		order.setOrderType(OrderType.SELF.getValue());
 		order.setOutTradeNo(request.getOutTradeNo());
+		order.setBuyerName(request.getBuyerName());
 		order.setAmount(totalAmount);
 		order.setRepoId(request.getRepoId());
 		order.setShopId(request.getShopId());
@@ -288,6 +289,9 @@ public class StorageServiceImpl implements StorageService {
 		}
 		if (StringUtils.isBlank(request.getOutTradeNo())) {
 			throw new IllegalArgumentException("OutTradeNo不能为空");
+		}
+		if (StringUtils.isBlank(request.getBuyerName())) {
+			throw new IllegalArgumentException("buyerName不能为空");
 		}
 		if (request.getRepoId() == null) {
 			throw new IllegalArgumentException("RepoId不能为空");
