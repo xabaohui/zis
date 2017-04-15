@@ -41,6 +41,9 @@ public class ShopInfo {
 	@Column(name = "delivery_template_id")
 	private Long deliveryTemplateId;// 运费模板
 
+	@Column(name = "template_id")
+	private Long templateId;// 商品模板
+
 	@Column(name = "p_name")
 	private String pName;
 
@@ -66,8 +69,8 @@ public class ShopInfo {
 	}
 
 	public ShopInfo(Integer shopId, Integer companyId, String shopName, String shopUrl, String appId, String appSecret,
-			Double discount, Long deliveryTemplateId, String pName, String emails, String status, Date createTime,
-			Date updateTime, Integer version) {
+			Double discount, Long deliveryTemplateId, Long templateId, String pName, String emails, String status,
+			Date createTime, Date updateTime, Integer version) {
 		super();
 		this.shopId = shopId;
 		this.companyId = companyId;
@@ -77,6 +80,7 @@ public class ShopInfo {
 		this.appSecret = appSecret;
 		this.discount = discount;
 		this.deliveryTemplateId = deliveryTemplateId;
+		this.templateId = templateId;
 		this.pName = pName;
 		this.emails = emails;
 		this.status = status;
@@ -133,6 +137,30 @@ public class ShopInfo {
 		this.appSecret = appSecret;
 	}
 
+	public Double getDiscount() {
+		return discount;
+	}
+
+	public void setDiscount(Double discount) {
+		this.discount = discount;
+	}
+
+	public Long getDeliveryTemplateId() {
+		return deliveryTemplateId;
+	}
+
+	public void setDeliveryTemplateId(Long deliveryTemplateId) {
+		this.deliveryTemplateId = deliveryTemplateId;
+	}
+
+	public Long getTemplateId() {
+		return templateId;
+	}
+
+	public void setTemplateId(Long templateId) {
+		this.templateId = templateId;
+	}
+
 	public String getpName() {
 		return pName;
 	}
@@ -181,40 +209,19 @@ public class ShopInfo {
 		this.version = version;
 	}
 
-	public Double getDiscount() {
-		return discount;
-	}
-
-	public void setDiscount(Double discount) {
-		this.discount = discount;
-	}
-
-	public Long getDeliveryTemplateId() {
-		return deliveryTemplateId;
-	}
-
-	public void setDeliveryTemplateId(Long deliveryTemplateId) {
-		this.deliveryTemplateId = deliveryTemplateId;
-	}
-
 	@Override
 	public String toString() {
 		return "ShopInfo [shopId=" + shopId + ", companyId=" + companyId + ", shopName=" + shopName + ", shopUrl="
 				+ shopUrl + ", appId=" + appId + ", appSecret=" + appSecret + ", discount=" + discount
-				+ ", deliveryTemplateId=" + deliveryTemplateId + ", pName=" + pName + ", emails=" + emails
-				+ ", status=" + status + ", createTime=" + createTime + ", updateTime=" + updateTime + ", version="
-				+ version + "]";
+				+ ", deliveryTemplateId=" + deliveryTemplateId + ", templateId=" + templateId + ", pName=" + pName
+				+ ", emails=" + emails + ", status=" + status + ", createTime=" + createTime + ", updateTime="
+				+ updateTime + ", version=" + version + "]";
 	}
 
-	/**
-	 * shopInfo状态
-	 * 
-	 * @author think
-	 * 
-	 */
+	// 状态
 	public enum ShopInfoStatus {
 
-		NORMAL("normal", "老店铺"), NEW("new", "新店铺"), DELETE("delete", "删除");
+		DELETE("delete", "被删除店铺"), NORMAL("normal", "正常店铺");
 
 		private String value;
 		private String name;

@@ -41,7 +41,7 @@ public class TextClearUtils {
 	 * @return
 	 */
 	public static String clearSpecialChar(String text, String replacement) {
-		String[] specialCharSet = { "、", "，", "：", "；", "。", ",", ":", ";", ".", "(", ")", "（", "）", "/", "-", "|"};
+		String[] specialCharSet = { "、", "，", "：", "；", "。", ",", ":", ";", ".", "(", ")", "（", "）", "/", "-", "|" };
 		for (String character : specialCharSet) {
 			text = text.replace(character, replacement);
 		}
@@ -83,15 +83,12 @@ public class TextClearUtils {
 	 *            匹配模式，例如TextClearUtils.MATCH_MODE_NONE
 	 * @return
 	 */
-	public static String subString(String text, String beginStr, String endStr,
-			int matchMode) {
+	public static String subString(String text, String beginStr, String endStr, int matchMode) {
 		if (StringUtils.isBlank(text)) {
-			throw new RuntimeException(
-					"illegal argument, text should not be null");
+			throw new RuntimeException("illegal argument, text should not be null");
 		}
 		if (StringUtils.isBlank(beginStr)) {
-			throw new RuntimeException(
-					"illegal argument, text beginStr not be null");
+			throw new RuntimeException("illegal argument, text beginStr not be null");
 		}
 		// 强制匹配开始字符
 		if (matchMode == MATCH_MODE_FORCE_START) {
@@ -130,7 +127,7 @@ public class TextClearUtils {
 			throw new RuntimeException("错误的匹配模式：" + matchMode);
 		}
 		int beginIndex = text.indexOf(beginStr);
-//		int beginIndex = text.indexOf(beginStr) + beginStr.length();
+		// int beginIndex = text.indexOf(beginStr) + beginStr.length();
 		// 有结束字符
 		if (StringUtils.isNotBlank(endStr)) {
 			int endIndex = text.indexOf(endStr);
@@ -146,10 +143,11 @@ public class TextClearUtils {
 		}
 		return text;
 	}
-	
+
 	/**
 	 * 如果text包含matchStr，则保留matchStr之前的部分，其余部分全部删除<br/>
 	 * 如果text是以matchStr开始，该方法不会删除字符串，会返回原字符
+	 * 
 	 * @param text
 	 * @param matchStr
 	 * @return
@@ -168,15 +166,12 @@ public class TextClearUtils {
 	 * @param matchMode
 	 * @return
 	 */
-	public static String deleteString(String text, String firstMatchStr,
-			String secondMatchStr, int matchMode) {
+	public static String deleteString(String text, String firstMatchStr, String secondMatchStr, int matchMode) {
 		if (StringUtils.isBlank(text)) {
-			throw new RuntimeException(
-					"illegal argument, text should not be null");
+			throw new RuntimeException("illegal argument, text should not be null");
 		}
 		if (StringUtils.isBlank(firstMatchStr)) {
-			throw new RuntimeException(
-					"illegal argument, firstMatchStr should not be null");
+			throw new RuntimeException("illegal argument, firstMatchStr should not be null");
 		}
 		// 不支持MATCH_MODE_FORCE_START模式
 		if (matchMode == MATCH_MODE_FORCE_START) {
@@ -221,42 +216,121 @@ public class TextClearUtils {
 		// secondMatchStr 为空
 		int endIndex = text.indexOf(firstMatchStr);
 		if (StringUtils.isBlank(secondMatchStr)) {
-			if (endIndex > 0) {//如果text是以firstMatchStr开始，该方法不会删除
+			if (endIndex > 0) {// 如果text是以firstMatchStr开始，该方法不会删除
 				return text.substring(0, endIndex);
 			}
 		}
 		// secondMatchStr 不为空
 		else {
 			int secondEndIndex = text.indexOf(secondMatchStr, endIndex);
-			if(endIndex > 0 && secondEndIndex > 0) {//如果text是以firstMatchStr开始，该方法不会删除
+			if (endIndex > 0 && secondEndIndex > 0) {// 如果text是以firstMatchStr开始，该方法不会删除
 				return text.substring(0, endIndex);
 			}
 		}
 		return text;
 	}
-	
+
 	/**
 	 * 构造淘宝标题
+	 * 
 	 * @param book
 	 * @return
 	 */
 	public static String buildTaobaoTitle(Bookinfo book) {
-		if(book == null) {
+		if (book == null) {
 			throw new IllegalArgumentException("构造淘宝标题失败，参数不能为空。");
 		}
-		String fmt = "二手%s%s %s %s";
+		String title = buildTitle(book, 120);
+		return title;
+	}
+
+	/**
+	 * 根据店铺类型获取title
+	 * @param type
+	 * @param book
+	 * @return
+	 */
+	public static String buildTitleFormType(String type, Bookinfo book) {
+		if ("youzan".equals(type)) {
+			return buildYouZanTitle(book);
+		} else if ("taobao".equals(type)) {
+			return buildTaobaoTitle(book);
+		} else {
+			return "";
+		}
+	}
+
+	/**
+	 * 构建标题
+	 * 
+	 * @param book
+	 * @param maxLength
+	 * @return
+	 */
+	private static String buildTitle(Bookinfo book, Integer maxLength) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("二手");
+		sb.append(book.getBookName());
 		String bookEdition = getBookEdition(book);
 		String bookAuthor = getShortestBookAuthor(book.getBookAuthor());
-		String title = String.format(fmt, book.getBookName(),
-				bookEdition, bookAuthor, book.getIsbn());
+		String bookPublisher = book.getBookPublisher();
+		Integer bookEditionLength = bookEdition.getBytes().length;
+		Integer bookAuthorLength = bookAuthor.getBytes().length;
+		Integer isbnLength = book.getIsbn().getBytes().length;
+		Integer bookPublisherLength = bookPublisher.getBytes().length;
+
+		if (sb.toString().getBytes().length + bookEditionLength <= maxLength) {
+			sb.append(bookEdition);
+		}
+		if (sb.toString().getBytes().length + bookAuthorLength <= maxLength) {
+			sb.append(bookAuthor);
+		}
+		if (sb.toString().getBytes().length + bookPublisherLength <= maxLength) {
+			sb.append(bookPublisher);
+		} else {
+			bookPublisher = cutBookPublisher(bookPublisher);
+			Integer cutBookPublisherLength = bookPublisher.getBytes().length;
+			if (sb.toString().getBytes().length + cutBookPublisherLength <= maxLength) {
+				sb.append(bookPublisher);
+			}
+		}
+		if (sb.toString().getBytes().length + isbnLength <= maxLength) {
+			sb.append(book.getIsbn());
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * 截取出版社
+	 * 
+	 * @param bookPublisher
+	 * @return
+	 */
+	private static String cutBookPublisher(String bookPublisher) {
+		if (bookPublisher.contains("出版社")) {
+			bookPublisher = bookPublisher.split("出版社")[0];
+		}
+		return bookPublisher;
+	}
+
+	/**
+	 * 构造有赞标题
+	 * 
+	 * @param book
+	 * @return
+	 */
+	public static String buildYouZanTitle(Bookinfo book) {
+		if (book == null) {
+			throw new IllegalArgumentException("构造有赞标题失败，参数不能为空。");
+		}
+		String title = buildTitle(book, 200);
 		return title;
 	}
 
 	// 第一版且是最新版，版次不出现在标题里
 	private static String getBookEdition(Bookinfo book) {
 		String bookEdition = book.getBookEdition();
-		if (("第一版".equals(bookEdition) || "第1版".equals(bookEdition))
-				&& book.getIsNewEdition() == true) {
+		if (("第一版".equals(bookEdition) || "第1版".equals(bookEdition)) && book.getIsNewEdition() == true) {
 			return "";
 		} else {
 			return "(" + bookEdition + ")";
@@ -272,7 +346,8 @@ public class TextClearUtils {
 		// 逐个追加作者，直到超过长度限制
 		StringBuilder tmpStr = new StringBuilder(authors[0]);
 		for (int i = 1; i < authors.length; i++) {
-			if (tmpStr.length() + authors[i].length() > maxLen) break;
+			if (tmpStr.length() + authors[i].length() > maxLen)
+				break;
 			tmpStr.append(splitChar).append(authors[i]);
 		}
 		return tmpStr.length() > maxLen ? "" : tmpStr.toString();

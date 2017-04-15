@@ -312,6 +312,16 @@ public class BookService {
 	}
 
 	/**
+	 * 根据Id 和isbn 确定唯一图书
+	 * @param id
+	 * @param isbn
+	 * @return
+	 */
+	public Bookinfo findByIdAndIsbn(Integer id, String isbn) {
+		return this.bookinfoDao.findByIdAndIsbn(id, isbn);
+	}
+
+	/**
 	 * 一码多书处理，扫描数据库中的记录，更新一码多书标志位
 	 */
 	public void processOneISBNToMultiBooks() {
@@ -581,7 +591,7 @@ public class BookService {
 		taskExecutor.execute(task);
 		return taskExecutor.getActiveCount();
 	}
-	
+
 	public List<Bookinfo> findBookByISBN(String isbn) {
 		if (StringUtils.isBlank(isbn)) {
 			throw new RuntimeException("isbn不能为空");

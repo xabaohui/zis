@@ -87,8 +87,8 @@
         	  background-color: white;
         	  z-index:1002;  overflow: auto;
         	  }
-        	 li{
-        	 	list-style-type: none;
+        	 ul li{
+        	 	list-style-type: none; 
         	 	line-height: 30px;
         	 }
         	 .showListTop{
@@ -231,6 +231,13 @@
 					<shiro:authenticated>
 						<li><a href="<%=basePath%>shiro/gotoGeneralUserUpdatePassword">密码修改</a></li>
 					</shiro:authenticated>
+				</ul>
+			</ul>
+			<ul class = "uls" onclick="checked(this);">
+			<font style="font-weight: bolder;">库存管理(新)</font>
+				<ul name = "showListTop" style="display: none" class = "showListTop">
+						<li><a href="<%=basePath%>storage/gotoInwarehouse">扫描入库</a></li>
+						<li><a href="storage/gotoFastInwarehouse">快速入库</a></li>
 				</ul>
 			</ul>
 		</div>

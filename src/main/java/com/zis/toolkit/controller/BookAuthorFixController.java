@@ -43,14 +43,13 @@ public class BookAuthorFixController extends BaseBookFixController {
 		Pageable page = new PageRequest(0, 500);
 		List<String> list = new ArrayList<String>();
 		Page<Bookinfo> pageList = null;
-		do{
-			pageList =this.bookService.findAll(page);
+		do {
+			pageList = this.bookService.findAll(page);
 			List<Bookinfo> bookList = pageList.getContent();
 			List<String> result = bookInfoToolkit.updateFixBookAuthor(bookList);
 			list.addAll(result);
 			page = pageList.nextPageable();
-		}
-		while (pageList.hasNext());
+		} while (pageList.hasNext());
 		showResult(list, context);
 		return "toolkit/toolkit";
 	}

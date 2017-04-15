@@ -29,13 +29,24 @@ public class SaveOrUpdateShopDto {
 	@NotBlank(message = "邮箱不能为空")
 	private String emails;
 	
+	@NotBlank(message = "折扣率不能为空")
 	@Pattern(regexp = "^(([1]{1})|([0]{1}\\.[0-9]{1,2}))$",message = "折扣率请填1至0.01之间的数字")
 	private String discount;
 	
 	@NotNull(message = "运费模板不能为空")
 	private Long deliveryTemplateId;//运费模板 
 	
+	private Long templateId;//商品模板 
+	
 	private String typeStatus;
+	
+	public Long getTemplateId() {
+		return templateId;
+	}
+
+	public void setTemplateId(Long templateId) {
+		this.templateId = templateId;
+	}
 
 	public Integer getShopId() {
 		return shopId;
@@ -130,6 +141,6 @@ public class SaveOrUpdateShopDto {
 		return "SaveOrUpdateShopDto [shopId=" + shopId + ", companyId=" + companyId + ", shopName=" + shopName
 				+ ", shopUrl=" + shopUrl + ", appId=" + appId + ", appSecret=" + appSecret + ", pName=" + pName
 				+ ", emails=" + emails + ", discount=" + discount + ", deliveryTemplateId=" + deliveryTemplateId
-				+ ", typeStatus=" + typeStatus + "]";
+				+ ", templateId=" + templateId + ", typeStatus=" + typeStatus + "]";
 	}
 }

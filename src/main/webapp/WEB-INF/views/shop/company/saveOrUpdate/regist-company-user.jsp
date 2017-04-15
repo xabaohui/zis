@@ -7,40 +7,6 @@
 <script type="text/javascript">
 </script>
 <style type="text/css">
-#registDiv table tr td, #registDiv table tr th{
-	z-index: 1;
-	font-size:1em;
-	border:1px solid #98bf21;
-	text-align: center;
-}
-#bookInfoDiv table tr td, #bookInfoDiv table tr th{
-	z-index: 2;
-	font-size:1em;
-	border:1px solid #98bf21;
-	text-align: center;
-}
-#purchaseDiv table tr td, #purchaseDiv table tr th{
-	z-index: 3;
-	font-size:1em;
-	border:1px solid #98bf21;
-	text-align: center;
-}
-#requirementDiv table tr td, #requirementDiv table tr th{
-	z-index: 4;
-	font-size:1em;
-	border:1px solid #98bf21;
-	text-align: center;
-}
-#toolkitDiv table tr td, #toolkitDiv table tr th{
-	z-index: 5;
-	font-size:1em;
-	border:1px solid #98bf21;
-	text-align: center;
-}
-#allPermissionDiv div{
-	float:inherit;
-	display: inline-table;
-}
 </style>
 <div align="center">
 	<h1 >${typeName}</h1>

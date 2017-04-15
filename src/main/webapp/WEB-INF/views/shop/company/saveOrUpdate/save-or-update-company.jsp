@@ -54,6 +54,7 @@
 			</tr>
 		</table>
 	</div>
+	<input type="hidden" name = "token" value ="${token}"/>
 	<input type="hidden" name = "companyId" value ="${company.companyId}"/>
 	<input type="hidden" name = "typeStatus" value ="${company.typeStatus}"/>
 	<div align="center">

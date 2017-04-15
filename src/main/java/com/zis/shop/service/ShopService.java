@@ -1,5 +1,6 @@
 package com.zis.shop.service;
 
+import java.io.InputStream;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -7,11 +8,93 @@ import org.springframework.data.domain.Pageable;
 
 import com.zis.shop.bean.Company;
 import com.zis.shop.bean.ShopInfo;
-import com.zis.shop.bean.ShopWaitUpload;
+import com.zis.shop.bean.ShopItemMapping;
 import com.zis.shop.dto.SaveOrUpdateCompanyDto;
 import com.zis.shop.dto.SaveOrUpdateShopDto;
 
 public interface ShopService {
+	/**
+	 * 库存变动更新商品（单个更新）
+	 * 
+	 * @param shop
+	 * @param bookId
+	 * @param amount
+	 */
+	// TODO 库存变动使用
+	public void stockChange2ShopUPdateItem(ShopInfo shop, Integer bookId, Integer amount);
+
+	/**
+	 * 分页查找shopItemMapping
+	 * 
+	 * @param shopId
+	 * @param status
+	 * @param isbn
+	 * @param page
+	 * @return
+	 */
+	public Page<ShopItemMapping> queryShopItemMapping(Integer shopId, String status, String isbn, Pageable page);
+
+	/**
+	 * 获取所有shopItemMapping所有状态
+	 * 
+	 * @return
+	 */
+	public List<String> getStatusList();
+
+	/**
+	 * 获取所有店铺
+	 * 
+	 * @return
+	 */
+	// TODO 库存初始化数据使用
+	public List<ShopInfo> findAllShop();
+
+	/**
+	 * 初始化店铺数据
+	 * 
+	 * @param bookId
+	 * @param shop
+	 */
+	// TODO 库存初始化数据使用
+	public void initShopMapping(Integer bookId, ShopInfo shop);
+
+	/**
+	 * 全部发布商品
+	 * 
+	 * @param shop
+	 */
+	public Integer addItem2Shop(ShopInfo shop);
+
+	/**
+	 * 批量发布商品
+	 * 
+	 * @param shop
+	 */
+	public Integer addItem2Shop(List<Integer> mappingIds, ShopInfo shop);
+
+	/**
+	 * 发布单个商品
+	 * 
+	 * @param mappingId
+	 * @param shop
+	 * @return
+	 */
+	public Integer addItem2Shop(Integer mappingId, ShopInfo shop);
+
+	/**
+	 * 异步下载有赞店铺信息，进行更新
+	 * 
+	 * @param shop
+	 */
+	public void asynchronousDownloadYouZan2ShopItemMapping(final ShopInfo shop);
+
+	/**
+	 * 异步下载淘宝数据
+	 * 
+	 * @param input
+	 * @param shop
+	 */
+	public String asynchronousDownloadTaoBao2ShopItemMapping(final InputStream input, final ShopInfo shop);
 
 	/**
 	 * 查询公司
@@ -32,7 +115,7 @@ public interface ShopService {
 	public Company findCompanyOne(Integer companyId);
 
 	/**
-	 * 新增及修改公司
+	 * 新增公司
 	 * 
 	 * @param dto
 	 */
@@ -86,10 +169,10 @@ public interface ShopService {
 	public ShopInfo findShopByShopIdAndCompanyId(Integer companyId, Integer shopId);
 
 	/**
-	 * 根据shopId查询所有批次处理情况
+	 * 检查shopId
 	 * 
 	 * @param shopId
-	 * @return
+	 * @return 当前店铺或者公司的第一个店铺
 	 */
-	public Page<ShopWaitUpload> findShopWaitUploadByShopId(Integer companyId, Integer shopId, Pageable page);
+	public ShopInfo verifyShopId(Integer shopId);
 }

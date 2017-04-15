@@ -27,65 +27,57 @@ import com.zis.purchase.biz.DoPurchaseService;
  * 
  */
 @Controller
-@RequestMapping(value="/purchase")
-public class WangqubaoInwarehouseExportController extends
-		CommonExcelExportController<InwarehouseDetail> {
+@RequestMapping(value = "/purchase")
+public class WangqubaoInwarehouseExportController extends CommonExcelExportController<InwarehouseDetail> {
 
-//	private Integer[] batchSelectedItem;
+	// private Integer[] batchSelectedItem;
 	@Autowired
 	private BookService bookService;
 	@Autowired
 	private DoPurchaseService doPurchaseService;
-	
+
 	@RequiresPermissions(value = { "stock:output" })
-	@RequestMapping(value="/exportWangqubaoInwarehouse")
-	public String export(HttpServletRequest request,HttpServletResponse response){
+	@RequestMapping(value = "/exportWangqubaoInwarehouse")
+	public String export(HttpServletRequest request, HttpServletResponse response) {
 		return super.export(request, response);
 	}
 
 	@Override
 	protected String[] getTableHeaders() {
-		return new String[] { "序号", "商品条码", "库位编号", "数量", "单价", "商品货号", "颜色",
-				"规格" };
+		return new String[] { "序号", "商品条码", "库位编号", "数量", "单价", "商品货号", "颜色", "规格" };
 	}
 
 	@Override
 	protected String[] getRowDatas(InwarehouseDetail record) {
 		Bookinfo book = this.bookService.findBookById(record.getBookId());
-		String artNo = book.getRepeatIsbn() ? book.getIsbn() + "-"
-				+ book.getId() : book.getIsbn();
-		return new String[] { "", artNo, record.getPositionLabel(),
-				record.getAmount() + "", book.getBookPrice() + "", artNo, "",
-				"" };
+		String artNo = book.getRepeatIsbn() ? book.getIsbn() + "-" + book.getId() : book.getIsbn();
+		return new String[] { "", artNo, record.getPositionLabel(), record.getAmount() + "", book.getBookPrice() + "",
+				artNo, "", "" };
 	}
 
 	@Override
 	protected List<InwarehouseDetail> queryExportData(HttpServletRequest request) {
-		String []batchSelectedItemStr=request.getParameterValues("batchSelectedItem");
-		if(batchSelectedItemStr!=null){
-			Integer []batchSelectedItem=new Integer[batchSelectedItemStr.length];
-			for(int i=0;i<batchSelectedItemStr.length;i++){
-				batchSelectedItem[i]=Integer.parseInt(batchSelectedItemStr[i]);
+		String[] batchSelectedItemStr = request.getParameterValues("batchSelectedItem");
+		if (batchSelectedItemStr != null) {
+			Integer[] batchSelectedItem = new Integer[batchSelectedItemStr.length];
+			for (int i = 0; i < batchSelectedItemStr.length; i++) {
+				batchSelectedItem[i] = Integer.parseInt(batchSelectedItemStr[i]);
 			}
 			return this.doPurchaseService.findInwarehouseDetailByInwarehouseIds(batchSelectedItem);
-		}else{
+		} else {
 			throw new IllegalArgumentException("batchSelectedItem 数组为空");
 		}
-		
-		
+
 	}
 
 	@Override
-	protected Collection<InwarehouseDetail> TransformResultList(
-			List<InwarehouseDetail> list) {
+	protected Collection<InwarehouseDetail> TransformResultList(List<InwarehouseDetail> list) {
 		Map<String, InwarehouseDetail> resultMap = new HashMap<String, InwarehouseDetail>();
 		for (InwarehouseDetail curDetail : list) {
-			String key = curDetail.getBookId() + "_"
-					+ curDetail.getPositionLabel();
+			String key = curDetail.getBookId() + "_" + curDetail.getPositionLabel();
 			if (resultMap.containsKey(key)) {
 				InwarehouseDetail existDetail = resultMap.get(key);
-				existDetail.setAmount(existDetail.getAmount()
-						+ curDetail.getAmount());
+				existDetail.setAmount(existDetail.getAmount() + curDetail.getAmount());
 			} else {
 				resultMap.put(key, curDetail);
 			}

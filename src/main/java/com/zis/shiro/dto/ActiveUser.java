@@ -20,6 +20,7 @@ public class ActiveUser implements Serializable {
 	private String realName;// 使用者姓名
 	private List<Permission> permissions;// 权限
 	private Integer companyId;// 公司ID
+	private Integer stockId;//仓库Id;
 
 	public Integer getUserId() {
 		return userId;
@@ -61,9 +62,17 @@ public class ActiveUser implements Serializable {
 		this.companyId = companyId;
 	}
 
+	public Integer getStockId() {
+		return stockId;
+	}
+
+	public void setStockId(Integer stockId) {
+		this.stockId = stockId;
+	}
+
 	@Override
 	public String toString() {
 		return "ActiveUser [userId=" + userId + ", userName=" + userName + ", realName=" + realName + ", permissions="
-				+ permissions + ", companyId=" + companyId + "]";
+				+ permissions + ", companyId=" + companyId + ", stockId=" + stockId + "]";
 	}
 }

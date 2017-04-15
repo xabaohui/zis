@@ -9,4 +9,48 @@
 	<jpa:repositories base-package="com.zis.shop.repository"
 		entity-manager-factory-ref="entityManagerFactory"
 		transaction-manager-ref="transactionManager" />
+
+	<!--调用api -->
+	<bean id="jiShiBaoApiTransfer" class="com.zis.shop.api.impl.JiShiBaoApiTransfer" />
+	<bean id="youZanApiTransfer" class="com.zis.shop.api.impl.YouZanApiTransfer" />
+	<bean id="apiTransferFactory" class="com.zis.shop.api.impl.ApiTransferFactory">
+		<property name="apiMap">
+			<map>
+				<entry key="taobao" value-ref="jiShiBaoApiTransfer" />
+				<entry key="youzan" value-ref="youZanApiTransfer" />
+			</map>
+		</property>
+	</bean>
+	
+	<!--发布商品 -->
+	<bean id="jiShiBaoAddItemBo" class="com.zis.shop.bo.impl.JiShiBaoAddItemBo">
+		<property name="taobaoCsvDataGenerateBO">
+			<ref bean="taobaoCsvDataGenerateBO" />
+		</property>
+	</bean>
+	<bean id="youZanAddItemBo" class="com.zis.shop.bo.impl.YouZanAddItemBo">
+		<property name="factory">
+			<ref bean="apiTransferFactory" />
+		</property>
+	</bean>
+	<bean id="shopAddItemsFactoryBo" class="com.zis.shop.bo.impl.ShopAddItemsFactoryBo">
+		<property name="shopAddItemsBoMap">
+			<map>
+				<entry key="taobao" value-ref="jiShiBaoAddItemBo" />
+				<entry key="youzan" value-ref="youZanAddItemBo" />
+			</map>
+		</property>
+	</bean>
+	
+	<!--下载商品 -->
+	<bean id="jiShiBaoShopDownloadBo" class="com.zis.shop.bo.impl.JiShiBaoShopDownloadBo" />
+	<bean id="youZanShopDownloadBo" class="com.zis.shop.bo.impl.YouZanShopDownloadBo" />
+	<bean id="shopDownloadFactoryBo" class="com.zis.shop.bo.impl.ShopDownloadFactoryBo">
+		<property name="shopDownloadItemsBoMap">
+			<map>
+				<entry key="taobao" value-ref="jiShiBaoShopDownloadBo" />
+				<entry key="youzan" value-ref="youZanShopDownloadBo" />
+			</map>
+		</property>
+	</bean>
 </beans>

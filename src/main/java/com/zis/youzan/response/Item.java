@@ -19,7 +19,7 @@ public class Item {
 
 	private List<GoodsSku> skus;// 商品skuInfo
 
-	@JSONField(name = "outerId")
+	@JSONField(name = "outer_id")
 	private String outerId;// 商品编码
 
 	@JSONField(name = "post_fee")

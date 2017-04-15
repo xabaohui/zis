@@ -262,4 +262,13 @@ public class Bookinfo implements java.io.Serializable {
 	public void setBookStatus(String bookStatus) {
 		this.bookStatus = bookStatus;
 	}
+
+	@Override
+	public String toString() {
+		return "Bookinfo [id=" + id + ", outId=" + outId + ", isbn=" + isbn + ", bookName=" + bookName
+				+ ", bookAuthor=" + bookAuthor + ", bookPublisher=" + bookPublisher + ", publishDate=" + publishDate
+				+ ", bookPrice=" + bookPrice + ", bookEdition=" + bookEdition + ", isNewEdition=" + isNewEdition
+				+ ", groupId=" + groupId + ", relateId=" + relateId + ", repeatIsbn=" + repeatIsbn + ", gmtCreate="
+				+ gmtCreate + ", gmtModify=" + gmtModify + ", version=" + version + ", bookStatus=" + bookStatus + "]";
+	}
 }

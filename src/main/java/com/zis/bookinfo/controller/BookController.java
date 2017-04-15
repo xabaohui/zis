@@ -425,7 +425,7 @@ public class BookController {
 			String[] isbns = bookISBN.split(",");
 			for (int i = 0; i < isbns.length; i++) {
 				isbns[i] = isbns[i].trim();
-				if(!StringUtils.isNumeric(isbns[i])){
+				if (!StringUtils.isNumeric(isbns[i])) {
 					throw new RuntimeException("isbn输入了非法字符");
 				}
 			}
@@ -433,7 +433,7 @@ public class BookController {
 				query.eq("isbn", isbns[0]);
 			} else {
 				// criteria.add(Restrictions.in("isbn", isbns));
-				query.in("isbn", (Object[])isbns);
+				query.in("isbn", (Object[]) isbns);
 			}
 		}
 		// 模糊查询作者
@@ -445,7 +445,6 @@ public class BookController {
 		// 状态为废弃的不查询
 		query.ne("bookStatus", ConstantString.ABANDON);
 		return query.getSpecification();
-
 	}
 	// public static Specification<Bookinfo> test(final String bookName, final
 	// Boolean strictBookName, final String bookISBN,

@@ -24,4 +24,5 @@ public interface ShopInfoDao extends PagingAndSortingRepository<ShopInfo, Intege
 			+ DELETE + "'")
 	ShopInfo findByShopNameAndPNameAndCompanyId(@Param("shopName") String shopName, @Param("pName") String pName,
 			@Param("companyId") Integer companyId);
+
 }

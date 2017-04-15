@@ -9,10 +9,10 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.dto.BookInfoAndDetailDTO;
+import com.zis.bookinfo.dto.BookInfoAndDetailV2DTO;
 import com.zis.common.mail.MailSenderFactory;
 import com.zis.common.mail.SimpleMailSender;
 import com.zis.common.util.ImageUtils;
@@ -59,11 +59,12 @@ public class TaobaoCsvDataGenerateBO {
 
 	private String encoding = "GBK";
 	private String baseDir;
-	
+
 	private SimpleMailSender mailSender = MailSenderFactory.getSender();
 
 	/**
 	 * 生成淘宝数据包，以邮件形式发送
+	 * 
 	 * @param bookList
 	 * @param emails
 	 */
@@ -89,11 +90,12 @@ public class TaobaoCsvDataGenerateBO {
 			downloadImage(bookList, picDir);
 			logger.info("[生成文件-淘宝csv] 生成图片目录 {}", picDir);
 			// 打包
-			String destZipFile = tmpDir+".zip";
+			String destZipFile = tmpDir + ".zip";
 			ZipUtils.compress(tmpDir, destZipFile);
 			logger.info("[生成文件-淘宝csv] 生成压缩包 {}", tmpDir);
 			// 发送邮件
-			mailSender.send(emails, "淘宝数据包-" + batchId, "请在附件中下载，解压缩后导入淘宝助理\n\n- - - - - - - - - - - - - - - - -\n本邮件由ZIS系统自动发送", destZipFile);
+			mailSender.send(emails, "淘宝数据包-" + batchId,
+					"请在附件中下载，解压缩后导入淘宝助理\n\n- - - - - - - - - - - - - - - - -\n本邮件由ZIS系统自动发送", destZipFile);
 			logger.info("[生成文件-淘宝csv]  压缩包{} 发送邮件到邮箱列表 {}", destZipFile, ArrayUtils.toString(emails));
 			// 清理临时文件
 			FileUtils.deleteQuietly(new File(tmpDir));
@@ -110,10 +112,58 @@ public class TaobaoCsvDataGenerateBO {
 		}
 	}
 
-	private void generateCSV(List<BookInfoAndDetailDTO> bookList,
-			String filepath) throws Exception {
-		FileWriterWithEncoding writer = new FileWriterWithEncoding(filepath,
-				encoding);
+	/**
+	 * 生成淘宝数据包，以邮件形式发送 新版，支持数量及运费模板
+	 * 
+	 * @param bookList
+	 * @param emails
+	 */
+	public void generateV2(List<BookInfoAndDetailV2DTO> bookList, String[] emails) {
+		if (bookList == null || bookList.isEmpty()) {
+			logger.info("[生成文件-淘宝csv] 未生成任何文件，传入数据为空。");
+			return;
+		}
+		// 生成器基础检查，如果不通过会报错
+		basicCheck();
+		// 创建临时文件夹
+		try {
+			String batchId = ZisUtils.getDateString("yyyy-MM-dd_HHmmss");
+			String tmpDir = baseDir + batchId;
+			String picDir = tmpDir + "/data/";
+			FileUtils.forceMkdir(new File(tmpDir));
+			FileUtils.forceMkdir(new File(picDir));
+			logger.info("[生成文件-淘宝csv] 生成临时目录 {}", tmpDir);
+			// 生成csv文件
+			generateCSVV2(bookList, tmpDir + "/data.csv");
+			logger.info("[生成文件-淘宝csv] 生成数据文件 {}", tmpDir + "/data.csv");
+			// 生成(下载)图片文件
+			downloadImageV2(bookList, picDir);
+			logger.info("[生成文件-淘宝csv] 生成图片目录 {}", picDir);
+			// 打包
+			String destZipFile = tmpDir + ".zip";
+			ZipUtils.compress(tmpDir, destZipFile);
+			logger.info("[生成文件-淘宝csv] 生成压缩包 {}", tmpDir);
+			// 发送邮件
+			mailSender.send(emails, "淘宝数据包-" + batchId,
+					"请在附件中下载，解压缩后导入淘宝助理\n\n- - - - - - - - - - - - - - - - -\n本邮件由ZIS系统自动发送", destZipFile);
+			logger.info("[生成文件-淘宝csv]  压缩包{} 发送邮件到邮箱列表 {}", destZipFile, ArrayUtils.toString(emails));
+			// 清理临时文件
+			FileUtils.deleteQuietly(new File(tmpDir));
+			FileUtils.deleteQuietly(new File(destZipFile));
+			logger.info("[生成文件-淘宝csv] 清理所有临时文件 {}, {}", tmpDir, destZipFile);
+		} catch (Exception e) {
+			logger.error("[生成文件-淘宝csv] 系统异常，原因为", e);
+			try {
+				mailSender.send(emails, "生成淘宝数据包失败", "生成淘宝数据包失败！错误原因如下，请联系管理员：\n" + e.getMessage());
+			} catch (Exception mailEx) {
+				logger.error("[生成文件-淘宝csv] 发送邮件失败，原因为" + mailEx.getMessage(), mailEx);
+			}
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void generateCSV(List<BookInfoAndDetailDTO> bookList, String filepath) throws Exception {
+		FileWriterWithEncoding writer = new FileWriterWithEncoding(filepath, encoding);
 		writer.write(T_HEAD1);
 		writer.write(T_HEAD2);
 		for (BookInfoAndDetailDTO book : bookList) {
@@ -124,14 +174,32 @@ public class TaobaoCsvDataGenerateBO {
 		writer.close();
 	}
 
+	private void generateCSVV2(List<BookInfoAndDetailV2DTO> bookList, String filepath) throws Exception {
+		FileWriterWithEncoding writer = new FileWriterWithEncoding(filepath, encoding);
+		writer.write(T_HEAD1);
+		writer.write(T_HEAD2);
+		for (BookInfoAndDetailV2DTO book : bookList) {
+			writer.write(generateOneLineV2(book));
+			writer.flush();
+			logger.debug("[生成文件-淘宝csv] 生成数据行 bookId={}, bookName={}", book.getId(), book.getBookName());
+		}
+		writer.close();
+	}
+
+	/**
+	 * 原始生成数据包方法
+	 * 
+	 * @param book
+	 * @return
+	 */
 	private String generateOneLine(BookInfoAndDetailDTO book) {
 		// 标题使用 书名 (版次)+ 作者 + 条形码
 		String title = book.getTaobaoTitle();
-		if(StringUtils.isBlank(title)) {
+		if (StringUtils.isBlank(title)) {
 			title = TextClearUtils.buildTaobaoTitle(book);
 		}
 		Integer categoryId = book.getTaobaoCatagoryId();
-		if(categoryId == null) {
+		if (categoryId == null) {
 			categoryId = DEFAULT_CATEGORY_ID;// 默认分类：大学教材
 		}
 		String merchantNo = genUniqueIsbn(book);// 一码多书的，采用"条形码+bookId"作为唯一标识，正常的图书直接使用条形码
@@ -140,16 +208,54 @@ public class TaobaoCsvDataGenerateBO {
 		String imageName = genImageName(book);
 		String publishDateStr = ZisUtils.getDateString("yyyy-MM", book.getPublishDate());
 		// 使用系统中的库存量，如果不存在/为零，则使用默认值
-		Integer stockBalance = (book.getStockBalance() != null && book.getStockBalance() > 0) ? book.getStockBalance() : DEFAULT_SOLD_COUNT;
-		return String.format(T_ROW,
-				title, categoryId, DEFAULT_SOLD_TYPE, book.getBookPrice(), stockBalance,
-				DEFAULT_ON_SALES, description, deliveryFeeId, imageName, merchantNo,
-				book.getBookName(), book.getBookPrice(), book.getBookAuthor(), book.getBookPublisher(), book.getIsbn(),
-				publishDateStr);
+		Integer stockBalance = (book.getStockBalance() != null && book.getStockBalance() > 0) ? book.getStockBalance()
+				: DEFAULT_SOLD_COUNT;
+		return String.format(T_ROW, title, categoryId, DEFAULT_SOLD_TYPE, book.getBookPrice(), stockBalance,
+				DEFAULT_ON_SALES, description, deliveryFeeId, imageName, merchantNo, book.getBookName(),
+				book.getBookPrice(), book.getBookAuthor(), book.getBookPublisher(), book.getIsbn(), publishDateStr);
+	}
+
+	private String generateOneLineV2(BookInfoAndDetailV2DTO book) {
+		// 标题使用 书名 (版次)+ 作者 + 条形码
+		String title = book.getTaobaoTitle();
+		if (StringUtils.isBlank(title)) {
+			title = TextClearUtils.buildTaobaoTitle(book);
+		}
+		Integer categoryId = book.getTaobaoCatagoryId();
+		if (categoryId == null) {
+			categoryId = DEFAULT_CATEGORY_ID;// 默认分类：大学教材
+		}
+		String merchantNo = genUniqueIsbn(book);// 一码多书的，采用"条形码+bookId"作为唯一标识，正常的图书直接使用条形码
+		String description = genDescriptionV2(book);
+		String deliveryFeeId = book.getDeliveryTemplateId().toString();//运费模板
+		String imageName = genImageNameV2(book);
+		String publishDateStr = ZisUtils.getDateString("yyyy-MM", book.getPublishDate());
+		// 使用系统中的库存量，如果不存在/为零，则使用默认值
+		Integer stockBalance = (book.getStockBalance() != null && book.getStockBalance() > 0) ? book.getStockBalance()
+				: DEFAULT_SOLD_COUNT;
+		return String.format(T_ROW, title, categoryId, DEFAULT_SOLD_TYPE, book.getBookPrice(), stockBalance,
+				DEFAULT_ON_SALES, description, deliveryFeeId, imageName, merchantNo, book.getBookName(),
+				book.getBookPrice(), book.getBookAuthor(), book.getBookPublisher(), book.getIsbn(), publishDateStr);
 	}
 
 	private String genDescription(BookInfoAndDetailDTO book) {
-		if(StringUtils.isBlank(book.getSummary()) && StringUtils.isBlank(book.getCatalog())) {
+		if (StringUtils.isBlank(book.getSummary()) && StringUtils.isBlank(book.getCatalog())) {
+			StringBuilder builder = new StringBuilder();
+			builder.append("ISBN：").append(book.getIsbn()).append("<br/>");
+			builder.append("书名：").append(book.getBookName()).append("<br/>");
+			builder.append("作者：").append(book.getBookAuthor()).append("<br/>");
+			builder.append("版次：").append(book.getBookEdition()).append("<br/>");
+			builder.append("出版社：").append(book.getBookPublisher()).append("<br/>");
+			builder.append("出版日期：").append(ZisUtils.getDateString("yyyy年MM月", book.getPublishDate())).append("<br/>");
+			return builder.toString();
+		}
+		String summary = formatContent(book.getSummary());
+		String catalog = formatContent(book.getCatalog());
+		return String.format(DESCRIPTION_FMT, summary, catalog);
+	}
+
+	private String genDescriptionV2(BookInfoAndDetailV2DTO book) {
+		if (StringUtils.isBlank(book.getSummary()) && StringUtils.isBlank(book.getCatalog())) {
 			StringBuilder builder = new StringBuilder();
 			builder.append("ISBN：").append(book.getIsbn()).append("<br/>");
 			builder.append("书名：").append(book.getBookName()).append("<br/>");
@@ -165,16 +271,18 @@ public class TaobaoCsvDataGenerateBO {
 	}
 
 	/**
-	 * 格式化文本内容<p/>
+	 * 格式化文本内容
+	 * <p/>
 	 * 1. 替换回车\r、换行\n<br/>
 	 * 2. 替换制表符\t<br/>
 	 * 3. 替换双引号"
+	 * 
 	 * @param content
 	 * @return
 	 */
 	private String formatContent(String content) {
-		if(StringUtils.isBlank(content)) {
-			return ""; 
+		if (StringUtils.isBlank(content)) {
+			return "";
 		}
 		content = content.replaceAll("\\r", "<br/>");
 		content = content.replaceAll("\\n", "<br/>");
@@ -185,8 +293,7 @@ public class TaobaoCsvDataGenerateBO {
 
 	private String genUniqueIsbn(Bookinfo book) {
 		// 一码多书的，采用"条形码-bookId"作为唯一标识，正常的图书直接使用条形码
-		return book.getRepeatIsbn() ? book.getIsbn() + "-" + book.getId()
-				: book.getIsbn();
+		return book.getRepeatIsbn() ? book.getIsbn() + "-" + book.getId() : book.getIsbn();
 	}
 
 	// 图片名称：条形码_bookId
@@ -194,12 +301,16 @@ public class TaobaoCsvDataGenerateBO {
 		return String.format("%s_%s", book.getIsbn(), book.getId());
 	}
 
+	// 图片名称：条形码_bookId
+	private String genImageNameV2(BookInfoAndDetailV2DTO book) {
+		return String.format("%s_%s", book.getIsbn(), book.getId());
+	}
+
 	// 下载图片到临时目录
-	private void downloadImage(List<BookInfoAndDetailDTO> bookList,
-			String picDir) {
+	private void downloadImage(List<BookInfoAndDetailDTO> bookList, String picDir) {
 		for (BookInfoAndDetailDTO book : bookList) {
-			if(StringUtils.isBlank(book.getImageUrl())) {
-				continue;//跳过无图片的记录
+			if (StringUtils.isBlank(book.getImageUrl())) {
+				continue;// 跳过无图片的记录
 			}
 			String imageFileName = genImageName(book) + ".tbi";
 			try {
@@ -212,17 +323,35 @@ public class TaobaoCsvDataGenerateBO {
 			}
 		}
 	}
-	
+
+	// 下载图片到临时目录
+	private void downloadImageV2(List<BookInfoAndDetailV2DTO> bookList, String picDir) {
+		for (BookInfoAndDetailV2DTO book : bookList) {
+			if (StringUtils.isBlank(book.getImageUrl())) {
+				continue;// 跳过无图片的记录
+			}
+			String imageFileName = genImageNameV2(book) + ".tbi";
+			try {
+				ImageUtils.downloadImg(book.getImageUrl(), picDir, imageFileName);
+				// 休眠100毫秒，防止被对方系统拉黑
+				ZisUtils.sleepQuietly(100);
+				logger.debug("[生成文件-淘宝csv] 成功下载图片 {}，保存到 {}", book.getImageUrl(), picDir);
+			} catch (Exception e) {
+				logger.error("[生成文件-淘宝csv] 下载图片过程出错", e);
+			}
+		}
+	}
+
 	private void basicCheck() {
-		if(StringUtils.isBlank(baseDir)) {
+		if (StringUtils.isBlank(baseDir)) {
 			throw new RuntimeException("[生成文件-淘宝csv] 生成器未完成初始化，baseDir未设置，请检查配置文件");
 		}
 	}
-	
+
 	public void setBaseDir(String baseDir) {
 		this.baseDir = baseDir;
 	}
-	
+
 	public void setEncoding(String encoding) {
 		this.encoding = encoding;
 	}

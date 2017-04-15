@@ -23,25 +23,26 @@
 		<context:exclude-filter type="regex" expression="com.zis.purchase.controller"/>
 		<context:exclude-filter type="regex" expression="com.zis.bookinfo.controller"/>
 		<context:exclude-filter type="regex" expression="com.zis.toolkit.controller"/>
-<!-- 		<context:exclude-filter type="regex" expression="com.zis.shiro.controller"/> -->
+		<context:exclude-filter type="regex" expression="com.zis.shiro.controller"/>
 		<context:exclude-filter type="regex" expression="com.zis.api"/>
 		<context:exclude-filter type="regex" expression="com.zis.shop.controller"/>
+		<context:exclude-filter type="regex" expression="com.zis.storage.controller"/>
 	</context:component-scan>
 	
 	<!-- 开启aop，对类代理 -->
-<!-- 	<aop:config proxy-target-class="true" /> -->
+	<aop:config proxy-target-class="true" />
 	
 	<!-- 开启shiro注解支持 -->
-<!-- 	<bean -->
-<!-- 		class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor"> -->
-<!-- 		<property name="securityManager" ref="securityManager" /> -->
-<!-- 	</bean> -->
+	<bean
+		class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+		<property name="securityManager" ref="securityManager" />
+	</bean>
 	
 	<!-- 控制器异常处理 -->
 	<bean id="exceptionHandlerExceptionResolver"
 		class="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver">
 	</bean>
-<!-- 	<bean class="com.zis.shiro.exception.DefaultExceptionHandler" /> -->
+	<bean class="com.zis.shiro.exception.DefaultExceptionHandler" />
 	<!-- 配置线程池 -->
 	<bean id="taskExecutor"
 		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">

@@ -132,3 +132,7 @@ function clearAll() {
 		}
 	}
 }
+
+function queryShopItemMapping(shopId) {
+	window.location.href = "/zis/shop/queryShopItemMapping?shopId=" + shopId;
+}

@@ -1,12 +1,12 @@
 package com.zis.shiro.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.mgt.RealmSecurityManager;
@@ -34,7 +34,10 @@ import com.zis.shiro.repository.RoleDao;
 import com.zis.shiro.repository.RolePermissionDao;
 import com.zis.shiro.repository.UserDao;
 import com.zis.shop.bean.Company;
+import com.zis.shop.dto.CompanyAndStockDto;
 import com.zis.shop.repository.CompanyDao;
+import com.zis.storage.entity.StorageRepoInfo;
+import com.zis.storage.repository.StorageRepoInfoDao;
 
 /**
  * @author think
@@ -43,7 +46,7 @@ import com.zis.shop.repository.CompanyDao;
 @Service
 public class RegistAndUpdateService {
 
-	private Logger logger = Logger.getLogger(RegistAndUpdateService.class);
+	// private Logger logger = Logger.getLogger(RegistAndUpdateService.class);
 
 	// 用户是否删除
 	protected final String NO = "no";
@@ -69,6 +72,8 @@ public class RegistAndUpdateService {
 	private RolePermissionDao rolePermissionDao;
 	@Autowired
 	private CompanyDao companyDao;
+	@Autowired
+	private StorageRepoInfoDao storageRepoInfoDao;
 
 	// 获取分组所有的权限MAP
 	private HashMap<String, List<Permission>> permissions;
@@ -186,7 +191,7 @@ public class RegistAndUpdateService {
 	public Role findRoleByRoleId(Integer roleId) {
 		return this.roleDao.findRoleByRoleId(roleId);
 	}
-	
+
 	public Company findCompanyById(Integer companyId) {
 		return this.companyDao.findByCompanyId(companyId);
 	}
@@ -279,7 +284,7 @@ public class RegistAndUpdateService {
 	@Transactional
 	public void deleteRole(Integer roleId) {
 		Role role = this.roleDao.findOne(roleId);
-		//删除角色时查询所有有权限的用户，将其权限值设置成空
+		// 删除角色时查询所有有权限的用户，将其权限值设置成空
 		List<User> list = this.userDao.findByRoleId(roleId);
 		for (User u : list) {
 			u.setUpdateTime(new Date());
@@ -292,26 +297,27 @@ public class RegistAndUpdateService {
 		// 清除缓存
 		clearAllCached();
 	}
-	
+
 	/**
 	 * 公司员工注册 及修改
+	 * 
 	 * @param dto
 	 */
-	public void saveOrUpdateCompanyUser(RegistUserDto dto){
-		User user ;
-		if(dto.getId()!=null){
+	public void saveOrUpdateCompanyUser(RegistUserDto dto) {
+		User user;
+		if (dto.getId() != null) {
 			user = this.userDao.findAllUserByCompanyIdAndUserId(dto.getCompanyId(), dto.getId());
-			if(user == null){
+			if (user == null) {
 				throw new RuntimeException("请联系管理员，页面可能被篡改");
 			}
-			if(!user.getPassword().equals(dto.getPassword())){
+			if (!user.getPassword().equals(dto.getPassword())) {
 				user.setPassword(getPasswordMD5(dto.getPassword(), user.getSalt()));
 			}
 			user.setRealName(dto.getRealName());
 			user.setUpdateTime(new Date());
 			this.userDao.save(user);
 			clearAllCached();
-		}else{
+		} else {
 			user = new User();
 			String salt = getSalt();
 			user.setCreateTime(new Date());
@@ -342,20 +348,39 @@ public class RegistAndUpdateService {
 	 * @return
 	 */
 	public List<Company> findAllCompany() {
-		List<Company> companyList = this.companyDao.findAllByStatusIsNormal();
-		return companyList;
+		return this.companyDao.findAllByStatusIsNormal();
 	}
 	
 	/**
+	 * 获取所有公司及仓库
+	 * 
+	 * @return
+	 */
+	public List<CompanyAndStockDto> buildCompanyAndStockDto(List<Company> companyList) {
+		List<CompanyAndStockDto> list = new ArrayList<CompanyAndStockDto>();
+		for (Company company : companyList) {
+			CompanyAndStockDto dto = new CompanyAndStockDto();
+			List<StorageRepoInfo> infoList = this.storageRepoInfoDao.findByOwnerIdOrderByGmtCreateAsc(company.getCompanyId());
+			dto.setCompany(company);
+			if(!infoList.isEmpty()){
+				dto.setStorageRepoInfo(infoList.get(0));
+			}
+			list.add(dto);
+		}
+		return list;
+	}
+
+	/**
 	 * 根据公司id查找公司下所有员工
+	 * 
 	 * @param companyId
 	 * @return
 	 */
-	public List<UpdateUserInfo> findAllUserByCompanyId(Integer companyId){
+	public List<UpdateUserInfo> findAllUserByCompanyId(Integer companyId) {
 		List<UpdateUserInfo> list = this.userDao.findAllUserByCompanyId(companyId);
 		return list;
 	}
-	
+
 	/**
 	 * 根据id 查询user
 	 * 

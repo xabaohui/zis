@@ -190,4 +190,12 @@ public class BookinfoDetail implements java.io.Serializable {
 	public void setVersion(Integer version) {
 		this.version = version;
 	}
+
+	@Override
+	public String toString() {
+		return "BookinfoDetail [bookid=" + bookid + ", imageUrl=" + imageUrl + ", taobaoTitle=" + taobaoTitle
+				+ ", taobaoCatagoryId=" + taobaoCatagoryId + ", taobaoForbidden=" + taobaoForbidden + ", summary="
+				+ summary + ", catalog=" + catalog + ", outId=" + outId + ", source=" + source + ", gmtCreate="
+				+ gmtCreate + ", gmtModify=" + gmtModify + ", version=" + version + "]";
+	}
 }

@@ -62,6 +62,16 @@
 				</td>
 			</tr>
 			<tr>
+				<td>商品模板:</td>
+				<td>
+					<input type="text" name="templateId" value="${shop.templateId}" onkeyup="value=value.replace(/[^\d]/g,'')"/>
+					<font color="green"><b>选填</b></font>
+				</td>
+				<td>
+					<spring:errors delimiter="," path="templateId" cssStyle="color:red"/>
+				</td>
+			</tr>
+			<tr>
 				<td>邮箱:</td>
 				<td>
 					<input type="text" name="emails" value="${shop.emails}"/>
@@ -77,16 +87,13 @@
 				</td>
 			</tr>
 			<tr>
-				<td colspan="3"><font color="green"><b>平台为有赞必填，平台为其他则选填</b></font></td>
-			</tr>
-			<tr>
-				<td>appId:</td>
+				<td>有赞appId/集市宝Access key:</td>
 				<td>
 					<input type="text" name="appId" value="${shop.appId}"/>
 				</td>
 			</tr>
 			<tr>
-				<td>appSecret:</td>
+				<td>有赞appSecret/集市宝Secret Key:</td>
 				<td>
 					<input type="text" name="appSecret" value="${shop.appSecret}"/>
 				</td>

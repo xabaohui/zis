@@ -15,7 +15,8 @@ import com.zis.shiro.repository.RoleDao;
 import com.zis.shiro.repository.UserDao;
 import com.zis.shop.bean.Company;
 import com.zis.shop.repository.CompanyDao;
-
+import com.zis.storage.entity.StorageRepoInfo;
+import com.zis.storage.repository.StorageRepoInfoDao;
 
 @Service
 public class SysService {
@@ -25,12 +26,15 @@ public class SysService {
 
 	@Autowired
 	private PermissionDao permissionDao;
-	
+
 	@Autowired
 	private CompanyDao companyDao;
 
 	@Autowired
 	private RoleDao roleDao;
+	
+	@Autowired
+	private StorageRepoInfoDao storageRepoInfoDao;
 
 	public User findSysUserByUserName(String userName) {
 		List<User> list = this.userDao.findByUserName(userName);
@@ -55,9 +59,18 @@ public class SysService {
 		List<Role> list = this.roleDao.findRoleByUserId(userId);
 		return list;
 	}
-	
+
 	public Company findCompanyByCompanyId(Integer companyId) {
 		Company company = this.companyDao.findBySysCompanyId(companyId);
 		return company;
+	}
+
+	public Integer findStorageRepoInfoId(Integer companyId) {
+		List<StorageRepoInfo> list = this.storageRepoInfoDao.findByOwnerIdOrderByGmtCreateAsc(companyId);
+		if (list.isEmpty()) {
+			return null;
+		} else {
+			return list.get(0).getRepoId();
+		}
 	}
 }

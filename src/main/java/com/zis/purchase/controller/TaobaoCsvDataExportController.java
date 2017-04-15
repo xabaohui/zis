@@ -36,7 +36,6 @@ public abstract class TaobaoCsvDataExportController {
 			}
 		});
 		taskExecutor.execute(task);
-
 		// 预估操作时间
 		int seconds = list.size() / 60;
 		if (seconds < 2) {

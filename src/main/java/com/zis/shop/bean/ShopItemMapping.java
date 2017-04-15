@@ -23,6 +23,9 @@ public class ShopItemMapping {
 	@Column(name = "book_id")
 	private Integer bookId;
 
+	@Column(name = "shop_id")
+	private Integer shopId;
+
 	@Column(name = "p_item_id")
 	private Long pItemId;
 
@@ -33,22 +36,16 @@ public class ShopItemMapping {
 	private String title;
 
 	@Column(name = "item_out_num")
-	private String itemOutNum;//商家编码
-
-	@Column(name = "shop_status")
-	private String shopStatus;
+	private String itemOutNum;// 商家编码
 
 	@Column(name = "system_status")
 	private String systemStatus;
-
-	@Column(name = "flag")
-	private Integer flag;
+	
+	@Column(name = "update_status")
+	private String updateStatus;
 
 	@Column(name = "upload_time")
 	private Date uploadTime;
-
-	@Column(name = "p_price")
-	private Double pPrice;
 
 	@Column(name = "fail_reason")
 	private String failReason;
@@ -67,22 +64,21 @@ public class ShopItemMapping {
 
 	public ShopItemMapping() {
 	}
-
-	public ShopItemMapping(Integer id, Integer bookId, Long pItemId, Long pItemSkuId, String title, String itemOutNum,
-			String shopStatus, String systemStatus, Integer flag, Date uploadTime, Double pPrice, String failReason,
+	
+	public ShopItemMapping(Integer id, Integer bookId, Integer shopId, Long pItemId, Long pItemSkuId, String title,
+			String itemOutNum, String systemStatus, String updateStatus, Date uploadTime, String failReason,
 			Date createTime, Date updateTime, Integer version) {
 		super();
 		this.id = id;
 		this.bookId = bookId;
+		this.shopId = shopId;
 		this.pItemId = pItemId;
 		this.pItemSkuId = pItemSkuId;
 		this.title = title;
 		this.itemOutNum = itemOutNum;
-		this.shopStatus = shopStatus;
 		this.systemStatus = systemStatus;
-		this.flag = flag;
+		this.updateStatus = updateStatus;
 		this.uploadTime = uploadTime;
-		this.pPrice = pPrice;
 		this.failReason = failReason;
 		this.createTime = createTime;
 		this.updateTime = updateTime;
@@ -103,6 +99,14 @@ public class ShopItemMapping {
 
 	public void setBookId(Integer bookId) {
 		this.bookId = bookId;
+	}
+
+	public Integer getShopId() {
+		return shopId;
+	}
+
+	public void setShopId(Integer shopId) {
+		this.shopId = shopId;
 	}
 
 	public Long getpItemId() {
@@ -137,14 +141,6 @@ public class ShopItemMapping {
 		this.itemOutNum = itemOutNum;
 	}
 
-	public String getShopStatus() {
-		return shopStatus;
-	}
-
-	public void setShopStatus(String shopStatus) {
-		this.shopStatus = shopStatus;
-	}
-
 	public String getSystemStatus() {
 		return systemStatus;
 	}
@@ -153,12 +149,12 @@ public class ShopItemMapping {
 		this.systemStatus = systemStatus;
 	}
 
-	public Integer getFlag() {
-		return flag;
+	public String getUpdateStatus() {
+		return updateStatus;
 	}
 
-	public void setFlag(Integer flag) {
-		this.flag = flag;
+	public void setUpdateStatus(String updateStatus) {
+		this.updateStatus = updateStatus;
 	}
 
 	public Date getUploadTime() {
@@ -167,14 +163,6 @@ public class ShopItemMapping {
 
 	public void setUploadTime(Date uploadTime) {
 		this.uploadTime = uploadTime;
-	}
-
-	public Double getpPrice() {
-		return pPrice;
-	}
-
-	public void setpPrice(Double pPrice) {
-		this.pPrice = pPrice;
 	}
 
 	public String getFailReason() {
@@ -211,17 +199,22 @@ public class ShopItemMapping {
 
 	@Override
 	public String toString() {
-		return "ShopItemMapping [id=" + id + ", bookId=" + bookId + ", pItemId=" + pItemId + ", pItemSkuId="
-				+ pItemSkuId + ", title=" + title + ", itemOutNum=" + itemOutNum + ", shopStatus=" + shopStatus
-				+ ", systemStatus=" + systemStatus + ", flag=" + flag + ", uploadTime=" + uploadTime + ", pPrice="
-				+ pPrice + ", failReason=" + failReason + ", createTime=" + createTime + ", updateTime=" + updateTime
-				+ ", version=" + version + "]";
+		return "ShopItemMapping [id=" + id + ", bookId=" + bookId + ", shopId=" + shopId + ", pItemId=" + pItemId
+				+ ", pItemSkuId=" + pItemSkuId + ", title=" + title + ", itemOutNum=" + itemOutNum + ", systemStatus="
+				+ systemStatus + ", updateStatus=" + updateStatus + ", uploadTime=" + uploadTime + ", failReason="
+				+ failReason + ", createTime=" + createTime + ", updateTime=" + updateTime + ", version=" + version
+				+ "]";
 	}
 
 	// 系统状态
 	public enum ShopItemMappingSystemStatus {
 
-		ON_SALES("on_sales", "已上架"), FOR_SHELVED("for_shelved", "已下架"), SOLD_OUT("sold_out", "已售罄");
+		SUCCESS("success", "成功"), 
+		WAIT("wait", "等待"), 
+		FAIL("fail", "失败"),
+		PROCESSING("processing", "处理中"),
+		WAIT_DOWNLOAD("wait_download", "等待数据更新映射表"),
+		DELETE("delete", "网店删除");
 
 		private String value;
 		private String name;
@@ -247,34 +240,34 @@ public class ShopItemMapping {
 			this.name = name;
 		}
 	}
+	// 系统状态
+		public enum ShopItemMappingUpdateStatus {
 
-	// 店铺状态
-	public enum ShopItemMappingShopStatus {
+			SUCCESS("success", "成功"), 
+			FAIL("fail", "失败");
 
-		SUCCESS("success", "成功"), WAIT("wait", "等待"), FAIL("fail", "失败");
+			private String value;
+			private String name;
 
-		private String value;
-		private String name;
+			public String getName() {
+				return name;
+			}
 
-		public String getName() {
-			return name;
+			public void setName(String name) {
+				this.name = name;
+			}
+
+			public String getValue() {
+				return value;
+			}
+
+			public void setValue(String value) {
+				this.value = value;
+			}
+
+			private ShopItemMappingUpdateStatus(String value, String name) {
+				this.value = value;
+				this.name = name;
+			}
 		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		public String getValue() {
-			return value;
-		}
-
-		public void setValue(String value) {
-			this.value = value;
-		}
-
-		private ShopItemMappingShopStatus(String value, String name) {
-			this.value = value;
-			this.name = name;
-		}
-	}
 }

@@ -11,18 +11,17 @@
 	function updateShop(shopId) {
 		window.location.href = "shop/gotoUpdateShop?shopId=" + shopId;
 	}
-	function deleteShop(shopId) {
-		if (confirm("你确定删除吗？")) {
-			window.location.href = "shop/deleteUser?shopId=" + shopId;
-		} else {
-		}
-	}
+	
 	function registShop() {
 		window.location.href = "shop/gotoSaveShop";
 	}
 
 	function updateCompany() {
 		window.location.href = "shop/gotoUpdateUserCompany";
+	}
+	
+	function updateStock(repoId) {
+		window.location.href = "storage/gotoUpdateStorageRepoInfo?repoId=" + repoId;
 	}
 </script>
 <div>
@@ -78,14 +77,28 @@
 				</td>
 				<td>${shop.emails}</td>
 				<td>
-					<input type="button" value="管理商品" onclick="" />
+					<input type="button" value="管理商品" onclick="queryShopItemMapping('${shop.shopId}')" />
 					&nbsp; &nbsp;
 					<input type="button" value="修改信息" onclick="updateShop('${shop.shopId}')" />
-					&nbsp; &nbsp; 
-					<input type="button" value="删除" onclick="deleteShop('${shop.shopId}')" />
 				</td>
 			</tr>
 		</c:forEach>
+	</table>
+	<p />
+	<table>
+		<tr>
+			<th colspan="3">仓库管理</th>
+		</tr>
+		<tr>
+			<td>仓库名称</td>
+			<td>操作</td>
+		</tr>
+			<tr>
+				<td>${stock.name}</td>
+				<td>
+					<input type="button" value="修改信息" onclick="updateStock('${stock.repoId}')" />
+				</td>
+			</tr>
 	</table>
 	<p />
 	<table>

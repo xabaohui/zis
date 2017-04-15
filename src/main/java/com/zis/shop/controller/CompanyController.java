@@ -19,6 +19,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.zis.common.mvc.ext.Token;
 import com.zis.common.mvc.ext.WebHelper;
 import com.zis.shiro.dto.ActiveUser;
 import com.zis.shiro.dto.RegistUserDto;
@@ -26,8 +27,11 @@ import com.zis.shiro.dto.UpdateUserInfo;
 import com.zis.shiro.service.RegistAndUpdateService;
 import com.zis.shop.bean.Company;
 import com.zis.shop.bean.ShopInfo;
+import com.zis.shop.dto.CompanyAndStockDto;
 import com.zis.shop.dto.SaveOrUpdateCompanyDto;
-import com.zis.shop.service.ShopService;
+import com.zis.shop.service.impl.ShopServiceImpl;
+import com.zis.storage.entity.StorageRepoInfo;
+import com.zis.storage.repository.StorageRepoInfoDao;
 
 @Controller
 @RequestMapping(value = "/shop")
@@ -39,10 +43,13 @@ public class CompanyController {
 	private final String OPERATE_TYPE_ADD = "addCompany";
 
 	@Autowired
-	private ShopService shopService;
+	private ShopServiceImpl shopService;
 
 	@Autowired
 	private RegistAndUpdateService registAndUpdateService;
+
+	@Autowired
+	private StorageRepoInfoDao storageRepoInfoDao;
 
 	/**
 	 * 查询公司
@@ -60,7 +67,8 @@ public class CompanyController {
 		Page<Company> companyList = this.shopService.queryCompany(companyName, contacts, page);
 		if (!companyList.getContent().isEmpty()) {
 			List<Company> list = companyList.getContent();
-			map.put("companyList", list);
+			List<CompanyAndStockDto> csList = this.registAndUpdateService.buildCompanyAndStockDto(list);
+			map.put("companyList", csList);
 			map.put("page", page.getPageNumber() + 1);
 			setQueryConditionToPage(companyName, contacts, map);
 			if (companyList.hasPrevious()) {
@@ -83,6 +91,7 @@ public class CompanyController {
 	 */
 	@RequiresPermissions(value = { "shiro:shiro" })
 	@RequestMapping(value = "/gotoSaveCompany")
+	@Token(generate = true)
 	public String gotoSaveCompany(ModelMap map) {
 		SaveOrUpdateCompanyDto dto = new SaveOrUpdateCompanyDto();
 		dto.setTypeStatus(OPERATE_TYPE_ADD);
@@ -99,6 +108,7 @@ public class CompanyController {
 	 */
 	@RequiresPermissions(value = { "shiro:shiro" })
 	@RequestMapping(value = "/gotoUpdateCompany")
+	@Token(generate = true)
 	public String gotoUpdateCompany(ModelMap map, Integer companyId) {
 		SaveOrUpdateCompanyDto dto = new SaveOrUpdateCompanyDto();
 		Company company = this.shopService.findCompanyOne(companyId);
@@ -128,6 +138,7 @@ public class CompanyController {
 	 */
 	@RequiresPermissions(value = { "shiro:shiro" })
 	@RequestMapping(value = "/saveOrUpdateCompany")
+	@Token(checking = true)
 	public String saveOrUpdateCompany(@Valid @ModelAttribute("dto") SaveOrUpdateCompanyDto dto, BindingResult br,
 			ModelMap map) {
 		map.put("company", dto);
@@ -181,6 +192,7 @@ public class CompanyController {
 	 * @return
 	 */
 	@RequestMapping(value = "/gotoUpdateUserCompany")
+	@Token(generate = true)
 	public String gotoUpdateUserCompany(ModelMap map) {
 		Integer companyId = getCompanyId();
 		Company company = this.shopService.findCompanyOne(companyId);
@@ -199,6 +211,7 @@ public class CompanyController {
 	 * @return
 	 */
 	@RequestMapping(value = "/updateUserCompany")
+	@Token(generate = true)
 	public String updateUserCompany(@Valid @ModelAttribute("dto") SaveOrUpdateCompanyDto dto, BindingResult br,
 			ModelMap map) {
 		try {
@@ -317,6 +330,10 @@ public class CompanyController {
 		map.put("shopList", shopList);
 		List<UpdateUserInfo> userList = this.registAndUpdateService.findAllUserByCompanyId(companyId);
 		map.put("userList", userList);
+		List<StorageRepoInfo> storList = this.storageRepoInfoDao.findByOwnerIdOrderByGmtCreateAsc(getCompanyId());
+		if (!storList.isEmpty()) {
+			map.put("stock", storList.get(0));
+		}
 	}
 
 	/**

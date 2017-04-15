@@ -4,5 +4,5 @@
 
 
 <h1>出错啦.....</h1>
-
+<c:if test="${shopStatus eq 'xxx' and 'xxx'}"></c:if>
 <%@ include file="/footer.jsp"%>

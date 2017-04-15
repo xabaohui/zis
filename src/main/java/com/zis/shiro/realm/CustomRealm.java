@@ -89,6 +89,7 @@ public class CustomRealm extends AuthorizingRealm {
 		// 将用户菜单 设置到activeUser
 		activeUser.setPermissions(permissions);
 		activeUser.setCompanyId(sysUser.getCompanyId());
+		activeUser.setStockId(this.sysService.findStorageRepoInfoId(sysUser.getCompanyId()));
 
 		// 将activeUser设置simpleAuthenticationInfo
 		SimpleAuthenticationInfo simpleAuthenticationInfo = new SimpleAuthenticationInfo(activeUser, password,

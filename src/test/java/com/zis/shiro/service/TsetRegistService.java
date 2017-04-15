@@ -11,10 +11,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 
-import com.sun.org.apache.bcel.internal.generic.ARRAYLENGTH;
-import com.zis.shiro.bean.Permission;
 import com.zis.shiro.bean.Role;
-import com.zis.shiro.dto.UpdateUserRoleAndPermissions;
 import com.zis.shiro.repository.PermissionDao;
 import com.zis.shiro.repository.RoleDao;
 

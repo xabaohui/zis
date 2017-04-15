@@ -1,6 +1,7 @@
 package com.zis.common.capture;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,7 +12,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import com.zis.bookinfo.util.BookMetadata;
 import com.zis.bookinfo.util.BookMetadataSource;
@@ -38,15 +38,15 @@ public class YouluBookMetadataCapture extends AbstractBookMetadataCapture {
 	// -----图书属性匹配 Regex------
 	protected static final String REGEX_ITEM_ID = "(?<=图书编号[：:]{1}).*?(?=\\s)"; // 图书编号
 	protected static final String REGEX_ISBN = "(?<=ISBN[：:]{1})\\d*\\b"; // ISBN：9787544601207
-	protected static final String REGEX_AUTHOR = "(?<=作/译者[：:]{1}).*?(?=出版社)"; // 作/译者：李荫华 张龙（在出版社之前）
+	protected static final String REGEX_AUTHOR = "(?<=作者[：:]{1}).*?(?=出版社)"; // 作/译者：李荫华
+																				// 张龙（在出版社之前）
 	protected static final String REGEX_PUBLISHER = "(?<=出版社[：:]{1}).*\\b"; // 出版社：上海外语教育出版社（结束符）
 	protected static final String REGEX_PUBLISH_DATE = "(?<=出版日期[：:]{1}).*?(?=\\s)"; // 出版日期：2006年08月（空格以及其他内容）
-	protected static final String REGEX_TAG_PRICE = "(?<=定价[：:]{1}￥).*\\b"; // 定价：￥31.00（结束符）
+	protected static final String REGEX_TAG_PRICE = "(?<=定价[：:]{1}¥).*\\b"; // 定价：￥31.00（结束符）
 	protected static final String REGEX_EDITION = "第.*?版"; // 版次
 	protected static final String REGEX_USELESS_BRACKETS = "[(（\\[【]{1}\\s*[）)\\]】]{1}"; // 无用的括号
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(YouluBookMetadataCapture.class);
+	private static final Logger logger = LoggerFactory.getLogger(YouluBookMetadataCapture.class);
 
 	@Override
 	public List<BookMetadata> captureListPage(String keyword) {
@@ -56,7 +56,7 @@ public class YouluBookMetadataCapture extends AbstractBookMetadataCapture {
 		String url = URL_FMT_LIST_PAGE + keyword;
 		Document doc = super.doRequestUrl(url);
 		Element newBookList = getUniqueElementByClass(doc, "newBookList");
-		if(newBookList == null) {
+		if (newBookList == null) {
 			return new ArrayList<BookMetadata>();
 		}
 		List<BookMetadata> resultList = new ArrayList<BookMetadata>();
@@ -94,8 +94,10 @@ public class YouluBookMetadataCapture extends AbstractBookMetadataCapture {
 	protected BookMetadata parseMetadata(Document doc) {
 		// 有路网标题
 		Element h1 = getUniqueElementByTag(doc, "h1");
+		// 抓取图书名称
+		Element eBookName = doc.getElementById("name");
 		String title = h1.ownText(); // TODO 书名中剔除不必要内容
-		String bookName = null;
+		String bookName = eBookName.text();
 		String edition = null;
 		logger.debug("[数据抓取-有路网] 标题\t{}", title);
 		// 拆分书名、版次
@@ -104,34 +106,32 @@ public class YouluBookMetadataCapture extends AbstractBookMetadataCapture {
 			edition = tm.group();
 			logger.debug("[数据抓取-有路网] 版次\t{}", edition);
 		}
-		if (edition != null) {
-			bookName = title.replaceAll(edition, "").replaceAll(
-					REGEX_USELESS_BRACKETS, "");
-		} else {
+		// if (edition != null) {
+		// bookName = title.replaceAll(edition,
+		// "").replaceAll(REGEX_USELESS_BRACKETS, "");
+		// } else {
+		// edition = "第一版";
+		// bookName = title.replaceAll(REGEX_USELESS_BRACKETS, "");
+		// logger.debug("[数据抓取-有路网] 版次(默认)\t{}", edition);
+		// }
+		if (edition == null) {
 			edition = "第一版";
-			bookName = title.replaceAll(REGEX_USELESS_BRACKETS, "");
 			logger.debug("[数据抓取-有路网] 版次(默认)\t{}", edition);
 		}
 		logger.debug("[数据抓取-有路网] 书名\t{}", bookName);
 
 		// 条形码、作者、出版社、出版日期、标价
-		Elements infoTits = doc.getElementsByClass("infoList");
+		// Elements infoTits = doc.getElementsByClass("infoList");
+		Elements infoTits = doc.getElementsByClass("detail-info");
 		String itemId = null;
 		String isbn = null;
 		String author = null;
 		String publisher = null;
-		String publishDate = null;
+		String publishDateStr = null;
+		Date publishDate = null;
 		Double tagPrice = null;
 		for (Element e : infoTits) {
 			String txt = e.text();
-			if (txt.contains("图书编号")) {
-				logger.debug("[数据抓取-有路网] 图书编号相关数据\t{}", txt);
-				Matcher m = Pattern.compile(REGEX_ITEM_ID).matcher(txt);
-				while (m.find()) {
-					itemId = m.group();
-					logger.debug("[数据抓取-有路网] 图书编号=\t{}", itemId);
-				}
-			}
 			if (txt.contains("ISBN")) {
 				logger.debug("[数据抓取-有路网] ISBN相关数据\t{}", txt);
 				Matcher m = Pattern.compile(REGEX_ISBN).matcher(txt);
@@ -140,25 +140,38 @@ public class YouluBookMetadataCapture extends AbstractBookMetadataCapture {
 					logger.debug("[数据抓取-有路网] ISBN=\t{}", isbn);
 				}
 			}
-			if (txt.contains("作/译者")) {
+			if (txt.contains("作者")) {
 				logger.debug("[数据抓取-有路网] 作者相关数据\t{}", txt);
-				author = e.child(1).text();
-				logger.debug("[数据抓取-有路网] 作者=\t{}", author);
+				Matcher m = Pattern.compile(REGEX_AUTHOR).matcher(txt);
+				while (m.find()) {
+					author = m.group();
+					logger.debug("[数据抓取-有路网] 作者=\t{}", author);
+				}
+				// author = e.child(0).text();
 			}
 			if (txt.contains("出版社")) {
 				logger.debug("[数据抓取-有路网] 出版社相关数据\t{}", txt);
-				publisher = e.child(3).text();
-				logger.debug("[数据抓取-有路网] 出版社=\t{}", publisher);
+				Matcher m = Pattern.compile(REGEX_PUBLISHER).matcher(txt);
+				while (m.find()) {
+					publisher = m.group();
+					if (StringUtils.isNotBlank(publisher)) {
+						publisher = publisher.split(" ")[0].trim();
+					}
+					logger.debug("[数据抓取-有路网] 出版社=\t{}", publisher);
+				}
+				// publisher = e.child(3).text();
 			}
 			if (txt.contains("出版日期")) {
 				logger.debug("[数据抓取-有路网] 出版日期相关数据\t{}", txt);
 				Matcher m = Pattern.compile(REGEX_PUBLISH_DATE).matcher(txt);
 				while (m.find()) {
-					publishDate = m.group();
-					logger.debug("[数据抓取-有路网] 出版日期=\t{}", publishDate);
+					publishDateStr = m.group();
+					logger.debug("[数据抓取-有路网] 出版日期=\t{}", publishDateStr);
 				}
-				if("--".equals(publishDate)) {
+				if ("--".equals(publishDateStr) || StringUtils.isBlank(publishDateStr)) {
 					publishDate = null;
+				} else {
+					publishDate = ZisUtils.stringToDate(publishDateStr.trim(), "yyyy年MM月");
 				}
 			}
 			if (txt.contains("定价")) {
@@ -169,9 +182,14 @@ public class YouluBookMetadataCapture extends AbstractBookMetadataCapture {
 					priceStr = m.group();
 					logger.debug("[数据抓取-有路网] 标价=\t{}", priceStr);
 				}
-				tagPrice = priceStr == null ? null : Double.valueOf(priceStr);
+				tagPrice = (priceStr == null ? null : Double.valueOf(priceStr));
 			}
 		}
+		// 抓取平台图书ID
+		Element bookId = doc.getElementById("ctl00_cphMain_txtBookId");
+		logger.debug("[数据抓取-有路网] 图书编号相关数据\t{}", bookId);
+		itemId = bookId.val();
+		logger.debug("[数据抓取-有路网] 图书编号=\t{}", itemId);
 
 		// 图片URL
 		String imageUrl = parseImageUrl(doc);
@@ -181,11 +199,11 @@ public class YouluBookMetadataCapture extends AbstractBookMetadataCapture {
 
 		// 摘要
 		String summaryUrl = String.format(URL_FMT_CONTENT, itemId, "summary");
-		String summary = super.doRequestUrlToPlainText(summaryUrl, "gbk");
+		String summary = super.doRequestUrlToPlainText(summaryUrl, "utf-8");
 		logger.debug("[数据抓取-有路网] 摘要=\t{}", summary);
 		// 目录
 		String catalogUrl = String.format(URL_FMT_CONTENT, itemId, "catalog");
-		String catalog = super.doRequestUrlToPlainText(catalogUrl, "gbk");
+		String catalog = super.doRequestUrlToPlainText(catalogUrl, "utf-8");
 		logger.debug("[数据抓取-有路网] 目录=\t{}", catalog);
 		BookMetadata meta = new BookMetadata();
 		meta.setAuthor(author);
@@ -197,8 +215,8 @@ public class YouluBookMetadataCapture extends AbstractBookMetadataCapture {
 		meta.setName(bookName);
 		meta.setOutId(itemId);
 		meta.setPrice(tagPrice);
-		if(publishDate != null) {
-			meta.setPublishDate(ZisUtils.stringToDate(publishDate, "yyyy年MM月"));
+		if (publishDate != null) {
+			meta.setPublishDate(publishDate);
 		}
 		meta.setPublisher(publisher);
 		meta.setSummary(summary);
@@ -207,11 +225,13 @@ public class YouluBookMetadataCapture extends AbstractBookMetadataCapture {
 	}
 
 	private String parseImageUrl(Document doc) {
-		Element info3 = getUniqueElementByClass(doc, "info3");
-		if(info3 == null) {
+		// Element info3 = getUniqueElementByClass(doc, "info3");
+		Element pic = getUniqueElementByClass(doc, "show-pic");
+		if (pic == null) {
 			return null;
 		}
-		Element node = info3.child(0).child(0).child(0);
+		// Element node = pic.child(0).child(0).child(0);
+		Element node = pic.child(0).child(0).child(0);
 		String imageUrl = node.attr("src").replace("jpg-n", "jpg").replace("jpg-s", "jpg");
 		// 有路网无此图片是通过重定向到noPhoto页面实现的（很古怪的逻辑）
 		String realImageUrl = super.getRedirectUrl(imageUrl);

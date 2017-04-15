@@ -1,6 +1,5 @@
 package com.zis.shiro;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -17,8 +16,6 @@ import com.zis.shiro.bean.Permission;
 import com.zis.shiro.bean.Role;
 import com.zis.shiro.bean.RolePermission;
 import com.zis.shiro.bean.User;
-import com.zis.shiro.dto.ShiroRealmDto;
-import com.zis.shiro.dto.UpdateUserInfo;
 import com.zis.shiro.repository.PermissionDao;
 import com.zis.shiro.repository.RoleDao;
 import com.zis.shiro.repository.RolePermissionDao;
@@ -94,13 +91,13 @@ public class shiroTest {
 		}
 	}
 
-	@Test
-	public void findUserAllInfoHQL() {
-		List<ShiroRealmDto> list1 = userDao.findUserAllInfoHQL("liumang6");
-		for (ShiroRealmDto s : list1) {
-			System.out.println(s);
-		}
-	}
+//	@Test
+//	public void findUserAllInfoHQL() {
+//		List<ShiroRealmDto> list1 = userDao.findUserAllInfoHQL("liumang6");
+//		for (ShiroRealmDto s : list1) {
+//			System.out.println(s);
+//		}
+//	}
 
 	@Test
 	public void findPermissionByUserId() {
