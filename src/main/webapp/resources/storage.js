@@ -147,18 +147,17 @@ function showInwarehouseResult(result) {
 //用户取消入库
 function cancelInStorage() {
 	var i = document.getElementById("storageForm").action = "storage/cancelInStorage";
-	alert(i);
 	document.getElementById("storageForm").submit();
 }
 
 function checkAllOId() {
-	var orderIds = document.getElementsByName('oId');
+	var orderIds = document.getElementsByName('orderId');
 	var checkAll = document.getElementById('checkAll');
-	for ( var i = 0; i < batchIds.length; i++) {
+	for ( var i = 0; i < orderIds.length; i++) {
 		if (checkAll.checked) {
-			batchIds[i].checked = true;
+			orderIds[i].checked = true;
 		} else {
-			batchIds[i].checked = false;
+			orderIds[i].checked = false;
 		}
 	}
 }
@@ -187,4 +186,105 @@ function clearAll() {
 			list[i].value = "";
 		}
 	}
+}
+
+//单个配货
+function pickingUpOrder(orderId) {
+	window.location.href = "storage/pickingUpOrder?orderId=" + orderId;
+	
+}
+
+//单个取消
+function cancelOrder(orderId) {
+	if (confirm("你确定取消吗？")) {
+		window.location.href = "storage/cancelOrder?orderId=" + orderId;
+	} else {
+	}
+}
+
+//批量配货
+function pickingUpOrders() {
+	var oIds = document.getElementsByName('orderId');
+	var checkedEmpty = true;
+	for ( var i = 0; i < oIds.length; i++) {
+		if (oIds[i].checked) {
+			checkedEmpty = false;
+			break;
+		}
+	}
+	if (checkedEmpty) {
+		alert("请选择订单后再进行批量处理");
+		return;
+	} else {
+		document.getElementById("sendForm").action = "storage/pickingUpOrder";
+		document.getElementById("sendForm").submit();
+	}
+}
+
+//批量取消
+function cancelOrders() {
+	var oIds = document.getElementsByName('orderId');
+	var checkedEmpty = true;
+	for ( var i = 0; i < oIds.length; i++) {
+		if (oIds[i].checked) {
+			checkedEmpty = false;
+			break;
+		}
+	}
+	if (checkedEmpty) {
+		alert("请选择订单后再进行批量处理");
+		return;
+	} else {
+		if (confirm("你确定取消吗？")) {
+			document.getElementById("sendForm").action = "storage/cancelOrder";
+			document.getElementById("sendForm").submit();
+		} else {
+		}
+	}
+}
+
+/**
+ * 部分缺货
+ */
+function lackPart() {
+	var amount = prompt("已取图书数量:","");
+	var re = /^[0-9]*[1-9][0-9]*$/;
+	if (!re.test(amount)) {
+		alert("请输入正整数");
+	}else{
+		document.getElementById('actualAmt').value = amount;
+		document.getElementById('takeGoodsForm').action = "storage/lackPart";
+		document.getElementById('takeGoodsForm').submit();
+	}
+}
+
+/**
+ * 全部缺货
+ */
+function lackPart() {
+		document.getElementById('takeGoodsForm').action = "storage/lackAll";
+		document.getElementById('takeGoodsForm').submit();
+}
+
+/**
+ * 下一步取件
+ */
+function nextTakeGoods() {
+		document.getElementById('takeGoodsForm').action = "storage/nextTakeGoods";
+		document.getElementById('takeGoodsForm').submit();
+}
+
+/**
+ * 取件
+ * @param batchId
+ */
+function takeGoods(batchId) {
+	window.location.href = "storage/takeGoods?batchId=" + batchId;
+}
+
+/**
+ * 完成取件
+ */
+function finishTakeGoods(batchId) {
+	window.location.href = "storage/finishTakeGoods?batchId=" + batchId;
 }

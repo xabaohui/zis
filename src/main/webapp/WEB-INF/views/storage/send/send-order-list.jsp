@@ -6,15 +6,9 @@
 <%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags" %> 
 <script type="text/javascript" src="resources/storage.js"></script>
 <script type="text/javascript">
-	function updateCompany(companyId) {
-		window.location.href = "shop/gotoUpdateCompany?companyId=" + companyId;
-	}
-	function registCompany() {
-		window.location.href = "shop/gotoSaveCompany";
-	}
-	function registStock(companyId) {
-		window.location.href = "storage/gotoSaveStorageRepoInfo?companyId="+companyId;
-	}
+	window.onload = function() {
+		checkStatus();
+	};
 </script>
 <style type="text/css">
 #infoDiv table tr td,#infoDiv table tr th {
@@ -38,7 +32,7 @@
 	</h2>
 </div>
 <p />
-<form action="#" method="post">
+<form action="storage/queryStorageOrder" method="post">
 	<div align="center">
 		<table>
 			<tr>
@@ -52,7 +46,7 @@
 			<tr>
 				<td>商品状态</td>
 				<td>
-					<select id = "systemStatus" name = "status" >
+					<select id = "systemStatus" name = "systemStatus" >
 						<option value = "created">新创建</option>
 						<option value = "sent">已出库</option>
 						<option value = "cancel">已取消</option>
@@ -73,40 +67,56 @@
 <div style="width: 100%;" id="infoDiv" align="center">
 	<form id="sendForm" action="">
 		<table>
-			<tr>
-				<td>
-					<input type="button" value = "批量配货" onclick=""/>
-				</td>
-				<td>
-					<input type="button" value = "批量取消"/>
-				</td>
-			</tr>
-		</table>
-		<table>
+			<c:if test="${sendStatus eq 'created'}">
+				<tr>
+					<th colspan="7" align="left">
+						<input type="button" value = "批量配货" onclick="pickingUpOrder()"/>
+						<input style="margin-left: 800px" type="button" value = "批量取消" onclick="cancelOrder()"/>
+					</th>
+				</tr>
+			</c:if>
 			<tr>
 				<th>
 					<input type="checkbox" id = "checkAll" onclick = "checkAllOId()"/>全选
 				</th>
-				<th>公司名称</th>
-				<th>联系人</th>
-				<th>手机号</th>
-				<th>地址</th>
-				<th>创建日期</th>
+				<th>创建时间</th>
+				<th>订单号</th>
+				<th>收件人姓名</th>
+				<th>状态</th>
+				<th>订单详情</th>
 				<th>操作</th>
 			</tr>
 			<c:forEach items="${orderList}" var="order">
 				<tr>
-				<td><input name = "oId" type="checkbox" value="${order.storageOrder.id}"/></td>
-				<td><a href="shop/gotoUpdateCompany?companyId=${companyStock.company.companyId}">${companyStock.company.companyName}</a></td>
-				<td>${companyStock.company.contacts}</td>
-				<td>${companyStock.company.mobile}</td>
-				<td  width="30%">${companyStock.company.address}</td>
-				<td><fmt:formatDate value="${companyStock.company.createTime}" pattern="yyyy年MM月dd日"/></td>
+				<td><input name = "orderId" type="checkbox" value="${order.storageOrder.orderId}"/></td>
 				<td>
-					<input type="button" value = "修改" onclick="updateCompany('${companyStock.company.companyId}')"/>
-					&nbsp; &nbsp;
-					<c:if test="${empty companyStock.storageRepoInfo}">
-						<input type="button" value = "新增仓库" onclick="registStock('${companyStock.company.companyId}')"/>
+					<fmt:formatDate value="${order.storageOrder.gmtCreate}" pattern="yyyy-MM-dd"/>
+					<br/>
+					<fmt:formatDate value="${order.storageOrder.gmtCreate}" pattern="HH-mm-ss"/>
+				</td>
+				<td>${order.storageOrder.outTradeNo}</td>
+				<td>${order.storageOrder.buyerName}</td>
+				<td>
+					${order.storageOrder.tradeStatus}
+				</td>
+				<td  width="35%">
+					<c:set value = "${order.oList}" var = "dtoList"/>
+						<c:forEach items="${dtoList}" var="dto" >
+							<table>
+								<tr>
+									<td>
+										${dto.bookTitle}&nbsp;X&nbsp;${dto.bookAmount}
+									</td>
+								</tr>
+							</table>
+						</c:forEach>
+				</td>
+				<td>
+					<c:if test="${order.storageOrder.tradeStatus eq '新创建'}">
+						<input type="button" value = "配货" onclick="pickingUpOrder('${order.storageOrder.orderId}')"/>
+						<br/>
+						<br/>
+						<input type="button" value = "取消" onclick="cancelOrder('${order.storageOrder.orderId}')"/>
 					</c:if>
 				</td>
 				</tr>
@@ -117,11 +127,11 @@
 <div align="center">
 	<!-- 分页查询start-->
 	<c:if test="${not empty prePage}">
-		<a href="shop/showCompanys?${queryCondition}page=${prePage}">上一页</a>&nbsp;
+		<a href="storage/queryStorageOrder?${queryCondition}page=${prePage}">上一页</a>&nbsp;
 	</c:if>
 	${page} &nbsp;
 	<c:if test="${not empty nextPage}">
-		<a href="shop/showCompanys?${queryCondition}page=${nextPage}">下一页</a>&nbsp;
+		<a href="storage/queryStorageOrder?${queryCondition}page=${nextPage}">下一页</a>&nbsp;
 	</c:if>
 	<!-- 分页查询end -->
 </div>
