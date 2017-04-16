@@ -10,6 +10,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
 <html>
 	<head>
+		
 		<base href="<%=basePath%>">
 		<title>在见书城 - 后台管理系统</title>
 		<meta http-equiv="pragma" content="no-cache">
@@ -17,7 +18,12 @@
 		<meta http-equiv="expires" content="0">
 		<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
 		<meta http-equiv="description" content="This is my page">
-
+		
+		<meta name="viewport" content="width=device-width,height=device-height,inital-scale=1.0,maximum-scale=1.0,user-scalable=no;">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<meta name="format-detection" content="telephone=no">
+		
 		<title>左右分开</title>
 		<style type="text/css">
 			html,body {
@@ -139,12 +145,15 @@
 				<ul name = "showListTop" style="display: none" class = "showListTop" >
 					<shiro:hasPermission name="bookInfo:view">
 						<li><a href="<%=basePath%>bookInfo/getAllBooks">图书列表</a></li>
+						<br/>
 					</shiro:hasPermission>
 					<shiro:hasPermission name="bookInfo:saveOrUpdate">
 						<li><a href="<%=basePath%>bookInfo/gotoAddBook">新增图书</a></li>
+						<br/>
 					</shiro:hasPermission>
 					<shiro:hasPermission name="bookInfo:saveOrUpdate">
 						<li><a href="<%=basePath%>bookInfo/gotoAddYouLuData">批量增加</a></li>
+						<br/>
 					</shiro:hasPermission>
 						<li><a href="<%=basePath%>shop/showCompanyInfo">公司管理</a></li>
 				</ul>
@@ -154,12 +163,15 @@
 				<ul name = "showListTop" style="display: none" class = "showListTop">
 					<shiro:hasPermission name="requirement:school:view">
 						<li><a href="<%=basePath%>/requirement/findSchoolInfo">院校信息</a></li>
+						<br/>
 					</shiro:hasPermission>
 					<shiro:hasPermission name="requirement:school:saveOrUpdate">
 						<li><a href="<%=basePath%>/requirement/updateSchoolPre">添加院校</a></li>
+						<br/>
 					</shiro:hasPermission>
 					<shiro:hasPermission name="requirement:books:view or requirement:books:input or requirement:books:output">
 						<li><a href="<%=basePath%>/requirement/getAmountAction">教材使用量</a></li>
+						<br/>
 					</shiro:hasPermission>
 				</ul>
 			</ul>
@@ -168,6 +180,7 @@
 				<ul name = "showListTop" style="display: none" class = "showListTop">
 					<shiro:hasPermission name="purchase:view or purchase:management">
 						<li><a href="<%=basePath%>purchase/queryPurchasePlan">采购计划</a></li>
+						<br/>
 					</shiro:hasPermission>
 					<shiro:hasPermission name="purchase:view or purchase:management">
 						<li><a href="<%=basePath%>purchase/queryPurchaseDetail">采购明细</a></li>
@@ -179,6 +192,7 @@
 				<ul name = "showListTop" style="display: none" class = "showListTop">
 					<shiro:hasPermission name="data:dataInfo">
 						<li><a href="<%=basePath%>purchase/viewTempImportTask">数据导入</a></li>
+						<br/>
 					</shiro:hasPermission>
 					<shiro:hasPermission name="data:dataInfo">
 						<li><a href="purchase/gotoTempImportUpload">新表导入</a></li>
@@ -190,6 +204,7 @@
 				<ul name = "showListTop" style="display: none" class = "showListTop">
 					<shiro:hasPermission name="stock:input">
 						<li><a href="<%=basePath%>purchase/gotoInWarehouse">扫描入库</a></li>
+						<br/>
 					</shiro:hasPermission>
 					<shiro:hasPermission name="stock:view or stock:input or stock:output or stock:delete">
 						<li><a href="purchase/viewInwarehouseList">入库单列表</a></li>
@@ -201,15 +216,19 @@
 				<ul name = "showListTop" style="display: none" class = "showListTop">
 					<shiro:hasPermission name="toolkit:toolkit">
 						<li><a href="<%=basePath%>/purchase/gotoSysFunc">系统功能</a></li>
+						<br/>
 					</shiro:hasPermission>
 					<shiro:hasPermission name="toolkit:toolkit">
 						<li><a href="<%=basePath%>/purchase/querySysVarAction">系统设置</a></li>
+						<br/>
 					</shiro:hasPermission>
 					<shiro:hasPermission name="toolkit:toolkit">
 						<li><a href="<%=basePath%>/toolkit/gotoToolkit">内容修复</a></li>
+						<br/>
 					</shiro:hasPermission>
 					<shiro:hasPermission name="toolkit:toolkit">
 						<li><a href="https://github.com/xabaohui/zis/issues" target="_blank" onclick="alert('账户名：zisuser，密码：hello1234')">提个建议</a></li>
+						<br/>
 					</shiro:hasPermission>
 				</ul>
 			</ul>
@@ -218,15 +237,19 @@
 				<ul name = "showListTop" style="display: none" class = "showListTop">
 					<shiro:hasPermission name="shiro:gotoCreatePermission">
 						<li><a href="<%=basePath%>shiro/gotoCreatePermission">创建权限测试用</a></li>
+						<br/>
 					</shiro:hasPermission>
 					<shiro:hasPermission name="shiro:shiro">
 						<li><a href="<%=basePath%>shiro/updateWaitUser">用户管理</a></li> 
+						<br/>
 					</shiro:hasPermission>
 					<shiro:hasPermission name="shiro:shiro">
 						<li><a href="<%=basePath%>shiro/updateWaitRole">角色管理</a></li> 
+						<br/>
 					</shiro:hasPermission>
 					<shiro:hasPermission name="shiro:shiro">
-						<li><a href="<%=basePath%>shop/showCompanys">公司管理</a></li> 
+						<li><a href="<%=basePath%>shop/showCompanys">公司管理</a></li>
+						<br/> 
 					</shiro:hasPermission>
 					<shiro:authenticated>
 						<li><a href="<%=basePath%>shiro/gotoGeneralUserUpdatePassword">密码修改</a></li>
@@ -237,7 +260,13 @@
 			<font style="font-weight: bolder;">库存管理(新)</font>
 				<ul name = "showListTop" style="display: none" class = "showListTop">
 						<li><a href="<%=basePath%>storage/gotoInwarehouse">扫描入库</a></li>
+						<br/>
 						<li><a href="storage/gotoFastInwarehouse">快速入库</a></li>
+						<br/>
+						<li><a href="storage/queryStorageOrder">订单列表</a></li>
+						<br/>
+						<li><a href="storage/querytTakeGoods">配货批次</a></li>
+						<li><a href="storage/testOrder">下单</a></li>
 				</ul>
 			</ul>
 		</div>

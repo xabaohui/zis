@@ -1,12 +1,15 @@
 package com.zis.storage.repository;
 
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 
 import com.zis.storage.entity.StorageIoBatch;
 
-public interface StorageIoBatchDao extends CrudRepository<StorageIoBatch, Integer> {
+public interface StorageIoBatchDao extends CrudRepository<StorageIoBatch, Integer>,
+PagingAndSortingRepository<StorageIoBatch, Integer>, JpaSpecificationExecutor<StorageIoBatch>  {
 
 	/**
 	 * 查找出当天的批次

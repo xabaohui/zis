@@ -22,7 +22,6 @@
 		$('userInput').value = '';
 	};
 </script>
-
 <!-- 播放器 -->
 <div style="display:none">
 	<embed src="/zis/resources/scanPass.wav" autoplay="false" Volume="100"

@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,14 +25,24 @@ import com.zis.common.mvc.ext.QueryUtil;
 import com.zis.common.mvc.ext.Token;
 import com.zis.common.mvc.ext.WebHelper;
 import com.zis.shop.util.ShopUtil;
+import com.zis.storage.dto.CreateOrderDTO;
 import com.zis.storage.dto.CreateOrderDTO.CreateOrderDetail;
 import com.zis.storage.dto.OrderDetailDto;
+import com.zis.storage.dto.StorageIoBatchDTO;
 import com.zis.storage.dto.StorageOrderDto;
+import com.zis.storage.entity.StorageIoBatch;
+import com.zis.storage.entity.StorageIoBatch.BizType;
+import com.zis.storage.entity.StorageIoBatch.Status;
+import com.zis.storage.entity.StorageIoDetail;
 import com.zis.storage.entity.StorageOrder;
+import com.zis.storage.entity.StorageOrder.OrderType;
 import com.zis.storage.entity.StorageOrder.TradeStatus;
 import com.zis.storage.entity.StorageRepoInfo;
+import com.zis.storage.repository.StorageIoBatchDao;
 import com.zis.storage.repository.StorageOrderDao;
 import com.zis.storage.repository.StorageRepoInfoDao;
+import com.zis.storage.service.StorageService;
+import com.zis.storage.util.StorageUtil;
 
 @Controller
 @RequestMapping(value = "/storage")
@@ -44,8 +55,14 @@ public class StorageController {
 	private StorageOrderDao storageOrderDao;
 
 	@Autowired
+	private StorageService storageService;
+
+	@Autowired
+	private StorageIoBatchDao storageIoBatchDao;
+
+	@Autowired
 	private BookService bookService;
-	
+
 	private final Integer DEFAULT_SIZE = 100;
 
 	private final String[] allStatus = { TradeStatus.CREATED.getValue(), TradeStatus.PROCESSING.getValue(),
@@ -87,16 +104,252 @@ public class StorageController {
 	 */
 	@RequestMapping(value = "/queryStorageOrder")
 	public String queryStorageOrder(HttpServletRequest request, ModelMap map, String outTradeNo, String buyerName,
-			String status) {
+			String systemStatus) {
+		// 如果状态为空默认选择新创建状态
+		if (StringUtils.isBlank(systemStatus)) {
+			systemStatus = StorageOrder.TradeStatus.CREATED.getValue();
+		}
 		List<String> sList = Arrays.asList(allStatus);
-		if (!sList.contains(status)) {
+		if (!sList.contains(systemStatus)) {
 			map.put("actionError", "错误的订单状态");
 			return "error";
 		}
-		//创建分页查询
-		pageInfo(request, map, outTradeNo, buyerName, status);
-		map.put("sendStatus", status);
+		// 创建分页查询
+		pageInfo(request, map, outTradeNo, buyerName, systemStatus);
+		map.put("sendStatus", systemStatus);
+		return "storage/send/send-order-list";
+	}
+
+	/**
+	 * 取消订单
+	 * 
+	 * @param orderId
+	 * @param map
+	 * @return
+	 */
+	@RequestMapping(value = "/cancelOrder")
+	public String cancelOrder(Integer[] orderId, ModelMap map) {
+		try {
+			for (Integer i : orderId) {
+				this.storageService.cancelOrder(i);
+			}
+			map.put("actionMessage", "订单取消成功，订单号：" + getOutTradeNo(orderId));
+			return "forward:/storage/queryStorageOrder";
+		} catch (Exception e) {
+			map.put("actionError", e.getMessage());
+			return "error";
+		}
+	}
+
+	/**
+	 * 配货
+	 * 
+	 * @param orderId
+	 * @param map
+	 * @return
+	 */
+	@RequestMapping(value = "/pickingUpOrder")
+	public String pickingUpOrder(Integer[] orderId, ModelMap map) {
+		try {
+			List<Integer> orderIds = Arrays.asList(orderId);
+			Integer i = this.storageService.arrangeOrder(StorageUtil.getRepoId(), orderIds, StorageUtil.getUserId());
+			map.put("actionMessage", "共生成了" + i + " 条订单开始配货");
+			return "forward:/storage/queryStorageOrder";
+		} catch (Exception e) {
+			map.put("actionError", e.getMessage());
+			return "error";
+		}
+	}
+
+	/**
+	 * 取件
+	 * 
+	 * @param map
+	 * @param batchId
+	 * @return
+	 */
+	@RequestMapping(value = "/takeGoods")
+	public String takeGoods(ModelMap map, Integer batchId) {
+		try {
+			StorageIoDetail io = this.storageService.pickupLock(batchId, StorageUtil.getUserId());
+			if (io == null) {
+				map.put("actionMessage", "本批次取货完成，请点击对应批次进行完成");
+				return "forward:/storage/querytTakeGoods";
+			}
+			map.put("ioDetail", io);
+			map.put("title", buildTakeGoodsTitle(io.getSkuId()));
+			return "storage/send/take-goods";
+		} catch (Exception e) {
+			map.put("actionError", e.getMessage());
+			return "error";
+		}
+	}
+
+	/**
+	 * 下一步取件
+	 * 
+	 * @param map
+	 * @param ioDetailId
+	 * @return
+	 */
+	@RequestMapping(value = "/nextTakeGoods")
+	public String nextTakeGoods(ModelMap map, Integer ioDetailId) {
+		try {
+			StorageIoDetail io = this.storageService.pickupDoneAndLockNext(ioDetailId, StorageUtil.getUserId());
+			if (io == null) {
+				map.put("actionMessage", "本批次取货完成，请点击对应批次进行完成");
+				return "forward:/storage/querytTakeGoods";
+			}
+			map.put("ioDetail", io);
+			map.put("title", buildTakeGoodsTitle(io.getSkuId()));
+			return "storage/send/take-goods";
+		} catch (Exception e) {
+			map.put("actionError", e.getMessage());
+			return "error";
+		}
+	}
+
+	/**
+	 * 部分缺货
+	 * 
+	 * @param map
+	 * @param ioDetailId
+	 * @param actualAmt
+	 * @return
+	 */
+	@RequestMapping(value = "/lackPart")
+	public String lackPart(ModelMap map, Integer ioDetailId, Integer actualAmt) {
+		try {
+			StorageIoDetail io = this.storageService.lackPart(ioDetailId, StorageUtil.getUserId(), actualAmt);
+			if (io == null) {
+				map.put("actionMessage", "本批次取货完成，请点击对应批次进行完成");
+				return "forward:/storage/querytTakeGoods";
+			}
+			map.put("ioDetail", io);
+			map.put("title", buildTakeGoodsTitle(io.getSkuId()));
+			return "storage/send/take-goods";
+		} catch (Exception e) {
+			map.put("actionError", e.getMessage());
+			return "error";
+		}
+	}
+
+	/**
+	 * 全部缺货
+	 * 
+	 * @param map
+	 * @param ioDetailId
+	 * @return
+	 */
+	@RequestMapping(value = "/lackAll")
+	public String lackAll(ModelMap map, Integer ioDetailId) {
+		try {
+			StorageIoDetail io = this.storageService.lackAll(ioDetailId, StorageUtil.getUserId());
+			if (io == null) {
+				map.put("actionMessage", "本批次取货完成，请点击对应批次进行完成");
+				return "forward:/storage/querytTakeGoods";
+			}
+			map.put("ioDetail", io);
+			map.put("title", buildTakeGoodsTitle(io.getSkuId()));
+			return "storage/send/take-goods";
+		} catch (Exception e) {
+			map.put("actionError", e.getMessage());
+			return "error";
+		}
+	}
+
+	/**
+	 * 完成所有取件确认
+	 * @param map
+	 * @param batchId
+	 * @return
+	 */
+	@RequestMapping(value = "/finishTakeGoods")
+	public String finishTakeGoods(ModelMap map, Integer batchId) {
+		try {
+			this.storageService.finishBatchSend(batchId);
+			map.put("actionMessage", "批次" + batchId + "操作成功");
+			return "forward:/storage/querytTakeGoods";
+		} catch (Exception e) {
+			map.put("actionError", e.getMessage());
+			return "forward:/storage/querytTakeGoods";
+		}
+	}
+
+	/**
+	 * 获取book标题
+	 * 
+	 * @param skuId
+	 * @return
+	 */
+	private String buildTakeGoodsTitle(Integer skuId) {
+		Bookinfo book = this.bookService.findBookById(skuId);
+		String bookName = book.getBookName();
+		String bookIsbn = book.getIsbn();
+		return String.format("%s  %s", bookName, bookIsbn);
+	}
+	
+	//TODO 测试后删除
+	@RequestMapping(value = "testOrder")
+	public String createOrder(){
+		CreateOrderDTO dto = new CreateOrderDTO();
+		List<CreateOrderDetail> list = new ArrayList<CreateOrderDetail>();
+		CreateOrderDetail d = new CreateOrderDetail();
+		d.setSkuId(9);
+		d.setAmount(2);
+		CreateOrderDetail d2 = new CreateOrderDetail();
+		d2.setSkuId(948);
+		d2.setAmount(2);
+		list.add(d);
+		list.add(d2);
+		dto.setDetailList(list);
+		dto.setBuyerName("马蓉");
+		dto.setOrderType(OrderType.SELF);
+		dto.setOutTradeNo("s2132222ri");
+		dto.setRepoId(3);
+		dto.setShopId(14);
+		this.storageService.createOrder(dto);
 		return "";
+	}
+
+	/**
+	 * 查询待配货批次
+	 * 
+	 * @param request
+	 * @param map
+	 * @return
+	 */
+	@RequestMapping(value = "/querytTakeGoods")
+	public String querytTakeGoods(HttpServletRequest request, ModelMap map) {
+		Pageable page = WebHelper.buildPageRequest(request);
+		QueryUtil<StorageIoBatch> query = new QueryUtil<StorageIoBatch>();
+		// 获取配货状态
+		query.eq("bizType", BizType.OUT_BATCH.getValue());
+		query.eq("status", Status.CREATED.getValue());
+		query.eq("repoId", StorageUtil.getRepoId());
+		Page<StorageIoBatch> orderList = this.storageIoBatchDao.findAll(query.getSpecification(), page);
+		if (!orderList.getContent().isEmpty()) {
+			List<StorageIoBatch> list = orderList.getContent();
+			List<StorageIoBatchDTO> listShow = new ArrayList<StorageIoBatchDTO>();
+			// 将状态转换为中文
+			for (StorageIoBatch s : list) {
+				StorageIoBatchDTO io = new StorageIoBatchDTO();
+				BeanUtils.copyProperties(s, io);
+				io.setZhCnStatus(Status.getStatus(s.getStatus()).getDisplay());
+				listShow.add(io);
+			}
+			map.put("batchList", listShow);
+			map.put("page", page.getPageNumber() + 1);
+			if (orderList.hasPrevious()) {
+				map.put("prePage", page.previousOrFirst().getPageNumber());
+			}
+			if (orderList.hasNext()) {
+				map.put("nextPage", page.next().getPageNumber());
+			}
+		} else {
+			map.put("notResult", "未找到需要的结果");
+		}
+		return "storage/send/take-goods-list";
 	}
 
 	/**
@@ -140,22 +393,6 @@ public class StorageController {
 		saveStorageRepoInfo(stockName, companyId);
 		map.put("actionMessage", "仓库创建成功");
 		return "forward:/shop/showCompanys";
-	}
-
-	/**
-	 * 新增仓库
-	 * 
-	 * @param stockName
-	 * @param companyId
-	 */
-	private void saveStorageRepoInfo(String stockName, Integer companyId) {
-		StorageRepoInfo info = new StorageRepoInfo();
-		info.setName(stockName);
-		info.setOwnerId(companyId);
-		info.setStatus(StorageRepoInfo.Status.AVAILABLE.getValue());
-		info.setGmtCreate(new Date());
-		info.setGmtModify(new Date());
-		this.storageRepoInfoDao.save(info);
 	}
 
 	/**
@@ -203,6 +440,37 @@ public class StorageController {
 	}
 
 	/**
+	 * 新增仓库
+	 * 
+	 * @param stockName
+	 * @param companyId
+	 */
+	private void saveStorageRepoInfo(String stockName, Integer companyId) {
+		StorageRepoInfo info = new StorageRepoInfo();
+		info.setName(stockName);
+		info.setOwnerId(companyId);
+		info.setStatus(StorageRepoInfo.Status.AVAILABLE.getValue());
+		info.setGmtCreate(new Date());
+		info.setGmtModify(new Date());
+		this.storageRepoInfoDao.save(info);
+	}
+
+	/**
+	 * 获取订单号页面展示用
+	 * 
+	 * @param orderId
+	 * @return
+	 */
+	private List<String> getOutTradeNo(Integer... orderId) {
+		List<String> list = new ArrayList<String>();
+		for (Integer i : orderId) {
+			StorageOrder order = this.storageOrderDao.findOne(i);
+			list.add(order.getOutTradeNo());
+		}
+		return list;
+	}
+
+	/**
 	 * 更新仓库
 	 * 
 	 * @param stockName
@@ -234,10 +502,6 @@ public class StorageController {
 	 */
 	private void pageInfo(HttpServletRequest request, ModelMap map, String outTradeNo, String buyerName, String status) {
 		Pageable page = WebHelper.buildPageRequest(request);
-		//如果状态为空默认选择新创建状态
-		if (StringUtils.isBlank(status)) {
-			status = StorageOrder.TradeStatus.CREATED.getValue();
-		}
 		Specification<StorageOrder> spec = buildSpec(status, outTradeNo, buyerName);
 		Page<StorageOrder> orderList = this.storageOrderDao.findAll(spec, page);
 		if (!orderList.getContent().isEmpty()) {
@@ -312,7 +576,11 @@ public class StorageController {
 		Bookinfo book = this.bookService.findBookById(bookId);
 		String isbn = book.getIsbn();
 		String last4Isbn = isbn.substring(isbn.length() - 4, isbn.length());
-		String title = String.format("%s %s", book.getBookName(), last4Isbn);
+		String bookName = book.getBookName();
+		if (bookName.length() > 20) {
+			bookName = book.getBookName().substring(0, 20);
+		}
+		String title = String.format("%s %s", bookName, last4Isbn);
 		return title;
 	}
 
@@ -326,7 +594,7 @@ public class StorageController {
 	private Specification<StorageOrder> buildSpec(String status, String outTradeNo, String buyerName) {
 		QueryUtil<StorageOrder> query = new QueryUtil<StorageOrder>();
 		if (StringUtils.isNotBlank(status)) {
-			query.eq("status", status);
+			query.eq("tradeStatus", status);
 		}
 		if (StringUtils.isNotBlank(buyerName)) {
 			query.eq("buyerName", buyerName);
@@ -334,6 +602,7 @@ public class StorageController {
 		if (StringUtils.isNotBlank(outTradeNo)) {
 			query.eq("outTradeNo", outTradeNo);
 		}
+		query.eq("repoId", StorageUtil.getRepoId());
 		return query.getSpecification();
 	}
 

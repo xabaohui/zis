@@ -231,5 +231,14 @@ public class StorageIoBatch {
 		public String getDisplay() {
 			return display;
 		}
+		
+		public static Status getStatus(String value) {
+			for (Status status : Status.values()) {
+				if(status.getValue().equals(value)) {
+					return status;
+				}
+			}
+			return null;
+		}
 	}
 }
