@@ -39,7 +39,7 @@ public interface StoragePosStockDao extends JpaRepository<StoragePosStock, Integ
 	StoragePosStock findByLabelAndProductId(@Param("repoId")Integer repoId, @Param("posLabel")String posLabel, @Param("productId")Integer productId);
 	
 	/**
-	 * 查询可用库存分布
+	 * 查询库存分布（可用）
 	 * @param productId
 	 * @return
 	 */
@@ -49,4 +49,16 @@ public interface StoragePosStockDao extends JpaRepository<StoragePosStock, Integ
 			"and s.totalAmt > s.occupyAmt and s.productId = :productId " +
 			"order by (s.totalAmt - s.occupyAmt) desc")
 	List<com.zis.storage.dto.StockDTO> findAvailableStock(@Param("productId")Integer productId);
+	
+	/**
+	 * 查询库存分布（所有）
+	 * @param productId
+	 * @return
+	 */
+	@Query("select new com.zis.storage.dto.StockDTO(s.stockId, pos.posId, pos.label, prod.repoId, prod.productId, prod.skuId, s.totalAmt, s.occupyAmt) " +
+			"from StoragePosStock s, StoragePosition pos, StorageProduct prod " +
+			"where s.posId=pos.posId and s.productId=prod.productId " +
+			"and s.productId = :productId " +
+			"order by (s.totalAmt - s.occupyAmt) desc")
+	List<com.zis.storage.dto.StockDTO> findAllStock(@Param("productId")Integer productId);
 }

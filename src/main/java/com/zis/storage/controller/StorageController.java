@@ -3,48 +3,62 @@ package com.zis.storage.controller;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSONObject;
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.service.BookService;
+import com.zis.common.controllertemplate.ViewTips;
 import com.zis.common.mvc.ext.QueryUtil;
 import com.zis.common.mvc.ext.Token;
 import com.zis.common.mvc.ext.WebHelper;
 import com.zis.shop.util.ShopUtil;
 import com.zis.storage.dto.CreateOrderDTO.CreateOrderDetail;
 import com.zis.storage.dto.OrderDetailDto;
+import com.zis.storage.dto.StockDTO;
 import com.zis.storage.dto.StorageOrderDto;
+import com.zis.storage.dto.StorageProductViewDTO;
+import com.zis.storage.entity.StorageIoDetail;
 import com.zis.storage.entity.StorageOrder;
 import com.zis.storage.entity.StorageOrder.TradeStatus;
+import com.zis.storage.entity.StorageProduct;
 import com.zis.storage.entity.StorageRepoInfo;
 import com.zis.storage.repository.StorageOrderDao;
 import com.zis.storage.repository.StorageRepoInfoDao;
+import com.zis.storage.service.StorageService;
+import com.zis.storage.util.StorageUtil;
 
 @Controller
 @RequestMapping(value = "/storage")
-public class StorageController {
+public class StorageController implements ViewTips{
 
 	@Autowired
 	private StorageRepoInfoDao storageRepoInfoDao;
 
 	@Autowired
 	private StorageOrderDao storageOrderDao;
-
+	
 	@Autowired
 	private BookService bookService;
+
+	@Autowired
+	private StorageService storageService;
 	
 	private final Integer DEFAULT_SIZE = 100;
 
@@ -356,5 +370,111 @@ public class StorageController {
 		}
 		condition.append("size=" + DEFAULT_SIZE + "&");
 		map.put("queryCondition", condition.toString());
+	}
+	
+	private static final String VIEW_URL_PRODUCT_LIST = "storage/stock/product-list";
+	
+	/**
+	 * 条件查询商品库存
+	 * @param isbn
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "stock/listProducts")
+	public String queryStorageProduct(String isbn, ModelMap model) {
+		if(StringUtils.isBlank(isbn)) {
+			model.put(ACTION_ERROR, "isbn不能为空");
+			return VIEW_URL_PRODUCT_LIST;
+		}
+		// 查询图书
+		List<Bookinfo> books = this.bookService.findBookByISBN(isbn);
+		if(CollectionUtils.isEmpty(books)) {
+			model.put(NO_RESULT, "没有找到相关记录");
+			return VIEW_URL_PRODUCT_LIST;
+		}
+		Map<Integer, StorageProductViewDTO> bookMap = new HashMap<Integer, StorageProductViewDTO>();
+		for (Bookinfo book : books) {
+			StorageProductViewDTO view = new StorageProductViewDTO();
+			BeanUtils.copyProperties(book, view);
+			bookMap.put(book.getId(), view);
+		}
+		// 查询库存
+		List<Integer> bookIds = new ArrayList<Integer>(bookMap.keySet());
+		List<StorageProduct> storageProds = this.storageService.findStorageProductBySkuIdsAndRepoId(bookIds, StorageUtil.getRepoId());
+		if(CollectionUtils.isEmpty(storageProds)) {
+			model.put(NO_RESULT, "没有找到相关记录");
+			return VIEW_URL_PRODUCT_LIST;
+		}
+		// 转换结果
+		for (StorageProduct prod : storageProds) {
+			StorageProductViewDTO v = bookMap.get(prod.getSkuId());
+			BeanUtils.copyProperties(prod, v);
+		}
+		model.put("storageProducts", bookMap.values());
+		model.put("isbn", isbn);
+		return VIEW_URL_PRODUCT_LIST;
+	}
+	
+	private static final String VIEW_URL_STOCK_DIST = "storage/stock/stock-dist-list";
+	
+	/**
+	 * 查询库存分布
+	 * @param productId
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping("stock/listStockDist")
+	public String queryStoragePosStock(Integer productId, ModelMap model) {
+		// 参数检验
+		if(productId == null) {
+			model.put(ACTION_ERROR, "未选择任何图书");
+			return VIEW_URL_STOCK_DIST;
+		}
+		// 查询库存分布
+		List<StockDTO> list = this.storageService.findAllStockByProductId(productId);
+		if(CollectionUtils.isEmpty(list)) {
+			model.put(ACTION_MESSAGE, "无库存记录");
+			return VIEW_URL_STOCK_DIST;
+		}
+		Integer bookId = list.get(0).getSkuId();
+		// 查询图书基本信息
+		Bookinfo book = this.bookService.findBookById(bookId);
+		if(book == null) {
+			model.put(ACTION_MESSAGE, "无此图书");
+			return VIEW_URL_STOCK_DIST;
+		}
+		// 数据写入页面
+		model.put("list", list);
+		model.put("book", book);
+		return VIEW_URL_STOCK_DIST;
+	}
+	
+	private static final String VIEW_URL_STOCK_ALTER = "storage/stock/stock-alter-list";
+
+	@RequestMapping("stock/listStockAlter")
+	public String queryStorageIoDetails(Integer productId, Integer posId, ModelMap model, HttpServletRequest request) {
+		// 参数检验
+		if(productId == null) {
+			model.put(ACTION_ERROR, "未选择任何图书");
+			return VIEW_URL_STOCK_ALTER;
+		}
+		// 查询库存变动
+		Pageable page = WebHelper.buildPageRequest(request);
+		Page<StorageIoDetail> rs = storageService.findStorageIoDetailByProductIdAndPosId(productId, posId, page);
+		if(CollectionUtils.isEmpty(rs.getContent())) {
+			model.put(ACTION_MESSAGE, "没有相关记录");
+			return VIEW_URL_STOCK_ALTER;
+		}
+		// 查询图书基本信息
+		Integer bookId = rs.getContent().get(0).getSkuId();
+		Bookinfo book = this.bookService.findBookById(bookId);
+		if (book == null) {
+			model.put(ACTION_MESSAGE, "无此图书");
+			return VIEW_URL_STOCK_ALTER;
+		}
+		// 数据写入页面
+		model.put("list", rs.getContent());
+		model.put("book", book);
+		return VIEW_URL_STOCK_ALTER;
 	}
 }

@@ -2,11 +2,16 @@ package com.zis.storage.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.zis.storage.dto.CreateOrderDTO;
+import com.zis.storage.dto.StockDTO;
 import com.zis.storage.entity.StorageIoBatch;
 import com.zis.storage.entity.StorageIoDetail;
 import com.zis.storage.entity.StorageOrder;
 import com.zis.storage.entity.StoragePosition;
+import com.zis.storage.entity.StorageProduct;
 
 /**
  * 仓储模块对外统一接口
@@ -182,4 +187,32 @@ public interface StorageService {
 	
 	// ----- 库位相关方法 -----
 	StoragePosition createStoragePosition(Integer repoId, String posLabel);
+	
+	// ----- 查询相关方法 -----
+	/**
+	 * 按照仓库Id和skuIds查询库存商品
+	 * @param skuIds
+	 * @param repoId
+	 * @return
+	 */
+	List<StorageProduct> findStorageProductBySkuIdsAndRepoId(List<Integer> skuIds, Integer repoId);
+	
+	/**
+	 * 按照productId查询商品的库存分布明细
+	 * @param productId 库存商品表Id，注意不是skuId
+	 * @return
+	 */
+	List<StockDTO> findAllStockByProductId(Integer productId);
+	
+	/**
+	 * 查询变动明细-按照库存商品Id
+	 * @return
+	 */
+	Page<StorageIoDetail> findStorageIoDetailByProductId(Integer productId, Pageable page);
+
+	/**
+	 * 查询变动明细-按照库存商品Id、库位
+	 * @return
+	 */
+	Page<StorageIoDetail> findStorageIoDetailByProductIdAndPosId(Integer productId, Integer posId, Pageable page);
 }

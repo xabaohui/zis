@@ -8,6 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -15,6 +19,7 @@ import org.springframework.util.CollectionUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.zis.storage.dto.CreateOrderDTO;
 import com.zis.storage.dto.CreateOrderDTO.CreateOrderDetail;
+import com.zis.storage.dto.StockDTO;
 import com.zis.storage.entity.StorageIoBatch;
 import com.zis.storage.entity.StorageIoBatch.BizType;
 import com.zis.storage.entity.StorageIoDetail;
@@ -878,4 +883,45 @@ public class StorageServiceImpl implements StorageService {
 		return pos;
 	}
 
+	@Override
+	public List<StorageProduct> findStorageProductBySkuIdsAndRepoId(List<Integer> skuIds, Integer repoId) {
+		if (repoId == null) {
+			throw new IllegalArgumentException("repoId不能为空");
+		}
+		if (CollectionUtils.isEmpty(skuIds)) {
+			throw new IllegalArgumentException("skuIds不能为空");
+		}
+		return storageProductDao.findBySkuIdsAndRepoId(skuIds, repoId);
+	}
+
+	@Override
+	public List<StockDTO> findAllStockByProductId(Integer productId) {
+		if (productId == null) {
+			throw new IllegalArgumentException("productId不能为空");
+		}
+		return storagePosStockDao.findAllStock(productId);
+	}
+
+	@Override
+	public Page<StorageIoDetail> findStorageIoDetailByProductId(Integer productId, Pageable page) {
+		return findStorageIoDetailByProductIdAndPosId(productId, null, page);
+	}
+
+	@Override
+	public Page<StorageIoDetail> findStorageIoDetailByProductIdAndPosId(Integer productId, Integer posId, Pageable page) {
+		if (productId == null) {
+			throw new IllegalArgumentException("productId不能为空");
+		}
+		if (page == null) {
+			throw new IllegalArgumentException("page不能为空");
+		}
+		// 设置排序方式：按照库位、创建时间降序
+		Pageable searchPage = new PageRequest(page.getPageNumber(), page.getPageSize(), Direction.ASC,
+				StorageIoDetail.SORT_POS_ID, StorageIoDetail.SORT_CREATE_TIME);
+		if(posId == null) {
+			return storageIoDetailDao.findByProductIdAndDetailStatus(productId, DetailStatus.SUCCESS.getValue(), searchPage);
+		} else {
+			return storageIoDetailDao.findByProductIdAndPosIdAndDetailStatus(productId, posId, DetailStatus.SUCCESS.getValue(), searchPage);
+		}
+	}
 }

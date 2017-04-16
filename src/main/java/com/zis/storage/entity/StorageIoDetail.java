@@ -17,6 +17,9 @@ import javax.persistence.Version;
 @Entity
 @Table(name = "storage_io_detail")
 public class StorageIoDetail {
+	
+	public static final String SORT_POS_ID = "posId";
+	public static final String SORT_CREATE_TIME = "gmtCreate";
 
 	// Fields
 	@Id

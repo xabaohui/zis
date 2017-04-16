@@ -2,15 +2,17 @@ package com.zis.storage.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 
 import com.zis.storage.entity.StorageIoDetail;
 
-public interface StorageIoDetailDao extends CrudRepository<StorageIoDetail, Integer>,
+public interface StorageIoDetailDao extends PagingAndSortingRepository<StorageIoDetail, Integer>,
 		JpaSpecificationExecutor<StorageIoDetail> {
 
 	List<StorageIoDetail> findByBatchId(Integer batchId);
@@ -20,6 +22,35 @@ public interface StorageIoDetailDao extends CrudRepository<StorageIoDetail, Inte
 	List<StorageIoDetail> findByOrderId(Integer orderId);
 	
 	List<StorageIoDetail> findByBatchIdAndSkuIdAndPosId(Integer batchId, Integer skuId, Integer posId);
+	
+	/**
+	 * 查询库存变动明细-按照skuId、仓库Id、状态
+	 * @param skuId
+	 * @param repoId
+	 * @param detailStatus
+	 * @param page
+	 * @return
+	 */
+	Page<StorageIoDetail> findBySkuIdAndRepoIdAndDetailStatus(Integer skuId, Integer repoId, String detailStatus, Pageable page);
+	
+	/**
+	 * 查询库存变动明细-按照库存商品Id、库位Id、状态
+	 * @param productId
+	 * @param posId
+	 * @param detailStatus
+	 * @param page
+	 * @return
+	 */
+	Page<StorageIoDetail> findByProductIdAndPosIdAndDetailStatus(Integer productId, Integer posId, String detailStatus, Pageable page);
+
+	/**
+	 * 查询库存变动明细-按照库存商品Id、状态
+	 * @param productId
+	 * @param posId
+	 * @param page
+	 * @return
+	 */
+	Page<StorageIoDetail> findByProductIdAndDetailStatus(Integer productId, String detailStatus, Pageable page);
 	
 	@Modifying
 	@Query("update StorageIoDetail set detailStatus='cancel' where batchId=:batchId")
