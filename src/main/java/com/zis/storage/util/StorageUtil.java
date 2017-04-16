@@ -30,6 +30,17 @@ public class StorageUtil {
 		ActiveUser au = (ActiveUser) user.getPrincipals().getPrimaryPrincipal();
 		return au.getUserName();
 	}
+	
+	/**
+	 * 获取用户真实姓名
+	 * 
+	 * @return
+	 */
+	public static String getRealName() {
+		Subject user = SecurityUtils.getSubject();
+		ActiveUser au = (ActiveUser) user.getPrincipals().getPrimaryPrincipal();
+		return au.getRealName();
+	}
 
 	/**
 	 * 获取用户Id

@@ -49,6 +49,10 @@ public class SysService {
 		}
 		return list.get(0);
 	}
+	
+	public User findtUserById(Integer userId){
+		return this.userDao.findOne(userId);
+	}
 
 	public List<Permission> findPermissionByUserId(Integer userId) {
 		List<Permission> list = this.permissionDao.findPermissionByUserId(userId);

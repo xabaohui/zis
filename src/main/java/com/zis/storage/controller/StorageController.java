@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,8 @@ import com.zis.common.controllertemplate.ViewTips;
 import com.zis.common.mvc.ext.QueryUtil;
 import com.zis.common.mvc.ext.Token;
 import com.zis.common.mvc.ext.WebHelper;
+import com.zis.shiro.bean.User;
+import com.zis.shiro.service.SysService;
 import com.zis.shop.util.ShopUtil;
 import com.zis.storage.dto.CreateOrderDTO;
 import com.zis.storage.dto.CreateOrderDTO.CreateOrderDetail;
@@ -54,14 +57,14 @@ import com.zis.storage.util.StorageUtil;
 
 @Controller
 @RequestMapping(value = "/storage")
-public class StorageController implements ViewTips{
+public class StorageController implements ViewTips {
 
 	@Autowired
 	private StorageRepoInfoDao storageRepoInfoDao;
 
 	@Autowired
 	private StorageOrderDao storageOrderDao;
-	
+
 	@Autowired
 	private StorageService storageService;
 
@@ -70,6 +73,9 @@ public class StorageController implements ViewTips{
 
 	@Autowired
 	private BookService bookService;
+
+	@Autowired
+	private SysService sysService;
 
 	private final Integer DEFAULT_SIZE = 100;
 
@@ -96,6 +102,88 @@ public class StorageController implements ViewTips{
 	@RequestMapping(value = "/gotoFastInwarehouse")
 	public String gotoFastInwarehouse(ModelMap map) {
 		return "storage/inwarehouse/fast-inwarehouse";
+	}
+
+	/**
+	 * 出入库批次查询
+	 * 
+	 * @param request
+	 * @param map
+	 * @param type
+	 * @return
+	 */
+	@RequestMapping(value = "/queryIoBatch")
+	public String queryIoBatch(HttpServletRequest request, ModelMap map, String bizType, String status) {
+		try {
+			Pageable page = WebHelper.buildPageRequest(request);
+			QueryUtil<StorageIoBatch> query = new QueryUtil<StorageIoBatch>();
+			if (StringUtils.isNotBlank(bizType)) {
+				query.eq("bizType", bizType);
+			}
+			if (StringUtils.isNotBlank(status)) {
+				query.eq("status", status);
+			}
+			query.eq("repoId", StorageUtil.getRepoId());
+			Page<StorageIoBatch> orderList = this.storageIoBatchDao.findAll(query.getSpecification(), page);
+			if (!orderList.getContent().isEmpty()) {
+				List<StorageIoBatch> list = orderList.getContent();
+				List<StorageIoBatchDTO> listShow = new ArrayList<StorageIoBatchDTO>();
+				// 将状态转换为中文
+				for (StorageIoBatch s : list) {
+					StorageIoBatchDTO io = new StorageIoBatchDTO();
+					BeanUtils.copyProperties(s, io);
+					io.setZhCnStatus(Status.getStatus(s.getStatus()).getDisplay());
+					io.setRealName(getRealName(io.getOperator()));
+					io.setZhCnType(BizType.getBizType(s.getBizType()).getDisplay());
+					listShow.add(io);
+				}
+				map.put("detailList", listShow);
+				map.put("page", page.getPageNumber() + 1);
+				setQueryCondition(bizType, status, map);
+				if (orderList.hasPrevious()) {
+					map.put("prePage", page.previousOrFirst().getPageNumber());
+				}
+				if (orderList.hasNext()) {
+					map.put("nextPage", page.next().getPageNumber());
+				}
+			} else {
+				map.put("notResult", "未找到需要的结果");
+			}
+			return "storage/send/io-batch-list";
+		} catch (BeansException e) {
+			map.put(ACTION_ERROR, e.getMessage());
+			return "error";
+		}
+	}
+
+	/**
+	 * 根据用户Id 获取 真实姓名
+	 * 
+	 * @param userId
+	 * @return
+	 */
+	private String getRealName(Integer userId) {
+		if (userId != null) {
+			User user = this.sysService.findtUserById(userId);
+			if (user != null) {
+				return user.getRealName();
+			} else {
+				return "";
+			}
+		} else {
+			return "";
+		}
+	}
+
+	private void setQueryCondition(String type, String status, ModelMap map) {
+		StringBuilder condition = new StringBuilder();
+		if (StringUtils.isNotBlank(type)) {
+			condition.append("type=" + type + "&");
+		}
+		if (StringUtils.isNotBlank(status)) {
+			condition.append("status=" + status + "&");
+		}
+		map.put("queryCondition", condition.toString());
 	}
 
 	/**
@@ -161,7 +249,7 @@ public class StorageController implements ViewTips{
 		try {
 			List<Integer> orderIds = Arrays.asList(orderId);
 			Integer i = this.storageService.arrangeOrder(StorageUtil.getRepoId(), orderIds, StorageUtil.getUserId());
-			map.put("actionMessage", "共生成了" + i + " 条订单开始配货");
+			map.put("actionMessage", "批次号" + i + "开始配货");
 			return "forward:/storage/queryStorageOrder";
 		} catch (Exception e) {
 			map.put("actionError", e.getMessage());
@@ -268,6 +356,7 @@ public class StorageController implements ViewTips{
 
 	/**
 	 * 完成所有取件确认
+	 * 
 	 * @param map
 	 * @param batchId
 	 * @return
@@ -296,10 +385,10 @@ public class StorageController implements ViewTips{
 		String bookIsbn = book.getIsbn().substring(9);
 		return String.format("%s  %s", bookName, bookIsbn);
 	}
-	
-	//TODO 测试后删除
+
+	// TODO 测试后删除
 	@RequestMapping(value = "testOrder")
-	public String createOrder(){
+	public String createOrder() {
 		CreateOrderDTO dto = new CreateOrderDTO();
 		List<CreateOrderDetail> list = new ArrayList<CreateOrderDetail>();
 		CreateOrderDetail d = new CreateOrderDetail();
@@ -634,24 +723,25 @@ public class StorageController implements ViewTips{
 		condition.append("size=" + DEFAULT_SIZE + "&");
 		map.put("queryCondition", condition.toString());
 	}
-	
+
 	private static final String VIEW_URL_PRODUCT_LIST = "storage/stock/product-list";
-	
+
 	/**
 	 * 条件查询商品库存
+	 * 
 	 * @param isbn
 	 * @param model
 	 * @return
 	 */
 	@RequestMapping(value = "stock/listProducts")
 	public String queryStorageProduct(String isbn, ModelMap model) {
-		if(StringUtils.isBlank(isbn)) {
+		if (StringUtils.isBlank(isbn)) {
 			model.put(ACTION_ERROR, "isbn不能为空");
 			return VIEW_URL_PRODUCT_LIST;
 		}
 		// 查询图书
 		List<Bookinfo> books = this.bookService.findBookByISBN(isbn);
-		if(CollectionUtils.isEmpty(books)) {
+		if (CollectionUtils.isEmpty(books)) {
 			model.put(NO_RESULT, "没有找到相关记录");
 			return VIEW_URL_PRODUCT_LIST;
 		}
@@ -663,8 +753,9 @@ public class StorageController implements ViewTips{
 		}
 		// 查询库存
 		List<Integer> bookIds = new ArrayList<Integer>(bookMap.keySet());
-		List<StorageProduct> storageProds = this.storageService.findStorageProductBySkuIdsAndRepoId(bookIds, StorageUtil.getRepoId());
-		if(CollectionUtils.isEmpty(storageProds)) {
+		List<StorageProduct> storageProds = this.storageService.findStorageProductBySkuIdsAndRepoId(bookIds,
+				StorageUtil.getRepoId());
+		if (CollectionUtils.isEmpty(storageProds)) {
 			model.put(NO_RESULT, "没有找到相关记录");
 			return VIEW_URL_PRODUCT_LIST;
 		}
@@ -677,11 +768,12 @@ public class StorageController implements ViewTips{
 		model.put("isbn", isbn);
 		return VIEW_URL_PRODUCT_LIST;
 	}
-	
+
 	private static final String VIEW_URL_STOCK_DIST = "storage/stock/stock-dist-list";
-	
+
 	/**
 	 * 查询库存分布
+	 * 
 	 * @param productId
 	 * @param model
 	 * @return
@@ -689,20 +781,20 @@ public class StorageController implements ViewTips{
 	@RequestMapping("stock/listStockDist")
 	public String queryStoragePosStock(Integer productId, ModelMap model) {
 		// 参数检验
-		if(productId == null) {
+		if (productId == null) {
 			model.put(ACTION_ERROR, "未选择任何图书");
 			return VIEW_URL_STOCK_DIST;
 		}
 		// 查询库存分布
 		List<StockDTO> list = this.storageService.findAllStockByProductId(productId);
-		if(CollectionUtils.isEmpty(list)) {
+		if (CollectionUtils.isEmpty(list)) {
 			model.put(ACTION_MESSAGE, "无库存记录");
 			return VIEW_URL_STOCK_DIST;
 		}
 		Integer bookId = list.get(0).getSkuId();
 		// 查询图书基本信息
 		Bookinfo book = this.bookService.findBookById(bookId);
-		if(book == null) {
+		if (book == null) {
 			model.put(ACTION_MESSAGE, "无此图书");
 			return VIEW_URL_STOCK_DIST;
 		}
@@ -711,20 +803,20 @@ public class StorageController implements ViewTips{
 		model.put("book", book);
 		return VIEW_URL_STOCK_DIST;
 	}
-	
+
 	private static final String VIEW_URL_STOCK_ALTER = "storage/stock/stock-alter-list";
 
 	@RequestMapping("stock/listStockAlter")
 	public String queryStorageIoDetails(Integer productId, Integer posId, ModelMap model, HttpServletRequest request) {
 		// 参数检验
-		if(productId == null) {
+		if (productId == null) {
 			model.put(ACTION_ERROR, "未选择任何图书");
 			return VIEW_URL_STOCK_ALTER;
 		}
 		// 查询库存变动
 		Pageable page = WebHelper.buildPageRequest(request);
 		Page<StorageIoDetail> rs = storageService.findStorageIoDetailByProductIdAndPosId(productId, posId, page);
-		if(CollectionUtils.isEmpty(rs.getContent())) {
+		if (CollectionUtils.isEmpty(rs.getContent())) {
 			model.put(ACTION_MESSAGE, "没有相关记录");
 			return VIEW_URL_STOCK_ALTER;
 		}
