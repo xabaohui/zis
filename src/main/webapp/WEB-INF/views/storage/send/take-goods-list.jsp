@@ -20,7 +20,7 @@ font-size: 15px;
 </style>
 
 <div align="center">
-	<h1>配货批次</h1>
+	<h1>开始配货</h1>
 	<br />
 	<h2>
 		<font color="green">${actionMessage}</font>

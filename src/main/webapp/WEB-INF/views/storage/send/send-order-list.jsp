@@ -102,13 +102,7 @@
 				<td  width="35%">
 					<c:set value = "${order.oList}" var = "dtoList"/>
 						<c:forEach items="${dtoList}" var="dto" >
-							<table>
-								<tr>
-									<td>
-										${dto.bookTitle}&nbsp;X&nbsp;${dto.bookAmount}
-									</td>
-								</tr>
-							</table>
+							${dto.bookTitle}&nbsp;*&nbsp;${dto.bookAmount}<br/>
 						</c:forEach>
 				</td>
 				<td>

@@ -292,7 +292,7 @@ public class StorageController implements ViewTips{
 	private String buildTakeGoodsTitle(Integer skuId) {
 		Bookinfo book = this.bookService.findBookById(skuId);
 		String bookName = book.getBookName();
-		String bookIsbn = book.getIsbn();
+		String bookIsbn = book.getIsbn().substring(9);
 		return String.format("%s  %s", bookName, bookIsbn);
 	}
 	

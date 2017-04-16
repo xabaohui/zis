@@ -172,10 +172,10 @@ public class StorageServiceImpl implements StorageService {
 	 */
 	private void doOccupy(StorageProduct prod, Integer orderId, Integer amount) {
 		Date now = new Date();
-//		prod.setStockOccupy(prod.getStockOccupy() + amount);
-//		prod.setStockAvailable(prod.getStockAvailable() - amount);
-//		prod.setGmtModify(now);
-//		this.storageProductDao.save(prod);
+		prod.setStockOccupy(prod.getStockOccupy() + amount);
+		prod.setStockAvailable(prod.getStockAvailable() - amount);
+		prod.setGmtModify(now);
+		this.storageProductDao.save(prod);
 		StorageProductOccupy occupy = new StorageProductOccupy();
 		occupy.setOrigAmt(amount);
 		occupy.setCurAmt(amount);

@@ -3,7 +3,7 @@
 	uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ include file="/header.jsp"%>
-<h1>快速入库输入库位</h1>
+<h1>快速入库</h1>
 <h3>
 	
 </h3>
