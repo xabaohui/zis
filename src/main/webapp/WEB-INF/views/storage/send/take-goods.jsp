@@ -36,11 +36,9 @@ font-size: 10px;
 	<br/>
 	<br/>
 	<div style="font-size:50px;color:green;font-weight:bold;font-family:楷体">
-		请到${ioDetail.posLabel}库位拿取
+		${ioDetail.posLabel}&nbsp;&nbsp;*&nbsp;${ioDetail.amount}
 		<br/>
-		${title} 图书
-		<br/>
-		${ioDetail.amount}本
+		${title}
 	</div>
 </div>
 <br/>

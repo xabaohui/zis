@@ -261,13 +261,13 @@
 				<ul name = "showListTop" style="display: none" class = "showListTop">
 						<li><a href="storage/stock/listProducts">库存商品</a></li>
 						<br/>
-						<li><a href="<%=basePath%>storage/gotoInwarehouse">扫描入库</a></li>
+						<li><a href="<%=basePath%>storage/gotoInwarehouse">批量入库</a></li>
 						<br/>
 						<li><a href="storage/gotoFastInwarehouse">快速入库</a></li>
 						<br/>
 						<li><a href="storage/queryStorageOrder">订单列表</a></li>
 						<br/>
-						<li><a href="storage/querytTakeGoods">配货批次</a></li>
+						<li><a href="storage/querytTakeGoods">开始配货</a></li>
 						<li><a href="storage/testOrder">下单</a></li>
 				</ul>
 			</ul>
