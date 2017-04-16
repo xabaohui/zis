@@ -365,9 +365,9 @@ public class StorageServiceImpl implements StorageService {
 	 * @param orderId 订单Id，可空
 	 */
 	private void arrangeOrder(Integer operator, StorageIoBatch batch, Integer productId, Integer amount, Integer orderId) {
-		List<com.zis.storage.dto.StockDTO> stocks = this.storagePosStockDao.findAvailableStock(productId);
+		List<StockDTO> stocks = this.storagePosStockDao.findAvailableStock(productId);
 		int amountNotDivide = amount;
-		for (com.zis.storage.dto.StockDTO stock : stocks) {
+		for (StockDTO stock : stocks) {
 			int amountAvailable = stock.getTotalAmt() - stock.getOccupyAmt();// 当前库位可用数量
 			int amountDivide = Math.min(amountAvailable, amountNotDivide);// 本次分配数量
 			// 生成出库明细

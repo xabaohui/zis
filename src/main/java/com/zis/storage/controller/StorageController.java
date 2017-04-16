@@ -303,18 +303,18 @@ public class StorageController implements ViewTips{
 		CreateOrderDTO dto = new CreateOrderDTO();
 		List<CreateOrderDetail> list = new ArrayList<CreateOrderDetail>();
 		CreateOrderDetail d = new CreateOrderDetail();
-		d.setSkuId(9);
+		d.setSkuId(5);
 		d.setAmount(2);
-		CreateOrderDetail d2 = new CreateOrderDetail();
-		d2.setSkuId(948);
-		d2.setAmount(2);
+//		CreateOrderDetail d2 = new CreateOrderDetail();
+//		d2.setSkuId(948);
+//		d2.setAmount(2);
 		list.add(d);
-		list.add(d2);
+//		list.add(d2);
 		dto.setDetailList(list);
 		dto.setBuyerName("马蓉");
 		dto.setOrderType(OrderType.SELF);
 		dto.setOutTradeNo("s2132222ri");
-		dto.setRepoId(3);
+		dto.setRepoId(StorageUtil.getRepoId());
 		dto.setShopId(14);
 		this.storageService.createOrder(dto);
 		return "";
@@ -743,6 +743,7 @@ public class StorageController implements ViewTips{
 			v.init();
 			list.add(v);
 		}
+		// TODO 分页查询未实现
 		model.put("list", list);
 		model.put("book", book);
 		return VIEW_URL_STOCK_ALTER;
