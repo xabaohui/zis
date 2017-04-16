@@ -265,6 +265,8 @@
 						<br/>
 						<li><a href="storage/gotoFastInwarehouse">快速入库</a></li>
 						<br/>
+						<li><a href="storage/queryIoBatch">出入库批次</a></li>
+						<br/>
 						<li><a href="storage/queryStorageOrder">订单列表</a></li>
 						<br/>
 						<li><a href="storage/querytTakeGoods">开始配货</a></li>

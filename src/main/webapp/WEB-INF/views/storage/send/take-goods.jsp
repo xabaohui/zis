@@ -11,14 +11,14 @@
 </script>
 <style type="text/css">
 #takeButton{
-width: 100;
+width: 150;
 height: 50;
 font-size: 20px;
 }
 .lackButton{
-width: 50;
-height: 25;
-font-size: 10px;
+width: 75;
+height: 40;
+font-size: 15px;
 }
 </style>
 <div align="center">
@@ -46,10 +46,14 @@ font-size: 10px;
 <div align="center">
 	<table>
 	  <tr>
-	    <td colspan="2"><input type="button" id = "takeButton" value="下一步" onclick="nextTakeGoods()" /></td>
+	    <td colspan="3"><input type="button" id = "takeButton" value="下一步" onclick="nextTakeGoods()" /></td>
+	  </tr>
+	  <tr>
+	  <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
 	  </tr>
 	  <tr>
 	    <td><input type="button" class =  "lackButton" value="全部缺货" onclick="lackAll()" /></td>
+	    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
 	    <td><input type="button" class =  "lackButton" value="部分缺货" onclick="lackPart()" /></td>
 	  </tr>
 	</table>

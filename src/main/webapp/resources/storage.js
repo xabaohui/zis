@@ -9,7 +9,8 @@ function findBookByIsbn(list) {
 	else if (list.length == 1) {
 		var book = list[0];
 		// 执行入库操作
-		var bookIntro = book.bookName + '( ' + book.bookEdition + ' ) / ' + book.bookAuthor + ' / ' + book.bookPublisher;
+		var bookIntro = book.bookName + '( ' + book.bookEdition + ' ) / '
+				+ book.bookAuthor + ' / ' + book.bookPublisher;
 		inwarehouse(book.id, bookIntro);
 	}
 	// 多条记录，浮出选择层，待用户选择后，执行下一步逻辑(3-3)入库
@@ -23,6 +24,7 @@ function findBookByIsbn(list) {
 /**
  * 
  * 快速入库使用
+ * 
  * @param list
  */
 function fastFindBookByIsbn(list) {
@@ -35,7 +37,8 @@ function fastFindBookByIsbn(list) {
 	else if (list.length == 1) {
 		var book = list[0];
 		// 执行入库操作
-		var bookIntro = book.bookName + '( ' + book.bookEdition + ' ) / ' + book.bookAuthor + ' / ' + book.bookPublisher;
+		var bookIntro = book.bookName + '( ' + book.bookEdition + ' ) / '
+				+ book.bookAuthor + ' / ' + book.bookPublisher;
 		fastInwarehouse(book.id, bookIntro);
 	}
 	// 多条记录，浮出选择层，待用户选择后，执行下一步逻辑(3-3)入库
@@ -48,10 +51,14 @@ function fastFindBookByIsbn(list) {
 // 展示一码多书，供用户选择
 function showMultipleBooks(bookList) {
 	var selectedContent = '<ol>';
-	for(var i=0; i<bookList.length; i++) {
+	for ( var i = 0; i < bookList.length; i++) {
 		var book = bookList[i];
-		var bookIntro = book.isbn + ' / ' + book.bookName + '( ' + book.bookEdition + ' ) / ' + book.bookAuthor + ' / ' + book.bookPublisher;
-		selectedContent =  selectedContent + '<li>'+ bookIntro + '<input type=button value="选择" onclick="inwarehouse('+book.id + ',\'' + bookIntro +'\')"' +'</li><p/>';
+		var bookIntro = book.isbn + ' / ' + book.bookName + '( '
+				+ book.bookEdition + ' ) / ' + book.bookAuthor + ' / '
+				+ book.bookPublisher;
+		selectedContent = selectedContent + '<li>' + bookIntro
+				+ '<input type=button value="选择" onclick="inwarehouse('
+				+ book.id + ',\'' + bookIntro + '\')"' + '</li><p/>';
 	}
 	selectedContent = selectedContent + '</ol>';
 	$('selectArea').innerHTML = selectedContent;
@@ -61,14 +68,19 @@ function showMultipleBooks(bookList) {
 // 展示一码多书，供用户选择
 /**
  * 快速入库使用
+ * 
  * @param bookList
  */
 function fastShowMultipleBooks(bookList) {
 	var selectedContent = '<ol>';
-	for(var i=0; i<bookList.length; i++) {
+	for ( var i = 0; i < bookList.length; i++) {
 		var book = bookList[i];
-		var bookIntro = book.isbn + ' / ' + book.bookName + '( ' + book.bookEdition + ' ) / ' + book.bookAuthor + ' / ' + book.bookPublisher;
-		selectedContent =  selectedContent + '<li>'+ bookIntro + '<input type=button value="选择" onclick="fastInwarehouse('+book.id + ',\'' + bookIntro +'\')"' +'</li><p/>';
+		var bookIntro = book.isbn + ' / ' + book.bookName + '( '
+				+ book.bookEdition + ' ) / ' + book.bookAuthor + ' / '
+				+ book.bookPublisher;
+		selectedContent = selectedContent + '<li>' + bookIntro
+				+ '<input type=button value="选择" onclick="fastInwarehouse('
+				+ book.id + ',\'' + bookIntro + '\')"' + '</li><p/>';
 	}
 	selectedContent = selectedContent + '</ol>';
 	$('selectArea').innerHTML = selectedContent;
@@ -91,13 +103,14 @@ function inwarehouse(bookId, bookIntro) {
 	var ioBatchId = $('ioBatchId').value;
 	var curPosition = $('curPosition').value;
 	var amount = $('userInputAmount').value;
-	storageInwarehouseBO.doStorageInwarehouse(ioBatchId, curPosition, bookId, amount,
-			showInwarehouseResult);
+	storageInwarehouseBO.doStorageInwarehouse(ioBatchId, curPosition, bookId,
+			amount, showInwarehouseResult);
 }
 
 // (3-3)执行入库操作
 /**
  * 快速入库使用
+ * 
  * @param bookId
  * @param bookIntro
  */
@@ -110,8 +123,8 @@ function fastInwarehouse(bookId, bookIntro) {
 	var oldAmount = $('oldAmount').value;
 	var curPosition = $('curPosition').value;
 	var amount = $('userInputAmount').value;
-	storageInwarehouseBO.fastStorageInwarehouse(oldAmount, curPosition, bookId, amount,
-			showInwarehouseResult);
+	storageInwarehouseBO.fastStorageInwarehouse(oldAmount, curPosition, bookId,
+			amount, showInwarehouseResult);
 	var nextValue = +oldAmount + +amount;
 	document.getElementById('oldAmount').value = nextValue;
 }
@@ -119,8 +132,8 @@ function fastInwarehouse(bookId, bookIntro) {
 // 展示入库结果
 function showInwarehouseResult(result) {
 	var currentPosLabel;
-	if(result.success === true) {
-		if(result.positionChange === true) {
+	if (result.success === true) {
+		if (result.positionChange === true) {
 			alert('当前库位已满，自动切换到' + result.curPosLabel);
 			currentPosLabel = result.curPosLabel;
 			$('curPosition').value = result.curPosLabel;
@@ -128,7 +141,8 @@ function showInwarehouseResult(result) {
 			currentPosLabel = result.prePosLabel;
 		}
 		// 修改库位和扫描总量
-		$('currentPosDisplay').innerHTML = '当前库位 '+currentPosLabel+' | 已入库 '+result.totalAmount+' 本';
+		$('currentPosDisplay').innerHTML = '当前库位 ' + currentPosLabel
+				+ ' | 已入库 ' + result.totalAmount + ' 本';
 		// 展示本次扫描结果
 		$('lastScanResult').innerHTML = '最后一次扫描：' + $('bookinfoStr').value;
 		// 播放声音提示
@@ -140,11 +154,11 @@ function showInwarehouseResult(result) {
 		alert(inuser);
 		$('userInputAmount').value = 1;
 	} else {
-		alert('操作失败，' + result.failReason);			
+		alert('操作失败，' + result.failReason);
 	}
 }
 
-//用户取消入库
+// 用户取消入库
 function cancelInStorage() {
 	var i = document.getElementById("storageForm").action = "storage/cancelInStorage";
 	document.getElementById("storageForm").submit();
@@ -168,9 +182,32 @@ function checkAllOId() {
 function checkStatus() {
 	var status = document.getElementById("systemStatus");
 	var checkValue = document.getElementById("sendStatus").value;
-	for(var i = 0; i < status.options.length; i++){
-		if(status.options[i].value == checkValue){
-			status.options[i].selected = true; 
+	for ( var i = 0; i < status.options.length; i++) {
+		if (status.options[i].value == checkValue) {
+			status.options[i].selected = true;
+			break;
+		}
+	}
+}
+
+/**
+ * 选择状态
+ */
+function checkStatusAndType() {
+	var status = document.getElementById("selectStatus");
+	var checkValue = document.getElementById("checkStatus").value;
+	for ( var i = 0; i < status.options.length; i++) {
+		if (status.options[i].value == checkValue) {
+			status.options[i].selected = true;
+			break;
+		}
+	}
+	
+	var type = document.getElementById("selectType");
+	var checkTypeValue = document.getElementById("checkType").value;
+	for ( var i = 0; i < type.options.length; i++) {
+		if (type.options[i].value == checkTypeValue) {
+			type.options[i].selected = true;
 			break;
 		}
 	}
@@ -182,19 +219,19 @@ function checkStatus() {
 function clearAll() {
 	var list = document.getElementsByTagName('input');
 	for ( var i = 0; i < list.length; i++) {
-		if(list[i].getAttribute("type") == "text"){
+		if (list[i].getAttribute("type") == "text") {
 			list[i].value = "";
 		}
 	}
 }
 
-//单个配货
+// 单个配货
 function pickingUpOrder(orderId) {
 	window.location.href = "storage/pickingUpOrder?orderId=" + orderId;
-	
+
 }
 
-//单个取消
+// 单个取消
 function cancelOrder(orderId) {
 	if (confirm("你确定取消吗？")) {
 		window.location.href = "storage/cancelOrder?orderId=" + orderId;
@@ -202,7 +239,7 @@ function cancelOrder(orderId) {
 	}
 }
 
-//批量配货
+// 批量配货
 function pickingUpOrders() {
 	var oIds = document.getElementsByName('orderId');
 	var checkedEmpty = true;
@@ -221,7 +258,7 @@ function pickingUpOrders() {
 	}
 }
 
-//批量取消
+// 批量取消
 function cancelOrders() {
 	var oIds = document.getElementsByName('orderId');
 	var checkedEmpty = true;
@@ -247,35 +284,44 @@ function cancelOrders() {
  * 部分缺货
  */
 function lackPart() {
-	var amount = prompt("已取图书数量:","");
+	var amount = prompt("已取图书数量:", "");
 	var re = /^[0-9]*[1-9][0-9]*$/;
-	if (!re.test(amount)) {
-		alert("请输入正整数");
-	}else{
-		document.getElementById('actualAmt').value = amount;
-		document.getElementById('takeGoodsForm').action = "storage/lackPart";
-		document.getElementById('takeGoodsForm').submit();
+	if (amount) {
+		if (!re.test(amount)) {
+			alert("请输入正整数");
+		} else {
+			document.getElementById('actualAmt').value = amount;
+			document.getElementById('takeGoodsForm').action = "storage/lackPart";
+			document.getElementById('takeGoodsForm').submit();
+		}
+	} else {
+
 	}
 }
 
 /**
  * 全部缺货
  */
-function lackPart() {
-		document.getElementById('takeGoodsForm').action = "storage/lackAll";
-		document.getElementById('takeGoodsForm').submit();
+function lackAll() {
+	  var result = confirm('此库位是否全部缺货');  
+	    if(result){  
+	    	document.getElementById('takeGoodsForm').action = "storage/lackAll";
+	    	document.getElementById('takeGoodsForm').submit();
+	    }else{  
+	    } 
 }
 
 /**
  * 下一步取件
  */
 function nextTakeGoods() {
-		document.getElementById('takeGoodsForm').action = "storage/nextTakeGoods";
-		document.getElementById('takeGoodsForm').submit();
+	document.getElementById('takeGoodsForm').action = "storage/nextTakeGoods";
+	document.getElementById('takeGoodsForm').submit();
 }
 
 /**
  * 取件
+ * 
  * @param batchId
  */
 function takeGoods(batchId) {

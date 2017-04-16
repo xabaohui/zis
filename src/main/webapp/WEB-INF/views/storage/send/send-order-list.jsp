@@ -70,8 +70,8 @@
 			<c:if test="${sendStatus eq 'created'}">
 				<tr>
 					<th colspan="7" align="left">
-						<input type="button" value = "批量配货" onclick="pickingUpOrder()"/>
-						<input style="margin-left: 800px" type="button" value = "批量取消" onclick="cancelOrder()"/>
+						<input type="button" value = "批量配货" onclick="pickingUpOrders()"/>
+						<input style="margin-left: 800px" type="button" value = "批量取消" onclick="cancelOrders()"/>
 					</th>
 				</tr>
 			</c:if>
