@@ -69,7 +69,7 @@
 				<td>${product.stockAvailable}</td>
 				<td>
 					<a href="storage/stock/listStockDist?productId=${product.productId}" target="_blank">库存分布</a>&nbsp;
-					<a href="storage/stock/listStockAlter?productId=${product.productId}" target="_blank">变动明细</a>
+					<a href="storage/stock/listStockAlter?productId=${product.productId}" target="_blank">变动日志</a>
 				</td>
 				</tr>
 			</c:forEach>

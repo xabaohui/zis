@@ -64,7 +64,7 @@
 				<td>${stock.posLabel}</td>
 				<td>${stock.totalAmt}</td>
 				<td>${stock.occupyAmt}</td>
-				<td><a href="storage/stock/listStockAlter?productId=${stock.productId}&posId=${stock.posId}" target="_blank">变动明细</a></td>
+				<td><a href="storage/stock/listStockAlter?productId=${stock.productId}&posId=${stock.posId}" target="_blank">变动日志</a></td>
 				</tr>
 			</c:forEach>
 		</table>

@@ -15,7 +15,7 @@
 }
 </style>
 <div align="center">
-	<h1>库存变动明细</h1>
+	<h1>库存变动日志</h1>
 	<br />
 	<h2>
 		<font color="green">${actionMessage}</font>
@@ -60,16 +60,17 @@
 				<th>变动量</th>
 				<th>剩余量</th>
 				<th>操作员</th>
-				<th></th>
+				<th>备注</th>
 			</tr>
 			<c:forEach items="${list}" var="detail">
 				<tr>
-				<td>${detail.gmtCreate}</td>
-				<td>${detail.ioDetailType}</td>
+				<td><fmt:formatDate value="${detail.gmtCreate}" pattern="yyyy-MM-dd HH:mm:ss" /></td>
+				<td>${detail.displayType}</td>
 				<td>${detail.posLabel}</td>
-				<td>${detail.amount}</td>
+				<td>${detail.displayAmount}</td>
 				<td>${detail.balance}</td>
 				<td>${detail.operator}</td>
+				<td><c:if test="${detail.detailStatus eq 'lackness'}" ><font color="red">缺货</font></c:if></td>
 				</tr>
 			</c:forEach>
 		</table>

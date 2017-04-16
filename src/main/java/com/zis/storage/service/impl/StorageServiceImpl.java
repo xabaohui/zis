@@ -1,5 +1,6 @@
 package com.zis.storage.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -918,10 +919,13 @@ public class StorageServiceImpl implements StorageService {
 		// 设置排序方式：按照库位、创建时间降序
 		Pageable searchPage = new PageRequest(page.getPageNumber(), page.getPageSize(), Direction.ASC,
 				StorageIoDetail.SORT_POS_ID, StorageIoDetail.SORT_CREATE_TIME);
+		List<String> sts = new ArrayList<String>();
+		sts.add(DetailStatus.SUCCESS.getValue());
+		sts.add(DetailStatus.LACKNESS.getValue());
 		if(posId == null) {
-			return storageIoDetailDao.findByProductIdAndDetailStatus(productId, DetailStatus.SUCCESS.getValue(), searchPage);
+			return storageIoDetailDao.findByProductIdAndDetailStatusIn(productId, sts, searchPage);
 		} else {
-			return storageIoDetailDao.findByProductIdAndPosIdAndDetailStatus(productId, posId, DetailStatus.SUCCESS.getValue(), searchPage);
+			return storageIoDetailDao.findByProductIdAndPosIdAndDetailStatusIn(productId, posId, sts, searchPage);
 		}
 	}
 }

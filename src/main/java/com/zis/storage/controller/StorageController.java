@@ -34,6 +34,7 @@ import com.zis.storage.dto.CreateOrderDTO.CreateOrderDetail;
 import com.zis.storage.dto.OrderDetailDto;
 import com.zis.storage.dto.StockDTO;
 import com.zis.storage.dto.StorageIoBatchDTO;
+import com.zis.storage.dto.StorageIoDetailViewDTO;
 import com.zis.storage.dto.StorageOrderDto;
 import com.zis.storage.dto.StorageProductViewDTO;
 import com.zis.storage.entity.StorageIoBatch;
@@ -735,7 +736,14 @@ public class StorageController implements ViewTips{
 			return VIEW_URL_STOCK_ALTER;
 		}
 		// 数据写入页面
-		model.put("list", rs.getContent());
+		List<StorageIoDetailViewDTO> list = new ArrayList<StorageIoDetailViewDTO>();
+		for(StorageIoDetail detail : rs.getContent()) {
+			StorageIoDetailViewDTO v = new StorageIoDetailViewDTO();
+			BeanUtils.copyProperties(detail, v);
+			v.init();
+			list.add(v);
+		}
+		model.put("list", list);
 		model.put("book", book);
 		return VIEW_URL_STOCK_ALTER;
 	}

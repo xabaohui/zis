@@ -31,7 +31,7 @@ public interface StorageIoDetailDao extends PagingAndSortingRepository<StorageIo
 	 * @param page
 	 * @return
 	 */
-	Page<StorageIoDetail> findBySkuIdAndRepoIdAndDetailStatus(Integer skuId, Integer repoId, String detailStatus, Pageable page);
+	Page<StorageIoDetail> findBySkuIdAndRepoIdAndDetailStatusIn(Integer skuId, Integer repoId, List<String> detailStatus, Pageable page);
 	
 	/**
 	 * 查询库存变动明细-按照库存商品Id、库位Id、状态
@@ -41,16 +41,15 @@ public interface StorageIoDetailDao extends PagingAndSortingRepository<StorageIo
 	 * @param page
 	 * @return
 	 */
-	Page<StorageIoDetail> findByProductIdAndPosIdAndDetailStatus(Integer productId, Integer posId, String detailStatus, Pageable page);
+	Page<StorageIoDetail> findByProductIdAndPosIdAndDetailStatusIn(Integer productId, Integer posId, List<String> detailStatus, Pageable page);
 
 	/**
 	 * 查询库存变动明细-按照库存商品Id、状态
 	 * @param productId
-	 * @param posId
 	 * @param page
 	 * @return
 	 */
-	Page<StorageIoDetail> findByProductIdAndDetailStatus(Integer productId, String detailStatus, Pageable page);
+	Page<StorageIoDetail> findByProductIdAndDetailStatusIn(Integer productId, List<String> detailStatus, Pageable page);
 	
 	@Modifying
 	@Query("update StorageIoDetail set detailStatus='cancel' where batchId=:batchId")
