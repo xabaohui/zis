@@ -69,22 +69,11 @@
 				<td>${product.stockAvailable}</td>
 				<td>
 					<a href="storage/stock/listStockDist?productId=${product.productId}" target="_blank">库存分布</a>&nbsp;
-					<a href="storage/stock/listStockAlter?productId=${product.productId}" target="_blank">变动明细</a>
+					<a href="storage/stock/listStockAlter?productId=${product.productId}" target="_blank">变动日志</a>
 				</td>
 				</tr>
 			</c:forEach>
 		</table>
 	</form>
-</div>
-<div align="center">
-	<!-- 分页查询start-->
-	<c:if test="${not empty prePage}">
-		<a href="shop/showCompanys?${queryCondition}page=${prePage}">上一页</a>&nbsp;
-	</c:if>
-	${page} &nbsp;
-	<c:if test="${not empty nextPage}">
-		<a href="shop/showCompanys?${queryCondition}page=${nextPage}">下一页</a>&nbsp;
-	</c:if>
-	<!-- 分页查询end -->
 </div>
 <%@ include file="/footer.jsp"%>

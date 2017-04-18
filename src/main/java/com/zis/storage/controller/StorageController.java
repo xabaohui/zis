@@ -44,6 +44,7 @@ import com.zis.storage.dto.OrderDetailDto;
 import com.zis.storage.dto.StockDTO;
 import com.zis.storage.dto.StorageIoBatchDTO;
 import com.zis.storage.dto.StorageIoDetailView;
+import com.zis.storage.dto.StorageIoDetailViewDTO;
 import com.zis.storage.dto.StorageOrderDto;
 import com.zis.storage.dto.StorageOrderViewDTO;
 import com.zis.storage.dto.StoragePositionView;
@@ -660,8 +661,8 @@ public class StorageController implements ViewTips {
 			return "error";
 		}
 	}
-	
-	private List<StorageProductDTO> getStorageProductDTO(List<StorageProduct> proList){
+
+	private List<StorageProductDTO> getStorageProductDTO(List<StorageProduct> proList) {
 		List<StorageProductDTO> list = new ArrayList<StorageProductDTO>();
 		for (StorageProduct s : proList) {
 			StorageProductDTO dto = new StorageProductDTO();
@@ -774,6 +775,27 @@ public class StorageController implements ViewTips {
 			map.put(ACTION_ERROR, e.getMessage());
 			return "error";
 		}
+	}
+
+	public String createOrder() {
+		CreateOrderDTO dto = new CreateOrderDTO();
+		List<CreateOrderDetail> list = new ArrayList<CreateOrderDetail>();
+		CreateOrderDetail d = new CreateOrderDetail();
+		d.setSkuId(5);
+		d.setAmount(2);
+		// CreateOrderDetail d2 = new CreateOrderDetail();
+		// d2.setSkuId(948);
+		// d2.setAmount(2);
+		list.add(d);
+		// list.add(d2);
+		dto.setDetailList(list);
+		dto.setBuyerName("马蓉");
+		dto.setOrderType(OrderType.SELF);
+		dto.setOutTradeNo("s2132222ri");
+		dto.setRepoId(StorageUtil.getRepoId());
+		dto.setShopId(14);
+		this.storageService.createOrder(dto);
+		return "";
 	}
 
 	/**
@@ -1215,7 +1237,15 @@ public class StorageController implements ViewTips {
 			return VIEW_URL_STOCK_ALTER;
 		}
 		// 数据写入页面
-		model.put("list", rs.getContent());
+		List<StorageIoDetailViewDTO> list = new ArrayList<StorageIoDetailViewDTO>();
+		for (StorageIoDetail detail : rs.getContent()) {
+			StorageIoDetailViewDTO v = new StorageIoDetailViewDTO();
+			BeanUtils.copyProperties(detail, v);
+			v.init();
+			list.add(v);
+		}
+		// TODO 分页查询未实现
+		model.put("list", list);
 		model.put("book", book);
 		return VIEW_URL_STOCK_ALTER;
 	}

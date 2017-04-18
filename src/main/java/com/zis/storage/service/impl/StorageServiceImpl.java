@@ -367,9 +367,9 @@ public class StorageServiceImpl implements StorageService {
 	 *            订单Id，可空
 	 */
 	private void arrangeOrder(Integer operator, StorageIoBatch batch, Integer productId, Integer amount, Integer orderId) {
-		List<com.zis.storage.dto.StockDTO> stocks = this.storagePosStockDao.findAvailableStock(productId);
+		List<StockDTO> stocks = this.storagePosStockDao.findAvailableStock(productId);
 		int amountNotDivide = amount;
-		for (com.zis.storage.dto.StockDTO stock : stocks) {
+		for (StockDTO stock : stocks) {
 			int amountAvailable = stock.getTotalAmt() - stock.getOccupyAmt();// 当前库位可用数量
 			int amountDivide = Math.min(amountAvailable, amountNotDivide);// 本次分配数量
 			// 生成出库明细
@@ -928,12 +928,13 @@ public class StorageServiceImpl implements StorageService {
 		// 设置排序方式：按照库位、创建时间降序
 		Pageable searchPage = new PageRequest(page.getPageNumber(), page.getPageSize(), Direction.ASC,
 				StorageIoDetail.SORT_POS_ID, StorageIoDetail.SORT_CREATE_TIME);
-		if (posId == null) {
-			return storageIoDetailDao.findByProductIdAndDetailStatus(productId, DetailStatus.SUCCESS.getValue(),
-					searchPage);
+		List<String> sts = new ArrayList<String>();
+		sts.add(DetailStatus.SUCCESS.getValue());
+		sts.add(DetailStatus.LACKNESS.getValue());
+		if(posId == null) {
+			return storageIoDetailDao.findByProductIdAndDetailStatusIn(productId, sts, searchPage);
 		} else {
-			return storageIoDetailDao.findByProductIdAndPosIdAndDetailStatus(productId, posId,
-					DetailStatus.SUCCESS.getValue(), searchPage);
+			return storageIoDetailDao.findByProductIdAndPosIdAndDetailStatusIn(productId, posId, sts, searchPage);
 		}
 	}
 
