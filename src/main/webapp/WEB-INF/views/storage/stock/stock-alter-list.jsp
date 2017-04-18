@@ -52,7 +52,7 @@
 </form>
 <div style="width: 100%;" id="infoDiv" align="center">
 	<form id="sendForm" action="">
-		<table>
+		<table id="common-table">
 			<tr>
 				<th>时间</th>
 				<th>类型</th>

@@ -45,7 +45,7 @@
 </form>
 <div style="width: 100%;" id="infoDiv" align="center">
 	<form id="sendForm" action="">
-		<table>
+		<table id="common-table">
 			<tr>
 				<th>书名</th>
 				<th>ISBN</th>
