@@ -2,6 +2,8 @@ package com.zis.storage.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -61,4 +63,12 @@ public interface StoragePosStockDao extends JpaRepository<StoragePosStock, Integ
 			"and s.productId = :productId " +
 			"order by (s.totalAmt - s.occupyAmt) desc")
 	List<com.zis.storage.dto.StockDTO> findAllStock(@Param("productId")Integer productId);
+	
+	/**
+	 * 根据库位Id 查询中间表
+	 * @param posId
+	 * @param page
+	 * @return
+	 */
+	Page<StoragePosStock> findByPosId(Integer posId, Pageable page);
 }

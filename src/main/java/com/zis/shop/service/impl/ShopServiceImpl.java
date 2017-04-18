@@ -503,7 +503,8 @@ public class ShopServiceImpl {
 		Company company = new Company();
 		company.setCreateTime(new Date());
 		company.setStatus(NORMAL);
-		BeanUtils.copyProperties(company, dto);
+		BeanUtils.copyProperties(dto, company);
+		company.setAddress(dto.getAddress());
 		company.setUpdateTime(new Date());
 		this.companyDao.save(company);
 		ShopUtil.clearAllCached();

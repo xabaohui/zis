@@ -14,10 +14,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.zis.common.controllertemplate.ViewTips;
 import com.zis.common.util.ZisUtils;
-import com.zis.purchase.bean.InwarehouseBizType;
 import com.zis.purchase.bean.InwarehousePosition;
-import com.zis.purchase.bean.InwarehouseStatus;
 import com.zis.purchase.dto.InwarehouseCreateResult;
 import com.zis.purchase.repository.InwarehousePositionDao;
 import com.zis.shop.util.ShopUtil;
@@ -38,7 +37,7 @@ import com.zis.storage.util.StorageUtil;
  */
 @Controller
 @RequestMapping(value = "/storage")
-public class StorageInwarehouseCreateController {
+public class StorageInwarehouseCreateController implements ViewTips{
 
 	@Autowired
 	private StorageService storageService;
@@ -48,12 +47,12 @@ public class StorageInwarehouseCreateController {
 
 	@Autowired
 	private StoragePositionDao storagePositionDao;
-	
+
 	@Autowired
 	private StorageIoBatchDao storageIoBatchDao;
 
 	private Logger logger = Logger.getLogger(StorageInwarehouseCreateController.class);
-	
+
 	/**
 	 * 继续扫描之前未完成的入库单
 	 * 
@@ -94,19 +93,19 @@ public class StorageInwarehouseCreateController {
 		if (br.hasErrors()) {
 			return "storage/inwarehouse/inwarehouse";
 		}
-		String[] stockPosLabel = inwarehouseCreateDto.getStockPosLabel(); // 库位名称
-		for (String s : stockPosLabel) {
-			StoragePosition position = this.storagePositionDao.findByLabelAndRepoId(s, StorageUtil.getRepoId());
-			if (position == null) {
-				context.put("actionError", s + "库位不存在请新建库位后创建入库单");
-				return "storage/inwarehouse/inwarehouse";
-			}
-		}
-
-		String inwarehouseOperator = ShopUtil.getUserName(); // 入库操作员
-		String memo = inwarehouseCreateDto.getMemo(); // 备注
-
 		try {
+			String[] stockPosLabel = inwarehouseCreateDto.getStockPosLabel(); // 库位名称
+			for (String s : stockPosLabel) {
+				StoragePosition position = this.storagePositionDao.findByLabelAndRepoId(s, StorageUtil.getRepoId());
+				if (position == null) {
+					context.put("actionError", s + "库位不存在请新建库位后创建入库单");
+					return "storage/inwarehouse/inwarehouse";
+				}
+			}
+
+			String inwarehouseOperator = ShopUtil.getUserName(); // 入库操作员
+			String memo = inwarehouseCreateDto.getMemo(); // 备注
+
 			// 新建入库批次
 			InwarehouseCreateResult result = this.createInwarehouse(inwarehouseCreateDto);
 			// 参数传递到下一个页面，展示用
@@ -132,15 +131,20 @@ public class StorageInwarehouseCreateController {
 	 */
 	@RequestMapping(value = "/fastInWarehouse")
 	public String createFastBatch(String stockPosLabel, ModelMap context) {
-		StoragePosition position = this.storagePositionDao.findByLabelAndRepoId(stockPosLabel, StorageUtil.getRepoId());
-		if (position == null) {
-			context.put("actionError", stockPosLabel + "库位不存在请新建库位后创建入库单");
-			return "storage/inwarehouse/fast-inwarehouse";
+		try {
+			StoragePosition position = this.storagePositionDao.findByLabelAndRepoId(stockPosLabel, StorageUtil.getRepoId());
+			if (position == null) {
+				context.put("actionError", stockPosLabel + "库位不存在请新建库位后创建入库单");
+				return "storage/inwarehouse/fast-inwarehouse";
+			}
+			context.put("stockPosLabel", stockPosLabel);
+			context.put("oldAmount", 0);
+			context.put("curPosition", stockPosLabel);
+			return "storage/inwarehouse/fast-inwarehouseScanner";
+		} catch (Exception e) {
+			context.put(ACTION_ERROR, e.getMessage());
+			return "error";
 		}
-		context.put("stockPosLabel", stockPosLabel);
-		context.put("oldAmount", 0);
-		context.put("curPosition", stockPosLabel);
-		return "storage/inwarehouse/fast-inwarehouseScanner";
 	}
 
 	/**
@@ -159,16 +163,17 @@ public class StorageInwarehouseCreateController {
 			return "error";
 		}
 	}
-	
+
 	/**
 	 * 取消入库操作
+	 * 
 	 * @param map
 	 * @param ioBatchId
 	 * @return
 	 */
 	@RequestMapping(value = "/cancelInStorage")
 	public String cancelInStorage(ModelMap map, Integer ioBatchId) {
-		
+
 		try {
 			this.storageService.cancelInStorage(ioBatchId, StorageUtil.getUserId());
 			map.put("actionMessage", "批次:" + ioBatchId + " 已取消");
@@ -178,7 +183,6 @@ public class StorageInwarehouseCreateController {
 			return "error";
 		}
 	}
-	
 
 	/**
 	 * 创建入库批次及辅助入库表
@@ -245,7 +249,7 @@ public class StorageInwarehouseCreateController {
 		this.inwarehousePositionDao.save(pos);
 		return pos.getId();
 	}
-	
+
 	/**
 	 * 查询入库单
 	 * 

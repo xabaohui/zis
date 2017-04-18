@@ -259,7 +259,13 @@
 			<ul class = "uls" onclick="checked(this);">
 			<font style="font-weight: bolder;">库存管理(新)</font>
 				<ul name = "showListTop" style="display: none" class = "showListTop">
+						<font size="4px" color="green" style="font-weight: bolder;" >查询相关</font>
+						<br/>
 						<li><a href="storage/stock/listProducts">库存商品</a></li>
+						<br/>
+						<li><a href="storage/findPosition">库位列表</a></li>
+						<br/>
+						<font size="4px" color="green" style="font-weight: bolder;" >入库相关</font>
 						<br/>
 						<li><a href="<%=basePath%>storage/gotoInwarehouse">批量入库</a></li>
 						<br/>
@@ -267,10 +273,13 @@
 						<br/>
 						<li><a href="storage/queryIoBatch">出入库批次</a></li>
 						<br/>
+						<font size="4px" color="green" style="font-weight: bolder;" >出库相关</font>
+						<br/>
+						<li><a href="storage/gotoCreateOrder">下单</a></li>
+						<br/>
 						<li><a href="storage/queryStorageOrder">订单列表</a></li>
 						<br/>
 						<li><a href="storage/querytTakeGoods">开始配货</a></li>
-						<li><a href="storage/testOrder">下单</a></li>
 				</ul>
 			</ul>
 		</div>

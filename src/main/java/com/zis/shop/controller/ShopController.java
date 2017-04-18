@@ -118,7 +118,7 @@ public class ShopController {
 	 * @param shopId
 	 * @return
 	 */
-	@RequestMapping(value = "/deleteUser")
+//	@RequestMapping(value = "/deleteUser")
 	public String deleteShop(ModelMap map, Integer shopId) {
 		try {
 			String shopName = this.shopService.deleteShop(getCompanyId(), shopId);

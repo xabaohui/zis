@@ -28,12 +28,12 @@ public class HelpController extends ActionHelpUtil {
 
 	@Autowired
 	private RegistAndUpdateService registAndUpdateService;
-	
+
 	@RequestMapping(value = "/gotoGeneralUserUpdatePassword")
 	public String gotoGeneralUserUpdatePassword() {
 		return "shiro/update/alter-general-user-password";
 	}
-	
+
 	@RequiresPermissions(value = { "shiro:shiro" })
 	@RequestMapping(value = "/gotoRegistRole")
 	public String showRegistRole(ModelMap map) {
@@ -46,10 +46,10 @@ public class HelpController extends ActionHelpUtil {
 		map.put("dataList", this.registAndUpdateService.getGroupPermissions(DATA));
 		return "shiro/regist/regist-role";
 	}
-	
+
 	@RequiresPermissions(value = { "shiro:shiro" })
 	@RequestMapping(value = "/gotoRegistUser")
-	public String gotoRegistUser(ModelMap map,Integer companyId) {
+	public String gotoRegistUser(ModelMap map, Integer companyId) {
 		List<Role> roleList = this.registAndUpdateService.findAllRole();
 		List<Company> companyList = this.registAndUpdateService.findAllCompany();
 		map.put("checkedCompanyId", companyId);
@@ -57,18 +57,18 @@ public class HelpController extends ActionHelpUtil {
 		map.put("companyList", companyList);
 		return "shiro/regist/regist-user";
 	}
-	
-//	@RequiresPermissions(value = { "shiro:shiro" })
-//	@RequestMapping(value = "/showUpdate")
-//	public String showUpdate(ModelMap map) {
-//		return "shiro/update/show_update_list";
-//	}
-	
-//	@RequiresPermissions(value = { "shiro:shiro" })
-//	@RequestMapping(value = "/showUpdateRole")
-//	public String showUpdateRole(ModelMap map) {
-//		return "shiro/update/show-update-role-list";
-//	}
+
+	// @RequiresPermissions(value = { "shiro:shiro" })
+	// @RequestMapping(value = "/showUpdate")
+	// public String showUpdate(ModelMap map) {
+	// return "shiro/update/show_update_list";
+	// }
+
+	// @RequiresPermissions(value = { "shiro:shiro" })
+	// @RequestMapping(value = "/showUpdateRole")
+	// public String showUpdateRole(ModelMap map) {
+	// return "shiro/update/show-update-role-list";
+	// }
 
 	/**
 	 * 修改用户 帮助action
@@ -100,7 +100,11 @@ public class HelpController extends ActionHelpUtil {
 			registUserDto.setRoleId(user.getRoleId());
 			registUserDto.setRealName(user.getRealName());
 			registUserDto.setCompanyId(user.getCompanyId());
-			registUserDto.setCompanyName(company.getCompanyName());
+			if (company != null) {
+				registUserDto.setCompanyName(company.getCompanyName());
+			} else {
+				registUserDto.setCompanyName("");
+			}
 		}
 		map.put("checkedId", registUserDto.getRoleId());
 		map.put("checkedCompanyId", registUserDto.getCompanyId());
@@ -138,7 +142,7 @@ public class HelpController extends ActionHelpUtil {
 		putPermissionToView(map);
 		return "shiro/update/alter-role";
 	}
-	
+
 	@RequiresPermissions(value = { "xxxxx:gotoCreatePermission" })
 	@RequestMapping(value = "/gotoCreatePermission")
 	public String gotoCreatePermission(ModelMap map) {

@@ -8,10 +8,12 @@ import org.springframework.data.repository.query.Param;
 
 import com.zis.storage.entity.StorageProduct;
 
-public interface StorageProductDao extends JpaRepository<StorageProduct, Integer>{
-	
+public interface StorageProductDao extends JpaRepository<StorageProduct, Integer> {
+
 	StorageProduct findBySkuIdAndRepoId(Integer skuId, Integer repoId);
-	
+
 	@Query("from StorageProduct where skuId in (:skuIds) and repoId=:repoId")
-	List<StorageProduct> findBySkuIdsAndRepoId(@Param("skuIds")List<Integer> skuIds, @Param("repoId")Integer repoId);
+	List<StorageProduct> findBySkuIdsAndRepoId(@Param("skuIds") List<Integer> skuIds, @Param("repoId") Integer repoId);
+
+	List<StorageProduct> findByRepoIdAndProductIdInOrderBySkuIdAsc(Integer repoId, List<Integer> productIds);
 }

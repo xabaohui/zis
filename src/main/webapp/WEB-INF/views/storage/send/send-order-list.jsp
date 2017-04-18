@@ -97,7 +97,7 @@
 				<td>${order.storageOrder.outTradeNo}</td>
 				<td>${order.storageOrder.buyerName}</td>
 				<td>
-					${order.storageOrder.tradeStatus}
+					${order.storageOrder.zhCnStatus}
 				</td>
 				<td  width="35%">
 					<c:set value = "${order.oList}" var = "dtoList"/>
@@ -106,7 +106,7 @@
 						</c:forEach>
 				</td>
 				<td>
-					<c:if test="${order.storageOrder.tradeStatus eq '新创建'}">
+					<c:if test="${order.storageOrder.tradeStatus eq 'created'}">
 						<input type="button" value = "配货" onclick="pickingUpOrder('${order.storageOrder.orderId}')"/>
 						<br/>
 						<br/>

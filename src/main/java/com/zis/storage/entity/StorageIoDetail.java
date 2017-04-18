@@ -230,6 +230,14 @@ public class StorageIoDetail {
 		public String getDisplay() {
 			return display;
 		}
+		
+		public static IoType getIoType(String type) {
+			for (IoType st : IoType.values()) {
+				if(st.getValue().equals(type))
+					return st;
+			}
+			return null;
+		}
 	}
 	
 	public enum DetailStatus {

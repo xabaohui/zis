@@ -68,6 +68,15 @@ tr{
 				</td>
 			</tr>
 			<tr>
+			<td colspan="2">&nbsp;</td>
+			</tr>
+			<tr>
+			<td colspan="2">&nbsp;</td>
+			</tr>
+			<tr>
+			<td colspan="2">&nbsp;</td>
+			</tr>
+			<tr>
 				<td>公司:</td>
 				<td>
 					<c:forEach items="${companyList}" var="company" varStatus="i">

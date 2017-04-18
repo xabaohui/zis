@@ -17,7 +17,11 @@ public class ShopUtil {
 	public static Integer getCompanyId() {
 		Subject user = SecurityUtils.getSubject();
 		ActiveUser au = (ActiveUser) user.getPrincipals().getPrimaryPrincipal();
-		return au.getCompanyId();
+		Integer companyId = au.getCompanyId();
+		if(companyId == null){
+			throw new RuntimeException("您没有公司，请联系管理员添加公司后重新登录");
+		}
+		return companyId;
 	}
 	/**
 	 * 获取用户名称

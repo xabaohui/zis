@@ -15,11 +15,12 @@ import com.zis.shop.bean.ShopInfo;
 import com.zis.shop.bean.ShopInfo.ShopInfoStatus;
 import com.zis.shop.service.impl.ShopServiceImpl;
 
-@Controller
-@RequestMapping(value = "/shop")
+//@Controller
+//@RequestMapping(value = "/shop")
+@Deprecated
 public class ShopWaitUpLoadController {
 
-	@Autowired
+//	@Autowired
 	private ShopServiceImpl shopService;
 
 	/**
@@ -66,8 +67,8 @@ public class ShopWaitUpLoadController {
 	 * @param map
 	 * @return
 	 */
-	@Token(checking = true)
-	@RequestMapping(value = "/addShopItemMapping")
+//	@Token(checking = true)
+//	@RequestMapping(value = "/addShopItemMapping")
 	public String addShopItemMapping(Integer shopId, Integer[] batchIds, ModelMap map) {
 		ShopInfo shop = null;
 		try {

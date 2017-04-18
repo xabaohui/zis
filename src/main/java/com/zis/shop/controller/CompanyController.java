@@ -177,7 +177,7 @@ public class CompanyController {
 		Integer companyId = getCompanyId();
 		Company company = this.shopService.findCompanyOne(companyId);
 		if (company == null) {
-			map.put("errorAction", "您没有公司请联系管理员添加公司");
+			map.put("actionError", "您没有公司请联系管理员添加公司");
 			logger.error("您没有公司请联系管理员添加公司");
 			return "error";
 		}
@@ -197,7 +197,7 @@ public class CompanyController {
 		Integer companyId = getCompanyId();
 		Company company = this.shopService.findCompanyOne(companyId);
 		if (company == null) {
-			map.put("errorAction", "您没有公司请联系管理员添加公司");
+			map.put("actionError", "您没有公司请联系管理员添加公司");
 			logger.error("您没有公司请联系管理员添加公司");
 			return "error";
 		}

@@ -18,7 +18,7 @@
 			// (4-1)查询图书
 			bookService.findBookByISBN(userInput, fastFindBookByIsbn);
 		}
-		$('userInput').value = "";
+// 		$('userInput').value = "";
 	};
 </script>
 

@@ -68,7 +68,7 @@ public class SysService {
 		Company company = this.companyDao.findBySysCompanyId(companyId);
 		return company;
 	}
-
+	
 	public Integer findStorageRepoInfoId(Integer companyId) {
 		List<StorageRepoInfo> list = this.storageRepoInfoDao.findByOwnerIdOrderByGmtCreateAsc(companyId);
 		if (list.isEmpty()) {

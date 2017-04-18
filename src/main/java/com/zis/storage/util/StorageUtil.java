@@ -17,7 +17,11 @@ public class StorageUtil {
 	public static Integer getCompanyId() {
 		Subject user = SecurityUtils.getSubject();
 		ActiveUser au = (ActiveUser) user.getPrincipals().getPrimaryPrincipal();
-		return au.getCompanyId();
+		Integer companyId = au.getCompanyId();
+		if(companyId == null){
+			throw new RuntimeException("您没有公司，请联系管理员添加公司后重新登录");
+		}
+		return companyId;
 	}
 
 	/**
@@ -61,7 +65,11 @@ public class StorageUtil {
 	public static Integer getRepoId() {
 		Subject user = SecurityUtils.getSubject();
 		ActiveUser au = (ActiveUser) user.getPrincipals().getPrimaryPrincipal();
-		return au.getStockId();
+		Integer stockId = au.getStockId();
+		if(stockId == null){
+			throw new RuntimeException("您没有公司没有仓库，请联系管理员添加仓库后重新登录");
+		}
+		return stockId;
 	}
 
 	/**

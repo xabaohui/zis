@@ -98,7 +98,9 @@ width: 150px;
 				<td>
 					${batch.memo}
 				</td>
-				<td>${batch.amount}</td>
+				<td>
+					<a href="storage/findIoDetailByBatchId?batchId=${batch.batchId}">${batch.amount}</a>
+				</td>
 				<td>
 				${batch.zhCnStatus}
 				<c:if test="${batch.status eq 'created'&& batch.bizType eq 'in_batch'}">

@@ -176,6 +176,20 @@ function checkAllOId() {
 	}
 }
 
+//动态设置sku
+function addSku() {
+	var i = document.getElementById('skuNo').value;
+	var origPos = document.getElementById('createSkuDiv').innerHTML;
+	document.getElementById('createSkuDiv').innerHTML = origPos + '图书Id:<input type="text" name="dList['+i+'].skuId" size="15" />&nbsp;图书数量：<input type="text" name="dList['+i+'].amount" size="3" /><p/>';
+	i++;
+	document.getElementById('skuNo').value = i;
+}
+//动态设置sku清空使用
+function clearSku() {
+	var i = document.getElementById('skuNo').value = 1;
+	var origPos = document.getElementById('createSkuDiv').innerHTML = "";
+}
+
 /**
  * 选择状态
  */

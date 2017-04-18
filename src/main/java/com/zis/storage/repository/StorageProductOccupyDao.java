@@ -21,5 +21,6 @@ public interface StorageProductOccupyDao extends CrudRepository<StorageProductOc
 	 * @param productId
 	 * @return
 	 */
+	//FIXME　如果同样skuId下了2次这边就会报错
 	StorageProductOccupy findByOrderIdAndProductId(Integer orderId, Integer productId);
 }
