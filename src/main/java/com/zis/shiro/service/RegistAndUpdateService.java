@@ -252,6 +252,7 @@ public class RegistAndUpdateService {
 			} else {
 				user.setCompanyId(0);
 			}
+			clearAllCached();
 		}
 		try {
 			this.userDao.save(user);
