@@ -23,6 +23,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.alibaba.fastjson.JSONObject;
 import com.zis.bookinfo.bean.Bookinfo;
@@ -40,6 +41,7 @@ import com.zis.storage.dto.CreateOrderDTO;
 import com.zis.storage.dto.CreateOrderDTO.CreateOrderDetail;
 import com.zis.storage.dto.CreateOrderInputDTO;
 import com.zis.storage.dto.CreateOrderInputDTO.CreateOrderDetailInput;
+import com.zis.storage.dto.FastTakeGoodsDTO;
 import com.zis.storage.dto.OrderDetailDto;
 import com.zis.storage.dto.StockDTO;
 import com.zis.storage.dto.StorageIoBatchDTO;
@@ -167,6 +169,8 @@ public class StorageController implements ViewTips {
 					listShow.add(io);
 				}
 				map.put("batchList", listShow);
+				map.put("checkType", bizType);
+				map.put("checkStatus", status);
 				map.put("page", page.getPageNumber() + 1);
 				setQueryCondition(bizType, status, map);
 				if (orderList.hasPrevious()) {
@@ -207,7 +211,7 @@ public class StorageController implements ViewTips {
 	private void setQueryCondition(String type, String status, ModelMap map) {
 		StringBuilder condition = new StringBuilder();
 		if (StringUtils.isNotBlank(type)) {
-			condition.append("type=" + type + "&");
+			condition.append("bizType=" + type + "&");
 		}
 		if (StringUtils.isNotBlank(status)) {
 			condition.append("status=" + status + "&");
@@ -844,6 +848,44 @@ public class StorageController implements ViewTips {
 	}
 
 	/**
+	 * 直接出库辅助跳转类
+	 * 
+	 * @param map
+	 * @return
+	 */
+	@RequestMapping(value = "/gotoFastTakeGoods")
+	@Token(generate = true)
+	public String gotoFastTakeGoods(ModelMap map) {
+		return "storage/send/fast-take-goods";
+	}
+
+	/**
+	 * 直接出库
+	 * @param dto
+	 * @param br
+	 * @param map
+	 * @return
+	 */
+	@RequestMapping(value = "/fastTakeGoods")
+	@Token(checking = true)
+	public String fastTakeGoods(@Valid @ModelAttribute("dto") FastTakeGoodsDTO dto, BindingResult br, ModelMap map, RedirectAttributes attributes) {
+		if (br.hasErrors()) {
+			return "forward:/storage/gotoFastTakeGoods";
+		}
+		try {
+			this.storageService.directSend(StorageUtil.getRepoId(), dto.getSkuId(), dto.getAmount(), dto.getPosLabel(),
+					StorageUtil.getUserId());
+			String message = String.format("%s库位 %s 出库%s本", dto.getPosLabel(), dto.getBookinfoStr(), dto.getAmount());
+//			map.put(ACTION_MESSAGE, message);
+			attributes.addFlashAttribute(ACTION_MESSAGE, message);
+			return "redirect:/storage/gotoFastTakeGoods";
+		} catch (Exception e) {
+			map.put(ACTION_ERROR, e.getMessage());
+			return "forward:/storage/gotoFastTakeGoods";
+		}
+	}
+
+	/**
 	 * 辅助跳转新增仓库
 	 * 
 	 * @param map
@@ -1241,6 +1283,7 @@ public class StorageController implements ViewTips {
 		for (StorageIoDetail detail : rs.getContent()) {
 			StorageIoDetailViewDTO v = new StorageIoDetailViewDTO();
 			BeanUtils.copyProperties(detail, v);
+			v.setOperatorName(getRealName(detail.getOperator()));
 			v.init();
 			list.add(v);
 		}

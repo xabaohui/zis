@@ -280,6 +280,8 @@
 						<li><a href="storage/queryStorageOrder">订单列表</a></li>
 						<br/>
 						<li><a href="storage/querytTakeGoods">开始配货</a></li>
+						<br/>
+						<li><a href="storage/gotoFastTakeGoods">快速出库</a></li>
 				</ul>
 			</ul>
 		</div>

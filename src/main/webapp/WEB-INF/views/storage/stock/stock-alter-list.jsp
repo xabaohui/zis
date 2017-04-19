@@ -69,7 +69,7 @@
 				<td>${detail.posLabel}</td>
 				<td>${detail.displayAmount}</td>
 				<td>${detail.balance}</td>
-				<td>${detail.operator}</td>
+				<td>${detail.operatorName}</td>
 				<td><c:if test="${detail.detailStatus eq 'lackness'}" ><font color="red">缺货</font></c:if></td>
 				</tr>
 			</c:forEach>

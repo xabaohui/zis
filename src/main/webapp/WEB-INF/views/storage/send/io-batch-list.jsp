@@ -9,6 +9,7 @@
 window.onload = function() {
 		checkStatusAndType();
 	};
+
 </script>
 <style type="text/css">
 #infoDiv table tr td,#infoDiv table tr th {
