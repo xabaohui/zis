@@ -861,6 +861,7 @@ public class StorageController implements ViewTips {
 
 	/**
 	 * 直接出库
+	 * 
 	 * @param dto
 	 * @param br
 	 * @param map
@@ -868,7 +869,8 @@ public class StorageController implements ViewTips {
 	 */
 	@RequestMapping(value = "/fastTakeGoods")
 	@Token(checking = true)
-	public String fastTakeGoods(@Valid @ModelAttribute("dto") FastTakeGoodsDTO dto, BindingResult br, ModelMap map, RedirectAttributes attributes) {
+	public String fastTakeGoods(@Valid @ModelAttribute("dto") FastTakeGoodsDTO dto, BindingResult br, ModelMap map,
+			RedirectAttributes attributes) {
 		if (br.hasErrors()) {
 			return "forward:/storage/gotoFastTakeGoods";
 		}
@@ -876,12 +878,51 @@ public class StorageController implements ViewTips {
 			this.storageService.directSend(StorageUtil.getRepoId(), dto.getSkuId(), dto.getAmount(), dto.getPosLabel(),
 					StorageUtil.getUserId());
 			String message = String.format("%s库位 %s 出库%s本", dto.getPosLabel(), dto.getBookinfoStr(), dto.getAmount());
-//			map.put(ACTION_MESSAGE, message);
+			// map.put(ACTION_MESSAGE, message);
 			attributes.addFlashAttribute(ACTION_MESSAGE, message);
 			return "redirect:/storage/gotoFastTakeGoods";
 		} catch (Exception e) {
 			map.put(ACTION_ERROR, e.getMessage());
 			return "forward:/storage/gotoFastTakeGoods";
+		}
+	}
+
+	/**
+	 * 手动出库辅助跳转类
+	 * 
+	 * @param map
+	 * @return
+	 */
+	@RequestMapping(value = "/gotoManualTakeGoods")
+	@Token(generate = true)
+	public String gotoManualTakeGoods(ModelMap map) {
+		return "storage/send/manual-take-goods";
+	}
+
+	/**
+	 * 手动出库
+	 * 
+	 * @param dto
+	 * @param br
+	 * @param map
+	 * @return
+	 */
+	@RequestMapping(value = "/manualTakeGoods")
+	@Token(checking = true)
+	public String manualTakeGoods(@Valid @ModelAttribute("dto") FastTakeGoodsDTO dto, BindingResult br, ModelMap map,
+			RedirectAttributes attributes) {
+		if (br.hasErrors()) {
+			return "forward:/storage/gotoManualTakeGoods";
+		}
+		try {
+			this.storageService.directSend(StorageUtil.getRepoId(), dto.getSkuId(), dto.getAmount(), dto.getPosLabel(),
+					StorageUtil.getUserId());
+			String message = String.format("%s库位 %s 出库%s本", dto.getPosLabel(), dto.getBookinfoStr(), dto.getAmount());
+			attributes.addFlashAttribute(ACTION_MESSAGE, message);
+			return "redirect:/storage/gotoManualTakeGoods";
+		} catch (Exception e) {
+			map.put(ACTION_ERROR, e.getMessage());
+			return "forward:/storage/gotoManualTakeGoods";
 		}
 	}
 

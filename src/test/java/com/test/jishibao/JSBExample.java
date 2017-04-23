@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -18,10 +19,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.alibaba.fastjson.JSON;
 import com.jsb.rest.client.JSBClient;
 import com.jsb.rest.comm.JSBRestException;
-import com.taobao.api.FileItem;
 import com.taobao.api.domain.Item;
 import com.taobao.api.domain.Order;
 import com.taobao.api.domain.Product;
+import com.taobao.api.domain.Refund;
 import com.taobao.api.domain.Trade;
 import com.taobao.api.internal.util.StringUtils;
 import com.taobao.api.request.AreasGetRequest;
@@ -29,7 +30,6 @@ import com.taobao.api.request.ItemAddRequest;
 import com.taobao.api.request.ItemQuantityUpdateRequest;
 import com.taobao.api.request.ItemSellerGetRequest;
 import com.taobao.api.request.ItemUpdateListingRequest;
-import com.taobao.api.request.ItemUpdateRequest;
 import com.taobao.api.request.ItemcatsAuthorizeGetRequest;
 import com.taobao.api.request.ItemcatsGetRequest;
 import com.taobao.api.request.ItemsCustomGetRequest;
@@ -37,6 +37,8 @@ import com.taobao.api.request.LogisticsCompaniesGetRequest;
 import com.taobao.api.request.LogisticsDummySendRequest;
 import com.taobao.api.request.LogisticsOrdersDetailGetRequest;
 import com.taobao.api.request.ProductsSearchRequest;
+import com.taobao.api.request.RefundsApplyGetRequest;
+import com.taobao.api.request.RefundsReceiveGetRequest;
 import com.taobao.api.request.TradeFullinfoGetRequest;
 import com.taobao.api.request.TradeGetRequest;
 import com.taobao.api.request.TradeMemoAddRequest;
@@ -49,7 +51,6 @@ import com.taobao.api.response.ItemAddResponse;
 import com.taobao.api.response.ItemQuantityUpdateResponse;
 import com.taobao.api.response.ItemSellerGetResponse;
 import com.taobao.api.response.ItemUpdateListingResponse;
-import com.taobao.api.response.ItemUpdateResponse;
 import com.taobao.api.response.ItemcatsAuthorizeGetResponse;
 import com.taobao.api.response.ItemcatsGetResponse;
 import com.taobao.api.response.ItemsCustomGetResponse;
@@ -57,6 +58,8 @@ import com.taobao.api.response.LogisticsCompaniesGetResponse;
 import com.taobao.api.response.LogisticsDummySendResponse;
 import com.taobao.api.response.LogisticsOrdersDetailGetResponse;
 import com.taobao.api.response.ProductsSearchResponse;
+import com.taobao.api.response.RefundsApplyGetResponse;
+import com.taobao.api.response.RefundsReceiveGetResponse;
 import com.taobao.api.response.TradeFullinfoGetResponse;
 import com.taobao.api.response.TradeGetResponse;
 import com.taobao.api.response.TradeMemoAddResponse;
@@ -68,7 +71,6 @@ import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.bean.BookinfoDetail;
 import com.zis.bookinfo.service.BookService;
 import com.zis.common.util.TextClearUtils;
-import com.zis.common.util.ZisUtils;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(value = { "classpath:spring/spring.xml", "classpath:spring/shiro.xml" })
@@ -125,15 +127,13 @@ public class JSBExample {
 		}
 
 	}
-	
-	
 
 	public static void testTradeSoldGet() throws JSBRestException {
 		JSBClient client = new JSBClient(AK, SK);
 		TradesSoldGetRequest req = new TradesSoldGetRequest();
 		req.setFields("tid,type,status,payment,created");
-//		req.setStartCreated(StringUtils.parseDateTime("2016-06-10 22:00:00"));
-//		req.setEndCreated(StringUtils.parseDateTime("2016-06-20 22:59:59"));
+		// req.setStartCreated(StringUtils.parseDateTime("2016-06-10 22:00:00"));
+		// req.setEndCreated(StringUtils.parseDateTime("2016-06-20 22:59:59"));
 		req.setPageNo(1L);
 		req.setPageSize(5L);
 		req.setUseHasNext(true);
@@ -146,83 +146,83 @@ public class JSBExample {
 			String date = dateFormat.format(t.getCreated());
 			System.out.println(date);
 		}
-//		{
-//			    "trades_sold_get_response":{
-//			        "total_results":100,
-//			        "has_next":true,
-//			        "trades":{
-//			            "trade":[
-//			                {
-//			                    "seller_nick":"我在测试",
-//			                    "pic_path":"http:\/\/img08.taobao.net\/bao\/uploaded\/i8\/T1jVXXXePbXXaoPB6a_091917.jpg",
-//			                    "payment":"200.07",
-//			                    "seller_rate":true,
-//			                    "post_fee":"200.07",
-//			                    "receiver_name":"东方不败",
-//			                    "receiver_state":"浙江省",
-//			                    "receiver_address":"淘宝城911号",
-//			                    "receiver_zip":"223700",
-//			                    "receiver_mobile":"13512501826",
-//			                    "receiver_phone":"13819175372",
-//			                    "consign_time":"2000-01-01 00:00:00",
-//			                    "received_payment":"200.07",
-//			                    "receiver_country":"中国",
-//			                    "receiver_town":"三墎镇",
-//			                    "order_tax_fee":"0",
-//			                    "shop_pick":"1",
-//			                    "tid":2231958349,
-//			                    "num":1,
-//			                    "num_iid":3424234,
-//			                    "status":"TRADE_NO_CREATE_PAY",
-//			                    "title":"麦包包",
-//			                    "type":"fixed(一口价)",
-//			                    "price":"200.07",
-//			                    "discount_fee":"200.07",
-//			                    "total_fee":"200.07",
-//			                    "created":"2000-01-01 00:00:00",
-//			                    "pay_time":"2000-01-01 00:00:00",
-//			                    "modified":"2000-01-01 00:00:00",
-//			                    "end_time":"2000-01-01 00:00:00",
-//			                    "seller_flag":1,
-//			                    "buyer_nick":"我在测试",
-//			                    "has_buyer_message":true,
-//			                    "credit_card_fee":"30.5",
-//			                    "step_trade_status":"FRONT_NOPAID_FINAL_NOPAID",
-//			                    "step_paid_fee":"525.70",
-//			                    "mark_desc":"该订单需要延长收货时间",
-//			                    "shipping_type":"free",
-//			                    "adjust_fee":"200.07",
-//			                    "trade_from":"WAP,JHS",
-//			                    "service_orders":{
-//			                        "service_order":[
-//			                            {
-//			                            }
-//			                        ]
-//			                    },
-//			                    "buyer_rate":true,
-//			                    "receiver_city":"杭州市",
-//			                    "receiver_district":"西湖区",
-//			                    "o2o":"crm",
-//			                    "o2o_guide_id":"123456",
-//			                    "o2o_shop_id":"123456",
-//			                    "o2o_guide_name":"西湖门店导购员1",
-//			                    "o2o_shop_name":"西湖门店",
-//			                    "o2o_delivery":"inshop",
-//			                    "orders":{
-//			                        "order":[
-//			                            {
-//			                            }
-//			                        ]
-//			                    },
-//			                    "rx_audit_status":"0",
-//			                    "post_gate_declare":true,
-//			                    "cross_bonded_declare":false,
-//			                    "order_tax_promotion_fee":"0"
-//			                }
-//			            ]
-//			        }
-//			    }
-//			}
+		// {
+		//     "trades_sold_get_response":{
+		//         "total_results":100,
+		//         "has_next":true,
+		//         "trades":{
+		//             "trade":[
+		//                 {
+		//                     "seller_nick":"我在测试",
+		//                     "pic_path":"http:\/\/img08.taobao.net\/bao\/uploaded\/i8\/T1jVXXXePbXXaoPB6a_091917.jpg",
+		//                     "payment":"200.07",
+		//                     "seller_rate":true,
+		//                     "post_fee":"200.07",
+		//                     "receiver_name":"东方不败",
+		//                     "receiver_state":"浙江省",
+		//                     "receiver_address":"淘宝城911号",
+		//                     "receiver_zip":"223700",
+		//                     "receiver_mobile":"13512501826",
+		//                     "receiver_phone":"13819175372",
+		//                     "consign_time":"2000-01-01 00:00:00",
+		//                     "received_payment":"200.07",
+		//                     "receiver_country":"中国",
+		//                     "receiver_town":"三墎镇",
+		//                     "order_tax_fee":"0",
+		//                     "shop_pick":"1",
+		//                     "tid":2231958349,
+		//                     "num":1,
+		//                     "num_iid":3424234,
+		//                     "status":"TRADE_NO_CREATE_PAY",
+		//                     "title":"麦包包",
+		//                     "type":"fixed(一口价)",
+		//                     "price":"200.07",
+		//                     "discount_fee":"200.07",
+		//                     "total_fee":"200.07",
+		//                     "created":"2000-01-01 00:00:00",
+		//                     "pay_time":"2000-01-01 00:00:00",
+		//                     "modified":"2000-01-01 00:00:00",
+		//                     "end_time":"2000-01-01 00:00:00",
+		//                     "seller_flag":1,
+		//                     "buyer_nick":"我在测试",
+		//                     "has_buyer_message":true,
+		//                     "credit_card_fee":"30.5",
+		//                     "step_trade_status":"FRONT_NOPAID_FINAL_NOPAID",
+		//                     "step_paid_fee":"525.70",
+		//                     "mark_desc":"该订单需要延长收货时间",
+		//                     "shipping_type":"free",
+		//                     "adjust_fee":"200.07",
+		//                     "trade_from":"WAP,JHS",
+		//                     "service_orders":{
+		//                         "service_order":[
+		//                             {
+		//                             }
+		//                         ]
+		//                     },
+		//                     "buyer_rate":true,
+		//                     "receiver_city":"杭州市",
+		//                     "receiver_district":"西湖区",
+		//                     "o2o":"crm",
+		//                     "o2o_guide_id":"123456",
+		//                     "o2o_shop_id":"123456",
+		//                     "o2o_guide_name":"西湖门店导购员1",
+		//                     "o2o_shop_name":"西湖门店",
+		//                     "o2o_delivery":"inshop",
+		//                     "orders":{
+		//                         "order":[
+		//                             {
+		//                             }
+		//                         ]
+		//                     },
+		//                     "rx_audit_status":"0",
+		//                     "post_gate_declare":true,
+		//                     "cross_bonded_declare":false,
+		//                     "order_tax_promotion_fee":"0"
+		//                 }
+		//             ]
+		//         }
+		//     }
+		// }
 	}
 
 	public static void testTradesSoldIncrementGet() throws JSBRestException {
@@ -349,24 +349,25 @@ public class JSBExample {
 		}
 		return p;
 	}
-	
-//	public static Product testGetProductsSearchRequest(String isbn) throws JSBRestException {
-//		Product p = null;
-//		JSBClient client = new JSBClient(AK, SK);
-//		ItemsSearchRequest req = new ProductsSearchRequest();
-//		req.setFields("product_id,name,pic_url,cid,props,price,tsc");
-//		req.setQ(isbn);
-//		ProductsSearchResponse rsp = client.execute(req);
-//		boolean a = rsp.isSuccess();
-//		if (a) {
-//			System.out.println(JSON.toJSON(rsp.getProducts()));
-//			System.out.println(isbn);
-//			p = rsp.getProducts().get(0);
-//		} else {
-//			System.out.println(rsp.getMsg());
-//		}
-//		return p;
-//	}
+
+	// public static Product testGetProductsSearchRequest(String isbn) throws
+	// JSBRestException {
+	// Product p = null;
+	// JSBClient client = new JSBClient(AK, SK);
+	// ItemsSearchRequest req = new ProductsSearchRequest();
+	// req.setFields("product_id,name,pic_url,cid,props,price,tsc");
+	// req.setQ(isbn);
+	// ProductsSearchResponse rsp = client.execute(req);
+	// boolean a = rsp.isSuccess();
+	// if (a) {
+	// System.out.println(JSON.toJSON(rsp.getProducts()));
+	// System.out.println(isbn);
+	// p = rsp.getProducts().get(0);
+	// } else {
+	// System.out.println(rsp.getMsg());
+	// }
+	// return p;
+	// }
 
 	public static void testAdd(Product p, Bookinfo bookinfo, BookinfoDetail bd, Long tid) throws JSBRestException {
 		JSBClient client = new JSBClient(AK, SK);
@@ -377,9 +378,10 @@ public class JSBExample {
 		sb.append(bd.getCatalog());
 		sb.append(bd.getSummary());
 		req.setDesc("这是一个好商品");
-//		InputStream input = getInputStream(bd.getImageUrl());
-//		FileItem image = new FileItem(bookinfo.getIsbn() + "-" + bookinfo.getId() + ".jpg", input);
-//		req.setImage(image);
+		// InputStream input = getInputStream(bd.getImageUrl());
+		// FileItem image = new FileItem(bookinfo.getIsbn() + "-" +
+		// bookinfo.getId() + ".jpg", input);
+		// req.setImage(image);
 		req.setCid(p.getCid());
 		req.setNum(20L);
 		req.setOuterId(bookinfo.getIsbn() + "-" + bookinfo.getId());
@@ -514,8 +516,8 @@ public class JSBExample {
 			System.out.println(rsp.getMsg());
 		}
 	}
-	
-	private static void testUserSellerGet() throws JSBRestException{
+
+	private static void testUserSellerGet() throws JSBRestException {
 		JSBClient client = new JSBClient(AK, SK);
 		UserSellerGetRequest req = new UserSellerGetRequest();
 		req.setFields("user_id");
@@ -523,8 +525,65 @@ public class JSBExample {
 		System.out.println(JSON.toJSON(rsp.getUser()));
 	}
 
+	private static void testTradesSoldIncrementGeta() throws JSBRestException {
+		try {
+			JSBClient client = new JSBClient(AK, SK);
+			TradesSoldIncrementGetRequest req = new TradesSoldIncrementGetRequest();
+			req.setFields("tid,type,status,payment,orders");
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			Date start = sdf.parse("2017-04-16 00:00:00");
+			Date end = sdf.parse("2017-04-17 00:00:00");
+			req.setStartModified(start);
+			req.setEndModified(end);
+			req.setUseHasNext(true);
+			TradesSoldIncrementGetResponse rsp = client.execute(req);
+			List<Trade> list = rsp.getTrades();
+			for (Trade trade : list) {
+				System.out.println(JSON.toJSON(trade));
+			}
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	private static void testRefundsApplyGet() throws JSBRestException {
+		JSBClient client = new JSBClient(AK, SK);
+		RefundsApplyGetRequest req = new RefundsApplyGetRequest();
+		req.setFields("refund_id, tid, title, buyer_nick, seller_nick, total_fee, status, created, refund_fee");
+		req.setPageNo(1L);
+		req.setPageSize(40L);
+		RefundsApplyGetResponse rsp = client.execute(req);
+		List<Refund> list = rsp.getRefunds();
+		System.out.println(rsp.getBody());
+		System.out.println(rsp.getRefunds());
+		for (Refund refund : list) {
+			System.out.println(JSON.toJSON(refund));
+		}
+}
+	private static void testRefundsReceiveGetRequest() throws Exception {
+		JSBClient client = new JSBClient(AK, SK);
+		RefundsReceiveGetRequest req = new RefundsReceiveGetRequest();
+		req.setFields("refund_id, tid, title,buyer_nick, seller_nick, total_fee, status, created, refund_fee,refund_phase");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date start = sdf.parse("2017-04-16 00:00:00");
+		Date end = sdf.parse("2017-04-17 00:00:00");
+		req.setStartModified(start);
+		req.setEndModified(end);
+		req.setUseHasNext(true);
+		RefundsReceiveGetResponse rsp = client.execute(req);
+		List<Refund> list = rsp.getRefunds();
+		for (Refund refund : list) {
+			System.out.println(JSON.toJSON(refund));
+		}
+	}
+
+	private static void test111() {
+
+	}
+
 	public static void main(String args[]) {
-//		taobao.trades.sold.get
+		// taobao.trades.sold.get
 		// testTradeSoldGet();
 		// testTradesSoldIncrementGet();
 		// testTradeFullGet();
@@ -533,18 +592,23 @@ public class JSBExample {
 		// testGetCid();
 		// testGetProductsSearchRequest();
 		// testTradeGet();
-//		String s = "92929222";
-//		String[]s1 =s.split("-");
-//		System.out.println(s1.length);
-		
+		// String s = "92929222";
+		// String[]s1 =s.split("-");
+		// System.out.println(s1.length);
+
 		try {
-////			testUpload();
-//			testTradeSoldGet();
-			testUserSellerGet();
-//			 testUpdate();
-		} catch (JSBRestException e) {
+			// // testUpload();
+			// testTradeSoldGet();
+			// testUserSellerGet();
+//			testTradesSoldIncrementGeta();
+			for (int i = 0; i < 100; i++) {
+				testRefundsApplyGet();
+//				testRefundsReceiveGetRequest();
+			}
+			// testUpdate();
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			 e.printStackTrace();
 		}
 		// testLogisticsDummySend();
 	}

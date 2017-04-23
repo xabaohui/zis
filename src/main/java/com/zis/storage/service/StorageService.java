@@ -245,6 +245,15 @@ public interface StorageService {
 	 * @return
 	 */
 	List<StorageProduct> findStorageProductBySkuIdsAndRepoId(List<Integer> skuIds, Integer repoId);
+	
+	/**
+	 * 按照仓库Id和skuId查询库存商品
+	 * 
+	 * @param skuId
+	 * @param repoId
+	 * @return
+	 */
+	StorageProduct findStorageProductBySkuIdAndRepoId(Integer skuId, Integer repoId);
 
 	/**
 	 * 按照productId查询商品的库存分布明细

@@ -984,4 +984,15 @@ public class StorageServiceImpl implements StorageService {
 	public Page<StoragePosStock> findByPosId(Integer posId, Pageable page) {
 		return this.storagePosStockDao.findByPosId(posId, page);
 	}
+
+	@Override
+	public StorageProduct findStorageProductBySkuIdAndRepoId(Integer skuId, Integer repoId) {
+		if (repoId == null) {
+			throw new IllegalArgumentException("repoId不能为空");
+		}
+		if (skuId == null) {
+			throw new IllegalArgumentException("skuId不能为空");
+		}
+		return storageProductDao.findBySkuIdAndRepoId(skuId, repoId);
+	}
 }

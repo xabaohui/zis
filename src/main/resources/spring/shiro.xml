@@ -35,7 +35,7 @@
 				<entry key="perms" >
 					<bean class = "com.zis.shiro.filter.RoleAuthorizationFilter"></bean>
 				</entry>
-				<entry key="kickout" value-ref="kickoutSessionControlFilter" />
+<!-- 				<entry key="kickout" value-ref="kickoutSessionControlFilter" /> -->
 			</map>
 		</property>
 		<!--过滤定义，从上而下，蒋匿名的anon放最下面 -->
@@ -50,8 +50,8 @@
 				<!-- /resources/** = anon -->
 				<!--请求logout，shrio擦除sssion -->
 				/logout = logout
-				<!--表示所有请求url必须通过认证 -->
-				/** = authc,kickout
+				<!--表示所有请求url必须通过认证 ,kickout -->
+				/** = authc
 			</value>
 		</property>
 	</bean>

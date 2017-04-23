@@ -104,7 +104,7 @@ public class ApiTransferTest {
 		List<ApiAddItemDto> list = new ArrayList<ApiAddItemDto>();
 		list.add(apiAddItemDto);
 		ShopAddItemsBo bo = addItemsFactoryBo.getInstance(shop.getpName());
-		bo.AddItems2Shop(list, shop);
+		bo.addItems2Shop(list, shop);
 	}
 
 	@Test
