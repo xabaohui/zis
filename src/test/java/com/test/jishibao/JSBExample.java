@@ -23,12 +23,14 @@ import com.taobao.api.domain.Item;
 import com.taobao.api.domain.Order;
 import com.taobao.api.domain.Product;
 import com.taobao.api.domain.Refund;
+import com.taobao.api.domain.Sku;
 import com.taobao.api.domain.Trade;
 import com.taobao.api.internal.util.StringUtils;
 import com.taobao.api.request.AreasGetRequest;
 import com.taobao.api.request.ItemAddRequest;
 import com.taobao.api.request.ItemQuantityUpdateRequest;
 import com.taobao.api.request.ItemSellerGetRequest;
+import com.taobao.api.request.ItemSkusGetRequest;
 import com.taobao.api.request.ItemUpdateListingRequest;
 import com.taobao.api.request.ItemcatsAuthorizeGetRequest;
 import com.taobao.api.request.ItemcatsGetRequest;
@@ -50,6 +52,7 @@ import com.taobao.api.response.AreasGetResponse;
 import com.taobao.api.response.ItemAddResponse;
 import com.taobao.api.response.ItemQuantityUpdateResponse;
 import com.taobao.api.response.ItemSellerGetResponse;
+import com.taobao.api.response.ItemSkusGetResponse;
 import com.taobao.api.response.ItemUpdateListingResponse;
 import com.taobao.api.response.ItemcatsAuthorizeGetResponse;
 import com.taobao.api.response.ItemcatsGetResponse;
@@ -529,9 +532,9 @@ public class JSBExample {
 		try {
 			JSBClient client = new JSBClient(AK, SK);
 			TradesSoldIncrementGetRequest req = new TradesSoldIncrementGetRequest();
-			req.setFields("tid,type,status,payment,orders");
+			req.setFields("tid,type,status,payment,orders,outer_iid,sku_id,receiver_name,receiver_address,receiver_mobile");
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			Date start = sdf.parse("2017-04-16 00:00:00");
+			Date start = sdf.parse("2017-04-16 22:00:00");
 			Date end = sdf.parse("2017-04-17 00:00:00");
 			req.setStartModified(start);
 			req.setEndModified(end);
@@ -564,7 +567,7 @@ public class JSBExample {
 	private static void testRefundsReceiveGetRequest() throws Exception {
 		JSBClient client = new JSBClient(AK, SK);
 		RefundsReceiveGetRequest req = new RefundsReceiveGetRequest();
-		req.setFields("refund_id, tid, title,buyer_nick, seller_nick, total_fee, status, created, refund_fee,refund_phase");
+		req.setFields("refund_id, tid, title, buyer_nick, seller_nick, total_fee, status, created, refund_fee, oid, good_status, company_name, sid, payment, reason, desc, has_good_return, modified, order_status,refund_phase");
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Date start = sdf.parse("2017-04-16 00:00:00");
 		Date end = sdf.parse("2017-04-17 00:00:00");
@@ -575,6 +578,18 @@ public class JSBExample {
 		List<Refund> list = rsp.getRefunds();
 		for (Refund refund : list) {
 			System.out.println(JSON.toJSON(refund));
+		}
+	}
+	
+	private static void testItemSkusGetRequest() throws Exception {
+		JSBClient client = new JSBClient(AK, SK);
+		ItemSkusGetRequest req = new ItemSkusGetRequest();
+		req.setFields("sku_id,num_iid");
+		req.setNumIids("548358687479");
+		ItemSkusGetResponse rsp = client.execute(req);
+		List<Sku> list = rsp.getSkus();
+		for (Sku sku : list) {
+			System.out.println(JSON.toJSON(sku));
 		}
 	}
 
@@ -600,15 +615,16 @@ public class JSBExample {
 			// // testUpload();
 			// testTradeSoldGet();
 			// testUserSellerGet();
-//			testTradesSoldIncrementGeta();
-			for (int i = 0; i < 100; i++) {
-				testRefundsApplyGet();
+			testTradesSoldIncrementGeta();
+//			testItemSkusGetRequest();
+			for (int i = 0; i < 1; i++) {
+//				testRefundsApplyGet();
 //				testRefundsReceiveGetRequest();
 			}
 			// testUpdate();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			 e.printStackTrace();
+			 e.printStackTrace(); 
 		}
 		// testLogisticsDummySend();
 	}

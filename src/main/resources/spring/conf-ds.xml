@@ -39,6 +39,7 @@
                 <value>com.zis.shiro.bean</value>
                 <value>com.zis.shop.bean</value>
                 <value>com.zis.storage.entity</value>
+                <value>com.zis.trade.entity</value>
             </array>
         </property>
         <!-- 指定JPA属性；如Hibernate中指定是否显示SQL的是否显示、方言等 -->

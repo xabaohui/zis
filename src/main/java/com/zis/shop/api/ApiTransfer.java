@@ -62,6 +62,8 @@ public interface ApiTransfer {
 	 * @return
 	 */
 	public ApiQueryItemsDto queryItemsInventory(ShopInfo shop, String type, Long page);
+	
+//	public ApiQuerytTradeDto taobao.trades.sold.increment.get
 
 //	/**
 //	 * 根据平台商品Id 上架商品
