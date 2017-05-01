@@ -302,7 +302,7 @@ public class OrderHelper {
 		if(!payStatusIsPaid(order)) {
 			return false;
 		}
-		return !order.isBlockFlag();
+		return !order.getBlockFlag();
 	}
 	
 	/**
