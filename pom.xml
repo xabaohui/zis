@@ -494,13 +494,12 @@
 		<!-- <version>2.2.3</version> -->
 		<!-- </dependency> -->
 		
-		<!-- 仅在test时添加 
 		<dependency>
 			<groupId>javax.el</groupId>
 			<artifactId>el-api</artifactId>
+			<scope>test</scope>
 			<version>2.2</version>
-		</dependency>-->
-		
+		</dependency>
 		
 	</dependencies>
 

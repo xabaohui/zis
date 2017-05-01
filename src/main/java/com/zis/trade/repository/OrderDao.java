@@ -5,7 +5,6 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 import com.zis.trade.entity.Order;
 
-
 public interface OrderDao extends PagingAndSortingRepository<Order, Integer>, JpaSpecificationExecutor<Order>{
 
 }

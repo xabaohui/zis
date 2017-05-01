@@ -182,8 +182,36 @@ public class OrderVO extends Order {
 	 * @return
 	 */
 	public String getUniqueStatusDisplay(String tabType) {
-		// TODO 
-		return null;
+		// 未支付、退款中，显示资金状态
+		if(PayStatus.UNPAID.getValue().equals(tabType) || PayStatus.REFUNDING.getValue().equals(tabType)) {
+			return this.getPayStatusDisplay();
+		}
+		// 等待分配仓库，显示资金状态+配货状态
+		if(StorageStatus.isWaitForArrange(tabType)) {
+			return generateStatus(getPayStatusDisplay(), getStorageStatusDisplay());
+		}
+		// 等待配货、配货中、等待打印、已打印，显示配货状态+物流状态
+		if(StorageStatus.ARRANGED.getValue().equals(tabType) || StorageStatus.PICKUP.getValue().equals(tabType)
+			|| ExpressStatus.WAIT_FOR_PRINT.getValue().equals(tabType) || ExpressStatus.PRINTED.getValue().equals(tabType)) {
+			return generateStatus(getStorageStatusDisplay(), getExpressStatusDisplay());
+		}
+		return generateStatus(getPayStatusDisplay(), getStorageStatusDisplay(), getExpressStatusDisplay());
+	}
+	
+	private String generateStatus(String ...args) {
+		StringBuilder builder = new StringBuilder();
+		for (String str : args) {
+			builder.append(str).append("<br/>");
+		}
+		return builder.substring(0, builder.length()-5).toString();
+	}
+	
+	/**
+	 * 返回用于展示的店铺名称，例如"[淘宝]小龙女书屋"
+	 * @return
+	 */
+	public String getShopNameDisplay() {
+		return String.format("[%s]%s", this.getpName(), this.getShopName());
 	}
 
 	public String getPayStatusDisplay() {

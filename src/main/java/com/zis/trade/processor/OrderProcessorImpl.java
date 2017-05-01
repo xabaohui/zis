@@ -13,7 +13,6 @@ public class OrderProcessorImpl implements OrderProcessor {
 		
 		// 创建orderOuter
 		OrderOuter outOrder = new OrderOuter();
-		outOrder.set
 		// 按照shopId+地址，查找已存在的订单
 		
 		// 判断是否可以合并

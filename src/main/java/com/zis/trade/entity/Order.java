@@ -28,6 +28,15 @@ public class Order {
 	@Column(name = "order_id", nullable = false)
 	private Integer orderId;
 
+	@Column(name = "shop_id")
+	private Integer shopId;
+
+	@Column(name = "shop_name")
+	private String shopName;
+
+	@Column(name = "p_name")
+	private String pName;
+
 	@Column(name = "company_id")
 	private Integer companyId;
 
@@ -67,10 +76,10 @@ public class Order {
 	@Column(name = "pay_status")
 	private String payStatus;
 
-	@Column(name = "pay_status")
+	@Column(name = "block_flag")
 	private boolean blockFlag;
 
-	@Column(name = "pay_status")
+	@Column(name = "block_reason")
 	private String blockReason;
 
 	@Column(name = "refund_apply_time")
@@ -125,6 +134,30 @@ public class Order {
 
 	public void setOrderId(Integer orderId) {
 		this.orderId = orderId;
+	}
+
+	public Integer getShopId() {
+		return shopId;
+	}
+
+	public void setShopId(Integer shopId) {
+		this.shopId = shopId;
+	}
+
+	public String getShopName() {
+		return shopName;
+	}
+
+	public void setShopName(String shopName) {
+		this.shopName = shopName;
+	}
+
+	public String getpName() {
+		return pName;
+	}
+
+	public void setpName(String pName) {
+		this.pName = pName;
 	}
 
 	public Integer getCompanyId() {
@@ -381,6 +414,17 @@ public class Order {
 				return false;
 			}
 			return getEnum(value) != null;
+		}
+
+		/**
+		 * 是否处于等待分配仓库状态
+		 * 
+		 * @param value
+		 * @return
+		 */
+		public static boolean isWaitForArrange(String value) {
+			return WAIT_ARRANGE.getValue().equals(value) || WAIT_ARRANGE_BY_LACKNESS.getValue().equals(value)
+					|| WAIT_ARRANGE_BY_MANUAL.getValue().equals(value);
 		}
 
 		public String getValue() {
