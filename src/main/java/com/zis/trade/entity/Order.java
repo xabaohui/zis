@@ -239,7 +239,7 @@ public class Order {
 		this.payStatus = payStatus;
 	}
 
-	public boolean isBlockFlag() {
+	public boolean getBlockFlag() {
 		return blockFlag;
 	}
 

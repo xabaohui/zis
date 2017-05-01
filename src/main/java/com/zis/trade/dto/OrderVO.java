@@ -175,6 +175,16 @@ public class OrderVO extends Order {
 	public boolean canBlock() {
 		return OrderHelper.canBlock(this);
 	}
+	
+	/**
+	 * 返回状态展示（所有tab页统一调用）
+	 * @param tabType
+	 * @return
+	 */
+	public String getUniqueStatusDisplay(String tabType) {
+		// TODO 
+		return null;
+	}
 
 	public String getPayStatusDisplay() {
 		return payStatusDisplay;

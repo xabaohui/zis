@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
@@ -161,7 +161,7 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public Page<OrderVO> findOrdersByStatus(Integer companyId, PayStatus payStatus, ExpressStatus expressStatus,
-			StorageStatus storageStatus, PageRequest page) {
+			StorageStatus storageStatus, Pageable page) {
 		// TODO Auto-generated method stub
 		List<OrderVO> rs = new ArrayList<OrderVO>();
 		OrderVO blockVO = buildOrderVO(ExpressStatus.PRINTED, PayStatus.UNPAID, StorageStatus.ARRANGED);
@@ -269,7 +269,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
-	public Page<OrderVO> findOrdersByCondition(Integer companyId, OrderQueryCondition cond, PageRequest page) {
+	public Page<OrderVO> findOrdersByCondition(Integer companyId, OrderQueryCondition cond, Pageable page) {
 		return findOrdersByStatus(null, null, null, null, null);
 	}
 
