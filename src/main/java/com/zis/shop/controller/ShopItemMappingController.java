@@ -21,7 +21,7 @@ import com.zis.common.mvc.ext.WebHelper;
 import com.zis.shop.bean.ShopInfo;
 import com.zis.shop.bean.ShopItemMapping;
 import com.zis.shop.bean.ShopItemMapping.ShopItemMappingSystemStatus;
-import com.zis.shop.service.impl.ShopServiceImpl;
+import com.zis.shop.service.ShopService;
 import com.zis.shop.util.ShopUtil;
 
 @Controller
@@ -33,7 +33,7 @@ public class ShopItemMappingController {
 	private final String MAPPING_WAIT = ShopItemMappingSystemStatus.WAIT.getValue();
 
 	@Autowired
-	private ShopServiceImpl shopService;
+	private ShopService shopService;
 
 	/**
 	 * 单个发布
@@ -44,10 +44,33 @@ public class ShopItemMappingController {
 	 */
 	@Token(checking = true)
 	@RequestMapping(value = "/addOneItem2Shop")
-	public String addOneItem2Shop(Integer shopId, Integer mId, ModelMap map) {
+	public String addOneItem2Shop(Integer shopId, Integer mId, ModelMap map, String mappingStatus) {
 		try {
 			ShopInfo shop = this.shopService.verifyShopId(shopId);
 			Integer i = this.shopService.addItem2Shop(mId, shop);
+			setSuccessMsg(map, "发布成功 共发布了" + i + "条数据");
+			setPageParam(map, shop, mappingStatus);
+			return getSuccessForWardPage();
+		} catch (Exception e) {
+			setErrorMsg(map, e.getMessage());
+			logger.error(e.getMessage(), e);
+			return getErrorPage();
+		}
+	}
+
+	/**
+	 * 失败单个发布
+	 * 
+	 * @param shopId
+	 * @param mId
+	 * @return
+	 */
+	@Token(checking = true)
+	@RequestMapping(value = "/failAddOneItem2Shop")
+	public String failAddOneItem2Shop(Integer shopId, Integer mId, ModelMap map, String mappingStatus) {
+		try {
+			ShopInfo shop = this.shopService.verifyShopId(shopId);
+			Integer i = this.shopService.failAddItem2Shop(mId, shop);
 			setSuccessMsg(map, "发布成功 共发布了" + i + "条数据");
 			return getSuccessForWardPage();
 		} catch (Exception e) {
@@ -66,11 +89,33 @@ public class ShopItemMappingController {
 	 */
 	@Token(checking = true)
 	@RequestMapping(value = "/addItemAll2Shop")
-	public String addItemAll2Shop(Integer shopId, ModelMap map) {
+	public String addItemAll2Shop(Integer shopId, ModelMap map, String mappingStatus) {
 		try {
 			ShopInfo shop = this.shopService.verifyShopId(shopId);
 			Integer i = this.shopService.addItem2Shop(shop);
-			setSuccessMsg(map, "发布成功 共发布了" + i + "条数据");
+			setSuccessMsg(map, "正在尝试" + i + "条数据发布，具体根据实际成功查询");
+			return getSuccessForWardPage();
+		} catch (Exception e) {
+			setErrorMsg(map, e.getMessage());
+			logger.error(e.getMessage(), e);
+			return getErrorPage();
+		}
+	}
+
+	/**
+	 * 失败全部发布
+	 * 
+	 * @param shopId
+	 * @param mId
+	 * @return
+	 */
+	@Token(checking = true)
+	@RequestMapping(value = "/failAddItemAll2Shop")
+	public String failAddItemAll2Shop(Integer shopId, ModelMap map, String mappingStatus) {
+		try {
+			ShopInfo shop = this.shopService.verifyShopId(shopId);
+			Integer i = this.shopService.failAddItem2Shop(shop);
+			setSuccessMsg(map, "正在尝试" + i + "条数据发布，具体根据实际成功查询");
 			return getSuccessForWardPage();
 		} catch (Exception e) {
 			setErrorMsg(map, e.getMessage());
@@ -88,7 +133,7 @@ public class ShopItemMappingController {
 	 */
 	@Token(checking = true)
 	@RequestMapping(value = "/addItems2Shop")
-	public String addItems2Shop(Integer shopId, Integer[] mId, ModelMap map) {
+	public String addItems2Shop(Integer shopId, Integer[] mId, ModelMap map, String mappingStatus) {
 		try {
 			ShopInfo shop = this.shopService.verifyShopId(shopId);
 			List<Integer> list = Arrays.asList(mId);
@@ -103,22 +148,20 @@ public class ShopItemMappingController {
 	}
 
 	/**
-	 * 有赞下载数据
+	 * 失败批量发布
 	 * 
 	 * @param shopId
+	 * @param mId
 	 * @return
 	 */
 	@Token(checking = true)
-	@RequestMapping(value = "/youZanDownloadItems2Mapping")
-	public String youZanDownloadItems2Mapping(Integer shopId, ModelMap map) {
+	@RequestMapping(value = "/failAddItems2Shop")
+	public String failAddItems2Shop(Integer shopId, Integer[] mId, ModelMap map, String mappingStatus) {
 		try {
 			ShopInfo shop = this.shopService.verifyShopId(shopId);
-			if(!"youzan".equals(shop.getpName())){
-				setErrorMsg(map, "店铺非有赞店铺");
-				return getErrorPage();
-			}
-			this.shopService.asynchronousDownloadYouZan2ShopItemMapping(shop);
-			setSuccessMsg(map, "数据正在努力下载中。。。您可以先处理其他店铺.");
+			List<Integer> list = Arrays.asList(mId);
+			Integer i = this.shopService.failAddItem2Shop(list, shop);
+			setSuccessMsg(map, "发布成功 共发布了" + i + "条数据");
 			return getSuccessForWardPage();
 		} catch (Exception e) {
 			setErrorMsg(map, e.getMessage());
@@ -126,6 +169,32 @@ public class ShopItemMappingController {
 			return getErrorPage();
 		}
 	}
+
+	// /**
+	// * 有赞下载数据
+	// *
+	// * @param shopId
+	// * @return
+	// */
+	// //TODO 有赞暂时不做
+	// @Token(checking = true)
+	// @RequestMapping(value = "/youZanDownloadItems2Mapping")
+	// public String youZanDownloadItems2Mapping(Integer shopId, ModelMap map) {
+	// try {
+	// ShopInfo shop = this.shopService.verifyShopId(shopId);
+	// if(!"youzan".equals(shop.getpName())){
+	// setErrorMsg(map, "店铺非有赞店铺");
+	// return getErrorPage();
+	// }
+	// this.shopService.asynchronousDownloadYouZan2ShopItemMapping(shop);
+	// setSuccessMsg(map, "数据正在努力下载中。。。您可以先处理其他店铺.");
+	// return getSuccessForWardPage();
+	// } catch (Exception e) {
+	// setErrorMsg(map, e.getMessage());
+	// logger.error(e.getMessage(), e);
+	// return getErrorPage();
+	// }
+	// }
 
 	/**
 	 * 淘宝下载数据
@@ -138,19 +207,15 @@ public class ShopItemMappingController {
 	@Token(checking = true)
 	@RequestMapping(value = "/taobaoDownloadItems2Mapping")
 	public String taobaoDownloadItems2Mapping(@RequestParam MultipartFile excelFile, Integer shopId, ModelMap map) {
-		String msg = "";
 		ShopInfo shop = null;
 		try {
 			shop = this.shopService.verifyShopId(shopId);
-			if(!"taobao".equals(shop.getpName())){
+			if (!"taobao".equals(shop.getpName())) {
 				setErrorMsg(map, "店铺非淘宝店铺");
 				return getErrorPage();
 			}
-			msg = this.shopService.asynchronousDownloadTaoBao2ShopItemMapping(excelFile.getInputStream(), shop);
-			if (StringUtils.isNotBlank(msg)) {
-				setErrorMsg(map, msg);
-				return getFailPage();
-			}
+			List<ShopItemMapping> list = this.shopService.taobaoExeclToMapping(excelFile.getInputStream(), shop);
+			this.shopService.asynchronousPrcessDownLoadMappingDataAndSendEmail(list, shop);
 			setSuccessMsg(map, "数据正在努力下载中。。。您可以先处理其他店铺.");
 			return getSuccessForWardPage();
 		} catch (Exception e) {
@@ -159,10 +224,10 @@ public class ShopItemMappingController {
 			return getErrorPage();
 		}
 	}
-	
+
 	@Token(generate = true)
 	@RequestMapping(value = "/gotoTaobaoDownLoadJsp")
-	public String gotoTaobaoDownLoadJsp(Integer shopId, ModelMap map){
+	public String gotoTaobaoDownLoadJsp(Integer shopId, ModelMap map) {
 		map.put("shopId", shopId);
 		return "shop/shop/shopItemMapping/taobao-download-xls";
 	}
@@ -213,14 +278,14 @@ public class ShopItemMappingController {
 		return "shop/shop/shopItemMapping/shop-item-mapping";
 	}
 
-	/**
-	 * 失败路径
-	 * 
-	 * @return
-	 */
-	private String getFailPage() {
-		return "forward:/shop/queryShopItemMapping";
-	}
+	// /**
+	// * 失败路径
+	// *
+	// * @return
+	// */
+	// private String getFailPage() {
+	// return "forward:/shop/queryShopItemMapping";
+	// }
 
 	/**
 	 * 错误跳转

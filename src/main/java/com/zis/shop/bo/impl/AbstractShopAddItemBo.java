@@ -31,17 +31,16 @@ public abstract class AbstractShopAddItemBo implements ShopAddItemsBo {
 	}
 	
 	/**
-	 * 等待下载更新映射表信息
+	 * 添加成功更新映射表信息
 	 * 
-	 * @param numIid
 	 * @param mapping
 	 * @return
 	 */
-	protected void waitDownloadUpdateMapping(ShopItemMapping mapping) {
+	protected void successUpdateMapping(ShopItemMapping mapping) {
 		mapping.setUpdateTime(new Date());
 		mapping.setUploadTime(new Date());
-		mapping.setSystemStatus(ShopItemMappingSystemStatus.WAIT_DOWNLOAD.getValue());
-		mapping.setFailReason(ShopItemMappingSystemStatus.WAIT_DOWNLOAD.getName());
+		mapping.setSystemStatus(ShopItemMappingSystemStatus.SUCCESS.getValue());
+//		mapping.setFailReason(ShopItemMappingSystemStatus.WAIT_DOWNLOAD.getName());
 		this.dao.save(mapping);
 	}
 

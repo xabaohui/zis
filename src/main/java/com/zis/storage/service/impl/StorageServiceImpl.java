@@ -41,7 +41,6 @@ import com.zis.storage.repository.StoragePosStockDao;
 import com.zis.storage.repository.StoragePositionDao;
 import com.zis.storage.repository.StorageProductDao;
 import com.zis.storage.repository.StorageProductOccupyDao;
-import com.zis.storage.repository.StorageRepoInfoDao;
 import com.zis.storage.service.StorageService;
 import com.zis.storage.util.StorageUtil;
 
@@ -62,8 +61,8 @@ public class StorageServiceImpl implements StorageService {
 	private StorageProductDao storageProductDao;
 	@Autowired
 	private StorageProductOccupyDao storageProductOccupyDao;
-	@Autowired
-	private StorageRepoInfoDao storageRepoInfoDao;
+//	@Autowired
+//	private StorageRepoInfoDao storageRepoInfoDao;
 
 	private static final Logger logger = LoggerFactory.getLogger(StorageServiceImpl.class);
 

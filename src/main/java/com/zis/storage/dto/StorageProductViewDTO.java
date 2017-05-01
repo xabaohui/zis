@@ -1,7 +1,5 @@
 package com.zis.storage.dto;
 
-import javax.persistence.Column;
-
 import com.zis.bookinfo.bean.Bookinfo;
 
 public class StorageProductViewDTO extends Bookinfo {

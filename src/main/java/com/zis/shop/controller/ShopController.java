@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.zis.shiro.dto.ActiveUser;
 import com.zis.shop.bean.ShopInfo;
 import com.zis.shop.dto.SaveOrUpdateShopDto;
-import com.zis.shop.service.impl.ShopServiceImpl;
+import com.zis.shop.service.ShopService;
 
 @Controller
 @RequestMapping(value = "/shop")
@@ -30,7 +30,7 @@ public class ShopController {
 	private final String P_NAME_YOUZAN = "youzan";
 
 	@Autowired
-	private ShopServiceImpl shopService;
+	private ShopService shopService;
 
 	/**
 	 * 店铺新增 帮助跳转action

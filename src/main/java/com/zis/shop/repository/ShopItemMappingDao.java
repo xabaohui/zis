@@ -16,6 +16,7 @@ public interface ShopItemMappingDao extends PagingAndSortingRepository<ShopItemM
 	public final String SHOP_STATUS_DELETE = "delete";
 	public final String SHOP_STATUS_WAIT = "wait";
 	public final String SHOP_STATUS_PROCESSING = "processing";
+	public final String SHOP_STATUS_FAIL = "fail";
 
 	public ShopItemMapping findByShopIdAndBookId(Integer shopId, Integer bookId);
 
@@ -35,4 +36,9 @@ public interface ShopItemMappingDao extends PagingAndSortingRepository<ShopItemM
 	@Query(value = "UPDATE ShopItemMapping s SET s.systemStatus = '" + SHOP_STATUS_PROCESSING
 			+ "' WHERE s.shopId =:shopId AND s.systemStatus = '" + SHOP_STATUS_WAIT + "'")
 	public int updateShopStatusWaitToProcessing(@Param("shopId") Integer shopId);
+	
+	@Modifying
+	@Query(value = "UPDATE ShopItemMapping s SET s.systemStatus = '" + SHOP_STATUS_PROCESSING
+	+ "' WHERE s.shopId =:shopId AND s.systemStatus = '" + SHOP_STATUS_FAIL + "'")
+	public int updateShopStatusFailToProcessing(@Param("shopId") Integer shopId);
 }
