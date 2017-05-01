@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import com.zis.trade.dto.CreateTradeOrderDTO;
 import com.zis.trade.dto.ExpressNumberDTO;
@@ -275,7 +276,7 @@ public interface OrderService {
 	 * @return
 	 */
 	Page<OrderVO> findOrdersByStatus(Integer companyId, PayStatus payStatus,
-			ExpressStatus expressStatus, StorageStatus storageStatus, PageRequest page);
+			ExpressStatus expressStatus, StorageStatus storageStatus, Pageable page);
 	
 	/**
 	 * 按照具体信息查询订单
@@ -284,5 +285,5 @@ public interface OrderService {
 	 * @param page 分页参数
 	 * @return
 	 */
-	Page<OrderVO> findOrdersByCondition(Integer companyId, OrderQueryCondition cond, PageRequest page);
+	Page<OrderVO> findOrdersByCondition(Integer companyId, OrderQueryCondition cond, Pageable page);
 }
