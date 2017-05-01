@@ -11,6 +11,8 @@ import java.util.List;
 public class CreateTradeOrderDTO {
 
 	private Integer shopId; // 店铺Id
+	private String shopName; // 店铺名称
+	private String pName; // 平台名称
 	private String outOrderNumber; // 店铺订单号
 	private String receiverName;
 	private String receiverPhone;
@@ -26,6 +28,22 @@ public class CreateTradeOrderDTO {
 
 	public void setShopId(Integer shopId) {
 		this.shopId = shopId;
+	}
+
+	public String getShopName() {
+		return shopName;
+	}
+
+	public void setShopName(String shopName) {
+		this.shopName = shopName;
+	}
+
+	public String getpName() {
+		return pName;
+	}
+
+	public void setpName(String pName) {
+		this.pName = pName;
 	}
 
 	public String getOutOrderNumber() {

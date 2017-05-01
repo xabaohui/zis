@@ -17,47 +17,47 @@ import javax.persistence.Version;
 
 @Entity
 @Table(name = "order_detail")
-public class OrderDetail  {
+public class OrderDetail {
 
 	// Fields
-	
+
 	@Id
 	@GeneratedValue
 	@Column(name = "order_detail_id", nullable = false)
 	private Integer orderDetailId;
-	
+
 	@Column(name = "item_id")
 	private Integer itemId;
-	
+
 	@Column(name = "item_out_num")
 	private Integer itemOutNum;
-	
+
 	@Column(name = "sku_id")
 	private Integer skuId;
-	
+
 	@Column(name = "item_name")
 	private String itemName;
-	
+
 	@Column(name = "item_count")
 	private Integer itemCount;
-	
+
 	@Column(name = "item_price")
 	private Double itemPrice;
-	
+
 	@Column(name = "status")
 	private String status;
-	
+
 	@Column(name = "order_id")
 	private Integer orderId;
-	
+
 	@Column(name = "create_time", updatable = false, length = 32)
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createTime;
-	
+
 	@Column(name = "update_time", length = 32)
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date updateTime;
-	
+
 	@Version
 	@Column(name = "version")
 	private Integer version;
@@ -99,6 +99,14 @@ public class OrderDetail  {
 
 	public void setItemId(Integer itemId) {
 		this.itemId = itemId;
+	}
+
+	public Integer getItemOutNum() {
+		return itemOutNum;
+	}
+
+	public void setItemOutNum(Integer itemOutNum) {
+		this.itemOutNum = itemOutNum;
 	}
 
 	public Integer getSkuId() {

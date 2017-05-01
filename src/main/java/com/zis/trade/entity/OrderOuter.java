@@ -26,14 +26,14 @@ public class OrderOuter {
 	@Column(name = "out_order_id", nullable = false)
 	private Integer outOrderId;
 
-	@Column(name = "company_id")
-	private Integer companyId;
-
 	@Column(name = "shop_id")
 	private Integer shopId;
 
-	@Column(name = "shop_type")
-	private String shopType;
+	@Column(name = "shop_name")
+	private String shopName;
+
+	@Column(name = "p_name")
+	private String pName;
 
 	@Column(name = "order_data")
 	private String OrderData;
@@ -62,21 +62,6 @@ public class OrderOuter {
 	public OrderOuter() {
 	}
 
-	public OrderOuter(Integer outOrderId, Integer companyId, Integer shopId, String shopType, String orderData,
-			String outOrderNumber, String orderGroupNumber, Date createTime, Date updateTime, Integer version) {
-		super();
-		this.outOrderId = outOrderId;
-		this.companyId = companyId;
-		this.shopId = shopId;
-		this.shopType = shopType;
-		OrderData = orderData;
-		this.outOrderNumber = outOrderNumber;
-		this.orderGroupNumber = orderGroupNumber;
-		this.createTime = createTime;
-		this.updateTime = updateTime;
-		this.version = version;
-	}
-
 	// Property accessors
 
 	public String getOrderData() {
@@ -95,14 +80,6 @@ public class OrderOuter {
 		this.outOrderId = outOrderId;
 	}
 
-	public Integer getCompanyId() {
-		return this.companyId;
-	}
-
-	public void setCompanyId(Integer companyId) {
-		this.companyId = companyId;
-	}
-
 	public Integer getShopId() {
 		return this.shopId;
 	}
@@ -111,12 +88,20 @@ public class OrderOuter {
 		this.shopId = shopId;
 	}
 
-	public String getShopType() {
-		return this.shopType;
+	public String getShopName() {
+		return shopName;
 	}
 
-	public void setShopType(String shopType) {
-		this.shopType = shopType;
+	public void setShopName(String shopName) {
+		this.shopName = shopName;
+	}
+
+	public String getpName() {
+		return pName;
+	}
+
+	public void setpName(String pName) {
+		this.pName = pName;
 	}
 
 	public String getOutOrderNumber() {
