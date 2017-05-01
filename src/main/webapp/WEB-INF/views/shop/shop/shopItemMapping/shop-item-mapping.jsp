@@ -51,7 +51,6 @@ window.onload = function() {
 			<td>
 				<select id = "systemStatus" name = "status" >
 					<option value = "wait">等待</option>
-					<option value = "wait_download">等待下载更新</option>
 					<option value = "fail">失败</option>
 					<option value = "success">成功</option>
 					<option value = "delete">网店删除</option>
@@ -67,7 +66,7 @@ window.onload = function() {
 	</form>
 	<p/>
 	<p/>
-	<form action="shop/addItems2Shop" method="post" id = "mForm" >
+	<form action="" method="post" id = "mForm" >
 		<table id ="common-table">
 		<tr>
 			<th>
@@ -79,7 +78,7 @@ window.onload = function() {
 			<c:if test ="${'fail' eq mappingStatus}">
 				<th>失败原因</th>
 			</c:if>
-			<c:if test ="${'wait' eq mappingStatus}">
+			<c:if test ="${'wait' eq mappingStatus || 'fail' eq mappingStatus}">
 				<th>设置</th>
 			</c:if>
 		</tr>
@@ -104,22 +103,36 @@ window.onload = function() {
 				</c:if>	
 				<c:if test ="${'wait' eq mappingStatus}">
 					<td>
-						<input type="button" onclick="addMIdToMapping('${shopId}','${mapping.id}','${token}')" value = "发布"/>
+						<input type="button" onclick="addMIdToMapping('${shopId}','${mapping.id}','${token}','${mappingStatus}')" value = "发布"/>
+					</td>
+				</c:if>	
+				<c:if test ="${'fail' eq mappingStatus}">
+					<td>
+						<input type="button" onclick="failAddMIdToMapping('${shopId}','${mapping.id}','${token}','${mappingStatus}')" value = "发布"/>
 					</td>
 				</c:if>	
 				</tr>
 		</c:forEach>
 		<c:if test="${not empty mappingList}">
-		<c:if test ="${'wait' eq mappingStatus}">
-			<tr>
-				<td colspan="5" align="left">
-					<input type="button" value= "批量发布" onclick="verifySubmit()" />
-				</td>
-			</tr>
-		</c:if>
+			<c:if test ="${'wait' eq mappingStatus}">
+				<tr>
+					<td colspan="5" align="left">
+						<input type="button" value= "批量发布" onclick="verifySubmit()" />
+					</td>
+				</tr>
+			</c:if>
+			<c:if test ="${'fail' eq mappingStatus}">
+				<tr>
+					<td colspan="6" align="left">
+						<input type="button" value= "批量发布" onclick="failVerifySubmit()" />
+					</td>
+				</tr>
+			</c:if>
 		</c:if>
 		</table>
 		<input type="hidden" name = "token" value = "${token}">
+		<input type="hidden" name = "shopId" value = "${shopId}">
+		<input type="hidden" id = "mappingStatus" value = "${mappingStatus}"/>
 	</form>
 </div>
 <div align="center">
@@ -141,17 +154,20 @@ window.onload = function() {
 			</td>
 		<td align="left">
 			<c:if test = "${shopPName eq 'youzan'}">
-				<input type = "button" onclick="youzanDownloadItem2zis('${shopId}','${token}')" value = "网店数据更新至zis">	
+			 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
 			</c:if>
 			<c:if test = "${shopPName eq 'taobao'}">
-				<input type = "button" onclick="taobaoDownloadItem2zis('${shopId}','${token}')" value = "去上传淘宝xls更新zis">	
+				<input type = "button" onclick="taobaoDownloadItem2zis('${shopId}','${token}')" value = "网店数据更新至zis">	
 			</c:if>
 		</td>
 		<td width="70%">
 		</td>
 		<td align="right">
 			<c:if test ="${'wait' eq mappingStatus}">
-				<input type="button" value= "全部发布" onclick="addAllItems('${shopId}','${token}')" />
+				<input type="button" value= "全部发布" onclick="addAllItems('${shopId}','${token}','${mappingStatus}')" />
+			</c:if>
+			<c:if test ="${'fail' eq mappingStatus}">
+				<input type="button" value= "全部发布" onclick="failAddAllItems('${shopId}','${token}','${mappingStatus}')" />
 			</c:if>
 		</td>
 		<td width="10%">

@@ -41,9 +41,6 @@ public class ShopItemMapping {
 	@Column(name = "system_status")
 	private String systemStatus;
 	
-	@Column(name = "update_status")
-	private String updateStatus;
-
 	@Column(name = "upload_time")
 	private Date uploadTime;
 
@@ -66,8 +63,8 @@ public class ShopItemMapping {
 	}
 	
 	public ShopItemMapping(Integer id, Integer bookId, Integer shopId, Long pItemId, Long pItemSkuId, String title,
-			String itemOutNum, String systemStatus, String updateStatus, Date uploadTime, String failReason,
-			Date createTime, Date updateTime, Integer version) {
+			String itemOutNum, String systemStatus, Date uploadTime, String failReason, Date createTime,
+			Date updateTime, Integer version) {
 		super();
 		this.id = id;
 		this.bookId = bookId;
@@ -77,7 +74,6 @@ public class ShopItemMapping {
 		this.title = title;
 		this.itemOutNum = itemOutNum;
 		this.systemStatus = systemStatus;
-		this.updateStatus = updateStatus;
 		this.uploadTime = uploadTime;
 		this.failReason = failReason;
 		this.createTime = createTime;
@@ -149,14 +145,6 @@ public class ShopItemMapping {
 		this.systemStatus = systemStatus;
 	}
 
-	public String getUpdateStatus() {
-		return updateStatus;
-	}
-
-	public void setUpdateStatus(String updateStatus) {
-		this.updateStatus = updateStatus;
-	}
-
 	public Date getUploadTime() {
 		return uploadTime;
 	}
@@ -197,15 +185,6 @@ public class ShopItemMapping {
 		this.version = version;
 	}
 
-	@Override
-	public String toString() {
-		return "ShopItemMapping [id=" + id + ", bookId=" + bookId + ", shopId=" + shopId + ", pItemId=" + pItemId
-				+ ", pItemSkuId=" + pItemSkuId + ", title=" + title + ", itemOutNum=" + itemOutNum + ", systemStatus="
-				+ systemStatus + ", updateStatus=" + updateStatus + ", uploadTime=" + uploadTime + ", failReason="
-				+ failReason + ", createTime=" + createTime + ", updateTime=" + updateTime + ", version=" + version
-				+ "]";
-	}
-
 	// 系统状态
 	public enum ShopItemMappingSystemStatus {
 
@@ -213,7 +192,6 @@ public class ShopItemMapping {
 		WAIT("wait", "等待"), 
 		FAIL("fail", "失败"),
 		PROCESSING("processing", "处理中"),
-		WAIT_DOWNLOAD("wait_download", "等待数据更新映射表"),
 		DELETE("delete", "网店删除");
 
 		private String value;
@@ -240,34 +218,4 @@ public class ShopItemMapping {
 			this.name = name;
 		}
 	}
-	// 系统状态
-		public enum ShopItemMappingUpdateStatus {
-
-			SUCCESS("success", "成功"), 
-			FAIL("fail", "失败");
-
-			private String value;
-			private String name;
-
-			public String getName() {
-				return name;
-			}
-
-			public void setName(String name) {
-				this.name = name;
-			}
-
-			public String getValue() {
-				return value;
-			}
-
-			public void setValue(String value) {
-				this.value = value;
-			}
-
-			private ShopItemMappingUpdateStatus(String value, String name) {
-				this.value = value;
-				this.name = name;
-			}
-		}
 }

@@ -20,7 +20,7 @@ public class JiShiBaoAddItemBo extends AbstractShopAddItemBo {
 		try {
 			taobaoCsvDataGenerateBO.generateV2(list1, emails);
 			for (ApiAddItemDto apiAddItemDto : list) {
-				waitDownloadUpdateMapping(apiAddItemDto.getShopItemMapping());
+				successUpdateMapping(apiAddItemDto.getShopItemMapping());
 			}
 		} catch (Exception e) {
 			for (ApiAddItemDto apiAddItemDto1 : list) {

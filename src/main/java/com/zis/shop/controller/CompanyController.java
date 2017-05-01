@@ -29,7 +29,7 @@ import com.zis.shop.bean.Company;
 import com.zis.shop.bean.ShopInfo;
 import com.zis.shop.dto.CompanyAndStockDto;
 import com.zis.shop.dto.SaveOrUpdateCompanyDto;
-import com.zis.shop.service.impl.ShopServiceImpl;
+import com.zis.shop.service.ShopService;
 import com.zis.storage.entity.StorageRepoInfo;
 import com.zis.storage.repository.StorageRepoInfoDao;
 
@@ -43,7 +43,7 @@ public class CompanyController {
 	private final String OPERATE_TYPE_ADD = "addCompany";
 
 	@Autowired
-	private ShopServiceImpl shopService;
+	private ShopService shopService;
 
 	@Autowired
 	private RegistAndUpdateService registAndUpdateService;
