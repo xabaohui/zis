@@ -11,6 +11,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * Order entity. @author MyEclipse Persistence Tools
  */
@@ -44,11 +46,11 @@ public class Order {
 	@Column(name = "order_group_number")
 	private String orderGroupNumber;
 
-	@Column(name = "post_company")
-	private String postCompany;
+	@Column(name = "express_company")
+	private String expressCompany;
 
-	@Column(name = "post_number")
-	private String postNumber;
+	@Column(name = "express_number")
+	private String expressNumber;
 
 	@Column(name = "order_money")
 	private Double orderMoney;
@@ -59,11 +61,25 @@ public class Order {
 	@Column(name = "storage_status")
 	private String storageStatus;
 
-	@Column(name = "post_status")
-	private String postStatus;
+	@Column(name = "express_status")
+	private String expressStatus;
 
 	@Column(name = "pay_status")
 	private String payStatus;
+
+	@Column(name = "pay_status")
+	private boolean blockFlag;
+
+	@Column(name = "pay_status")
+	private String blockReason;
+
+	@Column(name = "refund_apply_time")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date refundApplyTime;
+
+	@Column(name = "refund_finish_time")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date refundFinishTime;
 
 	@Column(name = "pay_time")
 	@Temporal(TemporalType.TIMESTAMP)
@@ -73,9 +89,9 @@ public class Order {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date arrangeTime;
 
-	@Column(name = "post_time")
+	@Column(name = "express_time")
 	@Temporal(TemporalType.TIMESTAMP)
-	private Date postTime;
+	private Date expressTime;
 
 	@Column(name = "saler_remark")
 	private String salerRemark;
@@ -99,34 +115,6 @@ public class Order {
 
 	/** default constructor */
 	public Order() {
-	}
-
-	/** full constructor */
-	public Order(Integer companyId, Integer repoId, String receiverName, String receiverPhone, String receiverAddr,
-			String orderGroupNumber, String postCompany, String postNumber, Double orderMoney, String orderType,
-			String storageStatus, String postStatus, String payStatus, Date payTime, Date arrangeTime, Date postTime,
-			String salerRemark, String buyerMessage, Date createTime, Date updateTime, Integer version) {
-		this.companyId = companyId;
-		this.repoId = repoId;
-		this.receiverName = receiverName;
-		this.receiverPhone = receiverPhone;
-		this.receiverAddr = receiverAddr;
-		this.orderGroupNumber = orderGroupNumber;
-		this.postCompany = postCompany;
-		this.postNumber = postNumber;
-		this.orderMoney = orderMoney;
-		this.orderType = orderType;
-		this.storageStatus = storageStatus;
-		this.postStatus = postStatus;
-		this.payStatus = payStatus;
-		this.payTime = payTime;
-		this.arrangeTime = arrangeTime;
-		this.postTime = postTime;
-		this.salerRemark = salerRemark;
-		this.buyerMessage = buyerMessage;
-		this.createTime = createTime;
-		this.updateTime = updateTime;
-		this.version = version;
 	}
 
 	// Property accessors
@@ -187,20 +175,36 @@ public class Order {
 		this.orderGroupNumber = orderGroupNumber;
 	}
 
-	public String getPostCompany() {
-		return this.postCompany;
+	public String getExpressCompany() {
+		return expressCompany;
 	}
 
-	public void setPostCompany(String postCompany) {
-		this.postCompany = postCompany;
+	public void setExpressCompany(String expressCompany) {
+		this.expressCompany = expressCompany;
 	}
 
-	public String getPostNumber() {
-		return this.postNumber;
+	public String getExpressNumber() {
+		return expressNumber;
 	}
 
-	public void setPostNumber(String postNumber) {
-		this.postNumber = postNumber;
+	public void setExpressNumber(String expressNumber) {
+		this.expressNumber = expressNumber;
+	}
+
+	public String getExpressStatus() {
+		return expressStatus;
+	}
+
+	public void setExpressStatus(String expressStatus) {
+		this.expressStatus = expressStatus;
+	}
+
+	public Date getExpressTime() {
+		return expressTime;
+	}
+
+	public void setExpressTime(Date expressTime) {
+		this.expressTime = expressTime;
 	}
 
 	public Double getOrderMoney() {
@@ -227,20 +231,44 @@ public class Order {
 		this.storageStatus = storageStatus;
 	}
 
-	public String getPostStatus() {
-		return this.postStatus;
-	}
-
-	public void setPostStatus(String postStatus) {
-		this.postStatus = postStatus;
-	}
-
 	public String getPayStatus() {
 		return this.payStatus;
 	}
 
 	public void setPayStatus(String payStatus) {
 		this.payStatus = payStatus;
+	}
+
+	public boolean isBlockFlag() {
+		return blockFlag;
+	}
+
+	public void setBlockFlag(boolean blockFlag) {
+		this.blockFlag = blockFlag;
+	}
+
+	public String getBlockReason() {
+		return blockReason;
+	}
+
+	public void setBlockReason(String blockReason) {
+		this.blockReason = blockReason;
+	}
+
+	public Date getRefundApplyTime() {
+		return refundApplyTime;
+	}
+
+	public void setRefundApplyTime(Date refundApplyTime) {
+		this.refundApplyTime = refundApplyTime;
+	}
+
+	public Date getRefundFinishTime() {
+		return refundFinishTime;
+	}
+
+	public void setRefundFinishTime(Date refundFinishTime) {
+		this.refundFinishTime = refundFinishTime;
 	}
 
 	public Date getPayTime() {
@@ -257,14 +285,6 @@ public class Order {
 
 	public void setArrangeTime(Date arrangeTime) {
 		this.arrangeTime = arrangeTime;
-	}
-
-	public Date getPostTime() {
-		return this.postTime;
-	}
-
-	public void setPostTime(Date postTime) {
-		this.postTime = postTime;
 	}
 
 	public String getSalerRemark() {
@@ -307,4 +327,251 @@ public class Order {
 		this.version = version;
 	}
 
+	/**
+	 * 订单-配货状态
+	 * 
+	 * @author yz
+	 * 
+	 */
+	public static enum StorageStatus {
+		//
+		WAIT_ARRANGE("wait_arrange", "等待分配仓库"),
+		//
+		WAIT_ARRANGE_BY_MANUAL("wait_arrange_by_manual", "等待分配仓库(手动取消)"),
+		//
+		WAIT_ARRANGE_BY_LACKNESS("wait_arrange_by_lackness", "等待分配仓库(缺货)"),
+		//
+		ARRANGED("arranged", "已分配仓库"),
+		//
+		PICKUP("pickup", "配货中"),
+		//
+		PICKUP_FINISH("pickup_finish", "配货完成");
+
+		private String value;
+		private String display;
+
+		private StorageStatus(String value, String display) {
+			this.value = value;
+			this.display = display;
+		}
+
+		/**
+		 * 根据value获得枚举值
+		 * 
+		 * @param value
+		 * @return
+		 */
+		public static StorageStatus getEnum(String value) {
+			for (StorageStatus record : values()) {
+				if (record.getValue().equals(value)) {
+					return record;
+				}
+			}
+			return null;
+		}
+
+		/**
+		 * 判断value是否是预定义的
+		 * 
+		 * @param value
+		 * @return
+		 */
+		public static boolean isDefined(String value) {
+			if (StringUtils.isBlank(value)) {
+				return false;
+			}
+			return getEnum(value) != null;
+		}
+
+		public String getValue() {
+			return value;
+		}
+
+		public String getDisplay() {
+			return display;
+		}
+	}
+
+	/**
+	 * 订单-物流状态
+	 * 
+	 * @author yz
+	 * 
+	 */
+	public static enum ExpressStatus {
+		//
+		WAIT_FOR_PRINT("wait_for_print", "待打印"),
+		//
+		PRINTED("printed", "已打单"),
+		//
+		FILLED_EX_NUM("filled_express_number", "已填单"),
+		//
+		SEND_OUT("send_out", "已出库");
+
+		private String value;
+		private String display;
+
+		private ExpressStatus(String value, String display) {
+			this.value = value;
+			this.display = display;
+		}
+
+		/**
+		 * 根据value获得枚举值
+		 * 
+		 * @param value
+		 * @return
+		 */
+		public static ExpressStatus getEnum(String value) {
+			for (ExpressStatus record : values()) {
+				if (record.getValue().equals(value)) {
+					return record;
+				}
+			}
+			return null;
+		}
+
+		/**
+		 * 判断value是否是预定义的
+		 * 
+		 * @param value
+		 * @return
+		 */
+		public static boolean isDefined(String value) {
+			if (StringUtils.isBlank(value)) {
+				return false;
+			}
+			return getEnum(value) != null;
+		}
+
+		public String getValue() {
+			return value;
+		}
+
+		public String getDisplay() {
+			return display;
+		}
+	}
+
+	/**
+	 * 订单-配货状态
+	 * 
+	 * @author yz
+	 * 
+	 */
+	public static enum PayStatus {
+		//
+		UNPAID("unpaid", "未支付"),
+		//
+		PAID("paid", "已支付"),
+		//
+		REFUNDING("refunding", "退款中"),
+		//
+		REFUND_FINISH("refund_finish", "订单关闭(已退款)"),
+		//
+		CANCELLED("cancelled", "订单关闭(未支付)");
+
+		private String value;
+		private String display;
+
+		private PayStatus(String value, String display) {
+			this.value = value;
+			this.display = display;
+		}
+
+		/**
+		 * 根据value获得枚举值
+		 * 
+		 * @param value
+		 * @return
+		 */
+		public static PayStatus getEnum(String value) {
+			for (PayStatus record : values()) {
+				if (record.getValue().equals(value)) {
+					return record;
+				}
+			}
+			return null;
+		}
+
+		/**
+		 * 判断value是否是预定义的
+		 * 
+		 * @param value
+		 * @return
+		 */
+		public static boolean isDefined(String value) {
+			if (StringUtils.isBlank(value)) {
+				return false;
+			}
+			return getEnum(value) != null;
+		}
+
+		public String getValue() {
+			return value;
+		}
+
+		public String getDisplay() {
+			return display;
+		}
+	}
+
+	/**
+	 * 订单类型
+	 * 
+	 * @author yz
+	 * 
+	 */
+	public static enum OrderType {
+		//
+		SELF("self", "自发"),
+		//
+		FOR_OTHER("for_other", "代发"),
+		//
+		TO_OTHER("to_other", "委派");
+
+		private String value;
+		private String display;
+
+		private OrderType(String value, String display) {
+			this.value = value;
+			this.display = display;
+		}
+
+		/**
+		 * 根据value获得枚举值
+		 * 
+		 * @param value
+		 * @return
+		 */
+		public static OrderType getEnum(String value) {
+			for (OrderType record : values()) {
+				if (record.getValue().equals(value)) {
+					return record;
+				}
+			}
+			return null;
+		}
+
+		/**
+		 * 判断value是否是预定义的
+		 * 
+		 * @param value
+		 * @return
+		 */
+		public static boolean isDefined(String value) {
+			if (StringUtils.isBlank(value)) {
+				return false;
+			}
+			return getEnum(value) != null;
+		}
+
+		public String getValue() {
+			return value;
+		}
+
+		public String getDisplay() {
+			return display;
+		}
+	}
 }

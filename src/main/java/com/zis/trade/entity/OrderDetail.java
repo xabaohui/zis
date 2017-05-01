@@ -29,6 +29,9 @@ public class OrderDetail  {
 	@Column(name = "item_id")
 	private Integer itemId;
 	
+	@Column(name = "item_out_num")
+	private Integer itemOutNum;
+	
 	@Column(name = "sku_id")
 	private Integer skuId;
 	
