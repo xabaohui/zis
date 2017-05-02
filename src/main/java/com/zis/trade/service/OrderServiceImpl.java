@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -22,11 +23,15 @@ import com.zis.trade.entity.Order.ExpressStatus;
 import com.zis.trade.entity.Order.OrderType;
 import com.zis.trade.entity.Order.PayStatus;
 import com.zis.trade.entity.Order.StorageStatus;
+import com.zis.trade.repository.OrderDao;
 
 @Service
 public class OrderServiceImpl implements OrderService {
 	
 	private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
+	
+	@Autowired
+	private OrderDao orderDao;
 
 	@Override
 	public Order createOrder(CreateTradeOrderDTO orderDTO) {
@@ -223,7 +228,10 @@ public class OrderServiceImpl implements OrderService {
 	
 	private OrderVO buildOrderVO(ExpressStatus ex, PayStatus pay, StorageStatus st) {
 		OrderVO vo = new OrderVO();
+		vo.setCreateTime(new Date());
+		vo.setShopName("小龙女书屋");
 		vo.setBuyerMessage("尽快发货哦老板");
+		vo.setSalerRemark("你们猜猜");
 		vo.setExpressStatus(ex.getValue());
 		vo.setExpressStatusDisplay(ex.getDisplay());
 		if(ExpressStatus.FILLED_EX_NUM.equals(ex) || ExpressStatus.SEND_OUT.equals(ex)) {
@@ -271,6 +279,11 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	public Page<OrderVO> findOrdersByCondition(Integer companyId, OrderQueryCondition cond, Pageable page) {
 		return findOrdersByStatus(null, null, null, null, null);
+	}
+
+	@Override
+	public Order findByOrderIdAndCompanyId(Integer orderId, Integer companyId) {
+		return this.orderDao.findByOrderIdAndCompanyId(orderId, companyId);
 	}
 
 }

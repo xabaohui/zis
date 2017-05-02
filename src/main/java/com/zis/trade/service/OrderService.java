@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import com.zis.trade.dto.CreateTradeOrderDTO;
@@ -286,4 +285,12 @@ public interface OrderService {
 	 * @return
 	 */
 	Page<OrderVO> findOrdersByCondition(Integer companyId, OrderQueryCondition cond, Pageable page);
+	
+	/**
+	 * 根据订单Id+公司Id 查找订单
+	 * @param orderId
+	 * @param companyId
+	 * @return
+	 */
+	Order findByOrderIdAndCompanyId(Integer orderId,Integer companyId);
 }

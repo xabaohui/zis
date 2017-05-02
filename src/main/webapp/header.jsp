@@ -68,7 +68,6 @@
 			  text-align:left;
 			  padding-top:5px;
 			  padding-bottom:4px;
-			  background-color:#A7C942;
 			  color:#ffffff;
 			  }
 			
@@ -109,7 +108,7 @@
 			#bg-to-be-hidden
 			  { 
 			  display: none;  position: absolute;
-			  top: 0%;  left: 0%;  width: 100%;  height: 100%;
+			  top: 0%;  left: 0%;  width: 100%;  height: 800%;
 			  background-color: black;
 			  z-index:1001;  -moz-opacity: 0.7;
 			  opacity:.70;  filter: alpha(opacity=70);
@@ -313,6 +312,17 @@
 						<li><a href="storage/gotoFastTakeGoods">快速出库</a></li>
 						<br/>
 						<li><a href="storage/gotoManualTakeGoods">手动出库</a></li>
+				</ul>
+			</ul>
+			<ul class = "uls" onclick="checked(this);">
+			<font style="font-weight: bolder;">订单管理(新)</font>
+				<ul name = "showListTop" style="display: none" class = "showListTop">
+						<font size="4px" color="green" style="font-weight: bolder;" >查询相关</font>
+						<br/>
+						<li><a href="order/getWaitPickUpList">订单列表-仓库视角</a></li>
+						<br/>
+						<li><a href="order/getUnpaidList">订单列表-店铺视角</a></li>
+						<br/>
 				</ul>
 			</ul>
 		</div>

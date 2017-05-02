@@ -1,8 +1,7 @@
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-				<td>${order.orderId}</td>
+			<td>${order.orderId}</td>
 				<td>
 					<fmt:formatDate value="${order.createTime}" pattern="yyyy-MM-dd"/>
 				</td>
@@ -12,7 +11,7 @@
 				<td>
 					<c:set value = "${order.outOrderNumbers}" var = "outNumbers"/>
 						<c:forEach items="${outNumbers}" var="outNumber" >
-							${fn:trim(outNumber)}<br/>
+							${outNumber}<br/>
 						</c:forEach>
 				</td>
 				<td>

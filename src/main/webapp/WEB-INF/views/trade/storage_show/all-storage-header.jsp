@@ -4,7 +4,11 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags" %> 
-<script type="text/javascript" src="resources/storage.js"></script>
+<script type='text/javascript' src='dwr/engine.js'></script>
+<script type='text/javascript' src='dwr/util.js'></script>
+<script type='text/javascript' src='dwr/interface/orderController.js'></script>
+<script type="text/javascript" src='resources/common.js'></script>
+<script type="text/javascript" src="resources/trade.js"></script>
 <script type="text/javascript">
 </script>
 <style type="text/css">
@@ -30,39 +34,45 @@
 </div>
 <p />
 <div style="width: 100%;" id="infoDiv" align="center">
-	<form id="orderForm" action="">
 		<table class = "common-table-new">
 		<tr>
 			<th>
-				<a href="">等待配货</a>
+				<a href="order/getWaitPickUpList">等待配货</a>
 			</th>
 			<th>
-				<a href="">配货中</a>
+				<a href="order/getPickupList">配货中</a>
 			</th>
 			<th>
-				<a href="">等待打印</a>
+				<a href="order/getWaitForPrintList">等待打印</a>
 			</th>
 			<th>
-				<a href="">已打印</a>
+				<a href="order/getPrintedList">已打印</a>
 			</th>
-			<th style="background-color: blue">
-				全部订单
+			<th style="background-color: #A7C942">
+				<font color="#00000">全部订单</font>
 			</th>
 		</tr>
 		</table>
 		<table id = "common-table">
 			<tr>
-				<td colspan="7" align="left">
-					<input type="button" value = "批量配货" onclick=""/>
-					<input style="margin-left: 800px" type="button" value = "批量取消" onclick=""/>
+				<td colspan="9" align="left" height="60px">
+					<spring:form action="order/getAllStorageOrderList" method="post" modelAttribute="cond">
+						<table>
+							<tr>
+								<td style="border: hidden;">订单号&nbsp;<input type="text" name = "outOrderNumber" value="${param.outOrderNumber}"/></td>
+								<td style="border: hidden;">收件人&nbsp;<input type="text" name = "receiverName" value="${param.receiverName}"/></td>
+								<td style="border: hidden;">收件人电话&nbsp;<input type="text" name = "receiverPhone" value="${param.receiverPhone}"/></td>
+								<td style="border: hidden;">快递单号&nbsp;<input type="text" name = "expressNumber" value="${param.expressNumber}"/></td>
+								<td style="border: hidden;"><input type="submit" value="查询"/></td>
+							</tr>
+						</table>
+					</spring:form>
 				</td>
 			</tr>
 			<tr>
-				<th>
-					<input type="checkbox" id = "checkAll" onclick = "checkAllOId()"/>全选
-				</th>
 				<th>订单Id</th>
 				<th>创建时间</th>
+				<th>所属店铺</th>
 				<th>网店订单号</th>
 				<th>收件人</th>
 				<th>商品清单</th>
@@ -72,30 +82,9 @@
 			</tr>
 			<c:forEach items="${orderList}" var="order">
 				<tr>
-				<td><input name = "orderId" type="checkbox" value="${order.orderId}"/></td>
-				<td>${order.orderId}</td>
+				<%@ include file="/WEB-INF/views/trade/storage_show/storage-list.jsp"%>
 				<td>
-					<fmt:formatDate value="${order.gmtCreate}" pattern="yyyy-MM-dd"/>
-				</td>
-				<td>
-					<c:set value = "${order.outOrderNumbers}" var = "outNumbers"/>
-						<c:forEach items="${outNumbers}" var="outNumber" >
-							${outNumber}<br/>
-						</c:forEach>
-				</td>
-				<td>
-					<div id = "address_${order.orderId}">
-						${order.receiverName}
-					</div>
-				</td>
-				<td  width="35%">
-					<c:set value = "${order.orderDetails}" var = "details"/>
-						<c:forEach items="${details}" var="detail" >
-							${detail.bookName}&nbsp;*&nbsp;${detail.itemCount}<br/>
-						</c:forEach>
-				</td>
-				<td>
-					${order.uniqueStatusDisplay}
+					${order.getUniqueStatusDisplay("all")}
 					<div id = "blockFlag_${order.orderId}">
 						<c:if test="${order.blockFlag}">
 							<span title="${order.blockReason}"><font color="red">已拦截</font></span>
@@ -108,60 +97,63 @@
 					${order.expressNumber}
 				</td>
 				<td>
-					<% int count = 0; %>
+					<%int count = 0;%>
 					
 					<c:if test="${order.canArrangeOrderToPos()}">
 						<a href = "#">配货</a>
-						<% count++; %>
+						&nbsp;
+						<%count++;%>
 					</c:if>
-					<% if(count % 2 ==0){%>
-						<br/>
-					<% } %>
 					
 					<c:if test="${order.canCancelArrangeOrder()}">
 						<a href = "#">取消配货</a>
-						<% count++; %>
+						&nbsp;
+						<%count++;%>
+						<%if(count % 2 ==0){%>
+							<br/>
+						<%}%>
 					</c:if>
-					<% if(count % 2 ==0){%>
-						<br/>
-					<% } %>
 					
 					<c:if test="${order.canLackness()}">
 						<a href = "#">缺货</a>
-						<% count++; %>
+						&nbsp;
+						<%count++;%>
+						<% if(count % 2 ==0){%>
+							<br/>
+						<%}%>
 					</c:if>
-					<% if(count % 2 ==0){%>
-						<br/>
-					<% } %>
 					
 					<c:if test="${order.canPrint()}">
 						<a href = "#">打单</a>
-						<% count++; %>
+						&nbsp;
+						<%count++;%>
+						<%if(count % 2 ==0){%>
+							<br/>
+						<%}%>
 					</c:if>
-					<% if(count % 2 ==0){%>
-						<br/>
-					<% } %>
 					
 					<c:if test="${order.canFillExpressNumber()}">
 						<a href = "#">填单号</a>
-						<% count++; %>
+						&nbsp;
+						<%count++;%>
+						<%if(count % 2 ==0){%>
+							<br/>
+						<%}%>
 					</c:if>
-					<% if(count % 2 ==0){%>
-						<br/>
-					<% } %>
 					
-					<div>
-						<span title="${order.salerRemark}" onclick="">备注</span>
+					<div id = "desc_${order.orderId}">
+						<c:if test="${not empty order.salerRemark}">
+							<span title="${order.salerRemark}" onclick=""><font color="red">备注</font></span>
+						</c:if>
+						<c:if test="${empty order.salerRemark}">
+							<span onclick="">备注</span>
+						</c:if>
 					</div>
-					<% count++; %>
-					<% if(count % 2 ==0){%>
-						<br/>
-					<% } %>
+					<%count = 0;%>
 				</td>
 				</tr>
 			</c:forEach>
 		</table>
-	</form>
 </div>
 <div id="bg-to-be-hidden"></div>
 <div id="float-to-be-show">
@@ -173,11 +165,11 @@
 <div align="center">
 	<!-- 分页查询start-->
 	<c:if test="${not empty prePage}">
-		<a href="?${queryCondition}page=${prePage}">上一页</a>&nbsp;
+		<a href="order/getAllStorageOrderList?page=${prePage}">上一页</a>&nbsp;
 	</c:if>
 	${page} &nbsp;
 	<c:if test="${not empty nextPage}">
-		<a href="?${queryCondition}page=${nextPage}">下一页</a>&nbsp;
+		<a href="order/getAllStorageOrderList?page=${nextPage}">下一页</a>&nbsp;
 	</c:if>
 	<!-- 分页查询end -->
 </div>

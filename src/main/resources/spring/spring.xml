@@ -27,6 +27,7 @@
 		<context:exclude-filter type="regex" expression="com.zis.api"/>
 		<context:exclude-filter type="regex" expression="com.zis.shop.controller"/>
 		<context:exclude-filter type="regex" expression="com.zis.storage.controller"/>
+		<context:exclude-filter type="regex" expression="com.zis.trade.controller"/>
 	</context:component-scan>
 	
 	<!-- 开启aop，对类代理 -->

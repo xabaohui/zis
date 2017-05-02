@@ -20,7 +20,7 @@
 }
 </style>
 <div align="center">
-	<h1>订单列表-店铺视角</h1>
+	<h1>订单列表-仓库视角</h1>
 	<br />
 	<h2>
 		<font color="green">${actionMessage}</font>
@@ -34,34 +34,32 @@
 </div>
 <p />
 <div style="width: 100%;" id="infoDiv" align="center">
-	<form id="orderForm" action="">
 		<table class = "common-table-new">
 		<tr>
 			<th>
-				<a href="order/getUnpaidList">未支付</a>
+				<a href="order/getWaitPickUpList">等待配货</a>
+			</th>
+			<th>
+				<a href="order/getPickupList">配货中</a>
 			</th>
 			<th style="background-color: #A7C942">
-				<font color="#00000">退款中</font>
+				<font color="#00000">等待打印</font>
 			</th>
 			<th>
-				<a href="order/getWaitArrangeHeaderList">未分配</a>
+				<a href="order/getPrintedList">已打印</a>
 			</th>
 			<th>
-				<a href="order/getAllShopOrderList">全部订单</a>
+				<a href="order/getAllStorageOrderList">全部订单</a>
 			</th>
 		</tr>
 		</table>
 		<table id = "common-table">
 			<tr>
 				<td colspan="10" align="left" height="60px">
-					<input style="margin-left: 700px;" type="button" value = "批量支付" onclick=""/>
-					<input style="margin-left: 100px;" type="button" value = "批量取消" onclick=""/>
+					<input style="margin-left: 800px;" type="button" value = "下载打印数据" onclick=""/>
 				</td>
 			</tr>
 			<tr>
-				<th>
-					<input type="checkbox" id = "checkAll" onclick = "checkAllOId()"/>全选
-				</th>
 				<th>订单Id</th>
 				<th>创建时间</th>
 				<th>所属店铺</th>
@@ -74,17 +72,9 @@
 			</tr>
 			<c:forEach items="${orderList}" var="order">
 				<tr>
+				<%@ include file="/WEB-INF/views/trade/storage_show/storage-list.jsp"%>
 				<td>
-					<c:if test="${order.canAgreeRefund()||order.canCancelRefund()}">
-						<input name = "orderId" type="checkbox" value="${order.orderId}"/>
-					</c:if>
-					<c:if test="${!order.canAgreeRefund() && !order.canCancelRefund()}">
-						<input name = "orderId" type="checkbox" value="${order.orderId}" disabled="disabled"/>
-					</c:if>
-				</td>
-				<%@ include file="/WEB-INF/views/trade/shop_show/shop-list.jsp"%>
-				<td>
-					${order.getUniqueStatusDisplay("refunding")}
+					${order.getUniqueStatusDisplay("arranged")}
 					<div id = "blockFlag_${order.orderId}">
 						<c:if test="${order.blockFlag}">
 							<span title="${order.blockReason}"><font color="red">已拦截</font></span>
@@ -97,41 +87,10 @@
 					${order.expressNumber}
 				</td>
 				<td>
-					<% int count = 0; %>
-					
-					<c:if test="${order.canAgreeRefund()}">
-						<a href = "#">同意退款</a>
+					<c:if test="${order.canPrint()}">
+						<a href = "#">打单</a>
 						&nbsp;
-						<% count++; %>
 					</c:if>
-					
-					<c:if test="${order.canCancelRefund()}">
-						<a href = "#">取消退款</a>
-						&nbsp;
-						<% count++; %>
-						<% if(count % 2 ==0){%>
-							<br/>
-						<% } %>
-					</c:if>
-					
-					<c:if test="${order.canChangeOrderAddress()}">
-						<input type="button" value = "改地址" onclick="showOrderAddress('${order.orderId}','${order.receiverName}','${order.receiverPhone}','${order.receiverAddr}')" />
-						&nbsp;
-						<% count++; %>
-						<% if(count % 2 ==0){%>
-							<br/>
-						<% } %>
-					</c:if>
-					
-					<c:if test="${order.canBlock()}">
-						<input type="button" value = "拦截" onclick="ifBlockOrder('${order.orderId}')" />
-						&nbsp;
-						<% count++; %>
-						<% if(count % 2 ==0){%>
-							<br/>
-						<% } %>
-					</c:if>
-					
 					<div id = "desc_${order.orderId}">
 						<c:if test="${not empty order.salerRemark}">
 							<span title="${order.salerRemark}" onclick=""><font color="red">备注</font></span>
@@ -140,25 +99,26 @@
 							<span onclick="">备注</span>
 						</c:if>
 					</div>
-					<% count = 0; %>
 				</td>
 				</tr>
 			</c:forEach>
 		</table>
-		<input type="hidden" name = "forwardUrl" value = "getRefundingList"/>
-	</form>
 </div>
 <div id="bg-to-be-hidden"></div>
-<div id="float-to-be-show">	
+<div id="float-to-be-show">
+	该条码对应多种图书，请选择：
+	<div id="selectArea"></div>
+	<p />
+	<input type="button" value="取消" onclick="cancelSelection()" />
 </div>
 <div align="center">
 	<!-- 分页查询start-->
 	<c:if test="${not empty prePage}">
-		<a href="order/getRefundingList?page=${prePage}">上一页</a>&nbsp;
+		<a href="order/getWaitForPrintList?${queryCondition}page=${prePage}">上一页</a>&nbsp;
 	</c:if>
 	${page} &nbsp;
 	<c:if test="${not empty nextPage}">
-		<a href="order/getRefundingList?page=${nextPage}">下一页</a>&nbsp;
+		<a href="order/getWaitForPrintList?${queryCondition}page=${nextPage}">下一页</a>&nbsp;
 	</c:if>
 	<!-- 分页查询end -->
 </div>

@@ -4,6 +4,11 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags" %> 
+<script type='text/javascript' src='dwr/engine.js'></script>
+<script type='text/javascript' src='dwr/util.js'></script>
+<script type='text/javascript' src='dwr/interface/orderController.js'></script>
+<script type="text/javascript" src='resources/common.js'></script>
+<script type="text/javascript" src="resources/trade.js"></script>
 <script type="text/javascript">
 </script>
 <style type="text/css">
@@ -32,25 +37,24 @@
 	<form id="orderForm" action="">
 		<table class = "common-table-new">
 		<tr>
-			<th>
-				<a href="">未支付</a>
+			<th style="background-color: #A7C942">
+				<font color="#00000">未支付</font>
 			</th>
 			<th>
-				<a href="">退款中</a>
+				<a href="order/getRefundingList">退款中</a>
 			</th>
 			<th>
-				<a href="">未分配</a>
+				<a href="order/getWaitArrangeHeaderList">未分配</a>
 			</th>
-			<th style="background-color: blue">
-				全部订单
+			<th>
+				<a href="order/getAllShopOrderList">全部订单</a>
 			</th>
 		</tr>
 		</table>
 		<table id = "common-table">
 			<tr>
-				<td colspan="8" align="left">
-					<input type="button" value = "批量配货" onclick=""/>
-					<input style="margin-left: 800px" type="button" value = "批量取消" onclick=""/>
+				<td colspan="10" align="left" height="60px">
+					<input style="margin-left: 800px;" type="button" value = "批量取消" onclick="cancelOrder()"/>
 				</td>
 			</tr>
 			<tr>
@@ -59,6 +63,7 @@
 				</th>
 				<th>订单Id</th>
 				<th>创建时间</th>
+				<th>所属店铺</th>
 				<th>网店订单号</th>
 				<th>收件人</th>
 				<th>商品清单</th>
@@ -68,30 +73,17 @@
 			</tr>
 			<c:forEach items="${orderList}" var="order">
 				<tr>
-				<td><input name = "orderId" type="checkbox" value="${order.orderId}"/></td>
-				<td>${order.orderId}</td>
 				<td>
-					<fmt:formatDate value="${order.gmtCreate}" pattern="yyyy-MM-dd"/>
+					<c:if test="${order.canCancelOrder()}">
+						<input name = "orderId" type="checkbox" value="${order.orderId}"/>
+					</c:if>
+					<c:if test="${!order.canCancelOrder()}">
+						<input name = "orderId" type="checkbox" value="${order.orderId}" disabled="disabled"/>
+					</c:if>
 				</td>
+				<%@ include file="/WEB-INF/views/trade/shop_show/shop-list.jsp"%>
 				<td>
-					<c:set value = "${order.outOrderNumbers}" var = "outNumbers"/>
-						<c:forEach items="${outNumbers}" var="outNumber" >
-							${outNumber}<br/>
-						</c:forEach>
-				</td>
-				<td>
-					<div id = "address_${order.orderId}">
-						${order.receiverName}
-					</div>
-				</td>
-				<td  width="35%">
-					<c:set value = "${order.orderDetails}" var = "details"/>
-						<c:forEach items="${details}" var="detail" >
-							${detail.bookName}&nbsp;*&nbsp;${detail.itemCount}<br/>
-						</c:forEach>
-				</td>
-				<td>
-					${order.uniqueStatusDisplay}
+					${order.getUniqueStatusDisplay("unpaid")}
 					<div id = "blockFlag_${order.orderId}">
 						<c:if test="${order.blockFlag}">
 							<span title="${order.blockReason}"><font color="red">已拦截</font></span>
@@ -107,130 +99,68 @@
 					<% int count = 0; %>
 					
 					<c:if test="${order.canCancelOrder()}">
-						<a href = "#">取消订单</a>
+						<input type="button" value = "取消订单" onclick="cancelOrder('${order.orderId}','getUnpaidList')" />
+						&nbsp;
 						<% count++; %>
+						<% if(count % 2 ==0){%>
+							<br/>
+						<% } %>
 					</c:if>
-					<% if(count % 2 ==0){%>
-						<br/>
-					<% } %>
 					
 					<c:if test="${order.canPay()}">
-						<a href = "#">支付</a>
+						<input type="button" value = "支付" onclick="payOrder('${order.orderId}','getUnpaidList')" />
+						&nbsp;
 						<% count++; %>
+						<% if(count % 2 ==0){%>
+							<br/>
+						<% } %>
 					</c:if>
-					<% if(count % 2 ==0){%>
-						<br/>
-					<% } %>
-					
-					<c:if test="${order.canApplyRefund()}">
-						<a href = "#">申请退款</a>
-						<% count++; %>
-					</c:if>
-					<% if(count % 2 ==0){%>
-						<br/>
-					<% } %>
-					
-					<c:if test="${order.canAgreeRefund()}">
-						<a href = "#">同意退款</a>
-						<% count++; %>
-					</c:if>
-					<% if(count % 2 ==0){%>
-						<br/>
-					<% } %>
-					
-					<c:if test="${order.canCancelRefund()}">
-						<a href = "#">取消退款</a>
-						<% count++; %>
-					</c:if>
-					<% if(count % 2 ==0){%>
-						<br/>
-					<% } %>
 					
 					<c:if test="${order.canChangeOrderAddress()}">
-						<a href = "#">改地址</a>
+						<input type="button" value = "改地址" onclick="showOrderAddress('${order.orderId}','${order.receiverName}','${order.receiverPhone}','${order.receiverAddr}')" />
+						&nbsp;
 						<% count++; %>
+						<% if(count % 2 ==0){%>
+							<br/>
+						<% } %>
 					</c:if>
-					<% if(count % 2 ==0){%>
-						<br/>
-					<% } %>
-					
-					<c:if test="${order.canArrangeOrderToRepo()}">
-						<a href = "#">分配仓库</a>
-						<% count++; %>
-					</c:if>
-					<% if(count % 2 ==0){%>
-						<br/>
-					<% } %>
-					
-					<c:if test="${order.canArrangeOrderToPos()}">
-						<a href = "#">配货</a>
-						<% count++; %>
-					</c:if>
-					<% if(count % 2 ==0){%>
-						<br/>
-					<% } %>
-					
-					<c:if test="${order.canCancelArrangeOrder()}">
-						<a href = "#">取消配货</a>
-						<% count++; %>
-					</c:if>
-					<% if(count % 2 ==0){%>
-						<br/>
-					<% } %>
-					
-					<c:if test="${order.canLackness()}">
-						<a href = "#">缺货</a>
-						<% count++; %>
-					</c:if>
-					<% if(count % 2 ==0){%>
-						<br/>
-					<% } %>
-					
-					<c:if test="${order.canPrint()}">
-						<a href = "#">打单</a>
-						<% count++; %>
-					</c:if>
-					<% if(count % 2 ==0){%>
-						<br/>
-					<% } %>
-					
-					<c:if test="${order.canFillExpressNumber()}">
-						<a href = "#">填单号</a>
-						<% count++; %>
-					</c:if>
-					<% if(count % 2 ==0){%>
-						<br/>
-					<% } %>
 					
 					<c:if test="${order.canBlock()}">
-						<a href = "#">拦截</a>
+						<input type="button" value = "拦截" onclick="ifBlockOrder('${order.orderId}')" />
+						&nbsp;
 						<% count++; %>
+						<% if(count % 2 ==0){%>
+							<br/>
+						<% } %>
 					</c:if>
-					<% if(count % 2 ==0){%>
-						<br/>
-					<% } %>
 					
-					<div>
-						<span title="${order.salerRemark}" onclick="">备注</span>
+					<div id = "desc_${order.orderId}">
+						<c:if test="${not empty order.salerRemark}">
+							<span title="${order.salerRemark}" onclick=""><font color="red">备注</font></span>
+						</c:if>
+						<c:if test="${empty order.salerRemark}">
+							<span onclick="">备注</span>
+						</c:if>
 					</div>
-					<% count++; %>
-					<% if(count % 2 ==0){%>
-						<br/>
-					<% } %>
+					<% count = 0; %>
 				</td>
 				</tr>
 			</c:forEach>
 		</table>
+		<input type="hidden" name = "forwardUrl" value = "getUnpaidList"/>
 	</form>
+</div>
+<div id="bg-to-be-hidden"></div>
+<div id="float-to-be-show">	
 </div>
 <div align="center">
 	<!-- 分页查询start-->
 	<c:if test="${not empty prePage}">
-		<a href="?${queryCondition}page=${prePage}">上一页</a>&nbsp;
+		<a href="order/getUnpaidList?page=${prePage}">上一页</a>&nbsp;
 	</c:if>
 	${page} &nbsp;
 	<c:if test="${not empty nextPage}">
-		<a href="?${queryCondition}page=${nextPage}">下一页</a>&nbsp;
+		<a href="order/getUnpaidList?page=${nextPage}">下一页</a>&nbsp;
 	</c:if>
 	<!-- 分页查询end -->
 </div>

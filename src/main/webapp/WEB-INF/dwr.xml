@@ -21,6 +21,9 @@
 		<create creator="spring" javascript="fastTakeGoods">
 			<param name="beanName" value="fastTakeGoodsController" />
 		</create>
+		<create creator="spring" javascript="orderController">
+			<param name="beanName" value="orderDwrController" />
+		</create>
 		<!-- 库位校准 <create creator="spring" javascript="stockPosCheckBO"> <param 
 			name="beanName" value="stockPosCheckBOAction"/> </create> -->
 		<convert match="com.zis.requirement.bean.BookAmount"
@@ -37,6 +40,9 @@
 		<convert match="com.zis.bookinfo.util.BookMetadata" converter="bean" />
 		<convert match="com.zis.storage.dto.FastTakeGoodsView" converter="bean" />
 		<convert match="com.zis.storage.dto.TakeGood" converter="bean" />
+		<convert match="com.zis.trade.dto.ChangeOrderAddressDTO" converter="bean" />
+		<convert match="com.zis.trade.dto.BlockOrderDTO" converter="bean" />
+		<convert match="com.zis.trade.entity.Order" converter="bean" />
 
 		<!-- 异常处理 -->
 		<convert converter="exception"
