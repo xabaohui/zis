@@ -8,6 +8,7 @@ package com.zis.trade.dto;
 public class ExpressNumberDTO {
 
 	private Integer orderId;
+	private String receiverName;
 	private String expressNumber;
 	private String expressCompany;
 
@@ -17,6 +18,14 @@ public class ExpressNumberDTO {
 
 	public void setOrderId(Integer orderId) {
 		this.orderId = orderId;
+	}
+
+	public String getReceiverName() {
+		return receiverName;
+	}
+
+	public void setReceiverName(String receiverName) {
+		this.receiverName = receiverName;
 	}
 
 	public String getExpressNumber() {

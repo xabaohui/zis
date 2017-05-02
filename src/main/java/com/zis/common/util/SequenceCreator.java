@@ -3,13 +3,8 @@ package com.zis.common.util;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.ApplicationContext;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.servlet.DispatcherServlet;
 
 /**
  * Sequence生成器
@@ -22,19 +17,18 @@ public class SequenceCreator {
 
 	public static final String SEQ_BOOK_GROUP_ID = "book_group_id";
 	public static final String SEQ_BOOK_RELATE_ID = "book_relate_id";
+	public static final String SEQ_ORDER_GROUP_NUM = "order_group_number";
 
 	private static EntityManagerFactory entityManagerFactory;
 
 	private static void initEntityManagerFactory() {
-		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-		HttpServletRequest request = attributes.getRequest();
-		ApplicationContext app = (ApplicationContext) request
-				.getAttribute(DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE);
-		// ServletContext context =
-		// request.getSession().getServletContext();//方式2
-		// WebApplicationContext attr = (WebApplicationContext) context
-		// .getAttribute("org.springframework.web.servlet.FrameworkServlet.CONTEXT.zis-main");
-		entityManagerFactory = (EntityManagerFactory) app.getBean("entityManagerFactory");
+//		SequenceCreator.class.getClassLoader().
+//		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+//		HttpServletRequest request = attributes.getRequest();
+//		ApplicationContext app = (ApplicationContext) request
+//				.getAttribute(DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+//		entityManagerFactory = (EntityManagerFactory) app.getBean("entityManagerFactory");
+		entityManagerFactory = (EntityManagerFactory) SpringContextHolder.getBean("entityManagerFactory");
 	}
 
 	/**

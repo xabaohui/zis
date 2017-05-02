@@ -19,6 +19,8 @@ public interface StorageOrderDao extends CrudRepository<StorageOrder, Integer>,
 
 	StorageOrder findByOrderId(Integer orderId);
 
+	StorageOrder findByRepoIdAndOutTradeNoAndTradeStatus(Integer repoId, String outTradeNo, String tradeStatus);
+
 	/**
 	 * 更新订单状态：processing->sent
 	 * 

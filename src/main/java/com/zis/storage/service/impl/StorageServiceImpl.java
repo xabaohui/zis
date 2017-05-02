@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import com.alibaba.fastjson.JSONObject;
@@ -570,6 +571,10 @@ public class StorageServiceImpl implements StorageService {
 			throw new IllegalArgumentException("orderId不能为空");
 		}
 		StorageOrder order = this.storageOrderDao.findOne(orderId);
+		cancelOrder(orderId, order);
+	}
+
+	private void cancelOrder(Integer orderId, StorageOrder order) {
 		if (order == null) {
 			throw new RuntimeException("order不存在, orderId=" + orderId);
 		}
@@ -581,6 +586,16 @@ public class StorageServiceImpl implements StorageService {
 		this.storageOrderDao.save(order);
 		undoOccupy(orderId);
 		undoOccupyPosStock(orderId);
+	}
+	
+	@Override
+	@Transactional
+	public void cancelOrder(Integer repoId, String outOrderNumber) {
+		logger.info("[取消订单] repoId={}, outOrderNumber={}", repoId, outOrderNumber);
+		
+		StorageOrder order = this.storageOrderDao.findByRepoIdAndOutTradeNoAndTradeStatus(repoId, outOrderNumber, TradeStatus.CREATED.getValue());
+		Assert.notNull(order, "订单不存在"  + outOrderNumber);
+		cancelOrder(order.getOrderId(), order);
 	}
 
 	/**

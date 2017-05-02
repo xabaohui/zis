@@ -149,9 +149,17 @@ public interface StorageService {
 	/**
 	 * 取消订单
 	 * 
-	 * @param orderId
+	 * @param orderId 注意是仓储订单Id，而不是订单Id
 	 */
 	void cancelOrder(Integer orderId);
+
+	/**
+	 * 取消订单
+	 * 
+	 * @param repoId
+	 * @param outOrderNumber
+	 */
+	void cancelOrder(Integer repoId, String outOrderNumber);
 
 	// ----- 入库相关方法 ------
 
