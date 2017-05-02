@@ -1,11 +1,21 @@
 package com.zis.trade.processor;
 
-import org.apache.commons.lang3.StringUtils;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+
+import com.zis.trade.dto.OrderVO;
+import com.zis.trade.dto.OrderVO.OrderDetailVO;
 import com.zis.trade.entity.Order;
+import com.zis.trade.entity.OrderLog;
 import com.zis.trade.entity.Order.ExpressStatus;
+import com.zis.trade.entity.Order.OrderType;
 import com.zis.trade.entity.Order.PayStatus;
 import com.zis.trade.entity.Order.StorageStatus;
+import com.zis.trade.entity.OrderLog.OperateType;
 
 /**
  * 订单工具类
@@ -14,6 +24,29 @@ import com.zis.trade.entity.Order.StorageStatus;
  * 
  */
 public class OrderHelper {
+	
+	/** 待人工合并 */
+	public static final String BLOCK_REASON_COMBINED = "存在相同地址的订单，建议合并包裹";
+	
+	/**
+	 * 生成订单操作日志
+	 * @param order 订单
+	 * @param operator 操作员Id
+	 * @param operateType 操作类型
+	 * @param operateDetail 操作说明
+	 * @return
+	 */
+	public static OrderLog createOrderLog(Order order, Integer operator, OperateType operateType, String operateDetail) {
+		OrderLog log = new OrderLog();
+		log.setOrderId(order.getOrderId());
+		log.setCreateTime(new Date());
+		log.setUpdateTime(new Date());
+		log.setOperaterId(operator);
+		log.setOperateType(operateType.getValue());
+		log.setOperateDetail(operateDetail);
+		log.setOrderGroupNumber(order.getOrderGroupNumber());
+		return log;
+	}
 
 	/**
 	 * 能否取消订单
@@ -324,7 +357,7 @@ public class OrderHelper {
 		if(!payStatusIsPaid(order)) {
 			return "未完成支付";
 		}
-		return order.getBlockReason();
+		return "订单已拦截：" + order.getBlockReason();
 	}
 	
 	/**

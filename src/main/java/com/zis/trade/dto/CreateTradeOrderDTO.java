@@ -11,14 +11,14 @@ import java.util.List;
 public class CreateTradeOrderDTO {
 
 	private Integer shopId; // 店铺Id
-	private String shopName; // 店铺名称
-	private String pName; // 平台名称
 	private String outOrderNumber; // 店铺订单号
 	private String receiverName;
 	private String receiverPhone;
 	private String receiverAddr;
 	private Double orderMoney; // 订单金额
 	private String orderType; // 订单类型
+	private String salerRemark; // 卖家备注
+	private String buyerMessage; // 买家留言
 	private Integer operator; // 操作员Id
 	private List<SubOrder> subOrders;
 
@@ -28,22 +28,6 @@ public class CreateTradeOrderDTO {
 
 	public void setShopId(Integer shopId) {
 		this.shopId = shopId;
-	}
-
-	public String getShopName() {
-		return shopName;
-	}
-
-	public void setShopName(String shopName) {
-		this.shopName = shopName;
-	}
-
-	public String getpName() {
-		return pName;
-	}
-
-	public void setpName(String pName) {
-		this.pName = pName;
 	}
 
 	public String getOutOrderNumber() {
@@ -84,6 +68,22 @@ public class CreateTradeOrderDTO {
 
 	public void setOrderMoney(Double orderMoney) {
 		this.orderMoney = orderMoney;
+	}
+
+	public String getSalerRemark() {
+		return salerRemark;
+	}
+
+	public void setSalerRemark(String salerRemark) {
+		this.salerRemark = salerRemark;
+	}
+
+	public String getBuyerMessage() {
+		return buyerMessage;
+	}
+
+	public void setBuyerMessage(String buyerMessage) {
+		this.buyerMessage = buyerMessage;
 	}
 
 	public String getOrderType() {

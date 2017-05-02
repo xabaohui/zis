@@ -11,6 +11,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * OrderDetail entity. @author MyEclipse Persistence Tools
  */
@@ -179,6 +181,63 @@ public class OrderDetail {
 
 	public void setVersion(Integer version) {
 		this.version = version;
+	}
+	
+	/**
+	 * 子订单状态
+	 * 
+	 * @author yz
+	 * 
+	 */
+	public static enum DetailStatus {
+		//
+		VALID("valid", "有效"),
+		//
+		INVALID("invalid", "无效");
+
+		private String value;
+		private String display;
+
+		private DetailStatus(String value, String display) {
+			this.value = value;
+			this.display = display;
+		}
+
+		/**
+		 * 根据value获得枚举值
+		 * 
+		 * @param value
+		 * @return
+		 */
+		public static DetailStatus getEnum(String value) {
+			for (DetailStatus record : values()) {
+				if (record.getValue().equals(value)) {
+					return record;
+				}
+			}
+			return null;
+		}
+
+		/**
+		 * 判断value是否是预定义的
+		 * 
+		 * @param value
+		 * @return
+		 */
+		public static boolean isDefined(String value) {
+			if (StringUtils.isBlank(value)) {
+				return false;
+			}
+			return getEnum(value) != null;
+		}
+
+		public String getValue() {
+			return value;
+		}
+
+		public String getDisplay() {
+			return display;
+		}
 	}
 
 }

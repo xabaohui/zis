@@ -4,9 +4,9 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import com.zis.trade.dto.ChangeAddressDTO;
 import com.zis.trade.dto.CreateTradeOrderDTO;
 import com.zis.trade.dto.ExpressNumberDTO;
 import com.zis.trade.dto.OrderQueryCondition;
@@ -97,7 +97,7 @@ public interface OrderService {
 	 * @param refundMemo
 	 *            退款说明
 	 */
-	void applyRefund(Integer orderId, Integer operator, Date applyTime, String refundMemo);
+	OrderVO applyRefund(Integer orderId, Integer operator, Date applyTime, String refundMemo);
 
 	/**
 	 * 申请退款，资金状态：已支付->退款中
@@ -113,7 +113,7 @@ public interface OrderService {
 	 * @param refundMemo
 	 *            退款说明
 	 */
-	void applyRefund(Integer shopId, String outOrderNumber, Integer operator, Date applyTime, String refundMemo);
+	OrderVO applyRefund(Integer shopId, String outOrderNumber, Integer operator, Date applyTime, String refundMemo);
 
 	/**
 	 * 同意退款，资金状态：退款中->订单关闭(已退款)
@@ -149,12 +149,21 @@ public interface OrderService {
 	 * @param newAddress
 	 *            新地址
 	 */
-	void changeOrderAddress(Integer orderId, Integer operator, String newAddress);
+	OrderVO changeOrderAddress(Integer orderId, Integer operator, ChangeAddressDTO newAddress);
 
 	/**
 	 * 修改商品 TODO 未实现
 	 */
 	void changeItems();
+	
+	/**
+	 * 添加卖家备注（追加模式）
+	 * @param orderId
+	 * @param operator
+	 * @param remark 备注内容
+	 * @return 订单备注（处理完本次请求后的内容）
+	 */
+	String appendSellerRemark(Integer orderId, Integer operator, String remark);
 
 	/**
 	 * 拦截订单
@@ -166,7 +175,7 @@ public interface OrderService {
 	 * @param blockReason
 	 *            拦截原因
 	 */
-	void blockOrder(Integer orderId, Integer operator, String blockReason);
+	OrderVO blockOrder(Integer orderId, Integer operator, String blockReason);
 
 	/**
 	 * 分配订单到仓库，配货状态：未分配仓库->已分配仓库
@@ -183,12 +192,13 @@ public interface OrderService {
 	/**
 	 * 开始配货，配货状态：已分配仓库->配货中
 	 * 
+	 * @param repoId 仓库Id
 	 * @param orderIds
 	 *            主订单Id列表
 	 * @param operator
 	 *            操作员Id
 	 */
-	void arrangeOrderToPos(List<Integer> orderIds, Integer operator);
+	void arrangeOrderToPos(Integer repoId, List<Integer> orderIds, Integer operator);
 
 	/**
 	 * 取消配货，配货状态：已分配仓库->未分配仓库
@@ -226,7 +236,7 @@ public interface OrderService {
 	 * @param operator
 	 *            操作员Id
 	 */
-	void printExpressList(List<Integer> orderIds, Integer operator);
+	List<OrderVO> printExpressList(List<Integer> orderIds, Integer operator);
 
 	/**
 	 * 回填快递单号，物流状态：已打印->已填单
@@ -264,7 +274,7 @@ public interface OrderService {
 	 * @param expressNumber
 	 * @param operator
 	 */
-	void sendOut(Integer repoId, String expressNumber, Integer operator);
+	OrderVO sendOut(Integer repoId, String expressNumber, Integer operator);
 	
 	/**
 	 * 按照状态查询订单

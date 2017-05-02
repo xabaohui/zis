@@ -18,7 +18,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 
 @Entity
-@Table(name = "order")
+@Table(name = "`order`")
 public class Order {
 
 	// Fields

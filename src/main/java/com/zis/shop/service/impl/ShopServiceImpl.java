@@ -938,4 +938,9 @@ public class ShopServiceImpl implements ShopService {
 		log.setStatus(DownloadItemLog.DownloadItemLogStatus.FAIL.getValue());
 		this.downloadItemLogDao.save(log);
 	}
+
+	@Override
+	public ShopInfo findShopById(Integer shopId) {
+		return shopInfoDao.findOne(shopId);
+	}
 }
