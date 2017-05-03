@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.zis.trade.dto.ChangeAddressDTO;
 import com.zis.trade.dto.CreateTradeOrderDTO;
@@ -197,8 +198,9 @@ public interface OrderService {
 	 *            主订单Id列表
 	 * @param operator
 	 *            操作员Id
+	 * @return 返回配货批次号
 	 */
-	void arrangeOrderToPos(Integer repoId, List<Integer> orderIds, Integer operator);
+	int arrangeOrderToPos(Integer repoId, List<Integer> orderIds, Integer operator);
 
 	/**
 	 * 取消配货，配货状态：已分配仓库->未分配仓库
@@ -216,7 +218,7 @@ public interface OrderService {
 	 *            配货批次Id
 	 * @param operator
 	 */
-	void finishSend(Integer batchId, Integer operator);
+	void finishSend(Integer repoId, Integer batchId, Integer operator);
 
 	/**
 	 * 订单缺货，配货状态：配货中->未分配仓库
@@ -227,6 +229,14 @@ public interface OrderService {
 	 * @param operator
 	 */
 	void lackness(Integer orderId, Integer operator);
+
+	/**
+	 * 打印快递单，物流状态：未打印->已打印
+	 * @param orderId
+	 * @param operator
+	 * @return
+	 */
+	OrderVO printExpress(Integer orderId, Integer operator);
 
 	/**
 	 * 打印快递单，物流状态：未打印->已打印

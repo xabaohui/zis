@@ -16,8 +16,8 @@ public interface StorageOrderDao extends CrudRepository<StorageOrder, Integer>,
 
 	@Query("from StorageOrder where orderId in (:ids)")
 	List<StorageOrder> findByOrderIds(@Param("ids") List<Integer> ids);
-
-	StorageOrder findByOrderId(Integer orderId);
+	
+	StorageOrder findByOutTradeNo(String outTradeNo);
 
 	StorageOrder findByRepoIdAndOutTradeNoAndTradeStatus(Integer repoId, String outTradeNo, String tradeStatus);
 
@@ -30,4 +30,7 @@ public interface StorageOrderDao extends CrudRepository<StorageOrder, Integer>,
 	@Modifying
 	@Query("update StorageOrder s set s.tradeStatus='sent' where s.tradeStatus='processing' and s.orderId in (select orderId from StorageIoDetail where batchId = :batchId)")
 	Integer updateToSentByBatchId(@Param("batchId") Integer batchId);
+	
+	@Query("select distinct(o.outTradeNo) from StorageOrder o, StorageIoDetail d where o.orderId=d.orderId and d.batchId=:batchId")
+	List<String> findOutTradeNosByBatchId(@Param("batchId") Integer batchId);
 }

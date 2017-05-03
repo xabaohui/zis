@@ -11,6 +11,6 @@ import com.zis.trade.entity.OrderOuter;
 
 public interface OrderOuterDao extends PagingAndSortingRepository<OrderOuter, Integer>, JpaSpecificationExecutor<OrderOuter>{
 
-	@Query("select outOrderNumber from OrderOuter where orderId=:orderId")
-	List<String> findOutOrderNumbersByOrderId(@Param("orderId")Integer orderId);
+	@Query("select outOrderNumber from OrderOuter where orderGroupNumber=:orderGroupNumber")
+	List<String> findOutOrderNumbersByOrderId(@Param("orderGroupNumber")String orderGroupNumber);
 }

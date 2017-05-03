@@ -448,7 +448,7 @@ public class Order {
 		//
 		PRINTED("printed", "已打单"),
 		//
-		FILLED_EX_NUM("filled_express_number", "已填单"),
+		FILLED_EX_NUM("filled_ex_number", "已填单"),
 		//
 		SEND_OUT("send_out", "已出库");
 
