@@ -181,6 +181,7 @@ public class OrderVO extends Order {
 	 * @param tabType
 	 * @return
 	 */
+	//TODO 没有店铺视角全查询，和仓库视角全查询
 	public String getUniqueStatusDisplay(String tabType) {
 		// 未支付、退款中，显示资金状态
 		if(PayStatus.UNPAID.getValue().equals(tabType) || PayStatus.REFUNDING.getValue().equals(tabType)) {

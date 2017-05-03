@@ -306,4 +306,12 @@ public interface OrderService {
 	 * @return
 	 */
 	Page<OrderVO> findOrdersByCondition(Integer companyId, OrderQueryCondition cond, Pageable page);
+	
+	/**
+	 * 根据订单Id+公司Id 查找订单
+	 * @param orderId
+	 * @param companyId
+	 * @return
+	 */
+	Order findByOrderIdAndCompanyId(Integer orderId,Integer companyId);
 }

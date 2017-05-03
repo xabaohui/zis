@@ -10,8 +10,10 @@ import org.springframework.data.repository.query.Param;
 
 import com.zis.trade.entity.Order;
 
-public interface OrderDao extends PagingAndSortingRepository<Order, Integer>, JpaSpecificationExecutor<Order>{
+public interface OrderDao extends PagingAndSortingRepository<Order, Integer>, JpaSpecificationExecutor<Order> {
 
+	Order findByOrderIdAndCompanyId(Integer orderId, Integer companyId);
+	
 	List<Order> findByShopIdAndReceiverNameAndReceiverPhoneAndReceiverAddr(Integer shopId, String receiverName, String receiverPhone, String receiverAddr);
 	
 	List<Order> findByRepoIdAndExpressNumberAndExpressStatus(Integer repoId, String expressNumber, String expressStatus);

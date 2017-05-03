@@ -25,6 +25,7 @@
 	<context:component-scan base-package="com.zis.api" />
 	<context:component-scan base-package="com.zis.shop.controller" />
 	<context:component-scan base-package="com.zis.storage.controller" />
+	<context:component-scan base-package="com.zis.trade.controller" />
 
 	<!-- 静态资源访问 -->
 	<mvc:resources location="/resources/" mapping="/resources/**" />

@@ -114,6 +114,29 @@ public class StorageController implements ViewTips {
 			TradeStatus.CANCEL.getValue(), TradeStatus.SENT.getValue() };
 
 	/**
+	 *
+	 * 
+	 * @param map
+	 * @return
+	 */
+	//TODO 测试
+	@RequestMapping(value = "/test")
+	public String test(ModelMap map) {
+		return "trade/storage_show/wait-arrange-header";
+	}
+	/**
+	 *
+	 * 
+	 * @param map
+	 * @return
+	 */
+	//TODO 测试
+	@RequestMapping(value = "/test1")
+	public String test1(ModelMap map) {
+		return "trade/storage_show/all-storage-header";
+	}
+	
+	/**
 	 * 扫描入库跳转
 	 * 
 	 * @param map

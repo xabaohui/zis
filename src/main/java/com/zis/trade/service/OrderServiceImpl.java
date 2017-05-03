@@ -605,7 +605,10 @@ public class OrderServiceImpl implements OrderService {
 	
 	private OrderVO buildOrderVO(ExpressStatus ex, PayStatus pay, StorageStatus st) {
 		OrderVO vo = new OrderVO();
+		vo.setCreateTime(new Date());
+		vo.setShopName("小龙女书屋");
 		vo.setBuyerMessage("尽快发货哦老板");
+		vo.setSalerRemark("你们猜猜");
 		vo.setExpressStatus(ex.getValue());
 		vo.setExpressStatusDisplay(ex.getDisplay());
 		if(ExpressStatus.FILLED_EX_NUM.equals(ex) || ExpressStatus.SEND_OUT.equals(ex)) {
@@ -653,5 +656,10 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	public Page<OrderVO> findOrdersByCondition(Integer companyId, OrderQueryCondition cond, Pageable page) {
 		return findOrdersByStatus(null, null, null, null, null);
+	}
+
+	@Override
+	public Order findByOrderIdAndCompanyId(Integer orderId, Integer companyId) {
+		return this.orderDao.findByOrderIdAndCompanyId(orderId, companyId);
 	}
 }
