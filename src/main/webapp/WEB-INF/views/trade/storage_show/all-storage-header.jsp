@@ -92,21 +92,23 @@
 					</div>
 				</td>
 				<td>
-					${order.expressCompany}
-					<br/>
-					${order.expressNumber}
+					<div id = "express_${order.orderId}">
+						${order.expressCompany}
+						<br/>
+						${order.expressNumber}
+					</div>
 				</td>
 				<td>
 					<%int count = 0;%>
 					
 					<c:if test="${order.canArrangeOrderToPos()}">
-						<a href = "#">配货</a>
+						<input type="button" value = "配货" onclick="pickingUpOrder('${order.orderId}','getAllStorageOrderList')"/>
 						&nbsp;
 						<%count++;%>
 					</c:if>
 					
 					<c:if test="${order.canCancelArrangeOrder()}">
-						<a href = "#">取消配货</a>
+						<input type="button" value = "取消配货" onclick="cancelArrangeOrder('${order.orderId}','getAllStorageOrderList')"/>
 						&nbsp;
 						<%count++;%>
 						<%if(count % 2 ==0){%>
@@ -115,7 +117,7 @@
 					</c:if>
 					
 					<c:if test="${order.canLackness()}">
-						<a href = "#">缺货</a>
+						<input type="button" value = "缺货" onclick="lackness('${order.orderId}','getAllStorageOrderList')"/>
 						&nbsp;
 						<%count++;%>
 						<% if(count % 2 ==0){%>
@@ -133,7 +135,7 @@
 					</c:if>
 					
 					<c:if test="${order.canFillExpressNumber()}">
-						<a href = "#">填单号</a>
+						<input type="button" value = "填单号" onclick="showfillExpressNumber('${order.orderId}')"/>
 						&nbsp;
 						<%count++;%>
 						<%if(count % 2 ==0){%>
@@ -143,10 +145,10 @@
 					
 					<div id = "desc_${order.orderId}">
 						<c:if test="${not empty order.salerRemark}">
-							<span title="${order.salerRemark}" onclick=""><font color="red">备注</font></span>
+							<span title="${order.salerRemark}" onclick="showAppendSellerRemarkView('${order.orderId}')"><font color="red">备注</font></span>
 						</c:if>
 						<c:if test="${empty order.salerRemark}">
-							<span onclick="">备注</span>
+							<span onclick="showAppendSellerRemarkView('${order.orderId}')">备注</span>
 						</c:if>
 					</div>
 					<%count = 0;%>
@@ -157,10 +159,6 @@
 </div>
 <div id="bg-to-be-hidden"></div>
 <div id="float-to-be-show">
-	该条码对应多种图书，请选择：
-	<div id="selectArea"></div>
-	<p />
-	<input type="button" value="取消" onclick="cancelSelection()" />
 </div>
 <div align="center">
 	<!-- 分页查询start-->

@@ -16,4 +16,5 @@ public interface StorageProductDao extends JpaRepository<StorageProduct, Integer
 	List<StorageProduct> findBySkuIdsAndRepoId(@Param("skuIds") List<Integer> skuIds, @Param("repoId") Integer repoId);
 
 	List<StorageProduct> findByRepoIdAndProductIdInOrderBySkuIdAsc(Integer repoId, List<Integer> productIds);
+	
 }

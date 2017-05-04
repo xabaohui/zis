@@ -57,8 +57,8 @@
 		<table id = "common-table">
 			<tr>
 				<td colspan="10" align="left" height="60px">
-					<input style="margin-left: 700px;" type="button" value = "批量配货" onclick=""/>
-					<input style="margin-left: 100px;" type="button" value = "批量取消" onclick=""/>
+					<input style="margin-left: 700px;" type="button" value = "批量配货" onclick="pickingUpOrderList()"/>
+					<input style="margin-left: 100px;" type="button" value = "批量取消" onclick="cancelArrangeOrderList()"/>
 				</td>
 			</tr>
 			<tr>
@@ -95,21 +95,23 @@
 					</div>
 				</td>
 				<td>
-					${order.expressCompany}
-					<br/>
-					${order.expressNumber}
+					<div id = "express_${order.orderId}">
+						${order.expressCompany}
+						<br/>
+						${order.expressNumber}
+					</div>
 				</td>
 				<td>
 					<% int count = 0; %>
 					
 					<c:if test="${order.canArrangeOrderToPos()}">
-						<a href = "#">配货</a>
+						<input type="button" value = "配货" onclick="pickingUpOrder('${order.orderId}','getWaitPickUpList')"/>
 						&nbsp;
 						<% count++; %>
 					</c:if>
 					
 					<c:if test="${order.canCancelArrangeOrder()}">
-						<a href = "#">取消配货</a>
+						<input type="button" value = "取消配货" onclick="cancelArrangeOrder('${order.orderId}','getWaitPickUpList')"/>
 						&nbsp;
 						<% count++; %>
 						<% if(count % 2 ==0){%>
@@ -118,10 +120,10 @@
 					</c:if>
 					<div id = "desc_${order.orderId}">
 						<c:if test="${not empty order.salerRemark}">
-							<span title="${order.salerRemark}" onclick=""><font color="red">备注</font></span>
+							<span title="${order.salerRemark}" onclick="showAppendSellerRemarkView('${order.orderId}')"><font color="red">备注</font></span>
 						</c:if>
 						<c:if test="${empty order.salerRemark}">
-							<span onclick="">备注</span>
+							<span onclick="showAppendSellerRemarkView('${order.orderId}')">备注</span>
 						</c:if>
 					</div>
 					<% count = 0; %>
@@ -129,14 +131,12 @@
 				</tr>
 			</c:forEach>
 		</table>
+		<input type="hidden" name = "forwardUrl" value = "getWaitPickUpList"/>
+		<input type="hidden" name = "memo" id ="memo"/>
 	</form>
 </div>
 <div id="bg-to-be-hidden"></div>
 <div id="float-to-be-show">
-	该条码对应多种图书，请选择：
-	<div id="selectArea"></div>
-	<p />
-	<input type="button" value="取消" onclick="cancelSelection()" />
 </div>
 <div align="center">
 	<!-- 分页查询start-->

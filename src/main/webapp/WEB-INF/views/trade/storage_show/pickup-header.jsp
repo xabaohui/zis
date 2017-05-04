@@ -57,7 +57,7 @@
 		<table id = "common-table">
 			<tr>
 				<td colspan="10" align="left" height="60px">
-					<input style="margin-left: 800px;" type="button" value = "批量缺货" onclick=""/>
+					<input style="margin-left: 800px;" type="button" value = "批量缺货" onclick="lacknessList()"/>
 				</td>
 			</tr>
 			<tr>
@@ -94,35 +94,34 @@
 					</div>
 				</td>
 				<td>
-					${order.expressCompany}
-					<br/>
-					${order.expressNumber}
+					<div id = "express_${order.orderId}">
+						${order.expressCompany}
+						<br/>
+						${order.expressNumber}
+					</div>
 				</td>
 				<td>
 					<c:if test="${order.canLackness()}">
-						<a href = "#">缺货</a>
+					<input type="button" value = "缺货" onclick="lackness('${order.orderId}','getPickupList')"/>
 						&nbsp;
 					</c:if>
 					<div id = "desc_${order.orderId}">
 						<c:if test="${not empty order.salerRemark}">
-							<span title="${order.salerRemark}" onclick=""><font color="red">备注</font></span>
+							<span title="${order.salerRemark}" onclick="showAppendSellerRemarkView('${order.orderId}')"><font color="red">备注</font></span>
 						</c:if>
 						<c:if test="${empty order.salerRemark}">
-							<span onclick="">备注</span>
+							<span onclick="showAppendSellerRemarkView('${order.orderId}')">备注</span>
 						</c:if>
 					</div>
 				</td>
 				</tr>
 			</c:forEach>
 		</table>
+		<input type="hidden" name = "forwardUrl" value = "getPickupList"/>
 	</form>
 </div>
 <div id="bg-to-be-hidden"></div>
 <div id="float-to-be-show">
-	该条码对应多种图书，请选择：
-	<div id="selectArea"></div>
-	<p />
-	<input type="button" value="取消" onclick="cancelSelection()" />
 </div>
 <div align="center">
 	<!-- 分页查询start-->

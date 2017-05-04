@@ -13,6 +13,7 @@ import com.zis.storage.entity.StorageOrder;
 import com.zis.storage.entity.StoragePosStock;
 import com.zis.storage.entity.StoragePosition;
 import com.zis.storage.entity.StorageProduct;
+import com.zis.storage.entity.StorageRepoInfo;
 
 /**
  * 仓储模块对外统一接口
@@ -336,4 +337,19 @@ public interface StorageService {
 	 * @return
 	 */
 	Page<StoragePosStock> findByPosId(Integer posId, Pageable page);
+	
+	/**
+	 * 根据公司Id查找仓库
+	 * @param companyId
+	 * @return
+	 */
+	List<StorageRepoInfo> findStorageRepoInfoByCompanyId(Integer companyId);
+	
+	/**
+	 * 根据skuId 和仓库Id 查找商品
+	 * @param skuId
+	 * @param repoId
+	 * @return
+	 */
+	StorageProduct findBySkuIdAndRepoId(Integer skuId,Integer repoId);
 }

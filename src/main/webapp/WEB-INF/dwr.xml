@@ -42,7 +42,11 @@
 		<convert match="com.zis.storage.dto.TakeGood" converter="bean" />
 		<convert match="com.zis.trade.dto.ChangeOrderAddressDTO" converter="bean" />
 		<convert match="com.zis.trade.dto.BlockOrderDTO" converter="bean" />
+		<convert match="com.zis.trade.dto.RemarkDTO" converter="bean" />
+		<convert match="com.zis.trade.dto.RefundMemoDTO" converter="bean" />
+		<convert match="com.zis.trade.dto.ArrangeOrderToRepoDTO" converter="bean" />
 		<convert match="com.zis.trade.entity.Order" converter="bean" />
+		<convert match="com.zis.storage.entity.StorageRepoInfo" converter="bean" />
 
 		<!-- 异常处理 -->
 		<convert converter="exception"

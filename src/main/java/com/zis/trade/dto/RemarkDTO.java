@@ -3,14 +3,14 @@ package com.zis.trade.dto;
 import com.zis.trade.entity.Order;
 
 /**
- * 修改地址ajax DTO
+ * 备注ajax DTO
  * @author think
  *
  */
-public class ChangeOrderAddressDTO extends Order {
+public class RemarkDTO extends Order {
 
 	private boolean success;
-	private String failMessage;
+	private String failReason;
 
 	public boolean isSuccess() {
 		return success;
@@ -20,12 +20,11 @@ public class ChangeOrderAddressDTO extends Order {
 		this.success = success;
 	}
 
-	public String getFailMessage() {
-		return failMessage;
+	public String getFailReason() {
+		return failReason;
 	}
 
-	public void setFailMessage(String failMessage) {
-		this.failMessage = failMessage;
+	public void setFailReason(String failReason) {
+		this.failReason = failReason;
 	}
-
 }

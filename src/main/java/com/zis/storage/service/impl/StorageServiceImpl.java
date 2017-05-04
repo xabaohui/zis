@@ -35,6 +35,7 @@ import com.zis.storage.entity.StoragePosition;
 import com.zis.storage.entity.StoragePosition.PosStatus;
 import com.zis.storage.entity.StorageProduct;
 import com.zis.storage.entity.StorageProductOccupy;
+import com.zis.storage.entity.StorageRepoInfo;
 import com.zis.storage.repository.StorageIoBatchDao;
 import com.zis.storage.repository.StorageIoDetailDao;
 import com.zis.storage.repository.StorageOrderDao;
@@ -42,6 +43,7 @@ import com.zis.storage.repository.StoragePosStockDao;
 import com.zis.storage.repository.StoragePositionDao;
 import com.zis.storage.repository.StorageProductDao;
 import com.zis.storage.repository.StorageProductOccupyDao;
+import com.zis.storage.repository.StorageRepoInfoDao;
 import com.zis.storage.service.StorageService;
 import com.zis.storage.util.StorageUtil;
 
@@ -62,8 +64,8 @@ public class StorageServiceImpl implements StorageService {
 	private StorageProductDao storageProductDao;
 	@Autowired
 	private StorageProductOccupyDao storageProductOccupyDao;
-//	@Autowired
-//	private StorageRepoInfoDao storageRepoInfoDao;
+	@Autowired
+	private StorageRepoInfoDao storageRepoInfoDao;
 
 	private static final Logger logger = LoggerFactory.getLogger(StorageServiceImpl.class);
 
@@ -1008,5 +1010,21 @@ public class StorageServiceImpl implements StorageService {
 			throw new IllegalArgumentException("skuId不能为空");
 		}
 		return storageProductDao.findBySkuIdAndRepoId(skuId, repoId);
+	}
+	
+	@Override
+	public List<StorageRepoInfo> findStorageRepoInfoByCompanyId(Integer companyId) {
+		return this.storageRepoInfoDao.findByOwnerIdOrderByGmtCreateAsc(companyId);
+	}
+
+	@Override
+	public StorageProduct findBySkuIdAndRepoId(Integer skuId, Integer repoId) {
+		if (repoId == null) {
+			throw new IllegalArgumentException("repoId不能为空");
+		}
+		if (skuId == null) {
+			throw new IllegalArgumentException("skuId不能为空");
+		}
+		return this.storageProductDao.findBySkuIdAndRepoId(skuId, repoId);
 	}
 }

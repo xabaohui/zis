@@ -57,9 +57,9 @@
 						<table>
 							<tr>
 								<td style="border: hidden;">订单号&nbsp;<input type="text" name = "outOrderNumber" value = "${param.outOrderNumber}"/></td>
-								<td style="border: hidden;">收件人&nbsp;<input type="text" name = "receiverName" value = "${param.outOrderNumber}"/></td>
-								<td style="border: hidden;">收件人电话&nbsp;<input type="text" name = "receiverPhone" value = "${param.outOrderNumber}"/></td>
-								<td style="border: hidden;">快递单号&nbsp;<input type="text" name = "expressNumber" value = "${param.outOrderNumber}"/></td>
+								<td style="border: hidden;">收件人&nbsp;<input type="text" name = "receiverName" value = "${param.receiverName}"/></td>
+								<td style="border: hidden;">收件人电话&nbsp;<input type="text" name = "receiverPhone" value = "${param.receiverPhone}"/></td>
+								<td style="border: hidden;">快递单号&nbsp;<input type="text" name = "expressNumber" value = "${param.expressNumber}"/></td>
 								<td style="border: hidden;"><input type="submit" value="查询"/></td>
 							</tr>
 						</table>					
@@ -89,9 +89,11 @@
 					</div>
 				</td>
 				<td>
-					${order.expressCompany}
-					<br/>
-					${order.expressNumber}
+					<div id = "express_${order.orderId}">
+						${order.expressCompany}
+						<br/>
+						${order.expressNumber}
+					</div>
 				</td>
 				<td>
 					<% int count = 0; %>
@@ -112,7 +114,7 @@
 					</c:if>
 					
 					<c:if test="${order.canApplyRefund()}">
-						<a href = "#">申请退款</a>
+						<input type="button" value = "申请退款" onclick="showApplyRefundView('${order.orderId}')" />
 						&nbsp;
 						<% count++; %>
 						<% if(count % 2 ==0){%>
@@ -121,7 +123,7 @@
 					</c:if>
 					
 					<c:if test="${order.canAgreeRefund()}">
-						<a href = "#">同意退款</a>
+						<input type="button" value = "同意退款" onclick="agreeRefund'${order.orderId}','getAllShopOrderList')" />
 						&nbsp;
 						<% count++; %>
 						<% if(count % 2 ==0){%>
@@ -130,7 +132,7 @@
 					</c:if>
 					
 					<c:if test="${order.canCancelRefund()}">
-						<a href = "#">取消退款</a>
+						<input type="button" value = "取消退款" onclick="cancelRefund('${order.orderId}','getAllShopOrderList')" />
 						&nbsp;
 						<% count++; %>
 						<% if(count % 2 ==0){%>
@@ -147,7 +149,7 @@
 						<% } %>
 					</c:if>
 					<c:if test="${order.canArrangeOrderToRepo()}">
-						<a href = "#">分配仓库</a>
+						<input type="button" value = "分配仓库" onclick="queryStorageRepoOne('${order.orderId}','getAllShopOrderList')" />
 						&nbsp;
 						<% count++; %>
 						<% if(count % 2 ==0){%>
@@ -166,10 +168,10 @@
 					
 					<div id = "desc_${order.orderId}">
 						<c:if test="${not empty order.salerRemark}">
-							<span title="${order.salerRemark}" onclick=""><font color="red">备注</font></span>
+							<span title="${order.salerRemark}" onclick="showAppendSellerRemarkView('${order.orderId}')"><font color="red">备注</font></span>
 						</c:if>
 						<c:if test="${empty order.salerRemark}">
-							<span onclick="">备注</span>
+							<span onclick="showAppendSellerRemarkView('${order.orderId}')">备注</span>
 						</c:if>
 					</div>
 					<% count = 0; %>

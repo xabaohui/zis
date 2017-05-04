@@ -56,7 +56,7 @@
 		<table id = "common-table">
 			<tr>
 				<td colspan="9" align="left" height="60px">
-					<form action="" method="post">
+					<form action="trade/fillExpressNumberUpload" method="post" enctype="multipart/form-data">
 						<table>
 							<tr>
 								<td style="border: hidden;">上传回填单号文件: &nbsp;<input type="file" name = "excelFile" required="required"/></td>
@@ -89,21 +89,23 @@
 					</div>
 				</td>
 				<td>
-					${order.expressCompany}
-					<br/>
-					${order.expressNumber}
+					<div id = "express_${order.orderId}">
+						${order.expressCompany}
+						<br/>
+						${order.expressNumber}
+					</div>
 				</td>
 				<td>
 					<c:if test="${order.canFillExpressNumber()}">
-						<a href = "#">填单号</a>
+						<input type="button" value = "填单号" onclick="showfillExpressNumber('${order.orderId}')"/>
 						&nbsp;
 					</c:if>
 					<div id = "desc_${order.orderId}">
 						<c:if test="${not empty order.salerRemark}">
-							<span title="${order.salerRemark}" onclick=""><font color="red">备注</font></span>
+							<span title="${order.salerRemark}" onclick="showAppendSellerRemarkView('${order.orderId}')"><font color="red">备注</font></span>
 						</c:if>
 						<c:if test="${empty order.salerRemark}">
-							<span onclick="">备注</span>
+							<span onclick="showAppendSellerRemarkView('${order.orderId}')">备注</span>
 						</c:if>
 					</div>
 				</td>

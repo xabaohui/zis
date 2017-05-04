@@ -54,8 +54,8 @@
 		<table id = "common-table">
 			<tr>
 				<td colspan="10" align="left" height="60px">
-					<input style="margin-left: 700px;" type="button" value = "批量支付" onclick=""/>
-					<input style="margin-left: 100px;" type="button" value = "批量取消" onclick=""/>
+					<input style="margin-left: 700px;" type="button" value = "批量同意退款" onclick="agreeRefundList()"/>
+					<input style="margin-left: 100px;" type="button" value = "批量取消退款" onclick="cancelRefundList()"/>
 				</td>
 			</tr>
 			<tr>
@@ -92,21 +92,23 @@
 					</div>
 				</td>
 				<td>
-					${order.expressCompany}
-					<br/>
-					${order.expressNumber}
+					<div id = "express_${order.orderId}">
+						${order.expressCompany}
+						<br/>
+						${order.expressNumber}
+					</div>
 				</td>
 				<td>
 					<% int count = 0; %>
 					
 					<c:if test="${order.canAgreeRefund()}">
-						<a href = "#">同意退款</a>
+						<input type="button" value = "同意退款" onclick="agreeRefund('${order.orderId}', 'getRefundingList')" />
 						&nbsp;
 						<% count++; %>
 					</c:if>
 					
 					<c:if test="${order.canCancelRefund()}">
-						<a href = "#">取消退款</a>
+						<input type="button" value = "取消退款" onclick="cancelRefund('${order.orderId}', 'getRefundingList')')" />
 						&nbsp;
 						<% count++; %>
 						<% if(count % 2 ==0){%>
@@ -134,10 +136,10 @@
 					
 					<div id = "desc_${order.orderId}">
 						<c:if test="${not empty order.salerRemark}">
-							<span title="${order.salerRemark}" onclick=""><font color="red">备注</font></span>
+							<span title="${order.salerRemark}" onclick="showAppendSellerRemarkView('${order.orderId}')"><font color="red">备注</font></span>
 						</c:if>
 						<c:if test="${empty order.salerRemark}">
-							<span onclick="">备注</span>
+							<span onclick="showAppendSellerRemarkView('${order.orderId}')">备注</span>
 						</c:if>
 					</div>
 					<% count = 0; %>
@@ -146,6 +148,7 @@
 			</c:forEach>
 		</table>
 		<input type="hidden" name = "forwardUrl" value = "getRefundingList"/>
+		<input type="hidden" name = "memo" id = "memo"/>
 	</form>
 </div>
 <div id="bg-to-be-hidden"></div>

@@ -3,13 +3,14 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-<%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags" %> 
+<%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags"%>
 <script type='text/javascript' src='dwr/engine.js'></script>
 <script type='text/javascript' src='dwr/util.js'></script>
 <script type='text/javascript' src='dwr/interface/orderController.js'></script>
 <script type="text/javascript" src='resources/common.js'></script>
 <script type="text/javascript" src="resources/trade.js"></script>
 <script type="text/javascript">
+	
 </script>
 <style type="text/css">
 #infoDiv table tr td,#infoDiv table tr th {
@@ -33,33 +34,25 @@
 	</h2>
 </div>
 <p />
+<!-- <audio src="/zis/resources/failPaly.wav" id="audioPlay"></audio> -->
 <div style="width: 100%;" id="infoDiv" align="center">
-		<table class = "common-table-new">
-		<tr>
-			<th>
-				<a href="order/getWaitPickUpList">等待配货</a>
-			</th>
-			<th>
-				<a href="order/getPickupList">配货中</a>
-			</th>
-			<th style="background-color: #A7C942">
-				<font color="#00000">等待打印</font>
-			</th>
-			<th>
-				<a href="order/getPrintedList">已打印</a>
-			</th>
-			<th>
-				<a href="order/getAllStorageOrderList">全部订单</a>
-			</th>
-		</tr>
-		</table>
-		<table id = "common-table">
+	<form id="orderForm" action="" method="post" target="_blank">
+		<table class="common-table-new">
 			<tr>
-				<td colspan="10" align="left" height="60px">
-					<input style="margin-left: 800px;" type="button" value = "下载打印数据" onclick=""/>
-				</td>
+				<th><a href="order/getWaitPickUpList">等待配货</a></th>
+				<th><a href="order/getPickupList">配货中</a></th>
+				<th style="background-color: #A7C942"><font color="#00000">等待打印</font></th>
+				<th><a href="order/getPrintedList">已打印</a></th>
+				<th><a href="order/getAllStorageOrderList">全部订单</a></th>
+			</tr>
+		</table>
+		<table id="common-table">
+			<tr>
+				<td colspan="10" align="left" height="60px"><input style="margin-left: 800px;" type="button" value="下载打印数据"
+					onclick="printExpressList()" /></td>
 			</tr>
 			<tr>
+				<th><input type="checkbox" id="checkAll" onclick="checkAllOId()" />全选</th>
 				<th>订单Id</th>
 				<th>创建时间</th>
 				<th>所属店铺</th>
@@ -72,45 +65,45 @@
 			</tr>
 			<c:forEach items="${orderList}" var="order">
 				<tr>
-				<%@ include file="/WEB-INF/views/trade/storage_show/storage-list.jsp"%>
-				<td>
-					${order.getUniqueStatusDisplay("arranged")}
-					<div id = "blockFlag_${order.orderId}">
-						<c:if test="${order.blockFlag}">
-							<span title="${order.blockReason}"><font color="red">已拦截</font></span>
-						</c:if>
-					</div>
-				</td>
-				<td>
-					${order.expressCompany}
-					<br/>
-					${order.expressNumber}
-				</td>
-				<td>
-					<c:if test="${order.canPrint()}">
-						<a href = "#">打单</a>
+					<td><c:if test="${order.canPrint()}">
+							<input name="orderId" type="checkbox" value="${order.orderId}" />
+						</c:if> <c:if test="${!order.canPrint()}">
+							<input name="orderId" type="checkbox" value="${order.orderId}" disabled="disabled" />
+						</c:if></td>
+					<%@ include file="/WEB-INF/views/trade/storage_show/storage-list.jsp"%>
+					<td>${order.getUniqueStatusDisplay("arranged")}
+						<div id="blockFlag_${order.orderId}">
+							<c:if test="${order.blockFlag}">
+								<span title="${order.blockReason}"><font color="red">已拦截</font>
+								</span>
+							</c:if>
+						</div></td>
+					<td>
+						<div id="express_${order.orderId}">
+							${order.expressCompany} <br /> ${order.expressNumber}
+						</div></td>
+					<td><c:if test="${order.canPrint()}">
+							<input type="button" value="打单" onclick="printExpress('${order.orderId}', 'getWaitForPrintList')" />
 						&nbsp;
 					</c:if>
-					<div id = "desc_${order.orderId}">
-						<c:if test="${not empty order.salerRemark}">
-							<span title="${order.salerRemark}" onclick=""><font color="red">备注</font></span>
-						</c:if>
-						<c:if test="${empty order.salerRemark}">
-							<span onclick="">备注</span>
-						</c:if>
-					</div>
-				</td>
+						<div id="desc_${order.orderId}">
+							<c:if test="${not empty order.salerRemark}">
+								<span title="${order.salerRemark}" onclick="showAppendSellerRemarkView('${order.orderId}')"><font
+									color="red">备注</font>
+								</span>
+							</c:if>
+							<c:if test="${empty order.salerRemark}">
+								<span onclick="showAppendSellerRemarkView('${order.orderId}')">备注</span>
+							</c:if>
+						</div></td>
 				</tr>
 			</c:forEach>
 		</table>
+		<input type="hidden" name="forwardUrl" id="forwardUrl" value="getWaitForPrintList" />
+	</form>
 </div>
 <div id="bg-to-be-hidden"></div>
-<div id="float-to-be-show">
-	该条码对应多种图书，请选择：
-	<div id="selectArea"></div>
-	<p />
-	<input type="button" value="取消" onclick="cancelSelection()" />
-</div>
+<div id="float-to-be-show"></div>
 <div align="center">
 	<!-- 分页查询start-->
 	<c:if test="${not empty prePage}">

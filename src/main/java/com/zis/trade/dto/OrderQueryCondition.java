@@ -1,5 +1,7 @@
 package com.zis.trade.dto;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * 订单页查询条件
  * 
@@ -27,7 +29,11 @@ public class OrderQueryCondition {
 	}
 
 	public String getOutOrderNumber() {
-		return outOrderNumber;
+		if(StringUtils.isNotBlank(outOrderNumber)){
+			return outOrderNumber.trim();
+		}else{
+			return outOrderNumber;
+		}
 	}
 
 	/**
@@ -35,11 +41,19 @@ public class OrderQueryCondition {
 	 * @param outOrderNumber
 	 */
 	public void setOutOrderNumber(String outOrderNumber) {
-		this.outOrderNumber = outOrderNumber;
+		if(StringUtils.isNotBlank(outOrderNumber)){
+			this.outOrderNumber = outOrderNumber.trim();
+		}else{
+			this.outOrderNumber = outOrderNumber;
+		}
 	}
 
 	public String getReceiverName() {
-		return receiverName;
+		if(StringUtils.isNotBlank(receiverName)){
+			return receiverName.trim();
+		}else{
+			return receiverName;
+		}
 	}
 
 	/**
@@ -47,11 +61,19 @@ public class OrderQueryCondition {
 	 * @param receiverName
 	 */
 	public void setReceiverName(String receiverName) {
-		this.receiverName = receiverName;
+		if(StringUtils.isNotBlank(receiverName)){
+			this.receiverName = receiverName.trim();
+		}else{
+			this.receiverName = receiverName;
+		}
 	}
 
 	public String getReceiverPhone() {
-		return receiverPhone;
+		if(StringUtils.isNotBlank(receiverPhone)){
+			return receiverPhone.trim();
+		}else{
+			return receiverPhone;
+		}
 	}
 
 	/**
@@ -59,11 +81,19 @@ public class OrderQueryCondition {
 	 * @param receiverPhone
 	 */
 	public void setReceiverPhone(String receiverPhone) {
-		this.receiverPhone = receiverPhone;
+		if(StringUtils.isNotBlank(receiverPhone)){
+			this.receiverPhone = receiverPhone.trim();
+		}else{
+			this.receiverPhone = receiverPhone;
+		}
 	}
 
 	public String getExpressNumber() {
-		return expressNumber;
+		if(StringUtils.isNotBlank(expressNumber)){
+			return expressNumber.trim();
+		}else{
+			return expressNumber;
+		}
 	}
 
 	/**
@@ -71,6 +101,10 @@ public class OrderQueryCondition {
 	 * @param expressNumber
 	 */
 	public void setExpressNumber(String expressNumber) {
-		this.expressNumber = expressNumber;
+		if(StringUtils.isNotBlank(expressNumber)){
+			this.expressNumber = expressNumber.trim();
+		}else{
+			this.expressNumber = expressNumber;
+		}
 	}
 }
