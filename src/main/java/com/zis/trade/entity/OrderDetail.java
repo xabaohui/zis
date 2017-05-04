@@ -32,7 +32,7 @@ public class OrderDetail {
 	private Integer itemId;
 
 	@Column(name = "item_out_num")
-	private Integer itemOutNum;
+	private String itemOutNum;
 
 	@Column(name = "sku_id")
 	private Integer skuId;
@@ -103,11 +103,11 @@ public class OrderDetail {
 		this.itemId = itemId;
 	}
 
-	public Integer getItemOutNum() {
+	public String getItemOutNum() {
 		return itemOutNum;
 	}
 
-	public void setItemOutNum(Integer itemOutNum) {
+	public void setItemOutNum(String itemOutNum) {
 		this.itemOutNum = itemOutNum;
 	}
 

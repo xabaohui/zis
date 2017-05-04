@@ -19,8 +19,8 @@ import com.zis.storage.service.StorageService;
 public class StorageServiceTest extends BaseTestUnit {
 	
 	final Integer operator = 1001;
-	final Integer repoId = 22;
-	final Integer skuId = 10021;
+	final Integer repoId = 1;
+	final Integer skuId = 20;
 	
 	@Autowired
 	StorageService service;
@@ -63,9 +63,9 @@ public class StorageServiceTest extends BaseTestUnit {
 	
 	@Test
 	public void testDirectInStorage() {
-		service.directInStorage(repoId, skuId, 5, "A-01-01-08", operator);
-		service.directInStorage(repoId, skuId, 2, "B-02-01-08", operator);
-		service.directInStorage(repoId, skuId, 3, "D-04-03-02", operator);
+		service.directInStorage(repoId, skuId, 50, "A-01-01-08", operator);
+		service.directInStorage(repoId, skuId, 20, "B-02-01-08", operator);
+		service.directInStorage(repoId, skuId, 30, "D-04-03-02", operator);
 	}
 	
 	// --- 测试出库 ---

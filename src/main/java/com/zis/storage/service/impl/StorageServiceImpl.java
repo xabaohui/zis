@@ -314,18 +314,18 @@ public class StorageServiceImpl implements StorageService {
 
 	@Override
 	@Transactional
-	public int arrangeOrder(Integer repoId, List<Integer> orderIds, Integer operator) {
-		if (orderIds == null || orderIds.isEmpty()) {
+	public int arrangeOrder(Integer repoId, List<String> outTradeNos, Integer operator) {
+		if (CollectionUtils.isEmpty(outTradeNos)) {
 			throw new IllegalArgumentException("orderIds不能为空");
 		}
 		// 创建StorageIoBatch
 		StorageIoBatch batch = saveStorageIoBatch(repoId, operator, BizType.OUT_BATCH, "订单出库");
 		// 遍历所有订单，执行分配库位的操作
 		Integer totalAmt = 0;
-		for (Integer orderId : orderIds) {
-			StorageOrder order = this.storageOrderDao.findOne(orderId);
+		for (String outTradeNo : outTradeNos) {
+			StorageOrder order = this.storageOrderDao.findByOutTradeNo(outTradeNo);
 			if (order == null) {
-				throw new RuntimeException("order不存在, orderId=" + orderId);
+				throw new RuntimeException("order不存在, outTradeNo=" + outTradeNo);
 			}
 			if (!repoId.equals(order.getRepoId())) {
 				throw new RuntimeException("所选订单不属于同一个仓库");
@@ -339,7 +339,7 @@ public class StorageServiceImpl implements StorageService {
 			this.storageOrderDao.save(order);
 			totalAmt += order.getAmount();
 			// 根据订单占用量，分配库位
-			arrangeOrder(operator, batch, orderId);
+			arrangeOrder(operator, batch, order.getOrderId());
 		}
 		batch.setAmount(totalAmt);
 		this.storageIoBatchDao.save(batch);
@@ -538,7 +538,7 @@ public class StorageServiceImpl implements StorageService {
 
 	@Override
 	@Transactional
-	public void finishBatchSend(Integer batchId) {
+	public List<String> finishBatchSend(Integer batchId) {
 		if (batchId == null) {
 			throw new IllegalArgumentException("batchId不能为空");
 		}
@@ -563,6 +563,7 @@ public class StorageServiceImpl implements StorageService {
 		this.storageIoBatchDao.save(batch);
 		this.storageOrderDao.updateToSentByBatchId(batchId);
 		logger.info("[批量出库完成] batchId={}", batchId);
+		return this.storageOrderDao.findOutTradeNosByBatchId(batchId);
 	}
 
 	@Override

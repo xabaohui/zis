@@ -357,7 +357,11 @@ public class OrderHelper {
 		if(!payStatusIsPaid(order)) {
 			return "未完成支付";
 		}
-		return "订单已拦截：" + order.getBlockReason();
+		if(order.getBlockFlag()) {
+			return "订单已拦截：" + order.getBlockReason();
+		} else {
+			return null;
+		}
 	}
 	
 	/**

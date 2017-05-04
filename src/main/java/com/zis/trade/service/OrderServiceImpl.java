@@ -123,6 +123,7 @@ public class OrderServiceImpl implements OrderService {
 		}
 		// TODO 金额检查
 		order.setPayStatus(PayStatus.PAID.getValue());
+		order.setPayTime(new Date());
 		this.orderDao.save(order);
 		
 		logger.info("支付订单, orderId={}, paymentAmount={}, operator={}",
@@ -192,6 +193,7 @@ public class OrderServiceImpl implements OrderService {
 		order.setPayStatus(PayStatus.REFUND_FINISH.getValue());
 		order.setRefundFinishTime(new Date());
 		this.orderDao.save(order);
+		this.orderDetailDao.updateStatusToInvalidByOrderId(orderId);
 		
 		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.AGREE_REFUND, memo);
 		orderLogDao.save(log);
@@ -308,6 +310,7 @@ public class OrderServiceImpl implements OrderService {
 		request.setOrderType(StorageOrder.OrderType.SELF);
 		request.setOutTradeNo(order.getOrderGroupNumber());
 		request.setRepoId(order.getRepoId());
+		request.setShopId(order.getShopId());
 		List<OrderDetail> details = this.orderDetailDao.findByOrderIdAndStatus(order.getOrderId(), DetailStatus.VALID.getValue());
 		List<CreateOrderDetail> detailList = new ArrayList<CreateOrderDetail>();
 		for (OrderDetail orderDetail : details) {
@@ -322,12 +325,13 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	@Transactional
-	public void arrangeOrderToPos(Integer repoId, List<Integer> orderIds, Integer operator) {
+	public int arrangeOrderToPos(Integer repoId, List<Integer> orderIds, Integer operator) {
 		logger.info("开始配货, repoId={}, orderIds={}, operator={}", repoId, orderIds, operator);
 		
 		Assert.notNull(orderIds, "orderIds不能为空");
 		Assert.notNull(operator, "operator不能为空");
 		Assert.notNull(repoId, "repoId不能为空");
+		List<String> outTradeNos = new ArrayList<String>(orderIds.size());
 		for (Integer orderId : orderIds) {
 			Order order = this.orderDao.findOne(orderId);
 			if(order != null) {
@@ -339,10 +343,13 @@ public class OrderServiceImpl implements OrderService {
 				// 生成日志
 				OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.ARRANGE_TO_POS, "");
 				orderLogDao.save(log);
+				outTradeNos.add(order.getOrderGroupNumber());
 			}
 		}
 		// 调用仓储接口开始配货
-		storageService.arrangeOrder(repoId, orderIds, operator);
+		int batchId = storageService.arrangeOrder(repoId, outTradeNos, operator);
+		logger.info("开始配货, repoId={}, orderIds={}, operator={}, batchId={}", repoId, orderIds, operator, batchId);
+		return batchId;
 	}
 
 	@Override
@@ -369,9 +376,11 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	@Transactional
-	public void finishSend(Integer batchId, Integer operator) {
-		// TODO Auto-generated method stub
+	public void finishSend(Integer repoId, Integer batchId, Integer operator) {
 		logger.info("完成配货, batchId={}, operator={}", batchId, operator);
+		List<String> list = this.storageService.finishBatchSend(batchId);
+		// 更新订单状态为配货完成
+		this.orderDao.updateStorageStatusToFinishByRepoIdAndOrderGroupNumbers(repoId, list);
 	}
 
 	@Override
@@ -379,6 +388,15 @@ public class OrderServiceImpl implements OrderService {
 	public void lackness(Integer orderId, Integer operator) {
 		// TODO Auto-generated method stub
 		logger.info("缺货订单退出仓库, orderId={}, operator={}", orderId, operator);
+	}
+	
+	@Override
+	@Transactional
+	public OrderVO printExpress(Integer orderId, Integer operator) {
+		List<Integer> orderIds = new ArrayList<Integer>();
+		orderIds.add(orderId);
+		List<OrderVO> rs = printExpressList(orderIds, operator);
+		return rs.get(0);
 	}
 
 	@Override
@@ -409,7 +427,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 	
 	private OrderVO createOrderVO(Order order) {
-		List<String> outOrderNumbers = orderOuterDao.findOutOrderNumbersByOrderId(order.getOrderId());
+		List<String> outOrderNumbers = orderOuterDao.findOutOrderNumbersByOrderId(order.getOrderGroupNumber());
 		List<OrderDetail> details = orderDetailDao.findByOrderIdAndStatus(order.getOrderId(), DetailStatus.VALID.getValue());
 		List<OrderDetailVO> orderDetails = new ArrayList<OrderDetailVO>();
 		for (OrderDetail detail : details) {

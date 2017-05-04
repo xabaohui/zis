@@ -69,8 +69,8 @@ public interface StorageService {
 	 * <li>更新库位库存StoragePosStock，增加占用量（防止同一库位的商品被分配给多个订单）</li>
 	 * </ol>
 	 */
-	int arrangeOrder(Integer repoId, List<Integer> orderIds, Integer operator);
-
+	int arrangeOrder(Integer repoId, List<String> outTradeNos, Integer operator);
+	
 	/**
 	 * 取件-完成操作
 	 * <p/>
@@ -145,7 +145,7 @@ public interface StorageService {
 	 * 
 	 * @param batchId
 	 */
-	void finishBatchSend(Integer batchId);
+	List<String> finishBatchSend(Integer batchId);
 
 	/**
 	 * 取消订单
