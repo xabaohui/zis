@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.alibaba.fastjson.JSONObject;
 import com.zis.base.BaseTestUnit;
 import com.zis.storage.dto.CreateOrderDTO;
+import com.zis.storage.dto.StorageLacknessOpDTO;
 import com.zis.storage.dto.CreateOrderDTO.CreateOrderDetail;
 import com.zis.storage.entity.StorageIoBatch;
 import com.zis.storage.entity.StorageIoDetail;
@@ -85,7 +86,8 @@ public class StorageServiceTest extends BaseTestUnit {
 		d.setSkuId(skuId);
 		detailList.add(d);
 		CreateOrderDTO request = new CreateOrderDTO();
-		request.setOutTradeNo("test-20170301099");
+		request.setBuyerName("zara");
+		request.setOutTradeNo("test-201703010993");
 		request.setOrderType(OrderType.SELF);
 		request.setRepoId(repoId);
 		request.setShopId(1113);
@@ -95,8 +97,8 @@ public class StorageServiceTest extends BaseTestUnit {
 	
 	@Test
 	public void testArrangeOrder() {
-		List<Integer> orderIds = new ArrayList<Integer>();
-		orderIds.add(35);
+		List<String> orderIds = new ArrayList<String>();
+		orderIds.add("test-201703010993");
 		service.arrangeOrder(repoId, orderIds, operator);
 	}
 	
@@ -114,9 +116,10 @@ public class StorageServiceTest extends BaseTestUnit {
 	@Test
 	public void testLackAll() {
 		// 取件
-		StorageIoDetail detail = service.pickupLock(93, operator);
+		StorageIoDetail detail = service.pickupLock(21, operator);
 		// 缺货
-		service.lackAll(detail.getDetailId(), operator);
+		StorageLacknessOpDTO rs = service.lackAll(detail.getDetailId(), operator);
+		System.out.println(rs.getLacknessMatchNewPos());
 	}
 	
 	@Test
@@ -124,7 +127,8 @@ public class StorageServiceTest extends BaseTestUnit {
 		// 取件
 		StorageIoDetail detail = service.pickupLock(93, operator);
 		// 缺货
-		service.lackPart(detail.getDetailId(), operator, 1);
+		StorageLacknessOpDTO rs = service.lackPart(detail.getDetailId(), operator, 1);
+		System.out.println(rs.getLacknessMatchNewPos());
 	}
 	
 	@Test
@@ -134,6 +138,6 @@ public class StorageServiceTest extends BaseTestUnit {
 	
 	@Test
 	public void testFinishBatchSend() {
-		service.finishBatchSend(63);
+		service.finishBatchSend(18);
 	}
 }

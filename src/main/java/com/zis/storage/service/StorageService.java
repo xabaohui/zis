@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 
 import com.zis.storage.dto.CreateOrderDTO;
 import com.zis.storage.dto.StockDTO;
+import com.zis.storage.dto.StorageLacknessOpDTO;
 import com.zis.storage.entity.StorageIoBatch;
 import com.zis.storage.entity.StorageIoDetail;
 import com.zis.storage.entity.StorageOrder;
@@ -112,7 +113,7 @@ public interface StorageService {
 	 *            操作员
 	 * @return 如果完成所有取件，返回null
 	 */
-	StorageIoDetail lackAll(Integer ioDetailId, Integer operator);
+	StorageLacknessOpDTO lackAll(Integer ioDetailId, Integer operator);
 
 	/**
 	 * 部分缺货
@@ -133,7 +134,7 @@ public interface StorageService {
 	 *            实际取件数量
 	 * @return 如果完成所有取件，返回null
 	 */
-	StorageIoDetail lackPart(Integer ioDetailId, Integer operator, Integer actualAmt);
+	StorageLacknessOpDTO lackPart(Integer ioDetailId, Integer operator, Integer actualAmt);
 
 	/**
 	 * 完成配货
