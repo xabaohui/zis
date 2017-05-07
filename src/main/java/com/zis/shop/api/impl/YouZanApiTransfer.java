@@ -27,6 +27,7 @@ import com.zis.shop.bean.ShopItemMapping;
 import com.zis.shop.dto.ApiAddItemDto;
 import com.zis.shop.dto.ApiQueryItemsDto;
 import com.zis.shop.dto.ApiUpdateItemDto;
+import com.zis.trade.dto.CreateTradeOrderDTO;
 import com.zis.youzan.response.KdtItemsInventoryGetNew;
 import com.zis.youzan.response.KdtItemsInventoryGetResultNew;
 import com.zis.youzan.response.KdtItemsOnsaleGetNew;
@@ -233,5 +234,11 @@ public class YouZanApiTransfer extends AbstractApiTransfer {
 	 */
 	private Sign getSign(ShopInfo shop) {
 		return new Sign(shop.getAppId().trim(), shop.getAppSecret().trim());
+	}
+
+	@Override
+	public List<CreateTradeOrderDTO> queryTradeForDate(ShopInfo shop, Date startTime, Date endTime) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

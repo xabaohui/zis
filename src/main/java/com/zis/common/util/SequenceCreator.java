@@ -18,6 +18,7 @@ public class SequenceCreator {
 	public static final String SEQ_BOOK_GROUP_ID = "book_group_id";
 	public static final String SEQ_BOOK_RELATE_ID = "book_relate_id";
 	public static final String SEQ_ORDER_GROUP_NUM = "order_group_number";
+	public static final String SEQ_ORDER_MANUAL_NUM = "order_manual_number";
 
 	private static EntityManagerFactory entityManagerFactory;
 

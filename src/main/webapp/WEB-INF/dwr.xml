@@ -26,17 +26,12 @@
 		</create>
 		<!-- 库位校准 <create creator="spring" javascript="stockPosCheckBO"> <param 
 			name="beanName" value="stockPosCheckBOAction"/> </create> -->
-		<convert match="com.zis.requirement.bean.BookAmount"
-			converter="bean" />
-		<convert match="com.zis.requirement.dto.AddBookToDepartmentResult"
-			converter="bean" />
+		<convert match="com.zis.requirement.bean.BookAmount" converter="bean" />
+		<convert match="com.zis.requirement.dto.AddBookToDepartmentResult" converter="bean" />
 		<convert match="com.zis.bookinfo.bean.Bookinfo" converter="bean" />
-		<convert match="com.zis.purchase.dto.InwarehouseDealtResult"
-			converter="bean" />
-		<convert match="com.zis.bookinfo.dto.BookInfoSearchResult"
-			converter="bean" />
-		<convert match="com.zis.bookinfo.dto.BookInfoAndDetailDTO"
-			converter="bean" />
+		<convert match="com.zis.purchase.dto.InwarehouseDealtResult" converter="bean" />
+		<convert match="com.zis.bookinfo.dto.BookInfoSearchResult" converter="bean" />
+		<convert match="com.zis.bookinfo.dto.BookInfoAndDetailDTO" converter="bean" />
 		<convert match="com.zis.bookinfo.util.BookMetadata" converter="bean" />
 		<convert match="com.zis.storage.dto.FastTakeGoodsView" converter="bean" />
 		<convert match="com.zis.storage.dto.TakeGood" converter="bean" />
@@ -45,6 +40,11 @@
 		<convert match="com.zis.trade.dto.RemarkDTO" converter="bean" />
 		<convert match="com.zis.trade.dto.RefundMemoDTO" converter="bean" />
 		<convert match="com.zis.trade.dto.ArrangeOrderToRepoDTO" converter="bean" />
+		<convert match="com.zis.trade.dto.CreateOrderViewDTO" converter="bean" />
+		<convert match="com.zis.trade.dto.CreateOrderViewDTO.SkuViewInfo" converter="bean" />
+		<convert match="com.zis.trade.dto.SkuInfoViewDTO" converter="bean" />
+		<convert match="com.zis.trade.dto.CreateOrderQuerySkuInfoViewDTO" converter="bean" />
+		<convert match="com.zis.trade.dto.CreateOrderQuerySkuInfoViewDTO.SkuInfo" converter="bean" />
 		<convert match="com.zis.trade.entity.Order" converter="bean" />
 		<convert match="com.zis.storage.entity.StorageRepoInfo" converter="bean" />
 

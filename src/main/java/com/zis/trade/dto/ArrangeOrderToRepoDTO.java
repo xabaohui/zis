@@ -42,7 +42,7 @@ public class ArrangeOrderToRepoDTO {
 		this.forwardUrl = forwardUrl;
 	}
 
-	public boolean isSuccess() {
+	public boolean getSuccess() {
 		return success;
 	}
 

@@ -21,7 +21,7 @@
 					</div>
 				</td>
 				<td>
-					<c:set value = "${order.orderDetails}" var = "details"/>
+					<c:set value = "${order.orderDetailVOs}" var = "details"/>
 						<c:forEach items="${details}" var="detail" >
 							${detail.bookName}&nbsp;*&nbsp;${detail.itemCount}<br/>
 						</c:forEach>

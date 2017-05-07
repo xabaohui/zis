@@ -7,7 +7,7 @@ public class FillExpressNumberDTO extends Order {
 	private boolean success;
 	private String failReason;
 
-	public boolean isSuccess() {
+	public boolean getSuccess() {
 		return success;
 	}
 

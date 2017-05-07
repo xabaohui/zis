@@ -1,16 +1,12 @@
 package com.zis.trade.dto;
 
-import com.zis.trade.entity.Order;
-
-/**
- * 备注ajax DTO
- * @author think
- *
- */
-public class RemarkDTO extends Order {
+public class SendOutViewDTO {
 
 	private boolean success;
+
 	private String failReason;
+
+	private OrderVO orderVO;
 
 	public boolean getSuccess() {
 		return success;
@@ -27,4 +23,13 @@ public class RemarkDTO extends Order {
 	public void setFailReason(String failReason) {
 		this.failReason = failReason;
 	}
+
+	public OrderVO getOrderVO() {
+		return orderVO;
+	}
+
+	public void setOrderVO(OrderVO orderVO) {
+		this.orderVO = orderVO;
+	}
+
 }

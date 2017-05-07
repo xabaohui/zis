@@ -1,5 +1,8 @@
 package com.zis.shop.api.impl;
 
+import java.util.Date;
+import java.util.List;
+
 import com.jsb.rest.client.JSBClient;
 import com.jsb.rest.comm.JSBRestException;
 import com.taobao.api.request.ItemUpdateListingRequest;
@@ -10,6 +13,7 @@ import com.zis.shop.bean.ShopInfo;
 import com.zis.shop.dto.ApiAddItemDto;
 import com.zis.shop.dto.ApiQueryItemsDto;
 import com.zis.shop.dto.ApiUpdateItemDto;
+import com.zis.trade.dto.CreateTradeOrderDTO;
 
 public class JiShiBaoApiTransfer extends AbstractApiTransfer {
 
@@ -76,5 +80,11 @@ public class JiShiBaoApiTransfer extends AbstractApiTransfer {
 	 */
 	private JSBClient getClient(ShopInfo shop) {
 		return new JSBClient(shop.getAppId(), shop.getAppSecret());
+	}
+
+	@Override
+	public List<CreateTradeOrderDTO> queryTradeForDate(ShopInfo shop, Date startTime, Date endTime) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

@@ -73,6 +73,7 @@ import com.zis.storage.repository.StoragePositionDao;
 import com.zis.storage.repository.StorageRepoInfoDao;
 import com.zis.storage.service.StorageService;
 import com.zis.storage.util.StorageUtil;
+import com.zis.trade.service.OrderService;
 
 @Controller
 @RequestMapping(value = "/storage")
@@ -107,6 +108,9 @@ public class StorageController implements ViewTips {
 
 	@Autowired
 	private ShopServiceImpl shopService;
+	
+	@Autowired
+	private OrderService orderService;
 
 	private final Integer DEFAULT_SIZE = 100;
 
@@ -122,7 +126,7 @@ public class StorageController implements ViewTips {
 	//TODO 测试
 	@RequestMapping(value = "/test")
 	public String test(ModelMap map) {
-		return "trade/storage_show/wait-arrange-header";
+		return "trade/create_order/create-order";
 	}
 	/**
 	 *
@@ -298,25 +302,25 @@ public class StorageController implements ViewTips {
 		}
 	}
 
-	/**
-	 * 配货
-	 * 
-	 * @param orderId
-	 * @param map
-	 * @return
-	 */
-	@RequestMapping(value = "/pickingUpOrder")
-	public String pickingUpOrder(Integer[] orderId, ModelMap map) {
-		try {
-			List<Integer> orderIds = Arrays.asList(orderId);
-			Integer i = this.storageService.arrangeOrder(StorageUtil.getRepoId(), orderIds, StorageUtil.getUserId());
-			map.put("actionMessage", "批次号" + i + "开始配货");
-			return "forward:/storage/queryStorageOrder";
-		} catch (Exception e) {
-			map.put("actionError", e.getMessage());
-			return "error";
-		}
-	}
+//	/**
+//	 * 配货
+//	 * 
+//	 * @param orderId
+//	 * @param map
+//	 * @return
+//	 */
+//	@RequestMapping(value = "/pickingUpOrder")
+//	public String pickingUpOrder(Integer[] orderId, ModelMap map) {
+//		try {
+//			List<Integer> orderIds = Arrays.asList(orderId);
+////			Integer i = this.storageService.arrangeOrder(StorageUtil.getRepoId(), orderIds, StorageUtil.getUserId());
+//			map.put("actionMessage", "批次号" + i + "开始配货");
+//			return "forward:/storage/queryStorageOrder";
+//		} catch (Exception e) {
+//			map.put("actionError", e.getMessage());
+//			return "error";
+//		}
+//	}
 
 	/**
 	 * 取件
@@ -425,7 +429,7 @@ public class StorageController implements ViewTips {
 	@RequestMapping(value = "/finishTakeGoods")
 	public String finishTakeGoods(ModelMap map, Integer batchId) {
 		try {
-			this.storageService.finishBatchSend(batchId);
+			this.orderService.finishSend(StorageUtil.getRepoId(), batchId, StorageUtil.getUserId());
 			map.put("actionMessage", "批次" + batchId + "操作成功");
 			return "forward:/storage/querytTakeGoods";
 		} catch (Exception e) {

@@ -11,9 +11,9 @@ import com.zis.trade.entity.Order;
 public class BlockOrderDTO extends Order{
 	
 	private boolean success;
-	private String failMessage;
+	private String failReason;
 
-	public boolean isSuccess() {
+	public boolean getSuccess() {
 		return success;
 	}
 
@@ -21,11 +21,11 @@ public class BlockOrderDTO extends Order{
 		this.success = success;
 	}
 
-	public String getFailMessage() {
-		return failMessage;
+	public String getFailReason() {
+		return failReason;
 	}
 
-	public void setFailMessage(String failMessage) {
-		this.failMessage = failMessage;
+	public void setFailReason(String failReason) {
+		this.failReason = failReason;
 	}
 }

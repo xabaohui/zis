@@ -1,9 +1,13 @@
 package com.zis.shop.api;
 
+import java.util.Date;
+import java.util.List;
+
 import com.zis.shop.bean.ShopInfo;
 import com.zis.shop.dto.ApiAddItemDto;
 import com.zis.shop.dto.ApiQueryItemsDto;
 import com.zis.shop.dto.ApiUpdateItemDto;
+import com.zis.trade.dto.CreateTradeOrderDTO;
 
 /**
  * 
@@ -20,7 +24,7 @@ public interface ApiTransfer {
 	 * @param shopItem
 	 * @return
 	 */
-	public Long addItem(ApiAddItemDto apiAddItemDto,ShopInfo shop);
+	public Long addItem(ApiAddItemDto apiAddItemDto, ShopInfo shop);
 
 	/**
 	 * 更新商品
@@ -29,21 +33,22 @@ public interface ApiTransfer {
 	 */
 	public boolean updateItem(ApiUpdateItemDto apiUpdateItemDto, ShopInfo shop);
 
-//	/**
-//	 * 根据商品编号获取商品
-//	 * 
-//	 * @param ItemOutNum
-//	 * @return
-//	 */
-//	public List<ApiItemDto> queryItemByItemOutNum(String ItemOutNum, ShopInfo shop);
+	// /**
+	// * 根据商品编号获取商品
+	// *
+	// * @param ItemOutNum
+	// * @return
+	// */
+	// public List<ApiItemDto> queryItemByItemOutNum(String ItemOutNum, ShopInfo
+	// shop);
 
-//	/**
-//	 * 根据平台商品Id获取商品
-//	 * 
-//	 * @param ItemOutNum
-//	 * @return
-//	 */
-//	public ApiItemDto queryItemByNumId(String numId, ShopInfo shop);
+	// /**
+	// * 根据平台商品Id获取商品
+	// *
+	// * @param ItemOutNum
+	// * @return
+	// */
+	// public ApiItemDto queryItemByNumId(String numId, ShopInfo shop);
 
 	/**
 	 * 获取在售商品每50个1次
@@ -62,26 +67,36 @@ public interface ApiTransfer {
 	 * @return
 	 */
 	public ApiQueryItemsDto queryItemsInventory(ShopInfo shop, String type, Long page);
-	
-//	public ApiQuerytTradeDto taobao.trades.sold.increment.get
 
-//	/**
-//	 * 根据平台商品Id 上架商品
-//	 * 
-//	 * @param NumId
-//	 * @return
-//	 */
-//	public boolean upLoadItem(ShopItemMapping shopItemMapping, ShopInfo shop);
-	
+	/**
+	 * 根据开始和结束时间查询订单
+	 * @param shop
+	 * @param startTime
+	 * @param endTime
+	 * @return
+	 */
+	public List<CreateTradeOrderDTO> queryTradeForDate(ShopInfo shop, Date startTime, Date endTime);
+
+	// public ApiQuerytTradeDto taobao.trades.sold.increment.get
+
+	// /**
+	// * 根据平台商品Id 上架商品
+	// *
+	// * @param NumId
+	// * @return
+	// */
+	// public boolean upLoadItem(ShopItemMapping shopItemMapping, ShopInfo
+	// shop);
+
 	/**
 	 * 网店无法找到商品的 ErrorResponse 信息
+	 * 
 	 * @author think
-	 *
+	 * 
 	 */
 	public enum NotItem {
 
-		YOU_ZAN("商品不存在", "ErrorResponse{code='50000', msg='商品不存在'}"), 
-		TAO_BAO("商品不存在", "商品id对应的商品不存在");
+		YOU_ZAN("商品不存在", "ErrorResponse{code='50000', msg='商品不存在'}"), TAO_BAO("商品不存在", "商品id对应的商品不存在");
 
 		private String value;
 		private String name;

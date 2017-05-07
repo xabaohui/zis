@@ -37,7 +37,7 @@ function modifyOrderAddressResult(dto) {
 		alert("操作成功");
 		$('address_' + dto.orderId).innerHTML = dto.receiverName;
 	} else {
-		alert(dto.failMessage);
+		alert(dto.failReason);
 	}
 }
 
@@ -87,7 +87,7 @@ function blockOrderResult(dto) {
 		$('blockFlag_' + dto.orderId).innerHTML = '<span title="'
 				+ dto.blockReason + '"><font color="red">已拦截</font></span>';
 	} else {
-		alert(dto.failMessage);
+		alert(dto.failReason);
 	}
 }
 
@@ -443,7 +443,7 @@ function modifyFillExpressNumberResult(dto) {
 		$('express_' + dto.orderId).innerHTML = dto.expressCompany + "<br/>"
 				+ dto.expressNumber;
 	} else {
-		alert(dto.failMessage);
+		alert(dto.failReason);
 	}
 }
 
@@ -465,8 +465,8 @@ function printExpressList() {
 // 打印快递单(单个)
 function printExpress(orderId, forwardUrl) {
 	if (confirm("确定打印快递单？")) {
-//		var audioPlay = document.getElementById("audioPlay");
-//		audioPlay.play();
+		// var audioPlay = document.getElementById("audioPlay");
+		// audioPlay.play();
 		window.open("order/printExpress?orderId=" + orderId + "&forwardUrl="
 				+ forwardUrl);
 		setTimeout('myrefresh()', 100);
@@ -509,4 +509,660 @@ function checkAllOId() {
 function cancelSelection() {
 	// 关闭浮出层
 	hideShadow();
+}
+
+// ----------------------------------------创建订单功能---------------------------------------
+
+// 手动自主下单(2-1)
+function manualMyselfOrder(data) {
+	if (ifSelectShopId()) {
+		alert("请选择店铺");
+		return;
+	}
+	orderController
+			.getManualOutOrderNumber(data.value, manualMyselfOrderResult);
+}
+
+// 手动自主下单(2-2)
+function manualMyselfOrderResult(data) {
+	if (data.success) {
+		document.getElementById('manualOrderType').value = data.manualOrderType;
+		document.getElementById('outOrderNumber').value = data.outOrderNumber;
+		document.getElementById('orderNumberDiv').style = "display:none;";
+	} else {
+		alert(data.failReason);
+	}
+}
+
+// 手动淘宝下单(1-1)
+function manualTaobaoOrder(data) {
+	if (ifSelectShopId()) {
+		alert("请选择店铺");
+		return;
+	}
+	document.getElementById('manualOrderType').value = data.value;
+	document.getElementById('outOrderNumber').value = "";
+	document.getElementById('orderNumberDiv').style = "display:block;";
+}
+
+// 检查淘宝订单号并传入session(2-1)
+function manualTaobaoOrderUpdate(data) {
+	if (ifSelectShopId()) {
+		alert("请选择店铺");
+		return;
+	}
+	//TODO 此处要加入传入店铺Id
+	var manualOrderType = document.getElementById('manualOrderType').value;
+	var shopId = document.getElementById('shopId').value;
+	orderController.getManualTaobaoOrderOutOrderNumber(manualOrderType,
+			data.value,shopId, manualTaobaoOrderUpdateResult);
+}
+
+// 检查淘宝订单号并传入session(2-2)
+function manualTaobaoOrderUpdateResult(data) {
+	if (!data.success) {
+		alert(data.failReason);
+	}
+}
+
+// 检查订单类型并传入session(2-1)
+function selectOrderType(data) {
+	
+	if (ifSelectShopId()) {
+		alert("请选择店铺");
+		return;
+	}
+	
+	if (ifCheckedCreateOrderType()) {
+		alert("请选择下单类型");
+		return;
+	}
+	orderController.setOrderType(data.value, selectOrderTypeResult);
+}
+
+// 检查订单类型并传入session(2-2)
+function selectOrderTypeResult(data) {
+	if (data.success) {
+		document.getElementById('checkOrderType').value = data.orderType;
+	} else {
+		alert(data.failReason);
+	}
+}
+
+// 将店铺Id传入session(2-1)
+function setShopIdToSession(data) {
+	orderController.setShopIdToSession(data.value, setShopIdToSessionResult);
+}
+
+// 检查订单类型并传入session(2-2)
+function setShopIdToSessionResult(data) {
+	if (data.success) {
+		document.getElementById('checkShopId').value = data.shopId;
+		document.getElementById('discount').value = data.discount;
+	} else {
+		alert(data.failReason);
+	}
+}
+
+// 查询图书(5-1)
+function findSkuInfoByBookNameOrIsbn() {
+	var bookNameOrIsbn = document.getElementById('bookNameOrIsbn').value;
+	var discount = document.getElementById('discount').value;
+	if (ifCheckedCreateOrderType()) {
+		alert("请选择下单类型");
+		return;
+	}
+
+	if (ifCheckedOrderType()) {
+		alert("请选择订单类型");
+		return;
+	}
+
+	if (ifSelectShopId()) {
+		alert("请选择店铺");
+		return;
+	}
+	orderController.findSkuInfoByBookNameOrIsbn(bookNameOrIsbn, discount,
+			findSkuInfoByBookNameOrIsbnResult);
+}
+// 查询图书(5-2) 返回查询结果显示
+function findSkuInfoByBookNameOrIsbnResult(data) {
+	if (!data.success) {
+		alert(data.failReason);
+		return;
+	}
+	var selectedContent = '修改收件人相关信息<div id="selectArea"><table class = "common-table-ajax">';
+	selectedContent = selectedContent
+			+ '<tr><th>ISBN</th><th>书名</th><th>版次</th><th>作者</th><th>出版社</th><th>可用量</th><th>操作</th></tr>';
+	for ( var i = 0; i < data.skuList.length; i++) {
+		selectedContent = selectedContent
+				+ '<tr><td>'
+				+ data.skuList[i].isbn
+				+ '</td><td>'
+				+ data.skuList[i].bookName
+				+ '</td><td>'
+				+ data.skuList[i].bookEdition
+				+ '</td><td>'
+				+ data.skuList[i].bookAuthor
+				+ '</td><td>'
+				+ data.skuList[i].bookPublisher
+				+ '</td><td>'
+				+ data.skuList[i].bookAmount
+				+ '</td><td><input type="button" onclick = "selectBookRequirementAmount(\''
+				+ data.skuList[i].id + '\',\'' + data.skuList[i].isbn + '\',\''
+				+ data.skuList[i].bookName + '\',\'' + data.skuList[i].bookPrice + '\',\''
+				+ data.skuList[i].bookAmount + '\')" value = "选择" /></td></tr>';
+
+	}
+	selectedContent = selectedContent
+			+ '</table></div><p /><input type="button" value="取消" onclick="cancelSelection()" />';
+	$('float-to-be-show').innerHTML = selectedContent;
+	showShadow();
+}
+// 查询图书(5-3) 选择图书并输入数量
+function selectBookRequirementAmount(skuId, isbn, itemName, itemPrice,
+		availableAmount) {
+	var amount = prompt("需要图书数量:", "");
+	var re = /^[0-9]*[1-9][0-9]*$/;
+	if (amount) {
+		if (!re.test(amount)) {
+			alert("请输入正整数");
+		} else {
+			if (+amount > +availableAmount) {
+				alert("需求量大于可用数量");
+				return;
+			}
+			orderController.addSkuInfoToSession(skuId, isbn, itemName, amount,
+					itemPrice, selectBookRequirementAmountResult);
+		}
+	} else {
+
+	}
+	hideShadow();
+}
+
+// 查询图书(5-4) 写入页面，并增加订单金额
+function selectBookRequirementAmountResult(data) {
+	if (data.success) {
+		document.getElementById('skuInfoDiv').style = "display:block;";
+		var orderMoney = data.orderMoney;
+		document.getElementById('orderMoney').value = +orderMoney.toFixed(2);
+		createTableNewTrOrTd(data.skuOld);
+	} else {
+		alert(data.failReason);
+	}
+}
+
+// 查询图书(5-5) 创建table新的行
+function createTableNewTrOrTd(newData) {
+	var objTable = document.getElementById('skuInfoTable');
+	var objTR = objTable.insertRow();
+	objTR.id = "skuTr_" + newData.skuId;
+	var objTD1 = objTR.insertCell();
+	var objTD2 = objTR.insertCell();
+	var objTD3 = objTR.insertCell();
+	var objTD4 = objTR.insertCell();
+	var objTD5 = objTR.insertCell();
+	var price = newData.itemPrice;
+	price = +price.toFixed(2);
+	objTD1.innerHTML = newData.isbn + '<input type="hidden" name = "skus['
+			+ newData.resultInt + '].skuId" value = "' + newData.skuId
+			+ '" /> <input type="hidden" name = "skus[' + newData.resultInt
+			+ '].isbn" value = "' + newData.isbn + '" />';
+	objTD2.innerHTML = newData.itemName + '<input type="hidden" name = "skus['
+			+ newData.resultInt + '].itemName" value = "' + newData.itemName + '" />';
+	objTD3.innerHTML = '<div id = "itemCountDiv_' + newData.skuId + '"> '
+			+ newData.itemCount + '<input type="hidden" name = "skus['
+			+ newData.resultInt + '].itemCount" id = "itemCount_' + newData.skuId
+			+ '" value = "' + newData.itemCount + '" /> </div>';
+	objTD4.innerHTML = '<div id = "itemPriceDiv_' + newData.skuId + '"> ' + price
+			+ ' <input type="hidden" name = "skus[' + newData.resultInt
+			+ '].itemPrice" id = "itemPrice_' + newData.skuId + '" value = "'
+			+ price + '" /></div>';
+	objTD5.innerHTML = '<input type="button" onclick="updateSkuItemCount(\''
+			+ newData.skuId + '\')" value="修改数量"> '
+			+ ' <input type="button" onclick="updateSkuItemPrice(\''
+			+ newData.skuId + '\')" value="修改价格">'
+			+ ' <br/> <input type="button" onclick="deleteSubOrder(\''
+			+ newData.skuId + '\')" value="删除">';
+}
+
+// 修改商品数量(2-1)
+function updateSkuItemCount(skuId) {
+	if (ifCheckedCreateOrderType()) {
+		alert("请选择下单类型");
+		return;
+	}
+
+	if (ifCheckedOrderType()) {
+		alert("请选择订单类型");
+		return;
+	}
+
+	if (ifSelectShopId()) {
+		alert("请选择店铺");
+		return;
+	}
+	var amount = prompt("需要图书数量:", "");
+	var re = /^[0-9]*[1-9][0-9]*$/;
+	if (amount) {
+		if (!re.test(amount)) {
+			alert("请输入正整数");
+		} else {
+			orderController.updateSkuItemCount(skuId, amount,
+					updateSkuItemCountResult);
+		}
+	} else {
+
+	}
+}
+
+// 修改商品数量(2-2)
+function updateSkuItemCountResult(data) {
+	if (!data.success) {
+		alert(data.failReason);
+		return;
+	}
+	var orderMoney = data.orderMoney;
+	document.getElementById("orderMoney").value = +orderMoney.toFixed(2);
+	$('itemCountDiv_' + data.skuOld.skuId).innerHTML = data.skuOld.itemCount
+			+ '<input type="hidden" name = "skus['
+			+ data.skuOld.resultInt
+			+ '].itemCount" id = "itemCount_'
+			+ data.skuOld.skuId
+			+ '" value = "'
+			+ data.skuOld.itemCount + '" />';
+}
+
+// 修改商品价格(2-1)
+function updateSkuItemPrice(skuId) {
+	if (ifCheckedCreateOrderType()) {
+		alert("请选择下单类型");
+		return;
+	}
+
+	if (ifCheckedOrderType()) {
+		alert("请选择订单类型");
+		return;
+	}
+
+	if (ifSelectShopId()) {
+		alert("请选择店铺");
+		return;
+	}
+	var price = prompt("请输入金额:", "");
+	var re = /^[0-9]+([.]{1}[0-9]+){0,1}$/;
+	if (price) {
+		if (!re.test(price)) {
+			alert("请输入正确数字");
+		} else {
+			orderController.updateSkuItemPrice(skuId, price,
+					updateSkuItemPriceResult);
+		}
+	} else {
+
+	}
+}
+
+// 修改商品价格(2-2)
+function updateSkuItemPriceResult(data) {
+	if (!data.success) {
+		alert(data.failReason);
+		return;
+	}
+	var orderMoney = data.orderMoney;
+	document.getElementById("orderMoney").value = +orderMoney.toFixed(2);
+	var price = data.skuOld.itemPrice;
+	price = +price.toFixed(2);
+	$('itemPriceDiv_' + data.skuOld.skuId).innerHTML = price
+			+ '<input type="hidden" name = "skus['
+			+ data.skuOld.resultInt + '].itemCount" id = "itemCount_'
+			+ data.skuOld.skuId + '" value = "' + price + '" />';
+}
+
+// 删除商品(2-1)
+function deleteSubOrder(skuId) {
+	if (ifCheckedCreateOrderType()) {
+		alert("请选择下单类型");
+		return;
+	}
+
+	if (ifCheckedOrderType()) {
+		alert("请选择订单类型");
+		return;
+	}
+
+	if (ifSelectShopId()) {
+		alert("请选择店铺");
+		return;
+	}
+	if (confirm("你确定删除此商品?")) {
+		orderController.deleteSubOrder(skuId, deleteSubOrderResult);
+	} else {
+	}
+}
+
+// 删除商品(2-2)
+function deleteSubOrderResult(data) {
+	if (!data.success) {
+		alert(data.failReason);
+		return;
+	}
+	var orderMoney = data.orderMoney;
+	document.getElementById("orderMoney").value = +orderMoney.toFixed(2);
+	if (+orderMoney == 0) {
+		document.getElementById("postage").value = +orderMoney.toFixed(2);
+	}
+	var tr = document.getElementById("skuTr_" + data.skuOld.skuId);
+	tr.parentNode.removeChild(tr);
+}
+
+// 分隔字符串(淘宝格式)并写入页面及session
+function splitReceiverInfo() {
+	if (ifCheckedCreateOrderType()) {
+		alert("请选择下单类型");
+		return;
+	}
+
+	if (ifCheckedOrderType()) {
+		alert("请选择订单类型");
+		return;
+	}
+
+	if (ifSelectShopId()) {
+		alert("请选择店铺");
+		return;
+	}
+	var receiverInfo = document.getElementById("receiverInfo").value;
+	var strs = new Array();
+	strs = receiverInfo.split("，");
+	document.getElementById("receiverName").value = strs[0];
+	document.getElementById("receiverPhone").value = strs[1];
+	document.getElementById("receiverAddr").value = strs[3];
+	updateReceiverInfo();
+}
+
+// 收件人信息更新(2-1)
+function updateReceiverInfo() {
+	if (ifCheckedCreateOrderType()) {
+		alert("请选择下单类型");
+		return;
+	}
+
+	if (ifCheckedOrderType()) {
+		alert("请选择订单类型");
+		return;
+	}
+
+	if (ifSelectShopId()) {
+		alert("请选择店铺");
+		return;
+	}
+	var receiverName = document.getElementById("receiverName").value;
+	var receiverPhone = document.getElementById("receiverPhone").value;
+	var receiverAddr = document.getElementById("receiverAddr").value;
+	orderController.updateReceiverInfo(receiverName, receiverPhone,
+			receiverAddr, updateReceiverInfoResult);
+}
+
+// 收件人信息更新(2-2)
+function updateReceiverInfoResult(data) {
+	if (!data.success) {
+		alert(data.failReason);
+		return;
+	}
+	document.getElementById("receiverName").value = data.receiverName;
+	document.getElementById("receiverPhone").value = data.receiverPhone;
+	document.getElementById("receiverAddr").value = data.receiverAddr;
+}
+
+// 修改邮费(2-1)
+function updateOrderPostage() {
+	if (ifCheckedCreateOrderType()) {
+		alert("请选择下单类型");
+		return;
+	}
+
+	if (ifCheckedOrderType()) {
+		alert("请选择订单类型");
+		return;
+	}
+
+	if (ifSelectShopId()) {
+		alert("请选择店铺");
+		return;
+	}
+	var postage = document.getElementById("postage").value;
+	var re = /^[0-9]+([.]{1}[0-9]+){0,1}$/;
+	if (!re.test(postage)) {
+		alert("请输入正确数字");
+	} else {
+		orderController.updateOrderPostage(postage, updateOrderPostageResult);
+	}
+}
+
+// 修改邮费(2-2)
+function updateOrderPostageResult(data) {
+	if (!data.success) {
+		alert(data.failReason);
+		return;
+	}
+	var orderMoney = data.orderMoney;
+	document.getElementById("orderMoney").value = +orderMoney.toFixed(2);
+}
+
+// 修改订单总价(2-1)
+function updateOrderMoney() {
+	if (ifCheckedCreateOrderType()) {
+		alert("请选择下单类型");
+		return;
+	}
+
+	if (ifCheckedOrderType()) {
+		alert("请选择订单类型");
+		return;
+	}
+
+	if (ifSelectShopId()) {
+		alert("请选择店铺");
+		return;
+	}
+	var orderMoney = document.getElementById("orderMoney").value;
+	var re = /^[0-9]+([.]{1}[0-9]+){0,1}$/;
+	if (!re.test(orderMoney)) {
+		alert("请输入正确数字");
+	} else {
+		orderController.updateOrderMoney(orderMoney, updateOrderMoneyResult);
+	}
+}
+
+// 修改订单总价(2-2)
+function updateOrderMoneyResult(data) {
+	if (!data.success) {
+		alert(data.failReason);
+		return;
+	}
+	var orderMoney = data.orderMoney;
+	document.getElementById("orderMoney").value = +orderMoney.toFixed(2);
+}
+
+//手动订单提交检查
+function checkCreateOrderFrom() {
+	if (ifCheckedCreateOrderType()) {
+		alert("请选择下单类型");
+		return;
+	}
+
+	if (ifCheckedOrderType()) {
+		alert("请选择订单类型");
+		return;
+	}
+
+	if (ifSelectShopId()) {
+		alert("请选择店铺");
+		return;
+	}
+	var objTr = document.getElementById('skuInfoTable').rows;
+	if (objTr.length < 2) {
+		alert("没有选择图书");
+		return;
+	}
+	document.getElementById('createOrderFrom').submit();
+}
+
+//批量订单提交检查
+function checkXlsCreateOrderFrom() {
+	if (ifSelectShopId()) {
+		alert("请选择店铺");
+		return false;
+	}
+	return true;
+}
+
+//地址导入提交检查
+function checkXlsAddressInOrderFrom() {
+	if (ifSelectShopId()) {
+		alert("请选择店铺");
+		return false;
+	}
+	return true;
+}
+
+// 选择店铺(回调使用)
+function checkedShopId() {
+	var shopIds = document.getElementById("shopId");
+	var checkValue = document.getElementById("checkShopId").value;
+	for ( var i = 0; i < shopIds.options.length; i++) {
+		if (shopIds.options[i].value == checkValue) {
+			shopIds.options[i].selected = true;
+			break;
+		}
+	}
+}
+
+// 选择下单类型(回调使用)
+function checkedCreateOrderType() {
+	var checked = document.getElementById("manualOrderType").value;
+	var createOrderTypes = document.getElementsByName("createOrderType");
+	for ( var j = 0; j < createOrderTypes.length; j++) {
+		var createOrderTypeValue = createOrderTypes[j].value;
+		if (checked == createOrderTypeValue) {
+			createOrderTypes[j].checked = true;
+		}
+	}
+}
+
+// 选择订单类型(回调使用)
+function checkedOrderType() {
+	var checked = document.getElementById("checkOrderType").value;
+	var createOrderTypes = document.getElementsByName("orderType");
+	for ( var j = 0; j < createOrderTypes.length; j++) {
+		var createOrderTypeValue = createOrderTypes[j].value;
+		if (checked == createOrderTypeValue) {
+			createOrderTypes[j].checked = true;
+		}
+	}
+}
+
+// 判断是否选中手动下单类型
+function ifCheckedCreateOrderType() {
+	var createOrderType = document.getElementsByName('createOrderType');
+	var checkedEmpty = true;
+	for ( var i = 0; i < createOrderType.length; i++) {
+		if (createOrderType[i].checked) {
+			checkedEmpty = false;
+			break;
+		}
+	}
+	return checkedEmpty;
+}
+
+// 是否选中店铺
+function ifSelectShopId() {
+	var shopId = document.getElementById('shopId').value;
+	var checkedEmpty = true;
+	if (shopId != null && shopId != '') {
+		checkedEmpty = false;
+	}
+	return checkedEmpty;
+}
+
+// 判断是否选中订单类型
+function ifCheckedOrderType() {
+	var orderType = document.getElementsByName('orderType');
+	var checkedEmpty = true;
+	for ( var i = 0; i < orderType.length; i++) {
+		if (orderType[i].checked) {
+			checkedEmpty = false;
+			break;
+		}
+	}
+	return checkedEmpty;
+}
+
+// ------------------------------------------出库相关------------------------------------
+
+//出库(2-1)
+function sendOut() {
+	var expressNumber = document.getElementById("expressNumber").value;
+	if (expressNumber == null || expressNumber == '') {
+		alert("请输入快递单号");
+		return;
+	}
+	orderController.sendOut(expressNumber, sendOutResult);
+}
+
+// 出库(2-2)
+function sendOutResult(data) {
+	var passPlay = document.getElementById("passPlay");
+	var failPlay = document.getElementById("failPlay");
+	if (!data.success) {
+		alert(data.failReason);
+		return;
+	}
+	var selectedContent = '';
+	if (data.orderVO.canSendOut()) {
+		selectedContent = '<h2><font color="green">检查通过</font></h2>';
+		passPlay.play();
+	} else {
+		selectedContent = '<h2><font color="red">不能出库</font></h2>';
+		failPlay.play();
+	}
+	var outOrderNumber = '';
+	for ( var i = 0; i < data.orderVO.outOrderNumbers; i++) {
+		outOrderNumber = outOrderNumber + data.orderVO.outOrderNumbers[i];
+		if (!(data.orderVO.outOrderNumbers.length - 1)) {
+			outOrderNumber = outOrderNumber + "<br/>";
+		}
+	}
+
+	var orderDetail = '';
+	for ( var i = 0; i < data.orderVO.orderDetailVOs; i++) {
+		orderDetail = orderDetail + data.orderVO.orderDetailVOs[i].itemName
+				+ ' &nbsp; * &nbsp; ' + data.orderVO.orderDetailVOs[i].itemCount;
+		if (!(data.orderVO.orderDetailVOs.length - 1)) {
+			orderDetail = orderDetail + "<br/>";
+		}
+	}
+
+	selectedContent = selectedContent + '<table>';
+	selectedContent = selectedContent + '<tr><td>网店订单号</td><td>'
+			+ outOrderNumber + '</td></tr>';
+	selectedContent = selectedContent + '<tr><td>快递单号</td><td>'
+			+ data.orderVO.expressNumber + '</td></tr>';
+	selectedContent = selectedContent + '<tr><td>收件人</td><td>'
+			+ data.orderVO.receiverName + '</td></tr>';
+	selectedContent = selectedContent + '<tr><td>商品明细</td><td>' + orderDetail
+			+ '</td></tr>';
+	selectedContent = selectedContent + '<tr><td>买家留言</td><td>'
+			+ data.orderVO.buyerMessage + '</td></tr>';
+	selectedContent = selectedContent + '<tr><td>买家备注</td><td>'
+			+ data.orderVO.salerRemark + '</td></tr>';
+	if (data.orderVO.canSendOut()) {
+		selectedContent = selectedContent
+				+ '<tr><td><font color="red">拦截说明</font></td><td><font color="red">'
+				+ data.orderVO.canSendOutWithMessage() + '</font></td></tr>';
+	}
+	selectedContent = selectedContent + '</table>';
+	$('sendResultDiv').innerHTML = selectedContent;
 }

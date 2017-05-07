@@ -36,7 +36,7 @@ public class ShopInfo {
 	private String appSecret;
 
 	@Column(name = "discount")
-	private Double discount;
+	private Double discount;//折扣率
 
 	@Column(name = "delivery_template_id")
 	private Long deliveryTemplateId;// 运费模板
