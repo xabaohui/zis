@@ -56,7 +56,7 @@ public class OrderDwrController {
 			this.orderService.blockOrder(orderId, StorageUtil.getUserId(), blockReason);
 			dto.setSuccess(true);
 			dto.setBlockReason(blockReason);
-			dto.setOrderId(orderId);
+			dto.setId(orderId);
 			return dto;
 		} catch (Exception e) {
 			dto.setSuccess(false);
@@ -121,7 +121,7 @@ public class OrderDwrController {
 
 	private ChangeOrderAddressDTO getOrder() {
 		ChangeOrderAddressDTO o = new ChangeOrderAddressDTO();
-		o.setOrderId(49213);
+		o.setId(49213);
 		o.setReceiverAddr("北京市海淀区定慧东里14号楼");
 		o.setReceiverName("帅哥");
 		o.setReceiverPhone("17777777777");

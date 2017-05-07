@@ -13,4 +13,9 @@ public interface OrderOuterDao extends PagingAndSortingRepository<OrderOuter, In
 
 	@Query("select outOrderNumber from OrderOuter where orderGroupNumber=:orderGroupNumber")
 	List<String> findOutOrderNumbersByOrderId(@Param("orderGroupNumber")String orderGroupNumber);
+	
+	@Query("select orderGroupNumber from OrderOuter where outOrderNumber=:outOrderNumber")
+	List<String> findOrderGroupNumberByOutOrderNumber(@Param("outOrderNumber")String outOrderNumber);
+	
+	OrderOuter findByShopIdAndOutOrderNumber(Integer shopId, String outOrderNumber);
 }

@@ -38,7 +38,7 @@ public class OrderHelper {
 	 */
 	public static OrderLog createOrderLog(Order order, Integer operator, OperateType operateType, String operateDetail) {
 		OrderLog log = new OrderLog();
-		log.setOrderId(order.getOrderId());
+		log.setOrderId(order.getId());
 		log.setCreateTime(new Date());
 		log.setUpdateTime(new Date());
 		log.setOperaterId(operator);
