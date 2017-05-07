@@ -43,6 +43,10 @@
 		<convert match="com.zis.trade.dto.CreateOrderViewDTO" converter="bean" />
 		<convert match="com.zis.trade.dto.CreateOrderViewDTO.SkuViewInfo" converter="bean" />
 		<convert match="com.zis.trade.dto.SkuInfoViewDTO" converter="bean" />
+		<convert match="com.zis.trade.dto.SendOutViewDTO" converter="bean" />
+		<convert match="com.zis.trade.entity.OrderDetail" converter="bean" />
+		<convert match="com.zis.trade.dto.OrderVO" converter="bean" />
+		<convert match="com.zis.trade.dto.OrderVO.OrderDetailVO" converter="bean" />
 		<convert match="com.zis.trade.dto.CreateOrderQuerySkuInfoViewDTO" converter="bean" />
 		<convert match="com.zis.trade.dto.CreateOrderQuerySkuInfoViewDTO.SkuInfo" converter="bean" />
 		<convert match="com.zis.trade.entity.Order" converter="bean" />

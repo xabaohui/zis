@@ -43,6 +43,7 @@ import com.zis.trade.dto.CreateTradeOrderDTO;
 import com.zis.trade.dto.CreateTradeOrderDTO.SubOrder;
 import com.zis.trade.dto.ExpressNumberDTO;
 import com.zis.trade.dto.FillExpressNumberUploadDTO;
+import com.zis.trade.dto.OrderAddressImportDTO;
 import com.zis.trade.dto.OrderInfoDTO;
 import com.zis.trade.dto.OrderInfoDTO.SkuInfo;
 import com.zis.trade.dto.OrderQueryCondition;
@@ -396,7 +397,9 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 		}
 		try {
 			List<Integer> orderIds = Arrays.asList(orderId);
-			this.orderService.arrangeOrderToPos(repoId, orderIds, StorageUtil.getUserId());
+			for (Integer i : orderIds) {
+				this.orderService.arrangeOrderToRepo(i, StorageUtil.getUserId(), repoId);
+			}
 			map.put(ACTION_MESSAGE, "操作成功");
 			return "forward:/order/" + forwardUrl;
 		} catch (Exception e) {
@@ -503,7 +506,6 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 				list.add(dto);
 			}
 			this.orderService.fillExpressNumbers(list, StorageUtil.getUserId());
-			// TODO
 			map.put(ACTION_MESSAGE, "操作成功");
 			return "forward:/order/getPrintedList";
 		} catch (Exception e) {
@@ -546,7 +548,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 		map.put("dto", dto);
 		map.put("shopList", shopList);
 		if (br.hasErrors()) {
-			return "forward:/order/gotoCreateOrder";
+			return "trade/create_order/create-order";
 		}
 		try {
 			verifyShopId(dto.getShopId());
@@ -634,13 +636,34 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 		try {
 			verifyShopId(shopId);
 			List<OrderInfoDTO> list = buildOrderInfoDTOList(orderFile.getInputStream(), shopId);
-			// TODO 需要调用模糊化查询
+			List<OrderAddressImportDTO> dtoList = buildOrderAddressImportDTO(list);
+			this.orderService.importReceiverAddr(dtoList);
 			map.put(ACTION_MESSAGE, "操作成功");
 			return "forward:/order/gotoExcelAddrToOrderUpload";
 		} catch (Exception e) {
 			map.put(ACTION_ERROR, e.getMessage());
 			return "forward:/order/gotoExcelAddrToOrderUpload";
 		}
+	}
+	
+	private List<OrderAddressImportDTO> buildOrderAddressImportDTO(List<OrderInfoDTO> list){
+		List<OrderAddressImportDTO> dtoList = new ArrayList<OrderAddressImportDTO>();
+		for (OrderInfoDTO dto : list) {
+			OrderAddressImportDTO d = new OrderAddressImportDTO();
+			BeanUtils.copyProperties(dto, d);
+			dtoList.add(d);
+		}
+		return dtoList;
+	}
+	
+	/**
+	 * 出库扫描辅助跳转类
+	 * @param map
+	 * @return
+	 */
+	@RequestMapping(value = "/sendOut")
+	public String sendOut(ModelMap map){
+		return "trade/send_out/send-out";
 	}
 
 	/**
@@ -678,7 +701,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@Override
 	protected String[] getRowDatas(OrderVO vo) {
 		String[] rowDatas = new String[this.getTableHeaders().length];
-		rowDatas[0] = vo.getOrderId().toString();
+		rowDatas[0] = vo.getId().toString();
 		rowDatas[1] = vo.getReceiverName();
 		rowDatas[3] = vo.getReceiverPhone();
 		rowDatas[4] = vo.getReceiverAddr();
@@ -728,43 +751,14 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 			Integer orderId = Integer.parseInt(s);
 			orderIds.add(orderId);
 		}
-		// List<OrderVO> list = this.orderService.printExpressList(orderIds,
-		// StorageUtil.getUserId());
-		// return list;
-		return getSimulationData();
-	}
-
-	private List<OrderVO> getSimulationData() {
-		List<OrderVO> list = new ArrayList<OrderVO>();
-		for (int i = 0; i < 30; i++) {
-			OrderVO vo = new OrderVO();
-			vo.setOrderId(123123 + i);
-			vo.setReceiverName("楚中天" + i);
-			vo.setReceiverPhone("135222222222" + i);
-			vo.setReceiverAddr("北京市中关村南" + i + "号院");
-			vo.setBuyerMessage("我是你第" + i + "买家哦");
-			vo.setOrderDetails(getxxx());
-			list.add(vo);
-		}
+		List<OrderVO> list = this.orderService.printExpressList(orderIds, StorageUtil.getUserId());
 		return list;
 	}
-	//TODO  测试数据 用后删除
 
-	private List<OrderDetailVO> getxxx() {
-		List<OrderDetailVO> list = new ArrayList<OrderVO.OrderDetailVO>();
-		for (int i = 0; i < 4; i++) {
-			OrderDetailVO vo = new OrderDetailVO();
-			vo.setIsbn("123123333" + i);
-			vo.setBookName("流氓会武术第" + i + "部");
-			vo.setItemCount(10 + i);
-			list.add(vo);
-		}
-		return list;
-	}
-	
 	private CreateTradeOrderDTO buildCreateTradeOrderDTO(CreateOrderViewDTO dto) {
 		CreateTradeOrderDTO orderDTO = new CreateTradeOrderDTO();
 		BeanUtils.copyProperties(dto, orderDTO);
+		orderDTO.setOperator(StorageUtil.getUserId());
 		List<SubOrder> subList = new ArrayList<CreateTradeOrderDTO.SubOrder>();
 		for (SkuViewInfo s : dto.getSkus()) {
 			if (subOrderAllNull(s)) {
@@ -1043,11 +1037,9 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 
 	private List<FillExpressNumberUploadDTO> buildDTOList(InputStream input) {
 		// 设置模板文件，用于检验导入文件是否合法
-		Integer headerRownums = 2;
 		try {
 			// 初始化导入器
 			FileImporter<FillExpressNumberUploadDTO> im = new ExcelImporter<FillExpressNumberUploadDTO>(input, null);
-			im.setHeaderRowNums(headerRownums);
 
 			// 检验导入文件是否合法
 			String errMsg = im.validate();
@@ -1086,8 +1078,8 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 		if (!factHeader.get(1).equals(outOrderNumber)) {
 			return "格式错误，B列必须是:" + outOrderNumber;
 		}
-		if (!factHeader.get(6).equals(receiverName)) {
-			return "格式错误，G列必须是:" + receiverName;
+		if (!factHeader.get(2).equals(receiverName)) {
+			return "格式错误，C列必须是:" + receiverName;
 		}
 		if (!factHeader.get(13).equals(expressCompany)) {
 			return "格式错误，N列必须是:" + expressCompany;
@@ -1106,7 +1098,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	private Map<String, Integer> initPropMapping() {
 		Map<String, Integer> map = new HashMap<String, Integer>();
 		map.put("orderId", 1);
-		map.put("receiverName", 6);
+		map.put("receiverName", 2);
 		map.put("expressCompany", 13);
 		map.put("expressNumber", 14);
 		return map;

@@ -79,23 +79,23 @@
 				<tr>
 				<td>
 					<c:if test="${order.canArrangeOrderToPos()||order.canCancelArrangeOrder()}">
-						<input name = "orderId" type="checkbox" value="${order.orderId}"/>
+						<input name = "orderId" type="checkbox" value="${order.id}"/>
 					</c:if>
 					<c:if test="${!order.canArrangeOrderToPos() && !order.canCancelArrangeOrder()}">
-						<input name = "orderId" type="checkbox" value="${order.orderId}" disabled="disabled"/>
+						<input name = "orderId" type="checkbox" value="${order.id}" disabled="disabled"/>
 					</c:if>
 				</td>
 				<%@ include file="/WEB-INF/views/trade/storage_show/storage-list.jsp"%>
 				<td>
 					${order.getUniqueStatusDisplay("arranged")}
-					<div id = "blockFlag_${order.orderId}">
+					<div id = "blockFlag_${order.id}">
 						<c:if test="${order.blockFlag}">
 							<span title="${order.blockReason}"><font color="red">已拦截</font></span>
 						</c:if>
 					</div>
 				</td>
 				<td>
-					<div id = "express_${order.orderId}">
+					<div id = "express_${order.id}">
 						${order.expressCompany}
 						<br/>
 						${order.expressNumber}
@@ -105,25 +105,25 @@
 					<% int count = 0; %>
 					
 					<c:if test="${order.canArrangeOrderToPos()}">
-						<input type="button" value = "配货" onclick="pickingUpOrder('${order.orderId}','getWaitPickUpList')"/>
+						<input type="button" value = "配货" onclick="pickingUpOrder('${order.id}','getWaitPickUpList')"/>
 						&nbsp;
 						<% count++; %>
 					</c:if>
 					
 					<c:if test="${order.canCancelArrangeOrder()}">
-						<input type="button" value = "取消配货" onclick="cancelArrangeOrder('${order.orderId}','getWaitPickUpList')"/>
+						<input type="button" value = "取消配货" onclick="cancelArrangeOrder('${order.id}','getWaitPickUpList')"/>
 						&nbsp;
 						<% count++; %>
 						<% if(count % 2 ==0){%>
 							<br/>
 						<% } %>
 					</c:if>
-					<div id = "desc_${order.orderId}">
+					<div id = "desc_${order.id}">
 						<c:if test="${not empty order.salerRemark}">
-							<span title="${order.salerRemark}" onclick="showAppendSellerRemarkView('${order.orderId}')"><font color="red">备注</font></span>
+							<span title="${order.salerRemark}" onclick="showAppendSellerRemarkView('${order.id}')"><font color="red">备注</font></span>
 						</c:if>
 						<c:if test="${empty order.salerRemark}">
-							<span onclick="showAppendSellerRemarkView('${order.orderId}')">备注</span>
+							<span onclick="showAppendSellerRemarkView('${order.id}')">备注</span>
 						</c:if>
 					</div>
 					<% count = 0; %>

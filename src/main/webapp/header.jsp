@@ -354,8 +354,9 @@
 						<br/>
 						<li><a href="order/gotoCreateOrder">创建订单</a></li>
 						<br/>
+						<li><a href="order/sendOut">出库扫描</a></li>
+						<br/>
 				</ul>
 			</ul>
-						<a href="storage/test">111</a>
 		</div>
 		<div class="right">

@@ -56,7 +56,7 @@
 		<table id = "common-table">
 			<tr>
 				<td colspan="9" align="left" height="60px">
-					<form action="trade/fillExpressNumberUpload" method="post" enctype="multipart/form-data">
+					<form action="order/fillExpressNumberUpload" method="post" enctype="multipart/form-data">
 						<table>
 							<tr>
 								<td style="border: hidden;">上传回填单号文件: &nbsp;<input type="file" name = "excelFile" required="required"/></td>
@@ -82,14 +82,14 @@
 				<%@ include file="/WEB-INF/views/trade/storage_show/storage-list.jsp"%>
 				<td>
 					${order.getUniqueStatusDisplay("arranged")}
-					<div id = "blockFlag_${order.orderId}">
+					<div id = "blockFlag_${order.id}">
 						<c:if test="${order.blockFlag}">
 							<span title="${order.blockReason}"><font color="red">已拦截</font></span>
 						</c:if>
 					</div>
 				</td>
 				<td>
-					<div id = "express_${order.orderId}">
+					<div id = "express_${order.id}">
 						${order.expressCompany}
 						<br/>
 						${order.expressNumber}
@@ -97,15 +97,15 @@
 				</td>
 				<td>
 					<c:if test="${order.canFillExpressNumber()}">
-						<input type="button" value = "填单号" onclick="showfillExpressNumber('${order.orderId}')"/>
+						<input type="button" value = "填单号" onclick="showfillExpressNumber('${order.id}')"/>
 						&nbsp;
 					</c:if>
-					<div id = "desc_${order.orderId}">
+					<div id = "desc_${order.id}">
 						<c:if test="${not empty order.salerRemark}">
-							<span title="${order.salerRemark}" onclick="showAppendSellerRemarkView('${order.orderId}')"><font color="red">备注</font></span>
+							<span title="${order.salerRemark}" onclick="showAppendSellerRemarkView('${order.id}')"><font color="red">备注</font></span>
 						</c:if>
 						<c:if test="${empty order.salerRemark}">
-							<span onclick="showAppendSellerRemarkView('${order.orderId}')">备注</span>
+							<span onclick="showAppendSellerRemarkView('${order.id}')">备注</span>
 						</c:if>
 					</div>
 				</td>

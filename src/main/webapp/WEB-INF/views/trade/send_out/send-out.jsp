@@ -2,11 +2,10 @@
 <%@ include file="/header.jsp"%>
 
 <script type='text/javascript' src='resources/common.js'></script>
-<script type='text/javascript' src='resources/storage.js'></script>
+<script type='text/javascript' src='resources/trade.js'></script>
 <script type='text/javascript' src='dwr/engine.js'></script>
 <script type='text/javascript' src='dwr/util.js'></script>
-<script type='text/javascript' src='dwr/interface/storageInwarehouseBO.js'></script>
-<script type='text/javascript' src='dwr/interface/bookService.js'></script>
+<script type='text/javascript' src='dwr/interface/orderController.js'></script>
 <script type="text/javascript">
 	document.onkeydown = function(e) {
 		if (!e) {
@@ -24,10 +23,8 @@
 </div>
 
 <!-- 播放器 -->
-<div style="display:none">
-	<audio src="/zis/resources/failPaly.wav" id="failPaly"></audio>
-	<audio src="/zis/resources/scanPass.wav" id="passPlay"></audio>
-</div>
+<audio src="/zis/resources/failPaly.wav" id="failPlay"></audio>
+<audio src="/zis/resources/scanPass.wav" id="passPlay"></audio>
 <div align="center" id = "sendResultDiv">
 </div>
 <p />

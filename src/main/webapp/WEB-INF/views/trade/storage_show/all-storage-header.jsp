@@ -85,14 +85,14 @@
 				<%@ include file="/WEB-INF/views/trade/storage_show/storage-list.jsp"%>
 				<td>
 					${order.getUniqueStatusDisplay("all")}
-					<div id = "blockFlag_${order.orderId}">
+					<div id = "blockFlag_${order.id}">
 						<c:if test="${order.blockFlag}">
 							<span title="${order.blockReason}"><font color="red">已拦截</font></span>
 						</c:if>
 					</div>
 				</td>
 				<td>
-					<div id = "express_${order.orderId}">
+					<div id = "express_${order.id}">
 						${order.expressCompany}
 						<br/>
 						${order.expressNumber}
@@ -102,13 +102,13 @@
 					<%int count = 0;%>
 					
 					<c:if test="${order.canArrangeOrderToPos()}">
-						<input type="button" value = "配货" onclick="pickingUpOrder('${order.orderId}','getAllStorageOrderList')"/>
+						<input type="button" value = "配货" onclick="pickingUpOrder('${order.id}','getAllStorageOrderList')"/>
 						&nbsp;
 						<%count++;%>
 					</c:if>
 					
 					<c:if test="${order.canCancelArrangeOrder()}">
-						<input type="button" value = "取消配货" onclick="cancelArrangeOrder('${order.orderId}','getAllStorageOrderList')"/>
+						<input type="button" value = "取消配货" onclick="cancelArrangeOrder('${order.id}','getAllStorageOrderList')"/>
 						&nbsp;
 						<%count++;%>
 						<%if(count % 2 ==0){%>
@@ -117,7 +117,7 @@
 					</c:if>
 					
 					<c:if test="${order.canLackness()}">
-						<input type="button" value = "缺货" onclick="lackness('${order.orderId}','getAllStorageOrderList')"/>
+						<input type="button" value = "缺货" onclick="lackness('${order.id}','getAllStorageOrderList')"/>
 						&nbsp;
 						<%count++;%>
 						<% if(count % 2 ==0){%>
@@ -135,7 +135,7 @@
 					</c:if>
 					
 					<c:if test="${order.canFillExpressNumber()}">
-						<input type="button" value = "填单号" onclick="showfillExpressNumber('${order.orderId}')"/>
+						<input type="button" value = "填单号" onclick="showfillExpressNumber('${order.id}')"/>
 						&nbsp;
 						<%count++;%>
 						<%if(count % 2 ==0){%>
@@ -143,12 +143,12 @@
 						<%}%>
 					</c:if>
 					
-					<div id = "desc_${order.orderId}">
+					<div id = "desc_${order.id}">
 						<c:if test="${not empty order.salerRemark}">
-							<span title="${order.salerRemark}" onclick="showAppendSellerRemarkView('${order.orderId}')"><font color="red">备注</font></span>
+							<span title="${order.salerRemark}" onclick="showAppendSellerRemarkView('${order.id}')"><font color="red">备注</font></span>
 						</c:if>
 						<c:if test="${empty order.salerRemark}">
-							<span onclick="showAppendSellerRemarkView('${order.orderId}')">备注</span>
+							<span onclick="showAppendSellerRemarkView('${order.id}')">备注</span>
 						</c:if>
 					</div>
 					<%count = 0;%>

@@ -82,14 +82,14 @@
 				<%@ include file="/WEB-INF/views/trade/shop_show/shop-list.jsp"%>
 				<td>
 					${order.getUniqueStatusDisplay("all")}
-					<div id = "blockFlag_${order.orderId}">
+					<div id = "blockFlag_${order.id}">
 						<c:if test="${order.blockFlag}">
 							<span title="${order.blockReason}"><font color="red">已拦截</font></span>
 						</c:if>
 					</div>
 				</td>
 				<td>
-					<div id = "express_${order.orderId}">
+					<div id = "express_${order.id}">
 						${order.expressCompany}
 						<br/>
 						${order.expressNumber}
@@ -99,13 +99,13 @@
 					<% int count = 0; %>
 					
 					<c:if test="${order.canCancelOrder()}">
-						<input type="button" value = "取消订单" onclick="cancelOrder('${order.orderId}','getAllShopOrderList')" />
+						<input type="button" value = "取消订单" onclick="cancelOrder('${order.id}','getAllShopOrderList')" />
 						&nbsp;
 						<% count++; %>
 					</c:if>
 					
 					<c:if test="${order.canPay()}">
-						<input type="button" value = "支付" onclick="payOrder('${order.orderId}','getAllShopOrderList')" />
+						<input type="button" value = "支付" onclick="payOrder('${order.id}','getAllShopOrderList')" />
 						&nbsp;
 						<% count++; %>
 						<% if(count % 2 ==0){%>
@@ -114,7 +114,7 @@
 					</c:if>
 					
 					<c:if test="${order.canApplyRefund()}">
-						<input type="button" value = "申请退款" onclick="showApplyRefundView('${order.orderId}')" />
+						<input type="button" value = "申请退款" onclick="showApplyRefundView('${order.id}')" />
 						&nbsp;
 						<% count++; %>
 						<% if(count % 2 ==0){%>
@@ -123,7 +123,7 @@
 					</c:if>
 					
 					<c:if test="${order.canAgreeRefund()}">
-						<input type="button" value = "同意退款" onclick="agreeRefund'${order.orderId}','getAllShopOrderList')" />
+						<input type="button" value = "同意退款" onclick="agreeRefund'${order.id}','getAllShopOrderList')" />
 						&nbsp;
 						<% count++; %>
 						<% if(count % 2 ==0){%>
@@ -132,7 +132,7 @@
 					</c:if>
 					
 					<c:if test="${order.canCancelRefund()}">
-						<input type="button" value = "取消退款" onclick="cancelRefund('${order.orderId}','getAllShopOrderList')" />
+						<input type="button" value = "取消退款" onclick="cancelRefund('${order.id}','getAllShopOrderList')" />
 						&nbsp;
 						<% count++; %>
 						<% if(count % 2 ==0){%>
@@ -141,7 +141,7 @@
 					</c:if>
 					
 					<c:if test="${order.canChangeOrderAddress()}">
-						<input type="button" value = "改地址" onclick="showOrderAddress('${order.orderId}','${order.receiverName}','${order.receiverPhone}','${order.receiverAddr}')" />
+						<input type="button" value = "改地址" onclick="showOrderAddress('${order.id}','${order.receiverName}','${order.receiverPhone}','${order.receiverAddr}')" />
 						&nbsp;
 						<% count++; %>
 						<% if(count % 2 ==0){%>
@@ -149,7 +149,7 @@
 						<% } %>
 					</c:if>
 					<c:if test="${order.canArrangeOrderToRepo()}">
-						<input type="button" value = "分配仓库" onclick="queryStorageRepoOne('${order.orderId}','getAllShopOrderList')" />
+						<input type="button" value = "分配仓库" onclick="queryStorageRepoOne('${order.id}','getAllShopOrderList')" />
 						&nbsp;
 						<% count++; %>
 						<% if(count % 2 ==0){%>
@@ -158,7 +158,7 @@
 					</c:if>
 					
 					<c:if test="${order.canBlock()}">
-						<input type="button" value = "拦截" onclick="ifBlockOrder('${order.orderId}')" />
+						<input type="button" value = "拦截" onclick="ifBlockOrder('${order.id}')" />
 						&nbsp;
 						<% count++; %>
 						<% if(count % 2 ==0){%>
@@ -166,12 +166,12 @@
 						<% } %>
 					</c:if>
 					
-					<div id = "desc_${order.orderId}">
+					<div id = "desc_${order.id}">
 						<c:if test="${not empty order.salerRemark}">
-							<span title="${order.salerRemark}" onclick="showAppendSellerRemarkView('${order.orderId}')"><font color="red">备注</font></span>
+							<span title="${order.salerRemark}" onclick="showAppendSellerRemarkView('${order.id}')"><font color="red">备注</font></span>
 						</c:if>
 						<c:if test="${empty order.salerRemark}">
-							<span onclick="showAppendSellerRemarkView('${order.orderId}')">备注</span>
+							<span onclick="showAppendSellerRemarkView('${order.id}')">备注</span>
 						</c:if>
 					</div>
 					<% count = 0; %>

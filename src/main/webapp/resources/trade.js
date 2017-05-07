@@ -35,7 +35,7 @@ function modifyOrderAddress() {
 function modifyOrderAddressResult(dto) {
 	if (dto.success) {
 		alert("操作成功");
-		$('address_' + dto.orderId).innerHTML = dto.receiverName;
+		$('address_' + dto.id).innerHTML = dto.receiverName;
 	} else {
 		alert(dto.failReason);
 	}
@@ -84,7 +84,7 @@ function blockOrder() {
 function blockOrderResult(dto) {
 	if (dto.success) {
 		alert("操作成功");
-		$('blockFlag_' + dto.orderId).innerHTML = '<span title="'
+		$('blockFlag_' + dto.id).innerHTML = '<span title="'
 				+ dto.blockReason + '"><font color="red">已拦截</font></span>';
 	} else {
 		alert(dto.failReason);
@@ -122,7 +122,7 @@ function applyRefund() {
 function applyRefundResult(data) {
 	if (data.success) {
 		alert("操作成功");
-		$('buyerMess_' + data.orderId).innerHTML = '<font color="red">'
+		$('buyerMess_' + data.id).innerHTML = '<font color="red">'
 				+ data.buyerMessage + '</font>';
 	} else {
 		alert(data.failReason);
@@ -162,9 +162,9 @@ function appendSellerRemarkResult(data) {
 	if (data.success) {
 		alert("操作成功");
 		var desc = '<span title="' + data.salerRemark
-				+ '" onclick="showAppendSellerRemarkView(\'' + data.orderId
+				+ '" onclick="showAppendSellerRemarkView(\'' + data.id
 				+ '\')"><font color="red">备注</font></span>';
-		$('desc_' + data.orderId).innerHTML = desc;
+		$('desc_' + data.id).innerHTML = desc;
 	} else {
 		alert(data.failReason);
 	}
@@ -181,7 +181,7 @@ function showAllStorageRepo(data) {
 	for ( var i = 0; i < data.length; i++) {
 		selectedContent = selectedContent + '<tr><td>' + data[i].name
 				+ '</td><td><input type="button" onclick="arrangeOrderToPos(\''
-				+ data.repoId + '\')" value="选择"></td></tr>';
+				+ data[i].repoId + '\')" value="选择"></td></tr>';
 	}
 	selectedContent = selectedContent
 			+ '</table></div><p /><input type="button" value="取消" onclick="cancelSelection()" />';
@@ -206,7 +206,7 @@ function queryStorageRepoOne(orderId, forwardUrl) {
 // 单个分配仓库(4-2)
 function queryStorageRepoOneResult(data) {
 	if (data.success) {
-		showStorageRepoOne(data.repoList);
+		showStorageRepoOne(data.orderId, data.forwardUrl, data.repoList);
 	} else {
 		alert(data.failReason);
 	}
@@ -268,7 +268,7 @@ function payOrder(orderId, forwardUrl) {
 		if (!re.test(paymentAmount)) {
 			alert("请输入正确金额");
 		} else {
-			window.location.href = "order/cancelOrder?orderId=" + orderId
+			window.location.href = "order/payOrder?orderId=" + orderId
 					+ "&forwardUrl=" + forwardUrl + "&paymentAmount="
 					+ paymentAmount;
 		}
@@ -411,11 +411,9 @@ function lacknessList() {
 function showfillExpressNumber(orderId) {
 	var selectedContent = '回填单号<div id="selectArea"><table>';
 	selectedContent = selectedContent
-			+ '<tr><td>快递公司</td><td><input type="text" id = "expressCompany" value="'
-			+ receiverName + '"></td></tr>';
+			+ '<tr><td>快递公司</td><td><input type="text" id = "expressCompany" value=""></td></tr>';
 	selectedContent = selectedContent
-			+ '<tr><td>快递单号</td><td><input type="text" id = "expressNumber" value="'
-			+ receiverPhone + '"></td></tr>';
+			+ '<tr><td>快递单号</td><td><input type="text" id = "expressNumber" value=""></td></tr>';
 	selectedContent = selectedContent
 			+ '<tr><td colspan="2"><input type="button" onclick="modifyFillExpressNumber()" value="提交"></td></tr>';
 	selectedContent = selectedContent
@@ -440,7 +438,7 @@ function modifyFillExpressNumber() {
 function modifyFillExpressNumberResult(dto) {
 	if (dto.success) {
 		alert("操作成功");
-		$('express_' + dto.orderId).innerHTML = dto.expressCompany + "<br/>"
+		$('express_' + dto.id).innerHTML = dto.expressCompany + "<br/>"
 				+ dto.expressNumber;
 	} else {
 		alert(dto.failReason);
@@ -551,11 +549,11 @@ function manualTaobaoOrderUpdate(data) {
 		alert("请选择店铺");
 		return;
 	}
-	//TODO 此处要加入传入店铺Id
+	// TODO 此处要加入传入店铺Id
 	var manualOrderType = document.getElementById('manualOrderType').value;
 	var shopId = document.getElementById('shopId').value;
 	orderController.getManualTaobaoOrderOutOrderNumber(manualOrderType,
-			data.value,shopId, manualTaobaoOrderUpdateResult);
+			data.value, shopId, manualTaobaoOrderUpdateResult);
 }
 
 // 检查淘宝订单号并传入session(2-2)
@@ -567,12 +565,12 @@ function manualTaobaoOrderUpdateResult(data) {
 
 // 检查订单类型并传入session(2-1)
 function selectOrderType(data) {
-	
+
 	if (ifSelectShopId()) {
 		alert("请选择店铺");
 		return;
 	}
-	
+
 	if (ifCheckedCreateOrderType()) {
 		alert("请选择下单类型");
 		return;
@@ -650,7 +648,8 @@ function findSkuInfoByBookNameOrIsbnResult(data) {
 				+ data.skuList[i].bookAmount
 				+ '</td><td><input type="button" onclick = "selectBookRequirementAmount(\''
 				+ data.skuList[i].id + '\',\'' + data.skuList[i].isbn + '\',\''
-				+ data.skuList[i].bookName + '\',\'' + data.skuList[i].bookPrice + '\',\''
+				+ data.skuList[i].bookName + '\',\''
+				+ data.skuList[i].bookPrice + '\',\''
 				+ data.skuList[i].bookAmount + '\')" value = "选择" /></td></tr>';
 
 	}
@@ -710,13 +709,14 @@ function createTableNewTrOrTd(newData) {
 			+ '" /> <input type="hidden" name = "skus[' + newData.resultInt
 			+ '].isbn" value = "' + newData.isbn + '" />';
 	objTD2.innerHTML = newData.itemName + '<input type="hidden" name = "skus['
-			+ newData.resultInt + '].itemName" value = "' + newData.itemName + '" />';
+			+ newData.resultInt + '].itemName" value = "' + newData.itemName
+			+ '" />';
 	objTD3.innerHTML = '<div id = "itemCountDiv_' + newData.skuId + '"> '
 			+ newData.itemCount + '<input type="hidden" name = "skus['
-			+ newData.resultInt + '].itemCount" id = "itemCount_' + newData.skuId
-			+ '" value = "' + newData.itemCount + '" /> </div>';
-	objTD4.innerHTML = '<div id = "itemPriceDiv_' + newData.skuId + '"> ' + price
-			+ ' <input type="hidden" name = "skus[' + newData.resultInt
+			+ newData.resultInt + '].itemCount" id = "itemCount_'
+			+ newData.skuId + '" value = "' + newData.itemCount + '" /> </div>';
+	objTD4.innerHTML = '<div id = "itemPriceDiv_' + newData.skuId + '"> '
+			+ price + ' <input type="hidden" name = "skus[' + newData.resultInt
 			+ '].itemPrice" id = "itemPrice_' + newData.skuId + '" value = "'
 			+ price + '" /></div>';
 	objTD5.innerHTML = '<input type="button" onclick="updateSkuItemCount(\''
@@ -766,12 +766,9 @@ function updateSkuItemCountResult(data) {
 	var orderMoney = data.orderMoney;
 	document.getElementById("orderMoney").value = +orderMoney.toFixed(2);
 	$('itemCountDiv_' + data.skuOld.skuId).innerHTML = data.skuOld.itemCount
-			+ '<input type="hidden" name = "skus['
-			+ data.skuOld.resultInt
-			+ '].itemCount" id = "itemCount_'
-			+ data.skuOld.skuId
-			+ '" value = "'
-			+ data.skuOld.itemCount + '" />';
+			+ '<input type="hidden" name = "skus[' + data.skuOld.resultInt
+			+ '].itemCount" id = "itemCount_' + data.skuOld.skuId
+			+ '" value = "' + data.skuOld.itemCount + '" />';
 }
 
 // 修改商品价格(2-1)
@@ -815,9 +812,9 @@ function updateSkuItemPriceResult(data) {
 	var price = data.skuOld.itemPrice;
 	price = +price.toFixed(2);
 	$('itemPriceDiv_' + data.skuOld.skuId).innerHTML = price
-			+ '<input type="hidden" name = "skus['
-			+ data.skuOld.resultInt + '].itemCount" id = "itemCount_'
-			+ data.skuOld.skuId + '" value = "' + price + '" />';
+			+ '<input type="hidden" name = "skus[' + data.skuOld.resultInt
+			+ '].itemCount" id = "itemCount_' + data.skuOld.skuId
+			+ '" value = "' + price + '" />';
 }
 
 // 删除商品(2-1)
@@ -986,7 +983,7 @@ function updateOrderMoneyResult(data) {
 	document.getElementById("orderMoney").value = +orderMoney.toFixed(2);
 }
 
-//手动订单提交检查
+// 手动订单提交检查
 function checkCreateOrderFrom() {
 	if (ifCheckedCreateOrderType()) {
 		alert("请选择下单类型");
@@ -1010,7 +1007,7 @@ function checkCreateOrderFrom() {
 	document.getElementById('createOrderFrom').submit();
 }
 
-//批量订单提交检查
+// 批量订单提交检查
 function checkXlsCreateOrderFrom() {
 	if (ifSelectShopId()) {
 		alert("请选择店铺");
@@ -1019,7 +1016,7 @@ function checkXlsCreateOrderFrom() {
 	return true;
 }
 
-//地址导入提交检查
+// 地址导入提交检查
 function checkXlsAddressInOrderFrom() {
 	if (ifSelectShopId()) {
 		alert("请选择店铺");
@@ -1102,34 +1099,35 @@ function ifCheckedOrderType() {
 
 // ------------------------------------------出库相关------------------------------------
 
-//出库(2-1)
+// 出库(2-1)
 function sendOut() {
 	var expressNumber = document.getElementById("expressNumber").value;
 	if (expressNumber == null || expressNumber == '') {
 		alert("请输入快递单号");
 		return;
 	}
-	orderController.sendOut(expressNumber, sendOutResult);
+	orderController.toSendOut(expressNumber, sendOutResult);
 }
 
 // 出库(2-2)
 function sendOutResult(data) {
-	var passPlay = document.getElementById("passPlay");
-	var failPlay = document.getElementById("failPlay");
 	if (!data.success) {
 		alert(data.failReason);
 		return;
 	}
 	var selectedContent = '';
-	if (data.orderVO.canSendOut()) {
+	var result = data.orderVO.canSendOut;
+	var passPlay = document.getElementById("passPlay");
+	var failPlay = document.getElementById("failPlay");
+	if (result) {
 		selectedContent = '<h2><font color="green">检查通过</font></h2>';
-		passPlay.play();
+		$("passPlay").play();
 	} else {
 		selectedContent = '<h2><font color="red">不能出库</font></h2>';
-		failPlay.play();
+		$("failPlay").play();
 	}
-	var outOrderNumber = '';
-	for ( var i = 0; i < data.orderVO.outOrderNumbers; i++) {
+	var outOrderNumber = ' ';
+	for ( var i = 0; i < data.orderVO.outOrderNumbers.length; i++) {
 		outOrderNumber = outOrderNumber + data.orderVO.outOrderNumbers[i];
 		if (!(data.orderVO.outOrderNumbers.length - 1)) {
 			outOrderNumber = outOrderNumber + "<br/>";
@@ -1137,9 +1135,10 @@ function sendOutResult(data) {
 	}
 
 	var orderDetail = '';
-	for ( var i = 0; i < data.orderVO.orderDetailVOs; i++) {
+	for ( var i = 0; i < data.orderVO.orderDetailVOs.length; i++) {
 		orderDetail = orderDetail + data.orderVO.orderDetailVOs[i].itemName
-				+ ' &nbsp; * &nbsp; ' + data.orderVO.orderDetailVOs[i].itemCount;
+				+ ' &nbsp; * &nbsp; '
+				+ data.orderVO.orderDetailVOs[i].itemCount;
 		if (!(data.orderVO.orderDetailVOs.length - 1)) {
 			orderDetail = orderDetail + "<br/>";
 		}
@@ -1158,10 +1157,10 @@ function sendOutResult(data) {
 			+ data.orderVO.buyerMessage + '</td></tr>';
 	selectedContent = selectedContent + '<tr><td>买家备注</td><td>'
 			+ data.orderVO.salerRemark + '</td></tr>';
-	if (data.orderVO.canSendOut()) {
+	if (data.orderVO.canSendOut) {
 		selectedContent = selectedContent
 				+ '<tr><td><font color="red">拦截说明</font></td><td><font color="red">'
-				+ data.orderVO.canSendOutWithMessage() + '</font></td></tr>';
+				+ data.orderVO.canSendOutWithMessage + '</font></td></tr>';
 	}
 	selectedContent = selectedContent + '</table>';
 	$('sendResultDiv').innerHTML = selectedContent;

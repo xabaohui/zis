@@ -1,6 +1,7 @@
 package com.zis.trade.controller;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -57,25 +58,6 @@ public class OrderDwrController {
 	private ShopService shopsService;
 
 	private final String CREATE_OREDER_VIEW_MAP = "createOrderViewMap";
-
-	/**
-	 * 根据订单Id获取订单
-	 * 
-	 * @param orderId
-	 * @return
-	 */
-	public ChangeOrderAddressDTO queryOrderByOrderId(Integer orderId) {
-		// ChangeOrderAddressDTO dto = new ChangeOrderAddressDTO();
-		// if (orderId == null) {
-		// dto.setSuccess(false);
-		// dto.setFailMessage("orderId不能为空");
-		// return dto;
-		// }
-		// TODO
-		// Order order = this.orderService.findByOrderIdAndCompanyId(orderId,
-		// StorageUtil.getCompanyId());
-		return getOrder();
-	}
 
 	/**
 	 * 获取公司所有仓库单个订单
@@ -137,9 +119,8 @@ public class OrderDwrController {
 			return dto;
 		}
 		try {
-			// TODO
 			OrderVO vo = this.orderService.blockOrder(orderId, StorageUtil.getUserId(), blockReason);
-			// BeanUtils.copyProperties(vo, dto);
+			BeanUtils.copyProperties(vo, dto);
 			dto.setSuccess(true);
 			dto.setBlockReason(blockReason);
 			dto.setId(orderId);
@@ -171,13 +152,11 @@ public class OrderDwrController {
 			return dto;
 		}
 		try {
-			// TODO
-			// OrderVO vo = this.orderService.applyRefund(orderId,
-			// StorageUtil.getUserId(), new Date(), refundMemo);
-			// BeanUtils.copyProperties(vo, dto);
+			OrderVO vo = this.orderService.applyRefund(orderId, StorageUtil.getUserId(), new Date(), refundMemo);
+			BeanUtils.copyProperties(vo, dto);
 			dto.setSuccess(true);
 			dto.setBuyerMessage(refundMemo);
-			dto.setOrderId(orderId);
+			dto.setId(orderId);
 			return dto;
 		} catch (Exception e) {
 			dto.setSuccess(false);
@@ -206,14 +185,10 @@ public class OrderDwrController {
 			return dto;
 		}
 		try {
-			// TODO
-			// String salerRemark =
-			// this.orderService.appendSellerRemark(orderId,
-			// StorageUtil.getUserId(), remark);
+			String salerRemark = this.orderService.appendSellerRemark(orderId, StorageUtil.getUserId(), remark);
 			dto.setSuccess(true);
-			dto.setOrderId(orderId);
-			// dto.setSalerRemark(salerRemark);
-			dto.setSalerRemark(remark);
+			dto.setId(orderId);
+			dto.setSalerRemark(salerRemark);
 			return dto;
 		} catch (Exception e) {
 			dto.setSuccess(false);
@@ -251,19 +226,13 @@ public class OrderDwrController {
 			dto.setFailReason("orderId不能为空");
 			return dto;
 		}
-		// TODO 测试使用
-		ChangeOrderAddressDTO test = getOrder();
 		try {
 			ChangeAddressDTO newAddress = new ChangeAddressDTO();
 			newAddress.setReceiverAddr(receiverAddr);
 			newAddress.setReceiverName(receiverName);
 			newAddress.setReceiverPhone(receiverPhone);
 			OrderVO vo = this.orderService.changeOrderAddress(orderId, StorageUtil.getUserId(), newAddress);
-			BeanUtils.copyProperties(test, dto);
-			// BeanUtils.copyProperties(vo, dto);
-			dto.setReceiverAddr(receiverAddr);
-			dto.setReceiverPhone(receiverPhone);
-			dto.setReceiverName(receiverName);
+			BeanUtils.copyProperties(vo, dto);
 			dto.setSuccess(true);
 			return dto;
 		} catch (Exception e) {
@@ -298,13 +267,11 @@ public class OrderDwrController {
 			dto.setFailReason("orderId不能为空");
 			return dto;
 		}
-		// TODO 测试使用
 		try {
 			this.orderService.fillExpressNumber(orderId, expressNumber, expressCompany, StorageUtil.getUserId());
-			// BeanUtils.copyProperties(vo, dto);
 			dto.setExpressNumber(expressNumber);
 			dto.setExpressCompany(expressCompany);
-			dto.setOrderId(orderId);
+			dto.setId(orderId);
 			dto.setSuccess(true);
 			return dto;
 		} catch (Exception e) {
@@ -312,15 +279,6 @@ public class OrderDwrController {
 			dto.setFailReason(e.getMessage());
 			return dto;
 		}
-	}
-
-	private ChangeOrderAddressDTO getOrder() {
-		ChangeOrderAddressDTO o = new ChangeOrderAddressDTO();
-		o.setId(49213);
-		o.setReceiverAddr("北京市海淀区定慧东里14号楼");
-		o.setReceiverName("帅哥");
-		o.setReceiverPhone("17777777777");
-		return o;
 	}
 
 	// ----------------------创建订单---------------------------------
@@ -358,8 +316,8 @@ public class OrderDwrController {
 	 * @param session
 	 * @return
 	 */
-	public CreateOrderViewDTO getManualTaobaoOrderOutOrderNumber(String manualOrderType,Integer shopId, String outOrderNumber,
-			HttpSession session) {
+	public CreateOrderViewDTO getManualTaobaoOrderOutOrderNumber(String manualOrderType, Integer shopId,
+			String outOrderNumber, HttpSession session) {
 		CreateOrderViewDTO dto = sessionHasDTO(session);
 		if (StringUtils.isBlank(outOrderNumber)) {
 			dto.setSuccess(false);
@@ -372,7 +330,12 @@ public class OrderDwrController {
 			dto.setFailReason("店铺选择有误");
 			return dto;
 		}
-		// TODO 此处要调用service 判断订单号是否重复
+		boolean result = this.orderService.existByOutOrderNumber(shopId, outOrderNumber);
+		if (result) {
+			dto.setSuccess(false);
+			dto.setFailReason("订单号重复");
+			return dto;
+		}
 		try {
 			dto.setSuccess(true);
 			dto.setOutOrderNumber(outOrderNumber);
@@ -477,6 +440,9 @@ public class OrderDwrController {
 			for (Bookinfo book : bookList) {
 				StorageProduct sp = this.storageService.findBySkuIdAndRepoId(book.getId(), StorageUtil.getRepoId());
 				// 可用量不足跳过
+				if(sp == null){
+					continue;
+				}
 				if (sp.getStockAvailable() <= 0) {
 					continue;
 				}
@@ -543,9 +509,9 @@ public class OrderDwrController {
 			if (list == null || list.isEmpty()) {
 				list = new ArrayList<SkuViewInfo>();
 				dto.setSkus(list);
-			}else{
+			} else {
 				for (SkuViewInfo s : list) {
-					if(sb.getSkuId().equals(s.getSkuId())){
+					if (sb.getSkuId().equals(s.getSkuId())) {
 						throw new RuntimeException("图书在订单中存在,请修改其数量");
 					}
 				}
@@ -754,6 +720,7 @@ public class OrderDwrController {
 
 	/**
 	 * 修改总金额
+	 * 
 	 * @param orderMoney
 	 * @param session
 	 * @return
@@ -778,16 +745,17 @@ public class OrderDwrController {
 			return dto;
 		}
 	}
-	
+
 	/**
 	 * 出库
+	 * 
 	 * @param expressNumber
 	 * @return
 	 */
-	public SendOutViewDTO sendOut(String expressNumber){
+	public SendOutViewDTO toSendOut(String expressNumber) {
 		SendOutViewDTO dto = new SendOutViewDTO();
 		try {
-			if(StringUtils.isBlank(expressNumber)){
+			if (StringUtils.isBlank(expressNumber)) {
 				throw new RuntimeException("快递单号不能为空");
 			}
 			String expressNumberTrim = expressNumber.trim();
@@ -824,7 +792,7 @@ public class OrderDwrController {
 		}
 		return orderMoney;
 	}
-	
+
 	/**
 	 * 判断是否有空值
 	 * 
@@ -849,7 +817,7 @@ public class OrderDwrController {
 	 * @return
 	 */
 	private CreateOrderViewDTO sessionHasDTO(HttpSession session) {
-		CreateOrderViewDTO dto =  (CreateOrderViewDTO) session.getAttribute(CREATE_OREDER_VIEW_MAP);
+		CreateOrderViewDTO dto = (CreateOrderViewDTO) session.getAttribute(CREATE_OREDER_VIEW_MAP);
 		if (dto == null) {
 			dto = new CreateOrderViewDTO();
 		}

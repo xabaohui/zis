@@ -34,7 +34,7 @@
 </div>
 <p />
 <div style="width: 100%;" id="infoDiv" align="center">
-	<form id="orderForm" action="">
+	<form id="orderForm" action="" method="post">
 		<table class = "common-table-new">
 		<tr>
 			<th>
@@ -75,24 +75,24 @@
 				<tr>
 				<td>
 					<c:if test="${order.canArrangeOrderToRepo()}">
-						<input name = "orderId" type="checkbox" value="${order.orderId}"/>
+						<input name = "orderId" type="checkbox" value="${order.id}"/>
 					</c:if>
 					
 					<c:if test="${!order.canArrangeOrderToRepo()}">
-						<input name = "orderId" type="checkbox" value="${order.orderId}" disabled="disabled"/>
+						<input name = "orderId" type="checkbox" value="${order.id}" disabled="disabled"/>
 					</c:if>
 				</td>
 				<%@ include file="/WEB-INF/views/trade/shop_show/shop-list.jsp"%>
 				<td>
 					${order.getUniqueStatusDisplay("wait_arrange")}
-					<div id = "blockFlag_${order.orderId}">
+					<div id = "blockFlag_${order.id}">
 						<c:if test="${order.blockFlag}">
 							<span title="${order.blockReason}"><font color="red">已拦截</font></span>
 						</c:if>
 					</div>
 				</td>
 				<td>
-					<div id = "express_${order.orderId}">
+					<div id = "express_${order.id}">
 						${order.expressCompany}
 						<br/>
 						${order.expressNumber}
@@ -102,13 +102,13 @@
 					<% int count = 0; %>
 					
 					<c:if test="${order.canArrangeOrderToRepo()}">
-						<a href = "#">分配仓库</a>
+						<input type="button" value = "分配仓库" onclick="queryStorageRepoOne('${order.id}','getWaitArrangeHeaderList')" />
 						&nbsp;
 						<% count++; %>
 					</c:if>
 					
 					<c:if test="${order.canChangeOrderAddress()}">
-						<input type="button" value = "改地址" onclick="showOrderAddress('${order.orderId}','${order.receiverName}','${order.receiverPhone}','${order.receiverAddr}')" />
+						<input type="button" value = "改地址" onclick="showOrderAddress('${order.id}','${order.receiverName}','${order.receiverPhone}','${order.receiverAddr}')" />
 						&nbsp;
 						<% count++; %>
 						<% if(count % 2 ==0){%>
@@ -117,7 +117,7 @@
 					</c:if>
 					
 					<c:if test="${order.canBlock()}">
-						<input type="button" value = "拦截" onclick="ifBlockOrder('${order.orderId}')" />
+						<input type="button" value = "拦截" onclick="ifBlockOrder('${order.id}')" />
 						&nbsp;
 						<% count++; %>
 						<% if(count % 2 ==0){%>
@@ -125,12 +125,12 @@
 						<% } %>
 					</c:if>
 					
-					<div id = "desc_${order.orderId}">
+					<div id = "desc_${order.id}">
 						<c:if test="${not empty order.salerRemark}">
-							<span title="${order.salerRemark}" onclick="showAppendSellerRemarkView('${order.orderId}')"><font color="red">备注</font></span>
+							<span title="${order.salerRemark}" onclick="showAppendSellerRemarkView('${order.id}')"><font color="red">备注</font></span>
 						</c:if>
 						<c:if test="${empty order.salerRemark}">
-							<span onclick="showAppendSellerRemarkView('${order.orderId}')">备注</span>
+							<span onclick="showAppendSellerRemarkView('${order.id}')">备注</span>
 						</c:if>
 					</div>
 					<% count = 0; %>
@@ -139,7 +139,7 @@
 			</c:forEach>
 		</table>
 		<input type="hidden" name = "forwardUrl" value = "getWaitArrangeHeaderList"/>
-		<input type="hidden" name = "repoId" id ="repoId"/>
+		<input type="hidden" name = "repoId" id = "repoId"/>
 	</form>
 </div>
 <div id="bg-to-be-hidden"></div>
