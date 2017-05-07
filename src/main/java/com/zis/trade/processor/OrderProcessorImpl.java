@@ -110,7 +110,7 @@ public class OrderProcessorImpl implements OrderProcessor {
 		for (SubOrder subOrder : orderDTO.getSubOrders()) {
 			OrderDetail detail = new OrderDetail();
 			BeanUtils.copyProperties(subOrder, detail);
-			detail.setOrderId(order.getOrderId());
+			detail.setOrder(order);
 			detail.setStatus(DetailStatus.VALID.getValue());
 			detail.setCreateTime(new Date());
 			detail.setUpdateTime(new Date());

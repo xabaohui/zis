@@ -6,6 +6,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -49,9 +51,6 @@ public class OrderDetail {
 	@Column(name = "status")
 	private String status;
 
-	@Column(name = "order_id")
-	private Integer orderId;
-
 	@Column(name = "create_time", updatable = false, length = 32)
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createTime;
@@ -64,25 +63,14 @@ public class OrderDetail {
 	@Column(name = "version")
 	private Integer version;
 
+	@ManyToOne
+	@JoinColumn(name = "order_id")
+	private Order order;
+
 	// Constructors
 
 	/** default constructor */
 	public OrderDetail() {
-	}
-
-	/** full constructor */
-	public OrderDetail(Integer itemId, Integer skuId, String itemName, Integer itemCount, Double itemPrice,
-			String status, Integer orderId, Date createTime, Date updateTime, Integer version) {
-		this.itemId = itemId;
-		this.skuId = skuId;
-		this.itemName = itemName;
-		this.itemCount = itemCount;
-		this.itemPrice = itemPrice;
-		this.status = status;
-		this.orderId = orderId;
-		this.createTime = createTime;
-		this.updateTime = updateTime;
-		this.version = version;
 	}
 
 	// Property accessors
@@ -151,14 +139,6 @@ public class OrderDetail {
 		this.status = status;
 	}
 
-	public Integer getOrderId() {
-		return this.orderId;
-	}
-
-	public void setOrderId(Integer orderId) {
-		this.orderId = orderId;
-	}
-
 	public Date getCreateTime() {
 		return this.createTime;
 	}
@@ -181,6 +161,14 @@ public class OrderDetail {
 
 	public void setVersion(Integer version) {
 		this.version = version;
+	}
+
+	public Order getOrder() {
+		return order;
+	}
+
+	public void setOrder(Order order) {
+		this.order = order;
 	}
 	
 	/**

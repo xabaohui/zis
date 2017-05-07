@@ -1,11 +1,15 @@
 package com.zis.trade.entity;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -25,8 +29,8 @@ public class Order {
 
 	@Id
 	@GeneratedValue
-	@Column(name = "order_id", nullable = false)
-	private Integer orderId;
+	@Column(name = "id", nullable = false)
+	private Integer id;
 
 	@Column(name = "shop_id")
 	private Integer shopId;
@@ -120,6 +124,10 @@ public class Order {
 	@Column(name = "version")
 	private Integer version;
 
+	@OneToMany(fetch=FetchType.EAGER)
+	@JoinColumn(name="order_id")
+	private List<OrderDetail> orderDetails;
+
 	// Constructors
 
 	/** default constructor */
@@ -128,12 +136,12 @@ public class Order {
 
 	// Property accessors
 
-	public Integer getOrderId() {
-		return this.orderId;
+	public void setId(Integer id) {
+		this.id = id;
 	}
-
-	public void setOrderId(Integer orderId) {
-		this.orderId = orderId;
+	
+	public Integer getId() {
+		return id;
 	}
 
 	public Integer getShopId() {
@@ -358,6 +366,14 @@ public class Order {
 
 	public void setVersion(Integer version) {
 		this.version = version;
+	}
+
+	public List<OrderDetail> getOrderDetails() {
+		return orderDetails;
+	}
+
+	public void setOrderDetails(List<OrderDetail> orderDetails) {
+		this.orderDetails = orderDetails;
 	}
 
 	/**

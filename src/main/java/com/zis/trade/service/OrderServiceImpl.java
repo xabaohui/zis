@@ -1,6 +1,7 @@
 package com.zis.trade.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -20,6 +21,7 @@ import org.springframework.util.CollectionUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.service.BookService;
+import com.zis.common.mvc.ext.QueryUtil;
 import com.zis.common.util.StringUtil;
 import com.zis.shiro.bean.User;
 import com.zis.shiro.service.SysService;
@@ -30,18 +32,19 @@ import com.zis.storage.service.StorageService;
 import com.zis.trade.dto.ChangeAddressDTO;
 import com.zis.trade.dto.CreateTradeOrderDTO;
 import com.zis.trade.dto.ExpressNumberDTO;
+import com.zis.trade.dto.OrderAddressImportDTO;
 import com.zis.trade.dto.OrderQueryCondition;
 import com.zis.trade.dto.OrderVO;
 import com.zis.trade.dto.OrderVO.OrderDetailVO;
 import com.zis.trade.entity.Order;
 import com.zis.trade.entity.Order.ExpressStatus;
-import com.zis.trade.entity.Order.OrderType;
 import com.zis.trade.entity.Order.PayStatus;
 import com.zis.trade.entity.Order.StorageStatus;
 import com.zis.trade.entity.OrderDetail;
 import com.zis.trade.entity.OrderDetail.DetailStatus;
 import com.zis.trade.entity.OrderLog;
 import com.zis.trade.entity.OrderLog.OperateType;
+import com.zis.trade.entity.OrderOuter;
 import com.zis.trade.processor.OrderHelper;
 import com.zis.trade.processor.OrderProcessor;
 import com.zis.trade.repository.OrderDao;
@@ -83,10 +86,10 @@ public class OrderServiceImpl implements OrderService {
 		Assert.notNull(orderId, "orderId不能为空");
 		Assert.notNull(operator, "operator不能为空");
 		Order order = orderDao.findOne(orderId);
-		cancelOrder(operator, order);
+		cancelOrder(order, operator);
 	}
 
-	private void cancelOrder(Integer operator, Order order) {
+	private void cancelOrder(Order order, Integer operator) {
 		Assert.notNull(order, "订单不存在");
 		if(!OrderHelper.canCancelOrder(order)) {
 			throw new RuntimeException("取消订单失败，当前状态不允许取消");
@@ -94,7 +97,7 @@ public class OrderServiceImpl implements OrderService {
 		order.setPayStatus(PayStatus.CANCELLED.getValue());
 		this.orderDao.save(order);
 		
-		logger.info("取消订单, orderId={}, operator={}", order.getOrderId(), operator);
+		logger.info("取消订单, orderId={}, operator={}", order.getId(), operator);
 		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.CANCEL, "");
 		orderLogDao.save(log);
 	}
@@ -102,8 +105,23 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	@Transactional
 	public void cancelOrder(Integer shopId, String outOrderNumber, Integer operator) {
-		// TODO Auto-generated method stub
 		logger.info("取消订单, shopId={}, outOrderNumber={}, operator={}", shopId, outOrderNumber, operator);
+		List<Order> orders = findOrdersByShopIdAndOutOrderNumber(shopId, outOrderNumber);
+		if(CollectionUtils.isEmpty(orders)) {
+			throw new RuntimeException("订单不存在");
+		}
+		for (Order od : orders) {
+			cancelOrder(od, operator);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<Order> findOrdersByShopIdAndOutOrderNumber(Integer shopId, String outOrderNumber) {
+		OrderOuter outOrder = orderOuterDao.findByShopIdAndOutOrderNumber(shopId, outOrderNumber);
+		if(outOrder == null) {
+			return Collections.EMPTY_LIST;
+		}
+		return orderDao.findByShopIdAndOrderGroupNumber(outOrder.getShopId(), outOrder.getOrderGroupNumber());
 	}
 
 	@Override
@@ -127,17 +145,23 @@ public class OrderServiceImpl implements OrderService {
 		this.orderDao.save(order);
 		
 		logger.info("支付订单, orderId={}, paymentAmount={}, operator={}",
-				order.getOrderId(), paymentAmount, operator);
-		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.PAY, "");
+				order.getId(), paymentAmount, operator);
+		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.PAY, "支付金额:" + paymentAmount);
 		orderLogDao.save(log);
 	}
 
 	@Override
 	@Transactional
 	public void payOrder(Integer shopId, String outOrderNumber, Double paymentAmount, Integer operator) {
-		// TODO Auto-generated method stub
 		logger.info("支付订单, shopId={}, outOrderNumber={}, paymentAmount={}, operator={}",
 				shopId, outOrderNumber, paymentAmount, operator);
+		List<Order> orders = findOrdersByShopIdAndOutOrderNumber(shopId, outOrderNumber);
+		if(CollectionUtils.isEmpty(orders)) {
+			throw new RuntimeException("订单不存在");
+		}
+		for (Order od : orders) {
+			payOrder(od, paymentAmount, operator);
+		}
 	}
 
 	@Override
@@ -163,7 +187,7 @@ public class OrderServiceImpl implements OrderService {
 		this.orderDao.save(order);
 		
 		logger.info("申请订单退款, orderId={}, operator={}, applyTime={}, refundMemo={}",
-				order.getOrderId(), operator, applyTime, refundMemo);
+				order.getId(), operator, applyTime, refundMemo);
 		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.APPLY_REFUND, refundMemo);
 		orderLogDao.save(log);
 		return createOrderVO(order);
@@ -171,11 +195,16 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	@Transactional
-	public OrderVO applyRefund(Integer shopId, String outOrderNumber, Integer operator, Date applyTime, String refundMemo) {
-		// TODO Auto-generated method stub
+	public void applyRefund(Integer shopId, String outOrderNumber, Integer operator, Date applyTime, String refundMemo) {
 		logger.info("申请订单退款, shopId={}, outOrderNumber={}, operator={}, applyTime={}, refundMemo={}",
 				shopId, outOrderNumber, operator, applyTime, refundMemo);
-		return null;
+		List<Order> orders = findOrdersByShopIdAndOutOrderNumber(shopId, outOrderNumber);
+		if(CollectionUtils.isEmpty(orders)) {
+			throw new RuntimeException("订单不存在");
+		}
+		for (Order od : orders) {
+			applyRefund(od, operator, applyTime, refundMemo);
+		}
 	}
 
 	@Override
@@ -311,7 +340,7 @@ public class OrderServiceImpl implements OrderService {
 		request.setOutTradeNo(order.getOrderGroupNumber());
 		request.setRepoId(order.getRepoId());
 		request.setShopId(order.getShopId());
-		List<OrderDetail> details = this.orderDetailDao.findByOrderIdAndStatus(order.getOrderId(), DetailStatus.VALID.getValue());
+		List<OrderDetail> details = this.orderDetailDao.findByOrderIdAndStatus(order.getId(), DetailStatus.VALID.getValue());
 		List<CreateOrderDetail> detailList = new ArrayList<CreateOrderDetail>();
 		for (OrderDetail orderDetail : details) {
 			CreateOrderDetail record = new CreateOrderDetail();
@@ -428,7 +457,7 @@ public class OrderServiceImpl implements OrderService {
 	
 	private OrderVO createOrderVO(Order order) {
 		List<String> outOrderNumbers = orderOuterDao.findOutOrderNumbersByOrderId(order.getOrderGroupNumber());
-		List<OrderDetail> details = orderDetailDao.findByOrderIdAndStatus(order.getOrderId(), DetailStatus.VALID.getValue());
+		List<OrderDetail> details = orderDetailDao.findByOrderIdAndStatus(order.getId(), DetailStatus.VALID.getValue());
 		List<OrderDetailVO> orderDetails = new ArrayList<OrderDetailVO>();
 		for (OrderDetail detail : details) {
 			OrderDetailVO dvo = new OrderDetailVO();
@@ -449,7 +478,7 @@ public class OrderServiceImpl implements OrderService {
 		String storageStatus = StorageStatus.getEnum(order.getStorageStatus()).getDisplay();
 		vo.setStorageStatusDisplay(storageStatus);
 		vo.setOutOrderNumbers(outOrderNumbers);
-		vo.setOrderDetails(orderDetails);
+		vo.setOrderDetailVOs(orderDetails);
 		return vo;
 	}
 
@@ -474,6 +503,9 @@ public class OrderServiceImpl implements OrderService {
 		if(StringUtils.isNotBlank(receiverName) && !order.getReceiverName().equals(receiverName)) {
 			throw new RuntimeException("操作失败，收件人信息不符");
 		}
+		if(isInvalidAddr(order)) {
+			throw new RuntimeException("操作失败，请导入收件人地址（坑爹的淘宝开放平台）");
+		}
 		
 		order.setExpressCompany(expressCompany);
 		order.setExpressNumber(expressNumber);
@@ -482,6 +514,12 @@ public class OrderServiceImpl implements OrderService {
 		
 		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.FILL_EX_NUM, expressCompany + expressNumber);
 		orderLogDao.save(log);
+	}
+
+	private boolean isInvalidAddr(Order order) {
+		return order.getReceiverName().contains("*") 
+				&& order.getReceiverPhone().contains("*") 
+				&& order.getReceiverAddr().contains("*");
 	}
 
 	@Override
@@ -544,122 +582,171 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	public Page<OrderVO> findOrdersByStatus(Integer companyId, PayStatus payStatus, ExpressStatus expressStatus,
 			StorageStatus storageStatus, Pageable page) {
-		// TODO Auto-generated method stub
-		List<OrderVO> rs = new ArrayList<OrderVO>();
-		OrderVO blockVO = buildOrderVO(ExpressStatus.PRINTED, PayStatus.UNPAID, StorageStatus.ARRANGED);
-		blockVO.setBlockFlag(true);
-		blockVO.setBlockReason("买家不要了，请勿发货");
-		rs.add(blockVO);
+		// arg check
+		checkForFindOrdersByStatus(companyId, payStatus, expressStatus, storageStatus);
 		
-		rs.add(buildOrderVO(ExpressStatus.WAIT_FOR_PRINT, PayStatus.UNPAID, StorageStatus.ARRANGED));
-		rs.add(buildOrderVO(ExpressStatus.WAIT_FOR_PRINT, PayStatus.PAID, StorageStatus.ARRANGED));
-		rs.add(buildOrderVO(ExpressStatus.WAIT_FOR_PRINT, PayStatus.REFUNDING, StorageStatus.ARRANGED));
-		rs.add(buildOrderVO(ExpressStatus.WAIT_FOR_PRINT, PayStatus.REFUND_FINISH, StorageStatus.ARRANGED));
-		rs.add(buildOrderVO(ExpressStatus.WAIT_FOR_PRINT, PayStatus.CANCELLED, StorageStatus.ARRANGED));
-		rs.add(buildOrderVO(ExpressStatus.WAIT_FOR_PRINT, PayStatus.UNPAID, StorageStatus.PICKUP));
-		rs.add(buildOrderVO(ExpressStatus.WAIT_FOR_PRINT, PayStatus.PAID, StorageStatus.PICKUP));
-		rs.add(buildOrderVO(ExpressStatus.WAIT_FOR_PRINT, PayStatus.REFUNDING, StorageStatus.PICKUP));
-		rs.add(buildOrderVO(ExpressStatus.WAIT_FOR_PRINT, PayStatus.REFUND_FINISH, StorageStatus.PICKUP));
-		rs.add(buildOrderVO(ExpressStatus.WAIT_FOR_PRINT, PayStatus.CANCELLED, StorageStatus.PICKUP));
-		rs.add(buildOrderVO(ExpressStatus.WAIT_FOR_PRINT, PayStatus.UNPAID, StorageStatus.PICKUP_FINISH));
-		rs.add(buildOrderVO(ExpressStatus.WAIT_FOR_PRINT, PayStatus.PAID, StorageStatus.PICKUP_FINISH));
-		rs.add(buildOrderVO(ExpressStatus.WAIT_FOR_PRINT, PayStatus.REFUNDING, StorageStatus.PICKUP_FINISH));
-		rs.add(buildOrderVO(ExpressStatus.WAIT_FOR_PRINT, PayStatus.REFUND_FINISH, StorageStatus.PICKUP_FINISH));
-		rs.add(buildOrderVO(ExpressStatus.WAIT_FOR_PRINT, PayStatus.CANCELLED, StorageStatus.PICKUP_FINISH));
-		
-		rs.add(buildOrderVO(ExpressStatus.PRINTED, PayStatus.UNPAID, StorageStatus.ARRANGED));
-		rs.add(buildOrderVO(ExpressStatus.PRINTED, PayStatus.PAID, StorageStatus.ARRANGED));
-		rs.add(buildOrderVO(ExpressStatus.PRINTED, PayStatus.REFUNDING, StorageStatus.ARRANGED));
-		rs.add(buildOrderVO(ExpressStatus.PRINTED, PayStatus.REFUND_FINISH, StorageStatus.ARRANGED));
-		rs.add(buildOrderVO(ExpressStatus.PRINTED, PayStatus.CANCELLED, StorageStatus.ARRANGED));
-		rs.add(buildOrderVO(ExpressStatus.PRINTED, PayStatus.UNPAID, StorageStatus.PICKUP));
-		rs.add(buildOrderVO(ExpressStatus.PRINTED, PayStatus.PAID, StorageStatus.PICKUP));
-		rs.add(buildOrderVO(ExpressStatus.PRINTED, PayStatus.REFUNDING, StorageStatus.PICKUP));
-		rs.add(buildOrderVO(ExpressStatus.PRINTED, PayStatus.REFUND_FINISH, StorageStatus.PICKUP));
-		rs.add(buildOrderVO(ExpressStatus.PRINTED, PayStatus.CANCELLED, StorageStatus.PICKUP));
-		rs.add(buildOrderVO(ExpressStatus.PRINTED, PayStatus.UNPAID, StorageStatus.PICKUP_FINISH));
-		rs.add(buildOrderVO(ExpressStatus.PRINTED, PayStatus.PAID, StorageStatus.PICKUP_FINISH));
-		rs.add(buildOrderVO(ExpressStatus.PRINTED, PayStatus.REFUNDING, StorageStatus.PICKUP_FINISH));
-		rs.add(buildOrderVO(ExpressStatus.PRINTED, PayStatus.REFUND_FINISH, StorageStatus.PICKUP_FINISH));
-		rs.add(buildOrderVO(ExpressStatus.PRINTED, PayStatus.CANCELLED, StorageStatus.PICKUP_FINISH));
-		
-		rs.add(buildOrderVO(ExpressStatus.FILLED_EX_NUM, PayStatus.UNPAID, StorageStatus.ARRANGED));
-		rs.add(buildOrderVO(ExpressStatus.FILLED_EX_NUM, PayStatus.PAID, StorageStatus.ARRANGED));
-		rs.add(buildOrderVO(ExpressStatus.FILLED_EX_NUM, PayStatus.REFUNDING, StorageStatus.ARRANGED));
-		rs.add(buildOrderVO(ExpressStatus.FILLED_EX_NUM, PayStatus.REFUND_FINISH, StorageStatus.ARRANGED));
-		rs.add(buildOrderVO(ExpressStatus.FILLED_EX_NUM, PayStatus.CANCELLED, StorageStatus.ARRANGED));
-		rs.add(buildOrderVO(ExpressStatus.FILLED_EX_NUM, PayStatus.UNPAID, StorageStatus.PICKUP));
-		rs.add(buildOrderVO(ExpressStatus.FILLED_EX_NUM, PayStatus.PAID, StorageStatus.PICKUP));
-		rs.add(buildOrderVO(ExpressStatus.FILLED_EX_NUM, PayStatus.REFUNDING, StorageStatus.PICKUP));
-		rs.add(buildOrderVO(ExpressStatus.FILLED_EX_NUM, PayStatus.REFUND_FINISH, StorageStatus.PICKUP));
-		rs.add(buildOrderVO(ExpressStatus.FILLED_EX_NUM, PayStatus.CANCELLED, StorageStatus.PICKUP));
-		rs.add(buildOrderVO(ExpressStatus.FILLED_EX_NUM, PayStatus.UNPAID, StorageStatus.PICKUP_FINISH));
-		rs.add(buildOrderVO(ExpressStatus.FILLED_EX_NUM, PayStatus.PAID, StorageStatus.PICKUP_FINISH));
-		rs.add(buildOrderVO(ExpressStatus.FILLED_EX_NUM, PayStatus.REFUNDING, StorageStatus.PICKUP_FINISH));
-		rs.add(buildOrderVO(ExpressStatus.FILLED_EX_NUM, PayStatus.REFUND_FINISH, StorageStatus.PICKUP_FINISH));
-		rs.add(buildOrderVO(ExpressStatus.FILLED_EX_NUM, PayStatus.CANCELLED, StorageStatus.PICKUP_FINISH));
-		
-		rs.add(buildOrderVO(ExpressStatus.SEND_OUT, PayStatus.PAID, StorageStatus.PICKUP_FINISH));
-		return new PageImpl<OrderVO>(rs);
+		Page<Order> rs = null;
+		if(payStatus != null) {
+			rs = this.orderDao.findByCompanyIdAndPayStatus(companyId, payStatus.getValue(), page);
+		}
+		if(expressStatus != null) {
+			rs = this.orderDao.findByCompanyIdAndExpressStatus(companyId, expressStatus.getValue(), page);
+		}
+		if(storageStatus != null) {
+			rs = this.orderDao.findByCompanyIdAndStorageStatus(companyId, storageStatus.getValue(), page);
+		}
+		if(CollectionUtils.isEmpty(rs.getContent())) {
+			return emptyOrderVOPage(page);
+		}
+		List<OrderVO> list = new ArrayList<OrderVO>((int)rs.getContent().size());
+		for (Order order : rs.getContent()) {
+			OrderVO vo = buildOrderVO(order);
+			list.add(vo);
+		}
+		return new PageImpl<OrderVO>(list, page, rs.getTotalElements());
 	}
 	
-	private OrderVO buildOrderVO(ExpressStatus ex, PayStatus pay, StorageStatus st) {
-		OrderVO vo = new OrderVO();
-		vo.setCreateTime(new Date());
-		vo.setShopName("小龙女书屋");
-		vo.setBuyerMessage("尽快发货哦老板");
-		vo.setSalerRemark("你们猜猜");
-		vo.setExpressStatus(ex.getValue());
-		vo.setExpressStatusDisplay(ex.getDisplay());
-		if(ExpressStatus.FILLED_EX_NUM.equals(ex) || ExpressStatus.SEND_OUT.equals(ex)) {
-			vo.setExpressCompany("中通");
-			vo.setExpressNumber("610313554924");
+	private void checkForFindOrdersByStatus(Integer companyId, PayStatus payStatus, ExpressStatus expressStatus,
+			StorageStatus storageStatus) {
+		Assert.notNull(companyId, "companyId不能为空");
+		int statusCount = 0;
+		if(payStatus != null) statusCount ++;
+		if(expressStatus != null)  statusCount ++;
+		if(storageStatus != null)  statusCount ++;
+		switch(statusCount) {
+		case 0:
+			throw new IllegalArgumentException("状态不能为空");
+		case 1:
+			return;
+		case 2:
+		case 3:
+		default:
+			throw new IllegalArgumentException("payStatus、expressStatus、storageStatus只能输入一个");
 		}
-		vo.setOrderDetails(buildOrderDetailVOs());
-		vo.setOrderId(49213);
-		vo.setOrderType(OrderType.SELF.getValue());
-		List<String> outNumbers = new ArrayList<String>();
-		outNumbers.add("TB313233230640981");
-		outNumbers.add("TB313258780640982");
-		vo.setOutOrderNumbers(outNumbers);
-		vo.setPayStatus(pay.getValue());
-		vo.setPayStatusDisplay(pay.getDisplay());
-		vo.setReceiverName("张三");
-		vo.setReceiverPhone("13810010322");
-		vo.setStorageStatus(st.getValue());
-		vo.setStorageStatusDisplay(st.getDisplay());
+	}
+
+	private OrderVO buildOrderVO(Order order) {
+		OrderVO vo = new OrderVO();
+		BeanUtils.copyProperties(order, vo);
+		vo.setPayStatusDisplay(PayStatus.getEnum(vo.getPayStatus()).getDisplay());
+		vo.setExpressStatusDisplay(ExpressStatus.getEnum(vo.getExpressStatus()).getDisplay());
+		vo.setStorageStatusDisplay(StorageStatus.getEnum(vo.getStorageStatus()).getDisplay());
+		List<String> outOrderNumbers = this.orderOuterDao.findOutOrderNumbersByOrderId(vo.getOrderGroupNumber());
+		vo.setOutOrderNumbers(outOrderNumbers);
+		List<OrderDetailVO> odvos = new ArrayList<OrderVO.OrderDetailVO>(order.getOrderDetails().size());
+		for (OrderDetail od : order.getOrderDetails()) {
+			OrderDetailVO odvo = new OrderDetailVO();
+			Bookinfo book = this.bookService.findBookById(od.getSkuId());
+			if(book != null) {
+				BeanUtils.copyProperties(book, odvo);
+			}
+			BeanUtils.copyProperties(od, odvo);
+			odvos.add(odvo);
+		}
+		vo.setOrderDetailVOs(odvos);
 		return vo;
 	}
-
-	private List<OrderDetailVO> buildOrderDetailVOs() {
-		List<OrderDetailVO> list = new ArrayList<OrderVO.OrderDetailVO>();
-		list.add(buildOrderDetails(3001, "大学语文精讲精练", 3));
-		list.add(buildOrderDetails(5318, "高等数学", 2));
-		return list;
-	}
-
-	private OrderDetailVO buildOrderDetails(Integer bookId, String name, Integer count) {
-		OrderDetailVO vo = new OrderDetailVO();
-		vo.setBookAuthor("楚中天");
-		vo.setBookEdition("第一版");
-		vo.setBookId(bookId);
-		vo.setBookName(name);
-		vo.setIsbn("9787123456789");
-		vo.setItemCount(count);
-		vo.setItemId(bookId);
-		vo.setSkuId(bookId);
-		vo.setItemName(name);
-		vo.setItemPrice(39.5);
-		return vo;
-	}
-
+	
 	@Override
 	public Page<OrderVO> findOrdersByCondition(Integer companyId, OrderQueryCondition cond, Pageable page) {
-		return findOrdersByStatus(null, null, null, null, null);
+		// check arg
+		checkForFindOrdersByCondition(companyId, cond);
+		
+		// 按照网店订单号查询
+		if(StringUtils.isNotBlank(cond.getOutOrderNumber())) {
+			List<String> groupNumbers = this.orderOuterDao.findOrderGroupNumberByOutOrderNumber(cond.getOutOrderNumber());
+			if(CollectionUtils.isEmpty(groupNumbers)) {
+				return emptyOrderVOPage(page);
+			}
+			List<Order> orders = this.orderDao.findByCompanyIdAndOrderGroupNumberIn(companyId, groupNumbers);
+			if(CollectionUtils.isEmpty(orders)) {
+				return emptyOrderVOPage(page);
+			}
+			List<OrderVO> list = new ArrayList<OrderVO>(orders.size());
+			for (Order order : orders) {
+				OrderVO vo = buildOrderVO(order);
+				list.add(vo);
+			}
+			return new PageImpl<OrderVO>(list, page, orders.size());
+		}
+		// 按照其他信息查询
+		else {
+			QueryUtil<Order> qUtil = new QueryUtil<Order>();
+			if(cond.getOrderId() != null) {
+				qUtil.eq("id", cond.getOrderId());
+			}
+			if(StringUtils.isNotBlank(cond.getExpressNumber())) {
+				qUtil.eq("expressNumber", cond.getExpressNumber());
+			}
+			if(StringUtils.isNotBlank(cond.getReceiverName())) {
+				qUtil.eq("receiverName", cond.getReceiverName());
+			}
+			if(StringUtils.isNotBlank(cond.getReceiverPhone())) {
+				qUtil.eq("receiverPhone", cond.getReceiverPhone());
+			}
+			Page<Order> orders = orderDao.findAll(qUtil.getSpecification(), page);
+			if(CollectionUtils.isEmpty(orders.getContent())) {
+				return emptyOrderVOPage(page);
+			}
+			List<OrderVO> list = new ArrayList<OrderVO>(orders.getContent().size());
+			for (Order order : orders) {
+				OrderVO vo = buildOrderVO(order);
+				list.add(vo);
+			}
+			return new PageImpl<OrderVO>(list, page, orders.getTotalElements());
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private Page<OrderVO> emptyOrderVOPage(Pageable page) {
+		return new PageImpl<OrderVO>(Collections.EMPTY_LIST, page, 0);
+	}
+
+	private void checkForFindOrdersByCondition(Integer companyId, OrderQueryCondition cond) {
+		Assert.notNull(companyId, "companyId不能为空");
+		Assert.notNull(cond, "OrderQueryCondition不能为空");
+		// 网店订单号为空，其他参数必须不为空；网店订单号不为空，其他参数必须为空
+		int argCount = 0;
+		if(cond.getOrderId() != null) argCount ++;
+		if(StringUtils.isNotBlank(cond.getExpressNumber())) argCount ++;
+		if(StringUtils.isNotBlank(cond.getReceiverName())) argCount ++;
+		if(StringUtils.isNotBlank(cond.getReceiverPhone())) argCount ++;
+		if(StringUtils.isNotBlank(cond.getOutOrderNumber())) {
+			if(argCount > 0) {
+				throw new IllegalArgumentException("网店订单号和其他查询条件不能同时输入");
+			}
+		} else {
+			if(argCount == 0) {
+				throw new IllegalArgumentException("请输入查询条件");
+			}
+		}
 	}
 
 	@Override
 	public Order findByOrderIdAndCompanyId(Integer orderId, Integer companyId) {
-		return this.orderDao.findByOrderIdAndCompanyId(orderId, companyId);
+		return this.orderDao.findByIdAndCompanyId(orderId, companyId);
+	}
+
+	@Override
+	public boolean existByOutOrderNumber(Integer shopId, String outOrderNumber) {
+		OrderOuter outOrder = orderOuterDao.findByShopIdAndOutOrderNumber(shopId, outOrderNumber);
+		return outOrder != null;
+	}
+
+	@Override
+	public void importReceiverAddr(List<OrderAddressImportDTO> addrs) {
+		if(CollectionUtils.isEmpty(addrs)) {
+			throw new RuntimeException("导入地址失败，参数为空");
+		}
+		for (OrderAddressImportDTO addr : addrs) {
+			List<String> outNumbers = orderOuterDao.findOrderGroupNumberByOutOrderNumber(addr.getOutOrderNumber());
+			List<Order> orders = orderDao.findByOrderGroupNumberIn(outNumbers);
+			for (Order order : orders) {
+				order.setReceiverAddr(addr.getReceiverAddr());
+				order.setReceiverName(addr.getReceiverName());
+				order.setReceiverPhone(addr.getReceiverPhone());
+			}
+			orderDao.save(orders);
+		}
 	}
 }

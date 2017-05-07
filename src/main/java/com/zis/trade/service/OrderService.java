@@ -5,11 +5,11 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.zis.trade.dto.ChangeAddressDTO;
 import com.zis.trade.dto.CreateTradeOrderDTO;
 import com.zis.trade.dto.ExpressNumberDTO;
+import com.zis.trade.dto.OrderAddressImportDTO;
 import com.zis.trade.dto.OrderQueryCondition;
 import com.zis.trade.dto.OrderVO;
 import com.zis.trade.entity.Order;
@@ -114,7 +114,7 @@ public interface OrderService {
 	 * @param refundMemo
 	 *            退款说明
 	 */
-	OrderVO applyRefund(Integer shopId, String outOrderNumber, Integer operator, Date applyTime, String refundMemo);
+	void applyRefund(Integer shopId, String outOrderNumber, Integer operator, Date applyTime, String refundMemo);
 
 	/**
 	 * 同意退款，资金状态：退款中->订单关闭(已退款)
@@ -314,4 +314,18 @@ public interface OrderService {
 	 * @return
 	 */
 	Order findByOrderIdAndCompanyId(Integer orderId,Integer companyId);
+	
+	/**
+	 * 判断某个网店订单号是否存在
+	 * @param outOrderNumber 网店订单号
+	 * @return
+	 */
+	boolean existByOutOrderNumber(Integer shopId, String outOrderNumber);
+	
+	/**
+	 * 更新地址<p/>
+	 * XXX 不限定公司，如果导入地址变成常规化功能，这里是存在乱改数据的风险的
+	 * @param addrs
+	 */
+	void importReceiverAddr(List<OrderAddressImportDTO> addrs);
 }
