@@ -22,6 +22,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.zis.storage.dto.CreateOrderDTO;
 import com.zis.storage.dto.CreateOrderDTO.CreateOrderDetail;
 import com.zis.storage.dto.StockDTO;
+import com.zis.storage.dto.StorageLacknessOpDTO;
 import com.zis.storage.entity.StorageIoBatch;
 import com.zis.storage.entity.StorageIoBatch.BizType;
 import com.zis.storage.entity.StorageIoDetail;
@@ -476,7 +477,7 @@ public class StorageServiceImpl implements StorageService {
 
 	@Override
 	@Transactional
-	public StorageIoDetail lackAll(Integer ioDetailId, Integer operator) {
+	public StorageLacknessOpDTO lackAll(Integer ioDetailId, Integer operator) {
 		logger.info("[全部缺货] ioDetailId={}, operator={}", ioDetailId, operator);
 		checkForPickup(ioDetailId, operator);
 		// 更新出库明细为缺货
@@ -485,14 +486,44 @@ public class StorageServiceImpl implements StorageService {
 		finishOccupy(detail, DetailStatus.LACKNESS);
 		// 重新生成等待取件的记录，并关联到当前批次中
 		StorageIoBatch batch = this.storageIoBatchDao.findOne(detail.getBatchId());
-		arrangeOrder(operator, batch, detail.getProductId(), detail.getAmount(), detail.getOrderId());
+		boolean available = haveAvailableAmount(detail.getProductId(), detail.getAmount());
+		String lackOutTradeNo = null;
+		if(available) {
+			arrangeOrder(operator, batch, detail.getProductId(), detail.getAmount(), detail.getOrderId());
+		} else {
+			// 没有足够库存，标记为缺货
+			StorageOrder order = storageOrderDao.findOne(detail.getOrderId());
+			order.setTradeStatus(TradeStatus.LACKNESS.getValue());
+			order.setGmtModify(new Date());
+			this.storageOrderDao.save(order);
+			lackOutTradeNo = order.getOutTradeNo();
+			logger.info("[缺货]没有足够的库存，productId={}, amount={}, orderId={}",
+					detail.getProductId(), detail.getAmount(), detail.getOrderId());
+		}
 		// 返回下一条等待取件的记录
-		return doPickupLock(batch.getBatchId(), operator);
+		StorageIoDetail rs = doPickupLock(batch.getBatchId(), operator);
+		StorageLacknessOpDTO lackDTO = new StorageLacknessOpDTO();
+		if(rs != null) {
+			BeanUtils.copyProperties(rs, lackDTO);
+			lackDTO.setHasNext(true);
+		}
+		lackDTO.setLackOutTradeNo(lackOutTradeNo);
+		lackDTO.setLacknessMatchNewPos(available);
+		return lackDTO;
+	}
+
+	private boolean haveAvailableAmount(Integer productId, Integer amount) {
+		List<StockDTO> stocks = this.storagePosStockDao.findAvailableStock(productId);
+		int availableAmt = 0;
+		for (StockDTO stock : stocks) {
+			availableAmt += (stock.getTotalAmt() - stock.getOccupyAmt());
+		}
+		return availableAmt >= amount;
 	}
 
 	@Override
 	@Transactional
-	public StorageIoDetail lackPart(Integer ioDetailId, Integer operator, Integer actualAmt) {
+	public StorageLacknessOpDTO lackPart(Integer ioDetailId, Integer operator, Integer actualAmt) {
 		logger.info("[部分缺货] ioDetailId={}, operator={}, 实际发货量={}", ioDetailId, operator, actualAmt);
 		checkForPickup(ioDetailId, operator);
 		if (actualAmt == null || actualAmt < 0) {

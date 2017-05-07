@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import com.zis.storage.entity.StorageIoDetail;
 import com.zis.trade.dto.ChangeAddressDTO;
 import com.zis.trade.dto.CreateTradeOrderDTO;
 import com.zis.trade.dto.ExpressNumberDTO;
@@ -228,7 +229,17 @@ public interface OrderService {
 	 * @param orderId
 	 * @param operator
 	 */
-	void lackness(Integer orderId, Integer operator);
+	StorageIoDetail lackAll(Integer shopId, Integer ioDetailId, Integer operator);
+
+	/**
+	 * 订单缺货，配货状态：配货中->未分配仓库
+	 * <p/>
+	 * TODO 需重新考虑缺货且无后续可用库位补充的情况，建议仓库端手动返回
+	 * 
+	 * @param orderId
+	 * @param operator
+	 */
+	StorageIoDetail lackPart(Integer shopId, Integer ioDetailId, Integer actualAmt, Integer operator);
 
 	/**
 	 * 打印快递单，物流状态：未打印->已打印

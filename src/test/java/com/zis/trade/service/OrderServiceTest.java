@@ -192,6 +192,22 @@ public class OrderServiceTest extends BaseTestUnit {
 		service.importReceiverAddr(addrs);
 	}
 	
+	@Test
+	public void testLackAllPre() {
+		CreateTradeOrderDTO orderDTO = createOrder("张三-拦截");
+		Order order = service.createOrder(orderDTO);
+		service.arrangeOrderToRepo(order.getId(), 111, 1);
+		List<Integer> orderIds = new ArrayList<Integer>();
+		orderIds.add(order.getId());
+		service.arrangeOrderToPos(1, orderIds, 111);
+	}
+
+	@Test
+	public void testLackAll() {
+		StorageIoDetail detail = this.storageService.pickupLock(27, 111);
+		service.lackAll(1, detail.getDetailId(), 111);
+	}
+	
 	private CreateTradeOrderDTO createOrder(String name) {
 		CreateTradeOrderDTO orderDTO = new CreateTradeOrderDTO();
 		orderDTO.setOperator(1101);

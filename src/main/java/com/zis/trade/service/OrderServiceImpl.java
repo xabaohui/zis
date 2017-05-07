@@ -26,7 +26,9 @@ import com.zis.common.util.StringUtil;
 import com.zis.shiro.bean.User;
 import com.zis.shiro.service.SysService;
 import com.zis.storage.dto.CreateOrderDTO;
+import com.zis.storage.dto.StorageLacknessOpDTO;
 import com.zis.storage.dto.CreateOrderDTO.CreateOrderDetail;
+import com.zis.storage.entity.StorageIoDetail;
 import com.zis.storage.entity.StorageOrder;
 import com.zis.storage.service.StorageService;
 import com.zis.trade.dto.ChangeAddressDTO;
@@ -414,9 +416,56 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	@Transactional
-	public void lackness(Integer orderId, Integer operator) {
-		// TODO Auto-generated method stub
-		logger.info("缺货订单退出仓库, orderId={}, operator={}", orderId, operator);
+	public StorageIoDetail lackAll(Integer shopId, Integer ioDetailId, Integer operator) {
+		Assert.notNull(shopId, "shopId不能为空");
+		Assert.notNull(ioDetailId, "ioDetailId不能为空");
+		Assert.notNull(operator, "operator不能为空");
+		
+		StorageLacknessOpDTO lacknessDTO = storageService.lackAll(ioDetailId, operator);
+		if(!lacknessDTO.getLacknessMatchNewPos()) {
+			// 缺货且未匹配到
+			doOrderLacknesss(shopId, operator, lacknessDTO);
+		}
+		if(lacknessDTO.isHasNext()) {
+			return (StorageIoDetail) lacknessDTO;
+		} else {
+			return null;
+		}
+	}
+
+	private void doOrderLacknesss(Integer shopId, Integer operator, StorageLacknessOpDTO lacknessDTO) {
+		String orderGroupNumber = lacknessDTO.getLackOutTradeNo();
+		// FIXME 订单和仓储系统的关联，需要改成Id关联确保唯一
+		List<Order> orders = this.orderDao.findByShopIdAndOrderGroupNumber(shopId, orderGroupNumber);
+		for (Order order : orders) {
+			if(!OrderHelper.canLackness(order)) {
+				throw new RuntimeException("订单状态不允许执行缺货操作");
+			}
+			order.setStorageStatus(StorageStatus.WAIT_ARRANGE_BY_LACKNESS.getValue());
+			order.setRepoId(null);
+			this.orderDao.save(order);
+			
+			OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.LACKNESS, "");
+			this.orderLogDao.save(log);		
+		}
+	}
+	
+	@Override
+	public StorageIoDetail lackPart(Integer shopId, Integer ioDetailId, Integer actualAmt, Integer operator) {
+		Assert.notNull(shopId, "shopId不能为空");
+		Assert.notNull(ioDetailId, "ioDetailId不能为空");
+		Assert.notNull(operator, "operator不能为空");
+		
+		StorageLacknessOpDTO lacknessDTO = storageService.lackPart(ioDetailId, operator, actualAmt);
+		if(!lacknessDTO.getLacknessMatchNewPos()) {
+			// 缺货且未匹配到
+			doOrderLacknesss(shopId, operator, lacknessDTO);
+		}
+		if(lacknessDTO.isHasNext()) {
+			return (StorageIoDetail) lacknessDTO;
+		} else {
+			return null;
+		}
 	}
 	
 	@Override
