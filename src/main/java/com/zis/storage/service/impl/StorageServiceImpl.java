@@ -134,7 +134,8 @@ public class StorageServiceImpl implements StorageService {
 		StorageOrder order = new StorageOrder();
 		Date now = new Date();
 		order.setOrderType(OrderType.SELF.getValue());
-		order.setOutTradeNo(request.getOutTradeNo());
+		// order.setOutTradeNo(request.getOutTradeNo());
+		order.setOutOrderId(request.getOutOrderId());
 		order.setBuyerName(request.getBuyerName());
 		order.setAmount(totalAmount);
 		order.setRepoId(request.getRepoId());
@@ -145,7 +146,7 @@ public class StorageServiceImpl implements StorageService {
 		order.setGmtCreate(now);
 		order.setGmtModify(now);
 		this.storageOrderDao.save(order);
-		logger.info("[创建订单] orderId={}, outTradeNo={}, orderDetail={}", order.getOrderId(), order.getOutTradeNo(),
+		logger.info("[创建订单] orderId={}, outOrderId={}, orderDetail={}", order.getOrderId(), order.getOutOrderId(),
 				orderDetail);
 
 		for (CreateOrderDetail detail : detailList) {
@@ -296,8 +297,8 @@ public class StorageServiceImpl implements StorageService {
 		if (request == null) {
 			throw new IllegalArgumentException("request不能为空");
 		}
-		if (StringUtils.isBlank(request.getOutTradeNo())) {
-			throw new IllegalArgumentException("OutTradeNo不能为空");
+		if (request.getOutOrderId() == null) {
+			throw new IllegalArgumentException("OutOrderId不能为空");
 		}
 		if (StringUtils.isBlank(request.getBuyerName())) {
 			throw new IllegalArgumentException("buyerName不能为空");
@@ -315,18 +316,18 @@ public class StorageServiceImpl implements StorageService {
 
 	@Override
 	@Transactional
-	public int arrangeOrder(Integer repoId, List<String> outTradeNos, Integer operator) {
-		if (CollectionUtils.isEmpty(outTradeNos)) {
+	public int arrangeOrder(Integer repoId, List<Integer> outOrderIds, Integer operator) {
+		if (CollectionUtils.isEmpty(outOrderIds)) {
 			throw new IllegalArgumentException("orderIds不能为空");
 		}
 		// 创建StorageIoBatch
 		StorageIoBatch batch = saveStorageIoBatch(repoId, operator, BizType.OUT_BATCH, "订单出库");
 		// 遍历所有订单，执行分配库位的操作
 		Integer totalAmt = 0;
-		for (String outTradeNo : outTradeNos) {
-			StorageOrder order = this.storageOrderDao.findByOutTradeNo(outTradeNo);
+		for (Integer outOrderId : outOrderIds) {
+			StorageOrder order = this.storageOrderDao.findByOutOrderId(outOrderId);
 			if (order == null) {
-				throw new RuntimeException("order不存在, outTradeNo=" + outTradeNo);
+				throw new RuntimeException("order不存在, outOrderId=" + outOrderId);
 			}
 			if (!repoId.equals(order.getRepoId())) {
 				throw new RuntimeException("所选订单不属于同一个仓库");
@@ -487,7 +488,7 @@ public class StorageServiceImpl implements StorageService {
 		// 重新生成等待取件的记录，并关联到当前批次中
 		StorageIoBatch batch = this.storageIoBatchDao.findOne(detail.getBatchId());
 		boolean available = haveAvailableAmount(detail.getProductId(), detail.getAmount());
-		String lackOutTradeNo = null;
+		Integer lackOutOrderId = null;
 		if(available) {
 			arrangeOrder(operator, batch, detail.getProductId(), detail.getAmount(), detail.getOrderId());
 		} else {
@@ -496,7 +497,7 @@ public class StorageServiceImpl implements StorageService {
 			order.setTradeStatus(TradeStatus.LACKNESS.getValue());
 			order.setGmtModify(new Date());
 			this.storageOrderDao.save(order);
-			lackOutTradeNo = order.getOutTradeNo();
+			lackOutOrderId = order.getOutOrderId();
 			logger.info("[缺货]没有足够的库存，productId={}, amount={}, orderId={}",
 					detail.getProductId(), detail.getAmount(), detail.getOrderId());
 		}
@@ -507,7 +508,7 @@ public class StorageServiceImpl implements StorageService {
 			BeanUtils.copyProperties(rs, lackDTO);
 			lackDTO.setHasNext(true);
 		}
-		lackDTO.setLackOutTradeNo(lackOutTradeNo);
+		lackDTO.setLackOutOrderId(lackOutOrderId);
 		lackDTO.setLacknessMatchNewPos(available);
 		return lackDTO;
 	}
@@ -569,7 +570,7 @@ public class StorageServiceImpl implements StorageService {
 
 	@Override
 	@Transactional
-	public List<String> finishBatchSend(Integer batchId) {
+	public List<Integer> finishBatchSend(Integer batchId) {
 		if (batchId == null) {
 			throw new IllegalArgumentException("batchId不能为空");
 		}
@@ -594,7 +595,7 @@ public class StorageServiceImpl implements StorageService {
 		this.storageIoBatchDao.save(batch);
 		this.storageOrderDao.updateToSentByBatchId(batchId);
 		logger.info("[批量出库完成] batchId={}", batchId);
-		return this.storageOrderDao.findOutTradeNosByBatchId(batchId);
+		return this.storageOrderDao.findOutOrderIdsByBatchId(batchId);
 	}
 
 	@Override
@@ -624,11 +625,10 @@ public class StorageServiceImpl implements StorageService {
 	
 	@Override
 	@Transactional
-	public void cancelOrder(Integer repoId, String outOrderNumber) {
-		logger.info("[取消订单] repoId={}, outOrderNumber={}", repoId, outOrderNumber);
-		
-		StorageOrder order = this.storageOrderDao.findByRepoIdAndOutTradeNoAndTradeStatus(repoId, outOrderNumber, TradeStatus.CREATED.getValue());
-		Assert.notNull(order, "订单不存在"  + outOrderNumber);
+	public void cancelOrder(Integer repoId, Integer outOrderId) {
+		logger.info("[取消订单] repoId={}, outOrderId={}", repoId, outOrderId);
+		StorageOrder order = this.storageOrderDao.findByOutOrderId(outOrderId);
+		Assert.notNull(order, "订单不存在outOrderId="  + outOrderId);
 		cancelOrder(order.getOrderId(), order);
 	}
 

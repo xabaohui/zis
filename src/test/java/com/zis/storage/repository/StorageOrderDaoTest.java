@@ -43,9 +43,11 @@ public class StorageOrderDaoTest extends BaseTestUnit {
 
 	private StorageOrder buildOrder() {
 		StorageOrder o = new StorageOrder();
-		o.setOutTradeNo("123123123");
+		o.setOutOrderId(1111);
 		o.setRepoId(1);
 		o.setShopId(1);
+		o.setAmount(1);
+		o.setBuyerName("buyer");
 		o.setOrderDetail("testDetail");
 		o.setOrderType(OrderType.SELF.getValue());
 		o.setTradeStatus(TradeStatus.CREATED.getValue());

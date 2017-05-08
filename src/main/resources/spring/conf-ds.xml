@@ -19,7 +19,7 @@
 			value="jdbc:mysql://localhost:3306/zisdb?useUnicode=true&amp;characterEncoding=UTF-8">
 		</property>
 		<property name="username" value="root"></property>
-		<property name="password" value="root123"></property>
+		<property name="password" value="123456"></property>
 		<property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
 	</bean>
 	

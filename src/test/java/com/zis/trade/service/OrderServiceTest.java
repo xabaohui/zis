@@ -133,6 +133,7 @@ public class OrderServiceTest extends BaseTestUnit {
 		CreateTradeOrderDTO orderDTO = createOrder("张三-拦截");
 		Order order = service.createOrder(orderDTO);
 		service.appendSellerRemark(order.getId(), 1, "仔细打包");
+		service.appendSellerRemark(order.getId(), 1, "仔细打包");
 	}
 	
 	@Test
@@ -204,8 +205,13 @@ public class OrderServiceTest extends BaseTestUnit {
 
 	@Test
 	public void testLackAll() {
-		StorageIoDetail detail = this.storageService.pickupLock(27, 111);
-		service.lackAll(1, detail.getDetailId(), 111);
+		StorageIoDetail detail = this.storageService.pickupLock(36, 111);
+		service.lackAll(detail.getDetailId(), 111);
+	}
+	
+	@Test
+	public void testFinishSend() {
+		service.finishSend(1, 36, 11);
 	}
 	
 	private CreateTradeOrderDTO createOrder(String name) {

@@ -25,9 +25,12 @@ public class StorageOrder {
 	@GeneratedValue
 	@Column(name = "order_id")
 	private Integer orderId;
+	
+	@Column(name = "out_order_id", nullable = false)
+	private Integer outOrderId;
 
-	@Column(name = "out_trade_no", nullable = false)
-	private String outTradeNo;
+	//	@Column(name = "out_trade_no", nullable = false)
+//	private String outTradeNo;
 	
 	@Column(name = "buyer_name", nullable = false)
 	private String buyerName;
@@ -70,12 +73,12 @@ public class StorageOrder {
 		this.orderId = orderId;
 	}
 
-	public String getOutTradeNo() {
-		return outTradeNo;
+	public void setOutOrderId(Integer outOrderId) {
+		this.outOrderId = outOrderId;
 	}
-
-	public void setOutTradeNo(String outTradeNo) {
-		this.outTradeNo = outTradeNo;
+	
+	public Integer getOutOrderId() {
+		return outOrderId;
 	}
 	
 	public String getBuyerName() {
