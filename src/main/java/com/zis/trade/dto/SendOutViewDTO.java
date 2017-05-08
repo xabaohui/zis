@@ -5,7 +5,7 @@ public class SendOutViewDTO {
 	private boolean success;
 
 	private String failReason;
-
+	
 	private OrderVO orderVO;
 
 	public boolean getSuccess() {
@@ -31,5 +31,4 @@ public class SendOutViewDTO {
 	public void setOrderVO(OrderVO orderVO) {
 		this.orderVO = orderVO;
 	}
-
 }

@@ -55,15 +55,15 @@
 		</tr>
 		</table>
 		<table id = "common-table">
+<!-- 			<tr> -->
+<!-- 				<td colspan="10" align="left" height="60px"> -->
+<!-- 					<input style="margin-left: 800px;" type="button" value = "批量缺货" onclick="lacknessList()"/> -->
+<!-- 				</td> -->
+<!-- 			</tr> -->
 			<tr>
-				<td colspan="10" align="left" height="60px">
-					<input style="margin-left: 800px;" type="button" value = "批量缺货" onclick="lacknessList()"/>
-				</td>
-			</tr>
-			<tr>
-				<th>
-					<input type="checkbox" id = "checkAll" onclick = "checkAllOId()"/>全选
-				</th>
+<!-- 				<th> -->
+<!-- 					<input type="checkbox" id = "checkAll" onclick = "checkAllOId()"/>全选 -->
+<!-- 				</th> -->
 				<th>订单Id</th>
 				<th>创建时间</th>
 				<th>所属店铺</th>
@@ -76,14 +76,14 @@
 			</tr>
 			<c:forEach items="${orderList}" var="order">
 				<tr>
-				<td>
-					<c:if test="${order.canLackness()}">
-						<input name = "orderId" type="checkbox" value="${order.id}"/>
-					</c:if>
-					<c:if test="${!order.canLackness()}">
-						<input name = "orderId" type="checkbox" value="${order.id}" disabled="disabled"/>
-					</c:if>
-				</td>
+<!-- 				<td> -->
+<!-- 					<c:if test="${order.canLackness()}"> -->
+<!-- 						<input name = "orderId" type="checkbox" value="${order.id}"/> -->
+<!-- 					</c:if> -->
+<!-- 					<c:if test="${!order.canLackness()}"> -->
+<!-- 						<input name = "orderId" type="checkbox" value="${order.id}" disabled="disabled"/> -->
+<!-- 					</c:if> -->
+<!-- 				</td> -->
 				<%@ include file="/WEB-INF/views/trade/storage_show/storage-list.jsp"%>
 				<td>
 					${order.getUniqueStatusDisplay("arranged")}
@@ -101,10 +101,10 @@
 					</div>
 				</td>
 				<td>
-					<c:if test="${order.canLackness()}">
-					<input type="button" value = "缺货" onclick="lackness('${order.id}','getPickupList')"/>
-						&nbsp;
-					</c:if>
+<!-- 					<c:if test="${order.canLackness()}"> -->
+<!-- 					<input type="button" value = "缺货" onclick="lackness('${order.id}','getPickupList')"/> -->
+<!-- 						&nbsp; -->
+<!-- 					</c:if> -->
 					<div id = "desc_${order.id}">
 						<c:if test="${not empty order.salerRemark}">
 							<span title="${order.salerRemark}" onclick="showAppendSellerRemarkView('${order.id}')"><font color="red">备注</font></span>

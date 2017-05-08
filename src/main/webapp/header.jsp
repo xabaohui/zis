@@ -332,15 +332,16 @@
 						<br/>
 						<font size="4px" color="green" style="font-weight: bolder;" >出库相关</font>
 						<br/>
-						<li><a href="storage/gotoCreateOrder">下单</a></li>
-						<br/>
-						<li><a href="storage/queryStorageOrder">订单列表</a></li>
+						<li><a href="order/getWaitPickUpList">订单列表</a></li>
 						<br/>
 						<li><a href="storage/querytTakeGoods">开始配货</a></li>
 						<br/>
 						<li><a href="storage/gotoFastTakeGoods">快速出库</a></li>
 						<br/>
 						<li><a href="storage/gotoManualTakeGoods">手动出库</a></li>
+						<br/>
+						<li><a href="order/sendOut">出库扫描</a></li>
+						<br/>
 				</ul>
 			</ul>
 			<ul class = "uls" onclick="checked(this);">
@@ -348,14 +349,11 @@
 				<ul name = "showListTop" style="display: none" class = "showListTop">
 						<font size="4px" color="green" style="font-weight: bolder;" >查询相关</font>
 						<br/>
-						<li><a href="order/getWaitPickUpList">订单列表-仓库视角</a></li>
-						<br/>
 						<li><a href="order/getUnpaidList">订单列表-店铺视角</a></li>
 						<br/>
 						<li><a href="order/gotoCreateOrder">创建订单</a></li>
 						<br/>
-						<li><a href="order/sendOut">出库扫描</a></li>
-						<br/>
+						
 				</ul>
 			</ul>
 		</div>

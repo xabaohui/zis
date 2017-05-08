@@ -82,23 +82,23 @@ window.onload = function() {
 				</td>
 				<td><spring:errors delimiter="," path="outOrderNumber" cssStyle="color:red"/></td>
 			</tr>
-			<tr>
-				<td>订单类型:</td>
-				<td>
-					<input type="radio" name = "orderType" value = "self" onclick="selectOrderType(this)"/>
-					自发
-				</td>
-				<td>
-					<input type="radio" name = "orderType" value = "for_other" onclick="selectOrderType(this)" />
-					代发
-				</td>
-				<td>
-					<input type="radio" name = "orderType" value = "to_other" onclick="selectOrderType(this)" />
-					委派
-					<input type="hidden" name = "checkOrderType" id = "checkOrderType" value = "${dto.orderType}"/>
-				</td>
-				<td><spring:errors delimiter="," path="orderType" cssStyle="color:red"/></td>
-			</tr>
+<!-- 			<tr> -->
+<!-- 				<td>订单类型:</td> -->
+<!-- 				<td> -->
+<!-- 					<input type="radio" name = "orderType" value = "self" onclick="selectOrderType(this)"/> -->
+<!-- 					自发 -->
+<!-- 				</td> -->
+<!-- 				<td> -->
+<!-- 					<input type="radio" name = "orderType" value = "for_other" onclick="selectOrderType(this)" /> -->
+<!-- 					代发 -->
+<!-- 				</td> -->
+<!-- 				<td> -->
+<!-- 					<input type="radio" name = "orderType" value = "to_other" onclick="selectOrderType(this)" /> -->
+<!-- 					委派 -->
+<!-- 					<input type="hidden" name = "checkOrderType" id = "checkOrderType" value = "${dto.orderType}"/> -->
+<!-- 				</td> -->
+<!-- 				<td><spring:errors delimiter="," path="orderType" cssStyle="color:red"/></td> -->
+<!-- 			</tr> -->
 			<tr>
 				<td>书名/ISBN</td>
 				<td><input type="text" id = "bookNameOrIsbn" width="200px"/></td>

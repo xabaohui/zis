@@ -84,8 +84,8 @@ function blockOrder() {
 function blockOrderResult(dto) {
 	if (dto.success) {
 		alert("操作成功");
-		$('blockFlag_' + dto.id).innerHTML = '<span title="'
-				+ dto.blockReason + '"><font color="red">已拦截</font></span>';
+		$('blockFlag_' + dto.id).innerHTML = '<span title="' + dto.blockReason
+				+ '"><font color="red">已拦截</font></span>';
 	} else {
 		alert(dto.failReason);
 	}
@@ -552,8 +552,8 @@ function manualTaobaoOrderUpdate(data) {
 	// TODO 此处要加入传入店铺Id
 	var manualOrderType = document.getElementById('manualOrderType').value;
 	var shopId = document.getElementById('shopId').value;
-	orderController.getManualTaobaoOrderOutOrderNumber(manualOrderType,
-			data.value, shopId, manualTaobaoOrderUpdateResult);
+	orderController.getManualTaobaoOrderOutOrderNumber(manualOrderType, shopId,
+			data.value, manualTaobaoOrderUpdateResult);
 }
 
 // 检查淘宝订单号并传入session(2-2)
@@ -610,12 +610,6 @@ function findSkuInfoByBookNameOrIsbn() {
 		alert("请选择下单类型");
 		return;
 	}
-
-	if (ifCheckedOrderType()) {
-		alert("请选择订单类型");
-		return;
-	}
-
 	if (ifSelectShopId()) {
 		alert("请选择店铺");
 		return;
@@ -733,12 +727,6 @@ function updateSkuItemCount(skuId) {
 		alert("请选择下单类型");
 		return;
 	}
-
-	if (ifCheckedOrderType()) {
-		alert("请选择订单类型");
-		return;
-	}
-
 	if (ifSelectShopId()) {
 		alert("请选择店铺");
 		return;
@@ -777,12 +765,6 @@ function updateSkuItemPrice(skuId) {
 		alert("请选择下单类型");
 		return;
 	}
-
-	if (ifCheckedOrderType()) {
-		alert("请选择订单类型");
-		return;
-	}
-
 	if (ifSelectShopId()) {
 		alert("请选择店铺");
 		return;
@@ -823,12 +805,6 @@ function deleteSubOrder(skuId) {
 		alert("请选择下单类型");
 		return;
 	}
-
-	if (ifCheckedOrderType()) {
-		alert("请选择订单类型");
-		return;
-	}
-
 	if (ifSelectShopId()) {
 		alert("请选择店铺");
 		return;
@@ -860,12 +836,6 @@ function splitReceiverInfo() {
 		alert("请选择下单类型");
 		return;
 	}
-
-	if (ifCheckedOrderType()) {
-		alert("请选择订单类型");
-		return;
-	}
-
 	if (ifSelectShopId()) {
 		alert("请选择店铺");
 		return;
@@ -885,12 +855,6 @@ function updateReceiverInfo() {
 		alert("请选择下单类型");
 		return;
 	}
-
-	if (ifCheckedOrderType()) {
-		alert("请选择订单类型");
-		return;
-	}
-
 	if (ifSelectShopId()) {
 		alert("请选择店铺");
 		return;
@@ -919,12 +883,6 @@ function updateOrderPostage() {
 		alert("请选择下单类型");
 		return;
 	}
-
-	if (ifCheckedOrderType()) {
-		alert("请选择订单类型");
-		return;
-	}
-
 	if (ifSelectShopId()) {
 		alert("请选择店铺");
 		return;
@@ -954,12 +912,6 @@ function updateOrderMoney() {
 		alert("请选择下单类型");
 		return;
 	}
-
-	if (ifCheckedOrderType()) {
-		alert("请选择订单类型");
-		return;
-	}
-
 	if (ifSelectShopId()) {
 		alert("请选择店铺");
 		return;
@@ -989,12 +941,6 @@ function checkCreateOrderFrom() {
 		alert("请选择下单类型");
 		return;
 	}
-
-	if (ifCheckedOrderType()) {
-		alert("请选择订单类型");
-		return;
-	}
-
 	if (ifSelectShopId()) {
 		alert("请选择店铺");
 		return;
@@ -1111,16 +1057,20 @@ function sendOut() {
 
 // 出库(2-2)
 function sendOutResult(data) {
+	var failPlay = document.getElementById("failPlay");
+	if (!data.success) {
+		$("failPlay").play();
+	}
 	if (!data.success) {
 		alert(data.failReason);
+		$('sendResultDiv').innerHTML =" ";
 		return;
 	}
 	var selectedContent = '';
-	var result = data.orderVO.canSendOut;
+	// var result = data.orderVO.canSendOut;
 	var passPlay = document.getElementById("passPlay");
-	var failPlay = document.getElementById("failPlay");
-	if (result) {
-		selectedContent = '<h2><font color="green">检查通过</font></h2>';
+	if (data.success) {
+		selectedContent = '<h2><font color="green">通过</font></h2>';
 		$("passPlay").play();
 	} else {
 		selectedContent = '<h2><font color="red">不能出库</font></h2>';
@@ -1157,10 +1107,10 @@ function sendOutResult(data) {
 			+ data.orderVO.buyerMessage + '</td></tr>';
 	selectedContent = selectedContent + '<tr><td>买家备注</td><td>'
 			+ data.orderVO.salerRemark + '</td></tr>';
-	if (data.orderVO.canSendOut) {
+	if (!data.success) {
 		selectedContent = selectedContent
 				+ '<tr><td><font color="red">拦截说明</font></td><td><font color="red">'
-				+ data.orderVO.canSendOutWithMessage + '</font></td></tr>';
+				+ data.failMessage + '</font></td></tr>';
 	}
 	selectedContent = selectedContent + '</table>';
 	$('sendResultDiv').innerHTML = selectedContent;

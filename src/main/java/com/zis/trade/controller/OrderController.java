@@ -50,6 +50,7 @@ import com.zis.trade.dto.OrderQueryCondition;
 import com.zis.trade.dto.OrderVO;
 import com.zis.trade.dto.OrderVO.OrderDetailVO;
 import com.zis.trade.entity.Order.ExpressStatus;
+import com.zis.trade.entity.Order.OrderType;
 import com.zis.trade.entity.Order.PayStatus;
 import com.zis.trade.entity.Order.StorageStatus;
 import com.zis.trade.service.OrderService;
@@ -347,6 +348,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 			map.put(ACTION_MESSAGE, "操作成功");
 			return "forward:/order/" + forwardUrl;
 		} catch (Exception e) {
+			e.printStackTrace();
 			map.put(ACTION_ERROR, e.getMessage());
 			return "forward:/order/" + forwardUrl;
 		}
@@ -429,6 +431,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 			return "forward:/order/" + forwardUrl;
 		} catch (Exception e) {
 			map.put(ACTION_ERROR, e.getMessage());
+			e.printStackTrace();
 			return "forward:/order/" + forwardUrl;
 		}
 	}
@@ -461,32 +464,32 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 		}
 	}
 
-	/**
-	 * 缺货
-	 * 
-	 * @param orderId
-	 * @param forwardUrl
-	 * @param map
-	 * @return
-	 */
-	@RequestMapping(value = "/lackness")
-	public String lackness(Integer[] orderId, String forwardUrl, ModelMap map) {
-		if (orderId == null) {
-			map.put(ACTION_ERROR, "请选择订单");
-			return "forward:/order/" + forwardUrl;
-		}
-		try {
-			List<Integer> orderIds = Arrays.asList(orderId);
-			for (Integer oId : orderIds) {
-				this.orderService.lackness(oId, StorageUtil.getUserId());
-			}
-			map.put(ACTION_MESSAGE, "操作成功");
-			return "forward:/order/" + forwardUrl;
-		} catch (Exception e) {
-			map.put(ACTION_ERROR, e.getMessage());
-			return "forward:/order/" + forwardUrl;
-		}
-	}
+//	/**
+//	 * 缺货
+//	 * 
+//	 * @param orderId
+//	 * @param forwardUrl
+//	 * @param map
+//	 * @return
+//	 */
+//	@RequestMapping(value = "/lackness")
+//	public String lackness(Integer[] orderId, String forwardUrl, ModelMap map) {
+//		if (orderId == null) {
+//			map.put(ACTION_ERROR, "请选择订单");
+//			return "forward:/order/" + forwardUrl;
+//		}
+//		try {
+//			List<Integer> orderIds = Arrays.asList(orderId);
+//			for (Integer oId : orderIds) {
+//				this.orderService.lackness(oId, StorageUtil.getUserId());
+//			}
+//			map.put(ACTION_MESSAGE, "操作成功");
+//			return "forward:/order/" + forwardUrl;
+//		} catch (Exception e) {
+//			map.put(ACTION_ERROR, e.getMessage());
+//			return "forward:/order/" + forwardUrl;
+//		}
+//	}
 
 	/**
 	 * 批量回填单号
@@ -552,6 +555,8 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 		}
 		try {
 			verifyShopId(dto.getShopId());
+			//设置为自发
+			dto.setOrderType(OrderType.SELF.getValue());
 			CreateTradeOrderDTO orderDTO = buildCreateTradeOrderDTO(dto);
 			this.orderService.createOrder(orderDTO);
 			map.put(ACTION_MESSAGE, "操作成功");

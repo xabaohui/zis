@@ -353,4 +353,6 @@ public interface StorageService {
 	 * @return
 	 */
 	StorageProduct findBySkuIdAndRepoId(Integer skuId,Integer repoId);
+	
+	StorageIoDetail findByIoDetailId(Integer ioDetailId);
 }

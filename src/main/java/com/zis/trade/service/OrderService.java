@@ -229,7 +229,8 @@ public interface OrderService {
 	 * @param orderId
 	 * @param operator
 	 */
-	StorageIoDetail lackAll(Integer shopId, Integer ioDetailId, Integer operator);
+	//TODO 邵巍修改
+	StorageIoDetail lackAll(Integer ioDetailId, Integer operator);
 
 	/**
 	 * 订单缺货，配货状态：配货中->未分配仓库
@@ -239,7 +240,8 @@ public interface OrderService {
 	 * @param orderId
 	 * @param operator
 	 */
-	StorageIoDetail lackPart(Integer shopId, Integer ioDetailId, Integer actualAmt, Integer operator);
+	//TODO 邵巍修改
+	StorageIoDetail lackPart(Integer ioDetailId, Integer actualAmt, Integer operator);
 
 	/**
 	 * 打印快递单，物流状态：未打印->已打印

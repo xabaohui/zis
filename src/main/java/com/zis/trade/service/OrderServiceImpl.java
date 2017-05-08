@@ -416,15 +416,16 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	@Transactional
-	public StorageIoDetail lackAll(Integer shopId, Integer ioDetailId, Integer operator) {
-		Assert.notNull(shopId, "shopId不能为空");
+	public StorageIoDetail lackAll(Integer ioDetailId, Integer operator) {
+//		Assert.notNull(shopId, "shopId不能为空");
 		Assert.notNull(ioDetailId, "ioDetailId不能为空");
 		Assert.notNull(operator, "operator不能为空");
-		
+		StorageIoDetail  storageIoDetail =this.storageService.findByIoDetailId(ioDetailId);
+		Order order = this.orderDao.findOne(storageIoDetail.getOrderId());
 		StorageLacknessOpDTO lacknessDTO = storageService.lackAll(ioDetailId, operator);
 		if(!lacknessDTO.getLacknessMatchNewPos()) {
 			// 缺货且未匹配到
-			doOrderLacknesss(shopId, operator, lacknessDTO);
+			doOrderLacknesss(order.getShopId(), operator, lacknessDTO);
 		}
 		if(lacknessDTO.isHasNext()) {
 			return (StorageIoDetail) lacknessDTO;
@@ -451,15 +452,16 @@ public class OrderServiceImpl implements OrderService {
 	}
 	
 	@Override
-	public StorageIoDetail lackPart(Integer shopId, Integer ioDetailId, Integer actualAmt, Integer operator) {
-		Assert.notNull(shopId, "shopId不能为空");
+	public StorageIoDetail lackPart(Integer ioDetailId, Integer actualAmt, Integer operator) {
+//		Assert.notNull(shopId, "shopId不能为空");
 		Assert.notNull(ioDetailId, "ioDetailId不能为空");
 		Assert.notNull(operator, "operator不能为空");
-		
+		StorageIoDetail  storageIoDetail =this.storageService.findByIoDetailId(ioDetailId);
+		Order order = this.orderDao.findOne(storageIoDetail.getOrderId());
 		StorageLacknessOpDTO lacknessDTO = storageService.lackPart(ioDetailId, operator, actualAmt);
 		if(!lacknessDTO.getLacknessMatchNewPos()) {
 			// 缺货且未匹配到
-			doOrderLacknesss(shopId, operator, lacknessDTO);
+			doOrderLacknesss(order.getShopId(), operator, lacknessDTO);
 		}
 		if(lacknessDTO.isHasNext()) {
 			return (StorageIoDetail) lacknessDTO;
@@ -591,7 +593,7 @@ public class OrderServiceImpl implements OrderService {
 		Order order = orderDao.findOne(orderId);
 		Assert.notNull(order, "订单不存在orderId=" + orderId);
 		User user = sysService.findtUserById(operator);
-		String newRemark = String.format("%s：%s<br/>", user==null ? "" : user.getRealName(), remark);
+		String newRemark = String.format("%s：%s&#10;", user==null ? "" : user.getRealName(), remark);
 		order.setSalerRemark(order.getSalerRemark() + newRemark);
 		orderDao.save(order);
 		return order.getSalerRemark();

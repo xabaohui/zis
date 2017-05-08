@@ -48,7 +48,7 @@ public class OrderVO extends Order {
 	 * @return
 	 */
 	public boolean canApplyRefund() {
-		return OrderHelper.canAgreeRefund(this);
+		return OrderHelper.canApplyRefund(this);
 	}
 
 	/**

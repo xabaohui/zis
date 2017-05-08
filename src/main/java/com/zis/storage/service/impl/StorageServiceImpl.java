@@ -1059,4 +1059,9 @@ public class StorageServiceImpl implements StorageService {
 		}
 		return this.storageProductDao.findBySkuIdAndRepoId(skuId, repoId);
 	}
+
+	@Override
+	public StorageIoDetail findByIoDetailId(Integer ioDetailId) {
+		return storageIoDetailDao.findOne(ioDetailId);
+	}
 }

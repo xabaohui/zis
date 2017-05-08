@@ -116,17 +116,17 @@
 						<%}%>
 					</c:if>
 					
-					<c:if test="${order.canLackness()}">
-						<input type="button" value = "缺货" onclick="lackness('${order.id}','getAllStorageOrderList')"/>
-						&nbsp;
-						<%count++;%>
-						<% if(count % 2 ==0){%>
-							<br/>
-						<%}%>
-					</c:if>
+<!-- 					<c:if test="${order.canLackness()}"> -->
+<!-- 						<input type="button" value = "缺货" onclick="lackness('${order.id}','getAllStorageOrderList')"/> -->
+<!-- 						&nbsp; -->
+<!-- 						<%count++;%> -->
+<!-- 						<% if(count % 2 ==0){%> -->
+<!-- 							<br/> -->
+<!-- 						<%}%> -->
+<!-- 					</c:if> -->
 					
 					<c:if test="${order.canPrint()}">
-						<a href = "#">打单</a>
+						<input type="button" value="打单" onclick="printExpress('${order.id}', 'getAllStorageOrderList')" />
 						&nbsp;
 						<%count++;%>
 						<%if(count % 2 ==0){%>

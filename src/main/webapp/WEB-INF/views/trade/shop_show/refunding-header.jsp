@@ -108,7 +108,7 @@
 					</c:if>
 					
 					<c:if test="${order.canCancelRefund()}">
-						<input type="button" value = "取消退款" onclick="cancelRefund('${order.id}', 'getRefundingList')')" />
+						<input type="button" value = "取消退款" onclick="cancelRefund('${order.id}', 'getRefundingList')" />
 						&nbsp;
 						<% count++; %>
 						<% if(count % 2 ==0){%>

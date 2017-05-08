@@ -20,6 +20,7 @@ public interface OrderDetailDao extends PagingAndSortingRepository<OrderDetail, 
 	 * @return
 	 */
 	@Modifying
-	@Query("update OrderDetail set status = 'invalid', version=version+1, updateTime=now() where status='valid' and orderId=:orderId")
+//	@Query("update OrderDetail set status = 'invalid', version=version+1, updateTime=now() where status='valid' and orderId=:orderId")
+	@Query("update OrderDetail set status = 'invalid', version=version+1, updateTime=now() where status='valid' and order.id=:orderId")
 	int updateStatusToInvalidByOrderId(@Param("orderId")Integer orderId);
 }

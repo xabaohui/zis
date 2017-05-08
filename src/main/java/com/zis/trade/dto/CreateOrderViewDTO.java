@@ -19,7 +19,7 @@ public class CreateOrderViewDTO {
 	private boolean success;
 	private String failReason;
 	private String manualOrderType;// 手动下单类型 myself or taobao
-	@NotEmpty(message = "订单类型不能为为空")
+//	@NotEmpty(message = "订单类型不能为为空")
 	private String orderType; // 订单类型
 	@NotNull(message = "店铺Id不能为空")
 	private Integer shopId; // 店铺Id
