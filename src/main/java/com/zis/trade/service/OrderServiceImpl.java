@@ -635,9 +635,11 @@ public class OrderServiceImpl implements OrderService {
 			rs = this.orderDao.findByCompanyIdAndPayStatus(companyId, payStatus.getValue(), page);
 		}
 		if(expressStatus != null) {
+			// 等待打印，不应该出现未分配的订单
 			rs = this.orderDao.findByCompanyIdAndExpressStatus(companyId, expressStatus.getValue(), page);
 		}
 		if(storageStatus != null) {
+			// 未分配列表，需查询出未分配、缺货、手动退回三种状态
 			rs = this.orderDao.findByCompanyIdAndStorageStatus(companyId, storageStatus.getValue(), page);
 		}
 		if(CollectionUtils.isEmpty(rs.getContent())) {
