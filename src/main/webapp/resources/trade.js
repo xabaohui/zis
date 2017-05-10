@@ -261,8 +261,8 @@ function cancelOrder(orderId, forwardUrl) {
 }
 
 // 单个支付订单
-function payOrder(orderId, forwardUrl) {
-	var paymentAmount = prompt("支付金额:", "");
+function payOrder(orderId, orderMoney, forwardUrl) {
+	var paymentAmount = prompt("支付金额:", orderMoney);
 	var re = /^[0-9]+([.]{1}[0-9]+){0,1}$/;
 	if (paymentAmount) {
 		if (!re.test(paymentAmount)) {
@@ -843,9 +843,9 @@ function splitReceiverInfo() {
 	var receiverInfo = document.getElementById("receiverInfo").value;
 	var strs = new Array();
 	strs = receiverInfo.split("，");
-	document.getElementById("receiverName").value = strs[0];
-	document.getElementById("receiverPhone").value = strs[1];
-	document.getElementById("receiverAddr").value = strs[3];
+	document.getElementById("receiverName").value = strs[0].trim();
+	document.getElementById("receiverPhone").value = strs[1].trim();
+	document.getElementById("receiverAddr").value = strs[3].trim();
 	updateReceiverInfo();
 }
 
@@ -1063,7 +1063,7 @@ function sendOutResult(data) {
 	}
 	if (!data.success) {
 		alert(data.failReason);
-		$('sendResultDiv').innerHTML =" ";
+		$('sendResultDiv').innerHTML = " ";
 		return;
 	}
 	var selectedContent = '';

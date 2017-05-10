@@ -38,9 +38,9 @@ public class FillExpressNumberUploadDTO {
 	}
 
 	public void setExpressCompany(String expressCompany) {
-		if(StringUtils.isNotBlank(expressCompany)){
+		if (StringUtils.isNotBlank(expressCompany)) {
 			this.expressCompany = expressCompany.split(",")[0];
-		}else{
+		} else {
 			this.expressCompany = expressCompany;
 		}
 	}

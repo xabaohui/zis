@@ -56,7 +56,7 @@
 					<spring:form action="order/getAllShopOrderList" method="post" modelAttribute="cond">
 						<table>
 							<tr>
-								<td style="border: hidden;">订单号&nbsp;<input type="text" name = "outOrderNumber" value = "${param.outOrderNumber}"/></td>
+								<td style="border: hidden;">网店订单号&nbsp;<input type="text" name = "outOrderNumber" value = "${param.outOrderNumber}"/></td>
 								<td style="border: hidden;">收件人&nbsp;<input type="text" name = "receiverName" value = "${param.receiverName}"/></td>
 								<td style="border: hidden;">收件人电话&nbsp;<input type="text" name = "receiverPhone" value = "${param.receiverPhone}"/></td>
 								<td style="border: hidden;">快递单号&nbsp;<input type="text" name = "expressNumber" value = "${param.expressNumber}"/></td>
@@ -105,7 +105,7 @@
 					</c:if>
 					
 					<c:if test="${order.canPay()}">
-						<input type="button" value = "支付" onclick="payOrder('${order.id}','getAllShopOrderList')" />
+						<input type="button" value = "支付" onclick="payOrder('${order.id}','${order.orderMoney}','getAllShopOrderList')" />
 						&nbsp;
 						<% count++; %>
 						<% if(count % 2 ==0){%>

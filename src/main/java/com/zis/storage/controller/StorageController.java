@@ -118,29 +118,6 @@ public class StorageController implements ViewTips {
 			TradeStatus.CANCEL.getValue(), TradeStatus.SENT.getValue() };
 
 	/**
-	 *
-	 * 
-	 * @param map
-	 * @return
-	 */
-	//TODO 测试
-	@RequestMapping(value = "/test")
-	public String test(ModelMap map) {
-		return "trade/create_order/create-order";
-	}
-	/**
-	 *
-	 * 
-	 * @param map
-	 * @return
-	 */
-	//TODO 测试
-	@RequestMapping(value = "/test1")
-	public String test1(ModelMap map) {
-		return "trade/storage_show/all-storage-header";
-	}
-	
-	/**
 	 * 扫描入库跳转
 	 * 
 	 * @param map
@@ -381,7 +358,7 @@ public class StorageController implements ViewTips {
 	@RequestMapping(value = "/lackPart")
 	public String lackPart(ModelMap map, Integer ioDetailId, Integer actualAmt) {
 		try {
-			StorageIoDetail io = this.storageService.lackPart(ioDetailId, StorageUtil.getUserId(), actualAmt);
+			StorageIoDetail io = this.orderService.lackPart(ioDetailId, StorageUtil.getUserId(), actualAmt);
 			if (io == null) {
 				map.put("actionMessage", "本批次取货完成，请点击对应批次进行完成");
 				return "forward:/storage/querytTakeGoods";
@@ -405,7 +382,7 @@ public class StorageController implements ViewTips {
 	@RequestMapping(value = "/lackAll")
 	public String lackAll(ModelMap map, Integer ioDetailId) {
 		try {
-			StorageIoDetail io = this.storageService.lackAll(ioDetailId, StorageUtil.getUserId());
+			StorageIoDetail io = this.orderService.lackAll(ioDetailId, StorageUtil.getUserId());
 			if (io == null) {
 				map.put("actionMessage", "本批次取货完成，请点击对应批次进行完成");
 				return "forward:/storage/querytTakeGoods";

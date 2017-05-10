@@ -23,6 +23,7 @@ import com.taobao.api.domain.Item;
 import com.taobao.api.domain.Order;
 import com.taobao.api.domain.Product;
 import com.taobao.api.domain.Refund;
+import com.taobao.api.domain.Shipping;
 import com.taobao.api.domain.Sku;
 import com.taobao.api.domain.Trade;
 import com.taobao.api.internal.util.StringUtils;
@@ -30,13 +31,13 @@ import com.taobao.api.request.AreasGetRequest;
 import com.taobao.api.request.ItemAddRequest;
 import com.taobao.api.request.ItemQuantityUpdateRequest;
 import com.taobao.api.request.ItemSellerGetRequest;
-import com.taobao.api.request.ItemSkusGetRequest;
 import com.taobao.api.request.ItemUpdateListingRequest;
 import com.taobao.api.request.ItemcatsAuthorizeGetRequest;
 import com.taobao.api.request.ItemcatsGetRequest;
 import com.taobao.api.request.ItemsCustomGetRequest;
 import com.taobao.api.request.LogisticsCompaniesGetRequest;
 import com.taobao.api.request.LogisticsDummySendRequest;
+import com.taobao.api.request.LogisticsOfflineSendRequest;
 import com.taobao.api.request.LogisticsOrdersDetailGetRequest;
 import com.taobao.api.request.ProductsSearchRequest;
 import com.taobao.api.request.RefundsApplyGetRequest;
@@ -52,13 +53,13 @@ import com.taobao.api.response.AreasGetResponse;
 import com.taobao.api.response.ItemAddResponse;
 import com.taobao.api.response.ItemQuantityUpdateResponse;
 import com.taobao.api.response.ItemSellerGetResponse;
-import com.taobao.api.response.ItemSkusGetResponse;
 import com.taobao.api.response.ItemUpdateListingResponse;
 import com.taobao.api.response.ItemcatsAuthorizeGetResponse;
 import com.taobao.api.response.ItemcatsGetResponse;
 import com.taobao.api.response.ItemsCustomGetResponse;
 import com.taobao.api.response.LogisticsCompaniesGetResponse;
 import com.taobao.api.response.LogisticsDummySendResponse;
+import com.taobao.api.response.LogisticsOfflineSendResponse;
 import com.taobao.api.response.LogisticsOrdersDetailGetResponse;
 import com.taobao.api.response.ProductsSearchResponse;
 import com.taobao.api.response.RefundsApplyGetResponse;
@@ -528,28 +529,30 @@ public class JSBExample {
 		System.out.println(JSON.toJSON(rsp.getUser()));
 	}
 
+	// 获取增量订单
 	private static void testTradesSoldIncrementGeta() throws JSBRestException {
 		try {
 			JSBClient client = new JSBClient(AK, SK);
 			TradesSoldIncrementGetRequest req = new TradesSoldIncrementGetRequest();
-			req.setFields("tid,type,status,payment,orders,outer_iid,sku_id,receiver_name,receiver_address,receiver_mobile");
+			req.setFields("tid,type,status,has_buyer_message,payment,orders,outer_iid,receiver_name,receiver_address,receiver_mobile");
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			Date start = sdf.parse("2017-04-16 22:00:00");
-			Date end = sdf.parse("2017-04-17 00:00:00");
+			Date start = sdf.parse("2017-05-08 23:00:00");
+			Date end = sdf.parse("2017-05-09 21:00:00");
 			req.setStartModified(start);
 			req.setEndModified(end);
+//			req.setStatus("WAIT_SELLER_SEND_GOODS");
 			req.setUseHasNext(true);
 			TradesSoldIncrementGetResponse rsp = client.execute(req);
 			List<Trade> list = rsp.getTrades();
-			for (Trade trade : list) {
-				System.out.println(JSON.toJSON(trade));
-			}
+			System.out.println(JSON.toJSON(list));
+//			for (Trade trade : list) {
+//				System.out.println(JSON.toJSON(list));
+//			}
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
 	private static void testRefundsApplyGet() throws JSBRestException {
 		JSBClient client = new JSBClient(AK, SK);
 		RefundsApplyGetRequest req = new RefundsApplyGetRequest();
@@ -563,14 +566,17 @@ public class JSBExample {
 		for (Refund refund : list) {
 			System.out.println(JSON.toJSON(refund));
 		}
-}
+	}
+
+	// 卖家收到的退款列表
 	private static void testRefundsReceiveGetRequest() throws Exception {
 		JSBClient client = new JSBClient(AK, SK);
 		RefundsReceiveGetRequest req = new RefundsReceiveGetRequest();
 		req.setFields("refund_id, tid, title, buyer_nick, seller_nick, total_fee, status, created, refund_fee, oid, good_status, company_name, sid, payment, reason, desc, has_good_return, modified, order_status,refund_phase");
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		Date start = sdf.parse("2017-04-16 00:00:00");
-		Date end = sdf.parse("2017-04-17 00:00:00");
+		Date start = sdf.parse("2017-05-08 12:00:00");
+		Date end = sdf.parse("2017-05-09 00:00:00");
+		req.setStatus("WAIT_SELLER_AGREE,WAIT_BUYER_RETURN_GOODS,WAIT_SELLER_CONFIRM_GOODS,SELLER_REFUSE_BUYER,SUCCESS");
 		req.setStartModified(start);
 		req.setEndModified(end);
 		req.setUseHasNext(true);
@@ -580,17 +586,39 @@ public class JSBExample {
 			System.out.println(JSON.toJSON(refund));
 		}
 	}
-	
-	private static void testItemSkusGetRequest() throws Exception {
+
+	// private static void testItemSkusGetRequest() throws Exception {
+	// JSBClient client = new JSBClient(AK, SK);
+	// ItemSkusGetRequest req = new ItemSkusGetRequest();
+	// req.setFields("sku_id,num_iid");
+	// req.setNumIids("548358687479");
+	// ItemSkusGetResponse rsp = client.execute(req);
+	// List<Sku> list = rsp.getSkus();
+	// for (Sku sku : list) {
+	// System.out.println(JSON.toJSON(sku));
+	// }
+	// }
+
+	// 线下发货 ，自己联系物流
+	private static void testLogisticsOfflineSendRequest() throws Exception {
 		JSBClient client = new JSBClient(AK, SK);
-		ItemSkusGetRequest req = new ItemSkusGetRequest();
-		req.setFields("sku_id,num_iid");
-		req.setNumIids("548358687479");
-		ItemSkusGetResponse rsp = client.execute(req);
-		List<Sku> list = rsp.getSkus();
-		for (Sku sku : list) {
-			System.out.println(JSON.toJSON(sku));
-		}
+		LogisticsOfflineSendRequest req = new LogisticsOfflineSendRequest();
+		req.setTid(16643290509362270L);
+		req.setOutSid("437366265483");
+		req.setCompanyCode("ZTO");
+		LogisticsOfflineSendResponse rsp = client.execute(req);
+		Shipping list = rsp.getShipping();
+		System.out.println(JSON.toJSON(list));
+	}
+
+	//单个订单调取
+	private static void testTradeGetRequest() throws Exception {
+		JSBClient client = new JSBClient(AK, SK);
+		TradeGetRequest req = new TradeGetRequest();
+		req.setTid(13731243034871210L);
+		req.setFields("tid, buyer_message,buyer_memo");
+		TradeGetResponse rsp = client.execute(req);
+		Trade t = rsp.getTrade();
 	}
 
 	private static void test111() {
@@ -615,16 +643,19 @@ public class JSBExample {
 			// // testUpload();
 			// testTradeSoldGet();
 			// testUserSellerGet();
-			testTradesSoldIncrementGeta();
-//			testItemSkusGetRequest();
+//			 testTradesSoldIncrementGeta();
+			testTradeGetRequest();
+			// testLogisticsOfflineSendRequest();
+			// testRefundsReceiveGetRequest();
+			// testItemSkusGetRequest();
 			for (int i = 0; i < 1; i++) {
-//				testRefundsApplyGet();
-//				testRefundsReceiveGetRequest();
+				// testRefundsApplyGet();
+//				 testRefundsReceiveGetRequest();
 			}
 			// testUpdate();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			 e.printStackTrace(); 
+			e.printStackTrace();
 		}
 		// testLogisticsDummySend();
 	}

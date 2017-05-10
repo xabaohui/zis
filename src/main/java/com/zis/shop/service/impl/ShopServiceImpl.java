@@ -21,6 +21,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.alibaba.fastjson.JSON;
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.service.BookService;
 import com.zis.common.excel.ExcelImporter;
@@ -29,13 +30,17 @@ import com.zis.common.mail.MailSenderFactory;
 import com.zis.common.mail.SimpleMailSender;
 import com.zis.common.util.TextClearUtils;
 import com.zis.common.util.ZisUtils;
+import com.zis.shop.api.ApiTransfer;
+import com.zis.shop.api.impl.ApiTransferFactory;
 import com.zis.shop.bean.Company;
 import com.zis.shop.bean.DownloadItemLog;
 import com.zis.shop.bean.ShopInfo;
 import com.zis.shop.bean.ShopItemMapping;
 import com.zis.shop.bean.ShopItemMapping.ShopItemMappingSystemStatus;
 import com.zis.shop.bo.ShopBo;
+import com.zis.shop.dto.ApplyRefundDTO;
 import com.zis.shop.dto.CheckOutIdDTO;
+import com.zis.shop.dto.LogisticsOfflineSendDTO;
 import com.zis.shop.dto.SaveOrUpdateCompanyDto;
 import com.zis.shop.dto.SaveOrUpdateShopDto;
 import com.zis.shop.dto.ShopDownLoadFailDTO;
@@ -46,6 +51,13 @@ import com.zis.shop.repository.ShopInfoDao;
 import com.zis.shop.repository.ShopItemMappingDao;
 import com.zis.shop.service.ShopService;
 import com.zis.shop.util.ShopUtil;
+import com.zis.trade.dto.CreateTradeOrderDTO;
+import com.zis.trade.dto.ExpressNumberDTO;
+import com.zis.trade.entity.Order;
+import com.zis.trade.entity.OrderOuter;
+import com.zis.trade.repository.OrderDao;
+import com.zis.trade.repository.OrderOuterDao;
+import com.zis.trade.service.OrderService;
 
 @Service
 public class ShopServiceImpl implements ShopService {
@@ -83,14 +95,23 @@ public class ShopServiceImpl implements ShopService {
 	@Autowired
 	private ThreadPoolTaskExecutor taskExecutor;
 
-	// @Autowired
-	// private ApiTransferFactory factory;
+	@Autowired
+	private ApiTransferFactory factory;
 
 	@Autowired
 	private DownloadItemLogDao downloadItemLogDao;
 
 	@Autowired
 	private BookService bookService;
+
+	@Autowired
+	private OrderService orderService;
+
+	@Autowired
+	private OrderDao orderDao;
+
+	@Autowired
+	private OrderOuterDao orderOuterDao;
 
 	private SimpleMailSender mailSender = MailSenderFactory.getSender();
 
@@ -430,13 +451,15 @@ public class ShopServiceImpl implements ShopService {
 				shopMapping.setpItemId(mapping.getpItemId());
 				this.shopItemMappingDao.save(shopMapping);
 			}
-//			
-//			//商家编码更新
-//			if (ShopItemMappingSystemStatus.SUCCESS.getValue().equals(shopMapping.getSystemStatus())
-//					&& !shopMapping.getItemOutNum().equals(mapping.getItemOutNum())) {
-//				shopMapping.setItemOutNum(mapping.getItemOutNum());
-//				this.shopItemMappingDao.save(shopMapping);
-//			}
+			//
+			// //商家编码更新
+			// if
+			// (ShopItemMappingSystemStatus.SUCCESS.getValue().equals(shopMapping.getSystemStatus())
+			// && !shopMapping.getItemOutNum().equals(mapping.getItemOutNum()))
+			// {
+			// shopMapping.setItemOutNum(mapping.getItemOutNum());
+			// this.shopItemMappingDao.save(shopMapping);
+			// }
 		}
 	}
 
@@ -942,5 +965,68 @@ public class ShopServiceImpl implements ShopService {
 	@Override
 	public ShopInfo findShopById(Integer shopId) {
 		return shopInfoDao.findOne(shopId);
+	}
+
+	@Override
+	public void createOrderForShopIdAndDate(Integer shopId, Date startTime, Date endTime) {
+		ShopInfo shop = this.shopInfoDao.findOne(shopId);
+		if (shop == null) {
+			throw new RuntimeException("店铺不存在");
+		}
+		ApiTransfer api = factory.getInstance(shop.getpName());
+		List<CreateTradeOrderDTO> list = api.queryTradeForDate(shop, startTime, endTime);
+		if (CollectionUtils.isEmpty(list)) {
+			return;
+		}
+		for (CreateTradeOrderDTO dto : list) {
+			Order order = this.orderService.createOrder(dto);
+			this.orderService.payOrder(order.getId(), dto.getOrderMoney(), 0);
+		}
+	}
+
+	@Override
+	public void queryApplyRefundForShopIdAndDate(Integer shopId, Date startTime, Date endTime) {
+		ShopInfo shop = this.shopInfoDao.findOne(shopId);
+		if (shop == null) {
+			throw new RuntimeException("店铺不存在");
+		}
+		ApiTransfer api = factory.getInstance(shop.getpName());
+		List<ApplyRefundDTO> list = api.queryApplyRefundForDate(shop, startTime, endTime);
+		if (CollectionUtils.isEmpty(list)) {
+			return;
+		}
+		for (ApplyRefundDTO dto : list) {
+			this.orderService.applyRefund(shop.getShopId(), dto.getOutOrderNumber(), 0, dto.getApplyTime(),
+					dto.getRefundMemo());
+		}
+	}
+
+	@Override
+	public void logisticsOfflineSend(List<ExpressNumberDTO> list) {
+		for (ExpressNumberDTO dto : list) {
+			Order order = this.orderDao.findOne(dto.getOrderId());
+			List<OrderOuter> outerList = this.orderOuterDao.findByOrderGroupNumber(order.getOrderGroupNumber());
+			if (!CollectionUtils.isEmpty(list)) {
+				for (OrderOuter o : outerList) {
+					if (StringUtils.isNumeric(o.getOutOrderNumber())) {
+						ApiTransfer api = factory.getInstance(o.getpName());
+						ShopInfo shop = this.shopInfoDao.findOne(o.getShopId());
+						LogisticsOfflineSendDTO lDTO = new LogisticsOfflineSendDTO();
+						lDTO.setTid(Long.parseLong(o.getOutOrderNumber()));
+						lDTO.setExpressCompany(dto.getExpressCompany());
+						lDTO.setExpressNumber(dto.getExpressNumber());
+						try {
+							boolean result = api.logisticsOfflineSend(shop, lDTO);
+							if (!result) {
+								String msg = String.format("%s %s", "调用失败", JSON.toJSON(lDTO));
+								throw new RuntimeException(msg);
+							}
+						} catch (Exception e) {
+							logger.error(e.getMessage(), e);
+						}
+					}
+				}
+			}
+		}
 	}
 }

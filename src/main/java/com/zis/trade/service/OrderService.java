@@ -229,7 +229,6 @@ public interface OrderService {
 	 * @param orderId
 	 * @param operator
 	 */
-	//TODO 邵巍修改
 	StorageIoDetail lackAll(Integer ioDetailId, Integer operator);
 
 	/**
@@ -240,7 +239,6 @@ public interface OrderService {
 	 * @param orderId
 	 * @param operator
 	 */
-	//TODO 邵巍修改
 	StorageIoDetail lackPart(Integer ioDetailId, Integer actualAmt, Integer operator);
 
 	/**
@@ -341,4 +339,8 @@ public interface OrderService {
 	 * @param addrs
 	 */
 	void importReceiverAddr(List<OrderAddressImportDTO> addrs);
+	
+	//----------------------------淘宝api调用---------------------------------------
+	
+	
 }

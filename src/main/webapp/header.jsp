@@ -337,8 +337,8 @@
 						<li><a href="storage/querytTakeGoods">开始配货</a></li>
 						<br/>
 						<li><a href="storage/gotoFastTakeGoods">快速出库</a></li>
-						<br/>
-						<li><a href="storage/gotoManualTakeGoods">手动出库</a></li>
+<!-- 						<br/> -->
+<!-- 						<li><a href="storage/gotoManualTakeGoods">手动出库</a></li> -->
 						<br/>
 						<li><a href="order/sendOut">出库扫描</a></li>
 						<br/>

@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.alibaba.fastjson.JSON;
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.service.BookService;
 import com.zis.common.controllertemplate.ViewTips;
@@ -49,6 +50,7 @@ import com.zis.trade.dto.OrderInfoDTO.SkuInfo;
 import com.zis.trade.dto.OrderQueryCondition;
 import com.zis.trade.dto.OrderVO;
 import com.zis.trade.dto.OrderVO.OrderDetailVO;
+import com.zis.trade.entity.Order;
 import com.zis.trade.entity.Order.ExpressStatus;
 import com.zis.trade.entity.Order.OrderType;
 import com.zis.trade.entity.Order.PayStatus;
@@ -69,6 +71,8 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	private BookService bookService;
 
 	private final String CREATE_OREDER_VIEW_MAP = "createOrderViewMap";
+
+	private final String Apply_PAID = "买家已付款，等待卖家发货";
 
 	/**
 	 * 订单列表-仓库视角-全部订单
@@ -464,32 +468,33 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 		}
 	}
 
-//	/**
-//	 * 缺货
-//	 * 
-//	 * @param orderId
-//	 * @param forwardUrl
-//	 * @param map
-//	 * @return
-//	 */
-//	@RequestMapping(value = "/lackness")
-//	public String lackness(Integer[] orderId, String forwardUrl, ModelMap map) {
-//		if (orderId == null) {
-//			map.put(ACTION_ERROR, "请选择订单");
-//			return "forward:/order/" + forwardUrl;
-//		}
-//		try {
-//			List<Integer> orderIds = Arrays.asList(orderId);
-//			for (Integer oId : orderIds) {
-//				this.orderService.lackness(oId, StorageUtil.getUserId());
-//			}
-//			map.put(ACTION_MESSAGE, "操作成功");
-//			return "forward:/order/" + forwardUrl;
-//		} catch (Exception e) {
-//			map.put(ACTION_ERROR, e.getMessage());
-//			return "forward:/order/" + forwardUrl;
-//		}
-//	}
+	// /**
+	// * 缺货
+	// *
+	// * @param orderId
+	// * @param forwardUrl
+	// * @param map
+	// * @return
+	// */
+	// @RequestMapping(value = "/lackness")
+	// public String lackness(Integer[] orderId, String forwardUrl, ModelMap
+	// map) {
+	// if (orderId == null) {
+	// map.put(ACTION_ERROR, "请选择订单");
+	// return "forward:/order/" + forwardUrl;
+	// }
+	// try {
+	// List<Integer> orderIds = Arrays.asList(orderId);
+	// for (Integer oId : orderIds) {
+	// this.orderService.lackness(oId, StorageUtil.getUserId());
+	// }
+	// map.put(ACTION_MESSAGE, "操作成功");
+	// return "forward:/order/" + forwardUrl;
+	// } catch (Exception e) {
+	// map.put(ACTION_ERROR, e.getMessage());
+	// return "forward:/order/" + forwardUrl;
+	// }
+	// }
 
 	/**
 	 * 批量回填单号
@@ -526,10 +531,11 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	 */
 	@Token(generate = true)
 	@RequestMapping(value = "/gotoCreateOrder")
-	public String gotoCreateOrder(ModelMap map, HttpSession session) {
+	public String gotoCreateOrder(ModelMap map,
+			HttpSession session) {
 		List<ShopInfo> shopList = this.shopService.findCompanyShop(StorageUtil.getCompanyId());
-		CreateOrderViewDTO dto = (CreateOrderViewDTO) session.getAttribute(CREATE_OREDER_VIEW_MAP);
-		map.put("dto", dto);
+		CreateOrderViewDTO dtos = (CreateOrderViewDTO) session.getAttribute(CREATE_OREDER_VIEW_MAP);
+		map.put("dto", dtos);
 		map.put("shopList", shopList);
 		return "trade/create_order/create-order";
 	}
@@ -546,19 +552,21 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@Token(checking = true)
 	@RequestMapping(value = "/createOrder")
 	public String createOrder(@Valid @ModelAttribute("dto") CreateOrderViewDTO dto, BindingResult br, ModelMap map,
-			HttpSession session) {
+			HttpSession session, String token) {
 		List<ShopInfo> shopList = this.shopService.findCompanyShop(StorageUtil.getCompanyId());
 		map.put("dto", dto);
 		map.put("shopList", shopList);
 		if (br.hasErrors()) {
-			return "trade/create_order/create-order";
+			map.put("errors", br.getAllErrors());
+			return "forward:/order/gotoCreateOrder";
 		}
 		try {
 			verifyShopId(dto.getShopId());
-			//设置为自发
+			// 设置为自发
 			dto.setOrderType(OrderType.SELF.getValue());
 			CreateTradeOrderDTO orderDTO = buildCreateTradeOrderDTO(dto);
-			this.orderService.createOrder(orderDTO);
+			Order order = this.orderService.createOrder(orderDTO);
+			this.orderService.arrangeOrderToRepo(order.getId(), StorageUtil.getUserId(), StorageUtil.getRepoId());
 			map.put(ACTION_MESSAGE, "操作成功");
 			// 创建成功移除标签
 			session.setAttribute(CREATE_OREDER_VIEW_MAP, null);
@@ -613,7 +621,6 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 		}
 	}
 
-	
 	/**
 	 * 批量地址导入辅助跳转类
 	 * 
@@ -650,8 +657,8 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 			return "forward:/order/gotoExcelAddrToOrderUpload";
 		}
 	}
-	
-	private List<OrderAddressImportDTO> buildOrderAddressImportDTO(List<OrderInfoDTO> list){
+
+	private List<OrderAddressImportDTO> buildOrderAddressImportDTO(List<OrderInfoDTO> list) {
 		List<OrderAddressImportDTO> dtoList = new ArrayList<OrderAddressImportDTO>();
 		for (OrderInfoDTO dto : list) {
 			OrderAddressImportDTO d = new OrderAddressImportDTO();
@@ -660,14 +667,15 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 		}
 		return dtoList;
 	}
-	
+
 	/**
 	 * 出库扫描辅助跳转类
+	 * 
 	 * @param map
 	 * @return
 	 */
 	@RequestMapping(value = "/sendOut")
-	public String sendOut(ModelMap map){
+	public String sendOut(ModelMap map) {
 		return "trade/send_out/send-out";
 	}
 
@@ -790,7 +798,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 创建 CreateTradeOrderDTO List
 	 * 
@@ -976,6 +984,10 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 				throw new RuntimeException("导入失败，文件为空");
 			}
 			for (OrderInfoDTO dto : list) {
+				// 只拿买家已付款数据
+				if (!dto.getStatus().equals(Apply_PAID)) {
+					continue;
+				}
 				dto.setShopId(shopId);
 				dto.setOperator(StorageUtil.getUserId());
 			}
@@ -994,6 +1006,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	private String subCheckOrderInfoFileFormat(List<String> factHeader) {
 		String outOrderNumber = "订单编号";
 		String orderMoney = "买家应付货款";
+		String status = "订单状态";
 		String buyerMessage = "买家留言";
 		String receiverName = "收货人姓名";
 		String receiverAddr = "收货地址";
@@ -1004,6 +1017,9 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 		}
 		if (!factHeader.get(3).equals(orderMoney)) {
 			return "格式错误，D列必须是:" + orderMoney;
+		}
+		if (!factHeader.get(10).equals(status)) {
+			return "格式错误，K列必须是:" + status;
 		}
 		if (!factHeader.get(11).equals(buyerMessage)) {
 			return "格式错误，L列必须是:" + buyerMessage;
@@ -1032,6 +1048,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 		Map<String, Integer> map = new HashMap<String, Integer>();
 		map.put("outOrderNumber", 0);
 		map.put("orderMoney", 3);
+		map.put("status", 10);
 		map.put("buyerMessage", 11);
 		map.put("receiverName", 12);
 		map.put("receiverAddr", 13);
@@ -1062,6 +1079,9 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 			List<FillExpressNumberUploadDTO> list = im.parse(instance, propMapping);
 			if (list.isEmpty()) {
 				throw new RuntimeException("导入失败，文件为空");
+			}
+			for (FillExpressNumberUploadDTO dto : list) {
+				dto.setExpressCompany(dto.getExpressCompany());
 			}
 			return list;
 		} catch (Exception e) {

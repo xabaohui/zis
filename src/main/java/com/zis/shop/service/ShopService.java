@@ -1,6 +1,7 @@
 package com.zis.shop.service;
 
 import java.io.InputStream;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -12,6 +13,7 @@ import com.zis.shop.bean.ShopItemMapping;
 import com.zis.shop.dto.SaveOrUpdateCompanyDto;
 import com.zis.shop.dto.SaveOrUpdateShopDto;
 import com.zis.shop.dto.ShopDownLoadFailDTO;
+import com.zis.trade.dto.ExpressNumberDTO;
 
 public interface ShopService {
 
@@ -203,11 +205,38 @@ public interface ShopService {
 	 * @return 当前店铺或者公司的第一个店铺
 	 */
 	public ShopInfo verifyShopId(Integer shopId);
-	
+
 	/**
 	 * 根据Id查询店铺
+	 * 
 	 * @param shopId
 	 * @return
 	 */
 	public ShopInfo findShopById(Integer shopId);
+
+	/**
+	 * 定时获取 网页新修改订单
+	 * 
+	 * @param shopId
+	 * @param startTime
+	 * @param endTime
+	 */
+	public void createOrderForShopIdAndDate(Integer shopId, Date startTime, Date endTime);
+
+	/**
+	 * 定时获取 网页申请退款订单
+	 * 
+	 * @param shopId
+	 * @param startTime
+	 * @param endTime
+	 */
+	public void queryApplyRefundForShopIdAndDate(Integer shopId, Date startTime, Date endTime);
+
+	/**
+	 * 通知淘宝发货,并回填单号
+	 * 
+	 * @param list
+	 * @return
+	 */
+	public void logisticsOfflineSend(List<ExpressNumberDTO> list);
 }

@@ -5,19 +5,28 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
 public class OrderInfoDTO {
-	
+
 	private Integer shopId; // 店铺Id
 	private String outOrderNumber; // 店铺订单号
 	private String receiverName;
 	private String receiverPhone;
 	private String receiverAddr;
 	private Double orderMoney; // 订单金额
+	private String status;// 订单状态
 	private String orderType; // 订单类型
 	private String salerRemark; // 卖家备注
 	private String buyerMessage; // 买家留言
 	private Integer operator; // 操作员Id
 	private List<SkuInfo> skus;
-	
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
 	public List<SkuInfo> getSkus() {
 		return skus;
 	}
@@ -55,9 +64,9 @@ public class OrderInfoDTO {
 	}
 
 	public void setReceiverPhone(String receiverPhone) {
-		if(StringUtils.isNotBlank(receiverPhone)){
+		if (StringUtils.isNotBlank(receiverPhone)) {
 			this.receiverPhone = receiverPhone.replace("[']", "");
-		}else{
+		} else {
 			this.receiverPhone = receiverPhone;
 		}
 	}
@@ -102,7 +111,6 @@ public class OrderInfoDTO {
 		this.orderType = orderType;
 	}
 
-
 	public Integer getOperator() {
 		return operator;
 	}
@@ -112,8 +120,8 @@ public class OrderInfoDTO {
 	}
 
 	public static class SkuInfo {
-		
-		private String outOrderNumber;//主订单号
+
+		private String outOrderNumber;// 主订单号
 		private Integer itemId; // 平台商品Id
 		private String itemOutNum; // 商家编码
 		private Integer skuId; // 系统skuId
@@ -121,7 +129,6 @@ public class OrderInfoDTO {
 		private Integer itemCount; // 数量
 		private Double itemPrice; // 单价
 
-		
 		public String getOutOrderNumber() {
 			return outOrderNumber;
 		}

@@ -110,7 +110,7 @@
 					</c:if>
 					
 					<c:if test="${order.canPay()}">
-						<input type="button" value = "支付" onclick="payOrder('${order.id}','getUnpaidList')" />
+						<input type="button" value = "支付" onclick="payOrder('${order.id}','${order.orderMoney}','getUnpaidList')" />
 						&nbsp;
 						<% count++; %>
 						<% if(count % 2 ==0){%>

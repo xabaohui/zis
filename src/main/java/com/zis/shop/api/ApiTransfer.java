@@ -7,6 +7,8 @@ import com.zis.shop.bean.ShopInfo;
 import com.zis.shop.dto.ApiAddItemDto;
 import com.zis.shop.dto.ApiQueryItemsDto;
 import com.zis.shop.dto.ApiUpdateItemDto;
+import com.zis.shop.dto.ApplyRefundDTO;
+import com.zis.shop.dto.LogisticsOfflineSendDTO;
 import com.zis.trade.dto.CreateTradeOrderDTO;
 
 /**
@@ -70,12 +72,33 @@ public interface ApiTransfer {
 
 	/**
 	 * 根据开始和结束时间查询订单
+	 * 
 	 * @param shop
 	 * @param startTime
 	 * @param endTime
 	 * @return
 	 */
-	public List<CreateTradeOrderDTO> queryTradeForDate(ShopInfo shop, Date startTime, Date endTime);
+	public List<CreateTradeOrderDTO> queryTradeForDate(ShopInfo shop,
+			Date startTime, Date endTime);
+
+	/**
+	 * 根据开始和结束时间查询退款
+	 * 
+	 * @param shop
+	 * @param startTime
+	 * @param endTime
+	 * @return
+	 */
+	public List<ApplyRefundDTO> queryApplyRefundForDate(ShopInfo shop, Date startTime, Date endTime);
+
+	/**
+	 * 确认发货(回填单号使用)
+	 * 
+	 * @param shop
+	 * @param logisticsOfflineSendDTO
+	 * @return
+	 */
+	public boolean logisticsOfflineSend(ShopInfo shop, LogisticsOfflineSendDTO logisticsOfflineSendDTO);
 
 	// public ApiQuerytTradeDto taobao.trades.sold.increment.get
 

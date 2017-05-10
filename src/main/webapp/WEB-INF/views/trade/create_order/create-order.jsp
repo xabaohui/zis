@@ -37,6 +37,9 @@ window.onload = function() {
 		<font color="red">${notResult}</font>
 	</h2>
 	<p/>
+	<div align="left" style="margin-left: 200px">
+		<a href="order/gotoCreateOrder">刷新</a>
+	</div>
 	<div align="right" style="margin-right: 300px">
 		<a href="order/gotoExcelCreateOrderUpload">批量上传</a>&nbsp;&nbsp;&nbsp;<a href="order/gotoExcelAddrToOrderUpload">地址导入</a>
 	</div>
@@ -45,6 +48,7 @@ window.onload = function() {
 <p />
 <div  align="center">
 	<spring:form action="order/createOrder" method="post" id = "createOrderFrom" modelAttribute="dto">
+<!-- 		${errors} -->
 		<table>
 			<tr>
 				<td>选择店铺:</td>
@@ -60,7 +64,13 @@ window.onload = function() {
 					<input type="hidden" name = "checkShopId" id = "checkShopId" value = "${dto.shopId}"/>
 					<input type="hidden" name = "discount" id = "discount" value = "${dto.discount}"/>
 				</td>
-				<td><spring:errors delimiter="," path="shopId" cssStyle="color:red"/></td>
+				<td>
+					<c:forEach items="${errors}" var = "item">
+						<c:if test="${item.field eq 'shopId'}">
+							<span><font color="red">${item.defaultMessage}</font></span>
+						</c:if>
+					</c:forEach>
+				</td>
 			</tr>
 			<tr>
 				<td>手动下单类型:</td>
@@ -80,7 +90,13 @@ window.onload = function() {
 						订单编号:&nbsp;<input type="text" name = "outOrderNumber" id= "outOrderNumber" onchange="manualTaobaoOrderUpdate(this)"  value = "${dto.outOrderNumber}"/>
 					</div>
 				</td>
-				<td><spring:errors delimiter="," path="outOrderNumber" cssStyle="color:red"/></td>
+				<td>
+					<c:forEach items="${errors}" var = "item">
+						<c:if test="${item.field eq 'outOrderNumber'}">
+						<span><font color="red">${item.defaultMessage}</font></span>
+						</c:if>
+					</c:forEach>
+				</td>
 			</tr>
 <!-- 			<tr> -->
 <!-- 				<td>订单类型:</td> -->
@@ -156,27 +172,57 @@ window.onload = function() {
 			<tr>
 				<td>收件人</td>
 				<td><input type="text" id = "receiverName" name = "receiverName" value = "${dto.receiverName}" onchange="updateReceiverInfo()" /></td>
-				<td><spring:errors delimiter="," path="receiverName" cssStyle="color:red"/></td>
+				<td>
+					<c:forEach items="${errors}" var = "item">
+						<c:if test="${item.field eq 'receiverName'}">
+							<span><font color="red">${item.defaultMessage}</font></span>
+						</c:if>
+					</c:forEach>
+				</td>
 			</tr>
 			<tr>
 				<td>收件人电话</td>
 				<td><input type="text" id = "receiverPhone" name = "receiverPhone" value = "${dto.receiverPhone}" onchange="updateReceiverInfo()" /></td>
-				<td><spring:errors delimiter="," path="receiverPhone" cssStyle="color:red"/></td>
+				<td>
+					<c:forEach items="${errors}" var = "item">
+						<c:if test="${item.field eq 'receiverPhone'}">
+							<span><font color="red">${item.defaultMessage}</font></span>
+						</c:if>
+					</c:forEach>
+				</td>
 			</tr>
 			<tr>
 				<td>收件人地址</td>
 				<td><input type="text" id = "receiverAddr" name = "receiverAddr" style="width: 500px" value = "${dto.receiverAddr}" onchange="updateReceiverInfo()" /></td>
-				<td><spring:errors delimiter="," path="receiverAddr" cssStyle="color:red"/></td>
+				<td>
+					<c:forEach items="${errors}" var = "item">
+						<c:if test="${item.field eq 'receiverAddr'}">
+							<span><font color="red">${item.defaultMessage}</font></span>
+						</c:if>
+					</c:forEach>
+				</td>
 			</tr>
 			<tr>
 				<td>快递费</td>
 				<td><input type="text" id = "postage" name = "postage" value = "${dto.postage}" onchange = "updateOrderPostage()" onkeyup="this.value=this.value.replace(/[^\d\.]/g,'')" /></td>
-				<td><spring:errors delimiter="," path="postage" cssStyle="color:red"/></td>
+				<td>
+					<c:forEach items="${errors}" var = "item">
+						<c:if test="${item.field eq 'postage'}">
+							<span><font color="red">${item.defaultMessage}</font></span>
+						</c:if>
+					</c:forEach>
+				</td>
 			</tr>
 			<tr>
 				<td>订单总费用</td>
 				<td><input type="text" id = "orderMoney" name = "orderMoney" value = "${dto.orderMoney}" onchange = "updateOrderMoney()" onkeyup="this.value=this.value.replace(/[^\d\.]/g,'')" /></td>
-				<td><spring:errors delimiter="," path="orderMoney" cssStyle="color:red"/></td>
+				<td>
+					<c:forEach items="${errors}" var = "item">
+						<c:if test="${item.field eq 'orderMoney'}">
+							<span><font color="red">${item.defaultMessage}</font></span>
+						</c:if>
+					</c:forEach>
+				</td>
 			</tr>
 			<tr>
 				<td>卖家备注</td>
