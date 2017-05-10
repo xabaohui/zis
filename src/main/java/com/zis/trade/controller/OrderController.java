@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.alibaba.fastjson.JSON;
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.service.BookService;
 import com.zis.common.controllertemplate.ViewTips;
@@ -514,6 +513,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 				list.add(dto);
 			}
 			this.orderService.fillExpressNumbers(list, StorageUtil.getUserId());
+			this.shopService.logisticsOfflineSend(list);
 			map.put(ACTION_MESSAGE, "操作成功");
 			return "forward:/order/getPrintedList";
 		} catch (Exception e) {

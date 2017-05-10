@@ -33,6 +33,7 @@ import com.zis.trade.dto.CreateOrderQuerySkuInfoViewDTO;
 import com.zis.trade.dto.CreateOrderQuerySkuInfoViewDTO.SkuInfo;
 import com.zis.trade.dto.CreateOrderViewDTO;
 import com.zis.trade.dto.CreateOrderViewDTO.SkuViewInfo;
+import com.zis.trade.dto.ExpressNumberDTO;
 import com.zis.trade.dto.FillExpressNumberDTO;
 import com.zis.trade.dto.OrderVO;
 import com.zis.trade.dto.RefundMemoDTO;
@@ -273,6 +274,13 @@ public class OrderDwrController {
 			dto.setExpressCompany(expressCompany);
 			dto.setId(orderId);
 			dto.setSuccess(true);
+			//执行淘宝确认发货
+			List<ExpressNumberDTO> dtoList = new ArrayList<ExpressNumberDTO>();
+			ExpressNumberDTO exDto = new ExpressNumberDTO();
+			BeanUtils.copyProperties(dto, exDto);
+			exDto.setOrderId(dto.getId());
+			dtoList.add(exDto);
+			this.shopsService.logisticsOfflineSend(dtoList);
 			return dto;
 		} catch (Exception e) {
 			dto.setSuccess(false);
@@ -440,7 +448,7 @@ public class OrderDwrController {
 			for (Bookinfo book : bookList) {
 				StorageProduct sp = this.storageService.findBySkuIdAndRepoId(book.getId(), StorageUtil.getRepoId());
 				// 可用量不足跳过
-				if(sp == null){
+				if (sp == null) {
 					continue;
 				}
 				if (sp.getStockAvailable() <= 0) {
