@@ -301,7 +301,8 @@ public class OrderServiceImpl implements OrderService {
 		}
 
 		order.setBlockFlag(true);
-		order.setBlockReason(blockReason);
+		String reason = String.format("%s%s%s", order.getBlockReason(), NEW_LINE, blockReason);
+		order.setBlockReason(reason);
 		this.orderDao.save(order);
 		
 		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.BLOCK, blockReason);
@@ -339,7 +340,7 @@ public class OrderServiceImpl implements OrderService {
 		request.setBuyerName(order.getReceiverName());
 		// XXX 订单类型有待统一
 		request.setOrderType(StorageOrder.OrderType.SELF);
-		request.setOutTradeNo(order.getOrderGroupNumber());
+		request.setOutOrderId(order.getId());
 		request.setRepoId(order.getRepoId());
 		request.setShopId(order.getShopId());
 		List<OrderDetail> details = this.orderDetailDao.findByOrderIdAndStatus(order.getId(), DetailStatus.VALID.getValue());
@@ -362,7 +363,7 @@ public class OrderServiceImpl implements OrderService {
 		Assert.notNull(orderIds, "orderIds不能为空");
 		Assert.notNull(operator, "operator不能为空");
 		Assert.notNull(repoId, "repoId不能为空");
-		List<String> outTradeNos = new ArrayList<String>(orderIds.size());
+		List<Integer> outTradeNos = new ArrayList<Integer>(orderIds.size());
 		for (Integer orderId : orderIds) {
 			Order order = this.orderDao.findOne(orderId);
 			if(order != null) {
@@ -374,7 +375,7 @@ public class OrderServiceImpl implements OrderService {
 				// 生成日志
 				OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.ARRANGE_TO_POS, "");
 				orderLogDao.save(log);
-				outTradeNos.add(order.getOrderGroupNumber());
+				outTradeNos.add(order.getId());
 			}
 		}
 		// 调用仓储接口开始配货
@@ -398,7 +399,7 @@ public class OrderServiceImpl implements OrderService {
 		order.setStorageStatus(StorageStatus.WAIT_ARRANGE_BY_MANUAL.getValue());
 		orderDao.save(order);
 		
-		storageService.cancelOrder(order.getRepoId(), order.getOrderGroupNumber());
+		storageService.cancelOrder(order.getRepoId(), order.getId());
 		
 		// 生成日志
 		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.CANCEL_ARRANGE, memo);
@@ -409,23 +410,20 @@ public class OrderServiceImpl implements OrderService {
 	@Transactional
 	public void finishSend(Integer repoId, Integer batchId, Integer operator) {
 		logger.info("完成配货, batchId={}, operator={}", batchId, operator);
-		List<String> list = this.storageService.finishBatchSend(batchId);
+		List<Integer> list = this.storageService.finishBatchSend(batchId);
 		// 更新订单状态为配货完成
-		this.orderDao.updateStorageStatusToFinishByRepoIdAndOrderGroupNumbers(repoId, list);
+		this.orderDao.updateStorageStatusToFinishByIds(list);
 	}
 
 	@Override
 	@Transactional
 	public StorageIoDetail lackAll(Integer ioDetailId, Integer operator) {
-//		Assert.notNull(shopId, "shopId不能为空");
 		Assert.notNull(ioDetailId, "ioDetailId不能为空");
 		Assert.notNull(operator, "operator不能为空");
-		StorageIoDetail  storageIoDetail =this.storageService.findByIoDetailId(ioDetailId);
-		Order order = this.orderDao.findOne(storageIoDetail.getOrderId());
 		StorageLacknessOpDTO lacknessDTO = storageService.lackAll(ioDetailId, operator);
 		if(!lacknessDTO.getLacknessMatchNewPos()) {
 			// 缺货且未匹配到
-			doOrderLacknesss(order.getShopId(), operator, lacknessDTO);
+			doOrderLacknesss(lacknessDTO.getLackOutOrderId(), operator);
 		}
 		if(lacknessDTO.isHasNext()) {
 			return (StorageIoDetail) lacknessDTO;
@@ -434,34 +432,27 @@ public class OrderServiceImpl implements OrderService {
 		}
 	}
 
-	private void doOrderLacknesss(Integer shopId, Integer operator, StorageLacknessOpDTO lacknessDTO) {
-		String orderGroupNumber = lacknessDTO.getLackOutTradeNo();
-		// FIXME 订单和仓储系统的关联，需要改成Id关联确保唯一
-		List<Order> orders = this.orderDao.findByShopIdAndOrderGroupNumber(shopId, orderGroupNumber);
-		for (Order order : orders) {
-			if(!OrderHelper.canLackness(order)) {
-				throw new RuntimeException("订单状态不允许执行缺货操作");
-			}
-			order.setStorageStatus(StorageStatus.WAIT_ARRANGE_BY_LACKNESS.getValue());
-			order.setRepoId(null);
-			this.orderDao.save(order);
-			
-			OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.LACKNESS, "");
-			this.orderLogDao.save(log);		
+	private void doOrderLacknesss(Integer orderId, Integer operator) {
+		Order order = this.orderDao.findOne(orderId);
+		if (!OrderHelper.canLackness(order)) {
+			throw new RuntimeException("订单状态不允许执行缺货操作");
 		}
+		order.setStorageStatus(StorageStatus.WAIT_ARRANGE_BY_LACKNESS.getValue());
+		order.setRepoId(null);
+		this.orderDao.save(order);
+
+		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.LACKNESS, "");
+		this.orderLogDao.save(log);
 	}
 	
 	@Override
 	public StorageIoDetail lackPart(Integer ioDetailId, Integer actualAmt, Integer operator) {
-//		Assert.notNull(shopId, "shopId不能为空");
 		Assert.notNull(ioDetailId, "ioDetailId不能为空");
 		Assert.notNull(operator, "operator不能为空");
-		StorageIoDetail  storageIoDetail =this.storageService.findByIoDetailId(ioDetailId);
-		Order order = this.orderDao.findOne(storageIoDetail.getOrderId());
 		StorageLacknessOpDTO lacknessDTO = storageService.lackPart(ioDetailId, operator, actualAmt);
 		if(!lacknessDTO.getLacknessMatchNewPos()) {
 			// 缺货且未匹配到
-			doOrderLacknesss(order.getShopId(), operator, lacknessDTO);
+			doOrderLacknesss(lacknessDTO.getLackOutOrderId(), operator);
 		}
 		if(lacknessDTO.isHasNext()) {
 			return (StorageIoDetail) lacknessDTO;
@@ -584,6 +575,9 @@ public class OrderServiceImpl implements OrderService {
 		}
 	}
 	
+	// 页面换行符
+	private static final String NEW_LINE = "&#10;";
+	
 	@Override
 	public String appendSellerRemark(Integer orderId, Integer operator, String remark) {
 		logger.info("添加备注, orderId={}, remark={}, operator={}", orderId, remark, operator);
@@ -593,7 +587,7 @@ public class OrderServiceImpl implements OrderService {
 		Order order = orderDao.findOne(orderId);
 		Assert.notNull(order, "订单不存在orderId=" + orderId);
 		User user = sysService.findtUserById(operator);
-		String newRemark = String.format("%s：%s&#10;", user==null ? "" : user.getRealName(), remark);
+		String newRemark = String.format("%s：%s%s", user==null ? "" : user.getRealName(), remark, NEW_LINE);
 		order.setSalerRemark(order.getSalerRemark() + newRemark);
 		orderDao.save(order);
 		return order.getSalerRemark();

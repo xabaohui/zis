@@ -14,7 +14,8 @@ public class CreateOrderDTO {
 
 	private Integer repoId; // 仓库Id
 	private Integer shopId; // 店铺Id
-	private String outTradeNo; // 订单号
+	private Integer outOrderId; // 外部订单Id（相当于订单模块Id）
+//	private String outTradeNo; // 订单号
 	private String buyerName; // 收件人姓名
 	private OrderType orderType; // 订单类型
 	private List<CreateOrderDetail> detailList; // 订单详情
@@ -35,12 +36,12 @@ public class CreateOrderDTO {
 		this.shopId = shopId;
 	}
 
-	public String getOutTradeNo() {
-		return outTradeNo;
+	public void setOutOrderId(Integer outOrderId) {
+		this.outOrderId = outOrderId;
 	}
-
-	public void setOutTradeNo(String outTradeNo) {
-		this.outTradeNo = outTradeNo;
+	
+	public Integer getOutOrderId() {
+		return outOrderId;
 	}
 	
 	public String getBuyerName() {

@@ -10,7 +10,7 @@ import com.zis.storage.entity.StorageIoDetail;
 public class StorageLacknessOpDTO extends StorageIoDetail {
 
 	private boolean lacknessMatchNewPos; // 缺货记录是否匹配其他库存
-	private String lackOutTradeNo; // 缺货记录所属订单
+	private Integer lackOutOrderId; // 缺货记录所属订单
 	private boolean hasNext; // 是否有下一个待取件的记录
 
 	/**
@@ -26,12 +26,12 @@ public class StorageLacknessOpDTO extends StorageIoDetail {
 		this.lacknessMatchNewPos = lacknessMatchNewPos;
 	}
 
-	public String getLackOutTradeNo() {
-		return lackOutTradeNo;
+	public Integer getLackOutOrderId() {
+		return lackOutOrderId;
 	}
 
-	public void setLackOutTradeNo(String lackOutTradeNo) {
-		this.lackOutTradeNo = lackOutTradeNo;
+	public void setLackOutOrderId(Integer lackOutOrderId) {
+		this.lackOutOrderId = lackOutOrderId;
 	}
 
 	public boolean isHasNext() {

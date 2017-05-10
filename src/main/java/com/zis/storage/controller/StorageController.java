@@ -37,10 +37,7 @@ import com.zis.shiro.service.SysService;
 import com.zis.shop.bean.ShopInfo;
 import com.zis.shop.service.impl.ShopServiceImpl;
 import com.zis.shop.util.ShopUtil;
-import com.zis.storage.dto.CreateOrderDTO;
 import com.zis.storage.dto.CreateOrderDTO.CreateOrderDetail;
-import com.zis.storage.dto.CreateOrderInputDTO;
-import com.zis.storage.dto.CreateOrderInputDTO.CreateOrderDetailInput;
 import com.zis.storage.dto.FastTakeGoodsDTO;
 import com.zis.storage.dto.OrderDetailDto;
 import com.zis.storage.dto.StockDTO;
@@ -59,7 +56,6 @@ import com.zis.storage.entity.StorageIoDetail;
 import com.zis.storage.entity.StorageIoDetail.DetailStatus;
 import com.zis.storage.entity.StorageIoDetail.IoType;
 import com.zis.storage.entity.StorageOrder;
-import com.zis.storage.entity.StorageOrder.OrderType;
 import com.zis.storage.entity.StorageOrder.TradeStatus;
 import com.zis.storage.entity.StoragePosStock;
 import com.zis.storage.entity.StoragePosition;
@@ -271,7 +267,7 @@ public class StorageController implements ViewTips {
 			for (Integer i : orderId) {
 				this.storageService.cancelOrder(i);
 			}
-			map.put("actionMessage", "订单取消成功，订单号：" + getOutTradeNo(orderId));
+			map.put("actionMessage", "订单取消成功");
 			return "forward:/storage/queryStorageOrder";
 		} catch (Exception e) {
 			map.put("actionError", e.getMessage());
@@ -744,68 +740,6 @@ public class StorageController implements ViewTips {
 		}
 	}
 
-	// TODO 测试后删除
-	@RequestMapping(value = "testOrder")
-	public String createOrder(@Valid @ModelAttribute("dto") CreateOrderInputDTO dto, BindingResult br, ModelMap map) {
-		try {
-			if (br.hasErrors()) {
-				return "forward:/storage/gotoCreateOrder";
-			}
-			CreateOrderDTO dto1 = new CreateOrderDTO();
-			BeanUtils.copyProperties(dto, dto1);
-			List<CreateOrderDetail> list = new ArrayList<CreateOrderDetail>();
-			boolean result = false;
-			for (CreateOrderDetailInput c : dto.getdList()) {
-				result = false;
-				// 判断重复skuId重复，自动合并
-				for (CreateOrderDetail cs : list) {
-					if (cs.getSkuId().equals(c.getSkuId())) {
-						Integer i = cs.getAmount() + c.getAmount();
-						cs.setAmount(i);
-						result = true;
-					}
-				}
-				if (result) {
-					continue;
-				}
-				CreateOrderDetail d = new CreateOrderDetail();
-				d.setAmount(c.getAmount());
-				d.setSkuId(c.getSkuId());
-				list.add(d);
-			}
-			dto1.setDetailList(list);
-			dto1.setOrderType(OrderType.SELF);
-			dto1.setRepoId(StorageUtil.getRepoId());
-			this.storageService.createOrder(dto1);
-			map.put(ACTION_MESSAGE, "下单成功");
-			return "success";
-		} catch (Exception e) {
-			map.put(ACTION_ERROR, e.getMessage());
-			return "error";
-		}
-	}
-
-	public String createOrder() {
-		CreateOrderDTO dto = new CreateOrderDTO();
-		List<CreateOrderDetail> list = new ArrayList<CreateOrderDetail>();
-		CreateOrderDetail d = new CreateOrderDetail();
-		d.setSkuId(5);
-		d.setAmount(2);
-		// CreateOrderDetail d2 = new CreateOrderDetail();
-		// d2.setSkuId(948);
-		// d2.setAmount(2);
-		list.add(d);
-		// list.add(d2);
-		dto.setDetailList(list);
-		dto.setBuyerName("马蓉");
-		dto.setOrderType(OrderType.SELF);
-		dto.setOutTradeNo("s2132222ri");
-		dto.setRepoId(StorageUtil.getRepoId());
-		dto.setShopId(14);
-		this.storageService.createOrder(dto);
-		return "";
-	}
-
 	/**
 	 * 查询待配货批次
 	 * 
@@ -1040,20 +974,6 @@ public class StorageController implements ViewTips {
 		ShopUtil.clearAllCached();
 	}
 
-	/**
-	 * 获取订单号页面展示用
-	 * 
-	 * @param orderId
-	 * @return
-	 */
-	private List<String> getOutTradeNo(Integer... orderId) {
-		List<String> list = new ArrayList<String>();
-		for (Integer i : orderId) {
-			StorageOrder order = this.storageOrderDao.findOne(i);
-			list.add(order.getOutTradeNo());
-		}
-		return list;
-	}
 
 	/**
 	 * 更新仓库

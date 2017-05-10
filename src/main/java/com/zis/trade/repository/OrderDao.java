@@ -34,6 +34,6 @@ public interface OrderDao extends PagingAndSortingRepository<Order, Integer>, Jp
 	List<Order> findByRepoIdAndExpressNumberAndExpressStatus(Integer repoId, String expressNumber, String expressStatus);
 	
 	@Modifying
-	@Query("update Order set storageStatus='pickup_finish' where repoId=:repoId and orderGroupNumber in (:gn)")
-	int updateStorageStatusToFinishByRepoIdAndOrderGroupNumbers(@Param("repoId")Integer repoId, @Param("gn")List<String> orderGroupNumber);
+	@Query("update Order set storageStatus='pickup_finish' where storageStatus='pickup' and id in (:ids)")
+	int updateStorageStatusToFinishByIds(@Param("ids")List<Integer> orderIds);
 }

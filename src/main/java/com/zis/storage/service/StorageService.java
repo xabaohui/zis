@@ -70,7 +70,7 @@ public interface StorageService {
 	 * <li>更新库位库存StoragePosStock，增加占用量（防止同一库位的商品被分配给多个订单）</li>
 	 * </ol>
 	 */
-	int arrangeOrder(Integer repoId, List<String> outTradeNos, Integer operator);
+	int arrangeOrder(Integer repoId, List<Integer> outOrderIds, Integer operator);
 	
 	/**
 	 * 取件-完成操作
@@ -145,8 +145,9 @@ public interface StorageService {
 	 * 更新订单为已出库
 	 * 
 	 * @param batchId
+	 * @return 已出库的外部订单Id
 	 */
-	List<String> finishBatchSend(Integer batchId);
+	List<Integer> finishBatchSend(Integer batchId);
 
 	/**
 	 * 取消订单
@@ -159,9 +160,9 @@ public interface StorageService {
 	 * 取消订单
 	 * 
 	 * @param repoId
-	 * @param outOrderNumber
+	 * @param outOrderId
 	 */
-	void cancelOrder(Integer repoId, String outOrderNumber);
+	void cancelOrder(Integer repoId, Integer outOrderId);
 
 	// ----- 入库相关方法 ------
 

@@ -19,7 +19,7 @@ import com.zis.storage.service.StorageService;
 
 public class StorageServiceTest extends BaseTestUnit {
 	
-	final Integer operator = 1001;
+	final Integer operator = 111;
 	final Integer repoId = 1;
 	final Integer skuId = 20;
 	
@@ -87,7 +87,7 @@ public class StorageServiceTest extends BaseTestUnit {
 		detailList.add(d);
 		CreateOrderDTO request = new CreateOrderDTO();
 		request.setBuyerName("zara");
-		request.setOutTradeNo("test-201703010993");
+		request.setOutOrderId(1119231);
 		request.setOrderType(OrderType.SELF);
 		request.setRepoId(repoId);
 		request.setShopId(1113);
@@ -97,14 +97,14 @@ public class StorageServiceTest extends BaseTestUnit {
 	
 	@Test
 	public void testArrangeOrder() {
-		List<String> orderIds = new ArrayList<String>();
-		orderIds.add("test-201703010993");
+		List<Integer> orderIds = new ArrayList<Integer>();
+		orderIds.add(123123);
 		service.arrangeOrder(repoId, orderIds, operator);
 	}
 	
 	@Test
 	public void testPickup() {
-		StorageIoDetail detail = service.pickupLock(93, operator);
+		StorageIoDetail detail = service.pickupLock(36, operator);
 		System.out.println(JSONObject.toJSONString(detail));
 		while (detail != null){
 			detail = service.pickupDoneAndLockNext(detail.getDetailId(), operator);
