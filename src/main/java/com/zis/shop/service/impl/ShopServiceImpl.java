@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.mail.internet.AddressException;
 
@@ -40,6 +42,7 @@ import com.zis.shop.bean.ShopItemMapping.ShopItemMappingSystemStatus;
 import com.zis.shop.bo.ShopBo;
 import com.zis.shop.dto.ApplyRefundDTO;
 import com.zis.shop.dto.CheckOutIdDTO;
+import com.zis.shop.dto.CreateOrderFailDTO;
 import com.zis.shop.dto.LogisticsOfflineSendDTO;
 import com.zis.shop.dto.SaveOrUpdateCompanyDto;
 import com.zis.shop.dto.SaveOrUpdateShopDto;
@@ -52,6 +55,7 @@ import com.zis.shop.repository.ShopItemMappingDao;
 import com.zis.shop.service.ShopService;
 import com.zis.shop.util.ShopUtil;
 import com.zis.trade.dto.CreateTradeOrderDTO;
+import com.zis.trade.dto.CreateTradeOrderDTO.SubOrder;
 import com.zis.trade.dto.ExpressNumberDTO;
 import com.zis.trade.entity.Order;
 import com.zis.trade.entity.OrderOuter;
@@ -978,9 +982,118 @@ public class ShopServiceImpl implements ShopService {
 		if (CollectionUtils.isEmpty(list)) {
 			return;
 		}
-		for (CreateTradeOrderDTO dto : list) {
+		List<CreateTradeOrderDTO> newList = buildCreateTradeOrderDTOList(shop, list);
+		for (CreateTradeOrderDTO dto : newList) {
 			Order order = this.orderService.createOrder(dto);
 			this.orderService.payOrder(order.getId(), dto.getOrderMoney(), 0);
+		}
+	}
+
+	private List<CreateTradeOrderDTO> buildCreateTradeOrderDTOList(ShopInfo shop, List<CreateTradeOrderDTO> dtoList) {
+		List<CreateOrderFailDTO> failList = prcessCreateOrderData(dtoList, shop);
+		if (!CollectionUtils.isEmpty(failList)) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("<b>" + shop.getShopName() + "</b><p/>\n");
+			for (CreateOrderFailDTO dto : failList) {
+				String str = String.format("%s  %s  %s  %s  %s  %s<p/>\n", "此订单未被创建到zis  网店订单号",
+						dto.getOutOrderNumber(), "收件人姓名", dto.getReceiverName(), "收件人电话", dto.getReceiverPhone(),
+						"宝贝Id", dto.getItemId(), "商家编码", dto.getItemOutNum(), "错误原因", dto.getFailReason());
+				sb.append(str);
+			}
+			String[] email = { shop.getEmails() };
+			sendFailEmail(email, sb.toString(), shop);
+		}
+		return dtoList;
+	}
+
+	public List<CreateOrderFailDTO> prcessCreateOrderData(List<CreateTradeOrderDTO> createList, ShopInfo shop) {
+		List<CreateOrderFailDTO> failList = new ArrayList<CreateOrderFailDTO>();
+		//订单错误下标
+		Set<Integer> failIndex = new HashSet<>();
+		for (int i = 0; i < createList.size(); i++) {
+			// 如果有错误删除整个订单
+			for (int j = 0; j < createList.get(i).getSubOrders().size(); j++) {
+				// 检查
+				CheckOutIdDTO dto = checkOutId(createList.get(i).getSubOrders().get(j));
+				if (dto.getIsSuccess()) {
+					// 回填信息
+					createList.get(i).getSubOrders().get(j).setSkuId(dto.getBook().getId());
+					createList.get(i).getSubOrders().get(j).setItemName(dto.getBook().getBookName());
+				} else {
+					// 生成失败
+					CreateOrderFailDTO failDto = new CreateOrderFailDTO();
+					BeanUtils.copyProperties(createList.get(i), failDto);
+					failDto.setItemId(createList.get(i).getSubOrders().get(j).getItemId().toString());
+					failDto.setItemOutNum(createList.get(i).getSubOrders().get(j).getItemOutNum());
+					failDto.setFailReason(dto.getFailMsg());
+					failList.add(failDto);
+					failIndex.add(i);
+				}
+			}
+		}
+		//移除错误订单数据
+		for (Integer i : failIndex) {
+			createList.remove(i);
+		}
+		return failList;
+	}
+
+	private CheckOutIdDTO checkOutId(SubOrder so) {
+		CheckOutIdDTO dto = new CheckOutIdDTO();
+		String msg = "";
+		String[] splitOuterId = splitOuterId(so.getItemOutNum());
+		// 无商家编码
+		if (splitOuterId.length == 0 || splitOuterId.length > 2) {
+			msg = "商家编码格式有误或不存在";
+			logger.error(msg);
+			dto.setFailMsg(msg);
+			dto.setIsSuccess(false);
+			return dto;
+		}
+		// 商家编码符合规范，进行检查是否数据库中有对应数据，确保商家编码非乱填
+		if (splitOuterId.length == 2) {
+			String bookId = splitOuterId[1];
+			String isbn = splitOuterId[0];
+			// 如果bookId不为数字加入错误文件
+			if (!StringUtils.isNumeric(bookId)) {
+				msg = "bookId只能为数字" + bookId;
+				logger.error(msg);
+				dto.setFailMsg(msg);
+				dto.setIsSuccess(false);
+				return dto;
+			}
+			Bookinfo book = this.bookService.findByIdAndIsbn(Integer.parseInt(bookId), isbn);
+			// 对应商家编码在数据库中无数据，证明商家编码为乱填，加入错误待生成邮件内容中
+			if (book == null) {
+				msg = "商家编码有误";
+				logger.error(msg);
+				dto.setFailMsg(msg);
+				dto.setIsSuccess(false);
+				return dto;
+			}
+			dto.setIsSuccess(true);
+			dto.setBook(book);
+			return dto;
+		}
+		// 只有外部编码只有isbn的情况
+		String isbn = splitOuterId[0];
+		List<Bookinfo> list1 = this.bookService.findBookByISBN(isbn);
+		if (CollectionUtils.isEmpty(list1)) {
+			msg = "无此图书";
+			logger.error(msg);
+			dto.setFailMsg(msg);
+			dto.setIsSuccess(false);
+			return dto;
+		} else if (list1.size() > 1) {
+			msg = "一码多书";
+			logger.error(msg);
+			dto.setFailMsg(msg);
+			dto.setIsSuccess(false);
+			return dto;
+		} else {
+			dto.setIsSuccess(true);
+			dto.setBook(list1.get(0));
+			return dto;
 		}
 	}
 

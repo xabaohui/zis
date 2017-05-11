@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import com.jsb.rest.client.JSBClient;
 import com.jsb.rest.comm.JSBRestException;
-import com.sun.org.apache.bcel.internal.generic.GETSTATIC;
 import com.taobao.api.domain.Order;
 import com.taobao.api.domain.Refund;
 import com.taobao.api.domain.Shipping;
@@ -279,7 +278,7 @@ public class JiShiBaoApiTransfer extends AbstractApiTransfer {
 		for (Refund r : rlist) {
 			ApplyRefundDTO dto = new ApplyRefundDTO();
 			dto.setApplyTime(r.getCreated());
-			dto.setOperator(null);
+			dto.setOperator(0);
 			dto.setOutOrderNumber(r.getTid().toString());
 			dto.setRefundMemo(r.getReason());
 			dto.setShopId(shop.getShopId());
