@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.alibaba.fastjson.JSON;
 import com.jsb.rest.client.JSBClient;
 import com.jsb.rest.comm.JSBRestException;
 import com.taobao.api.domain.Order;
@@ -140,6 +141,7 @@ public class JiShiBaoApiTransfer extends AbstractApiTransfer {
 			if (rsp.getHasNext() != null && rsp.getHasNext()) {
 				return queryTradeForDate(newlist, ++page, shop, startTime, endTime);
 			} else {
+				logger.info("抓取创建订单结果" + JSON.toJSONString(newlist));
 				return newlist;
 			}
 		} catch (JSBRestException e) {
@@ -160,6 +162,7 @@ public class JiShiBaoApiTransfer extends AbstractApiTransfer {
 		}
 		for (Trade t : tradeList) {
 			CreateTradeOrderDTO dto = new CreateTradeOrderDTO();
+			dto.setOutOrderNumber(t.getTid().toString());
 			dto.setOrderMoney(Double.parseDouble(t.getPayment()));
 			dto.setOrderType(OrderType.SELF.getValue());
 			dto.setShopId(shop.getShopId());
@@ -258,6 +261,7 @@ public class JiShiBaoApiTransfer extends AbstractApiTransfer {
 			if (rsp.getHasNext() != null && rsp.getHasNext()) {
 				return queryApplyRefundForDate(++page, newlist, shop, startTime, endTime);
 			} else {
+				logger.info("抓取退款结果" + JSON.toJSONString(newlist));
 				return newlist;
 			}
 		} catch (JSBRestException e) {

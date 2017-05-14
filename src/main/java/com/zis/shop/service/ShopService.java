@@ -239,4 +239,10 @@ public interface ShopService {
 	 * @return
 	 */
 	public void logisticsOfflineSend(List<ExpressNumberDTO> list);
+	
+	/**
+	 * 获取所有店铺
+	 * @return
+	 */
+	public List<ShopInfo> queryAllShop();
 }

@@ -989,13 +989,15 @@ public class ShopServiceImpl implements ShopService {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private List<CreateTradeOrderDTO> buildCreateTradeOrderDTOList(ShopInfo shop, List<CreateTradeOrderDTO> dtoList) {
-		List<CreateOrderFailDTO> failList = prcessCreateOrderData(dtoList, shop);
+		Map<String, Object> map = prcessCreateOrderData(dtoList, shop);
+		List<CreateOrderFailDTO> failList = (List<CreateOrderFailDTO>) map.get("failList");
 		if (!CollectionUtils.isEmpty(failList)) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("<b>" + shop.getShopName() + "</b><p/>\n");
 			for (CreateOrderFailDTO dto : failList) {
-				String str = String.format("%s  %s  %s  %s  %s  %s<p/>\n", "此订单未被创建到zis  网店订单号",
+				String str = String.format("%s  %s  %s  %s  %s  %s %s  %s  %s  %s  %s  %s<p/>\n", "此订单未被创建到zis  网店订单号",
 						dto.getOutOrderNumber(), "收件人姓名", dto.getReceiverName(), "收件人电话", dto.getReceiverPhone(),
 						"宝贝Id", dto.getItemId(), "商家编码", dto.getItemOutNum(), "错误原因", dto.getFailReason());
 				sb.append(str);
@@ -1003,13 +1005,14 @@ public class ShopServiceImpl implements ShopService {
 			String[] email = { shop.getEmails() };
 			sendFailEmail(email, sb.toString(), shop);
 		}
-		return dtoList;
+		return (List<CreateTradeOrderDTO>) map.get("orderList");
 	}
 
-	public List<CreateOrderFailDTO> prcessCreateOrderData(List<CreateTradeOrderDTO> createList, ShopInfo shop) {
+	public Map<String, Object> prcessCreateOrderData(List<CreateTradeOrderDTO> createList, ShopInfo shop) {
+		List<CreateTradeOrderDTO> orderList = new ArrayList<CreateTradeOrderDTO>();
 		List<CreateOrderFailDTO> failList = new ArrayList<CreateOrderFailDTO>();
 		//订单错误下标
-		Set<Integer> failIndex = new HashSet<>();
+		Set<Integer> successIndex = new HashSet<>();
 		for (int i = 0; i < createList.size(); i++) {
 			// 如果有错误删除整个订单
 			for (int j = 0; j < createList.get(i).getSubOrders().size(); j++) {
@@ -1019,6 +1022,7 @@ public class ShopServiceImpl implements ShopService {
 					// 回填信息
 					createList.get(i).getSubOrders().get(j).setSkuId(dto.getBook().getId());
 					createList.get(i).getSubOrders().get(j).setItemName(dto.getBook().getBookName());
+					successIndex.add(i);
 				} else {
 					// 生成失败
 					CreateOrderFailDTO failDto = new CreateOrderFailDTO();
@@ -1027,15 +1031,21 @@ public class ShopServiceImpl implements ShopService {
 					failDto.setItemOutNum(createList.get(i).getSubOrders().get(j).getItemOutNum());
 					failDto.setFailReason(dto.getFailMsg());
 					failList.add(failDto);
-					failIndex.add(i);
 				}
 			}
 		}
+		
 		//移除错误订单数据
-		for (Integer i : failIndex) {
-			createList.remove(i);
+		if(!successIndex.isEmpty()){
+			for (Integer i : successIndex) {
+				int j = i;
+				orderList.add(createList.get(j));
+			}
 		}
-		return failList;
+		Map<String, Object> map = new HashMap<>();
+		map.put("failList", failList);
+		map.put("orderList", orderList);
+		return map;
 	}
 
 	private CheckOutIdDTO checkOutId(SubOrder so) {
@@ -1141,5 +1151,10 @@ public class ShopServiceImpl implements ShopService {
 				}
 			}
 		}
+	}
+
+	@Override
+	public List<ShopInfo> queryAllShop() {
+		return (List<ShopInfo>) this.shopInfoDao.findAll();
 	}
 }

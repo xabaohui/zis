@@ -536,18 +536,18 @@ public class JSBExample {
 			TradesSoldIncrementGetRequest req = new TradesSoldIncrementGetRequest();
 			req.setFields("tid,type,status,has_buyer_message,payment,orders,outer_iid,receiver_name,receiver_address,receiver_mobile");
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			Date start = sdf.parse("2017-05-08 23:00:00");
+			Date start = sdf.parse("2017-05-14 12:00:00");
 			Date end = sdf.parse("2017-05-09 21:00:00");
 			req.setStartModified(start);
-			req.setEndModified(end);
-//			req.setStatus("WAIT_SELLER_SEND_GOODS");
+			req.setEndModified(new Date());
+			// req.setStatus("WAIT_SELLER_SEND_GOODS");
 			req.setUseHasNext(true);
 			TradesSoldIncrementGetResponse rsp = client.execute(req);
 			List<Trade> list = rsp.getTrades();
 			System.out.println(JSON.toJSON(list));
-//			for (Trade trade : list) {
-//				System.out.println(JSON.toJSON(list));
-//			}
+			// for (Trade trade : list) {
+			// System.out.println(JSON.toJSON(list));
+			// }
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
@@ -611,7 +611,7 @@ public class JSBExample {
 		System.out.println(JSON.toJSON(list));
 	}
 
-	//单个订单调取
+	// 单个订单调取
 	private static void testTradeGetRequest() throws Exception {
 		JSBClient client = new JSBClient(AK, SK);
 		TradeGetRequest req = new TradeGetRequest();
@@ -643,14 +643,14 @@ public class JSBExample {
 			// // testUpload();
 			// testTradeSoldGet();
 			// testUserSellerGet();
-//			 testTradesSoldIncrementGeta();
-			testTradeGetRequest();
+			testTradesSoldIncrementGeta();
+			// testTradeGetRequest();
 			// testLogisticsOfflineSendRequest();
 			// testRefundsReceiveGetRequest();
 			// testItemSkusGetRequest();
 			for (int i = 0; i < 1; i++) {
 				// testRefundsApplyGet();
-//				 testRefundsReceiveGetRequest();
+				// testRefundsReceiveGetRequest();
 			}
 			// testUpdate();
 		} catch (Exception e) {
