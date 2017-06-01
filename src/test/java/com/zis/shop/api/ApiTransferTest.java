@@ -67,19 +67,19 @@ public class ApiTransferTest {
 	// ApiTransfer api = addFactory.getInstance(shop.getpName());
 	// this.shopServiceImpl.queryItemsOnsale(api, shop);
 	// }
-	@Test
-	public void queryItemsInventoryForShelved() {
-		ShopInfo shop = getShopInfo();
-		ApiTransfer api = addFactory.getInstance(shop.getpName());
-		this.shopServiceImpl.queryItemsInventory(api, shop, FOR_SHELVED);
-	}
-
-	@Test
-	public void queryItemsInventorySoldOut() {
-		ShopInfo shop = getShopInfo();
-		ApiTransfer api = addFactory.getInstance(shop.getpName());
-		this.shopServiceImpl.queryItemsInventory(api, shop, SOLD_OUT);
-	}
+//	@Test
+//	public void queryItemsInventoryForShelved() {
+//		ShopInfo shop = getShopInfo();
+//		ApiTransfer api = addFactory.getInstance(shop.getpName());
+//		this.shopServiceImpl.queryItemsInventory(api, shop, FOR_SHELVED);
+//	}
+//
+//	@Test
+//	public void queryItemsInventorySoldOut() {
+//		ShopInfo shop = getShopInfo();
+//		ApiTransfer api = addFactory.getInstance(shop.getpName());
+//		this.shopServiceImpl.queryItemsInventory(api, shop, SOLD_OUT);
+//	}
 
 	@Test
 	public void addItem2Shop() {

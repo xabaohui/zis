@@ -157,12 +157,14 @@ public interface OrderService {
 	 * 修改商品 TODO 未实现
 	 */
 	void changeItems();
-	
+
 	/**
 	 * 添加卖家备注（追加模式）
+	 * 
 	 * @param orderId
 	 * @param operator
-	 * @param remark 备注内容
+	 * @param remark
+	 *            备注内容
 	 * @return 订单备注（处理完本次请求后的内容）
 	 */
 	String appendSellerRemark(Integer orderId, Integer operator, String remark);
@@ -194,7 +196,8 @@ public interface OrderService {
 	/**
 	 * 开始配货，配货状态：已分配仓库->配货中
 	 * 
-	 * @param repoId 仓库Id
+	 * @param repoId
+	 *            仓库Id
 	 * @param orderIds
 	 *            主订单Id列表
 	 * @param operator
@@ -208,7 +211,8 @@ public interface OrderService {
 	 * 
 	 * @param orderId
 	 * @param operator
-	 * @param memo 原因说明
+	 * @param memo
+	 *            原因说明
 	 */
 	void cancelArrangeOrder(Integer orderId, Integer operator, String memo);
 
@@ -243,6 +247,7 @@ public interface OrderService {
 
 	/**
 	 * 打印快递单，物流状态：未打印->已打印
+	 * 
 	 * @param orderId
 	 * @param operator
 	 * @return
@@ -296,51 +301,74 @@ public interface OrderService {
 	 * @param operator
 	 */
 	OrderVO sendOut(Integer repoId, String expressNumber, Integer operator);
-	
+
 	/**
 	 * 按照状态查询订单
-	 * @param companyId 公司Id
-	 * @param payStatus 资金状态
-	 * @param expressStatus 物流状态
-	 * @param storageStatus 配货状态
-	 * @param page 分页参数
+	 * 
+	 * @param companyId
+	 *            公司Id
+	 * @param payStatus
+	 *            资金状态
+	 * @param expressStatus
+	 *            物流状态
+	 * @param storageStatus
+	 *            配货状态
+	 * @param page
+	 *            分页参数
 	 * @return
 	 */
-	Page<OrderVO> findOrdersByStatus(Integer companyId, PayStatus payStatus,
-			ExpressStatus expressStatus, StorageStatus storageStatus, Pageable page);
-	
+	Page<OrderVO> findOrdersByStatus(Integer companyId, PayStatus payStatus, ExpressStatus expressStatus,
+			StorageStatus storageStatus, Pageable page);
+
 	/**
 	 * 按照具体信息查询订单
-	 * @param companyId 公司Id
-	 * @param cond 订单页查询条件
-	 * @param page 分页参数
+	 * 
+	 * @param companyId
+	 *            公司Id
+	 * @param cond
+	 *            订单页查询条件
+	 * @param page
+	 *            分页参数
 	 * @return
 	 */
 	Page<OrderVO> findOrdersByCondition(Integer companyId, OrderQueryCondition cond, Pageable page);
-	
+
+	/**
+	 * 全部订单默认查询
+	 * 
+	 * @param companyId
+	 * @param page
+	 * @return
+	 */
+	Page<OrderVO> findOrdersByCondition(Integer companyId, Pageable page);
+
 	/**
 	 * 根据订单Id+公司Id 查找订单
+	 * 
 	 * @param orderId
 	 * @param companyId
 	 * @return
 	 */
-	Order findByOrderIdAndCompanyId(Integer orderId,Integer companyId);
-	
+	Order findByOrderIdAndCompanyId(Integer orderId, Integer companyId);
+
 	/**
 	 * 判断某个网店订单号是否存在
-	 * @param outOrderNumber 网店订单号
+	 * 
+	 * @param outOrderNumber
+	 *            网店订单号
 	 * @return
 	 */
 	boolean existByOutOrderNumber(Integer shopId, String outOrderNumber);
-	
+
 	/**
-	 * 更新地址<p/>
+	 * 更新地址
+	 * <p/>
 	 * XXX 不限定公司，如果导入地址变成常规化功能，这里是存在乱改数据的风险的
+	 * 
 	 * @param addrs
 	 */
 	void importReceiverAddr(List<OrderAddressImportDTO> addrs);
-	
-	//----------------------------淘宝api调用---------------------------------------
-	
-	
+
+	// ----------------------------淘宝api调用---------------------------------------
+
 }

@@ -61,6 +61,8 @@ public class RegistAndUpdateService {
 	protected final String SHIRO = "shiro";
 	protected final String STOCK = "stock";
 	protected final String DATA = "data";
+	protected final String SHOP = "shop";
+	protected final String ORDER = "order";
 
 	@Autowired
 	private UserDao userDao;
@@ -142,6 +144,7 @@ public class RegistAndUpdateService {
 			role.setCreateUserName(getCreateUserName());
 			role.setRoleName(registRoleDto.getRoleName());
 			role.setRoleDescription(registRoleDto.getRoleDescription());
+			role.setStatus(NORMAL);
 		} else {
 			role.setUpdateTime(new Date());
 			role.setCreateUserName(getCreateUserName());
@@ -161,6 +164,7 @@ public class RegistAndUpdateService {
 		try {
 			this.roleDao.save(role);
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new RuntimeException("角色Code重复");
 		}
 
@@ -488,6 +492,8 @@ public class RegistAndUpdateService {
 			permissions.put(SHIRO, this.permissionDao.findByGroupName(SHIRO));
 			permissions.put(STOCK, this.permissionDao.findByGroupName(STOCK));
 			permissions.put(DATA, this.permissionDao.findByGroupName(DATA));
+			permissions.put(SHOP, this.permissionDao.findByGroupName(SHOP));
+			permissions.put(ORDER, this.permissionDao.findByGroupName(ORDER));
 		}
 	}
 

@@ -38,19 +38,19 @@
 		<table class = "common-table-new">
 		<tr>
 			<th>
-				<a href="order/getWaitPickUpList">等待配货</a>
+				<a href="order/getWaitPickUpList?sort=updateTime&direction=desc">等待配货</a>
 			</th>
 			<th style="background-color: #A7C942">
 				<font color="#00000">配货中</font>
 			</th>
 			<th>
-				<a href="order/getWaitForPrintList">等待打印</a>
+				<a href="order/getWaitForPrintList?sort=updateTime&direction=desc">等待打印</a>
 			</th>
 			<th>
-				<a href="order/getPrintedList">已打印</a>
+				<a href="order/getPrintedList?sort=updateTime&direction=desc">已打印</a>
 			</th>
 			<th>
-				<a href="order/getAllStorageOrderList">全部订单</a>
+				<a href="order/getAllStorageOrderList?sort=createTime&direction=desc">全部订单</a>
 			</th>
 		</tr>
 		</table>
@@ -70,6 +70,7 @@
 				<th>网店订单号</th>
 				<th>收件人</th>
 				<th>商品清单</th>
+				<th>商品总数</th>
 				<th>状态</th>
 				<th>物流信息</th>
 				<th>操作</th>
@@ -126,11 +127,11 @@
 <div align="center">
 	<!-- 分页查询start-->
 	<c:if test="${not empty prePage}">
-		<a href="order/getPickupList?${queryCondition}page=${prePage}">上一页</a>&nbsp;
+		<a href="order/getPickupList?${queryCondition}page=${prePage}&sort=updateTime&direction=desc">上一页</a>&nbsp;
 	</c:if>
 	${page} &nbsp;
 	<c:if test="${not empty nextPage}">
-		<a href="order/getPickupList?${queryCondition}page=${nextPage}">下一页</a>&nbsp;
+		<a href="order/getPickupList?${queryCondition}page=${nextPage}&sort=updateTime&direction=desc">下一页</a>&nbsp;
 	</c:if>
 	<!-- 分页查询end -->
 </div>

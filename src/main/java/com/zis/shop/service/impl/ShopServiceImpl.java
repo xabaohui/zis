@@ -54,6 +54,8 @@ import com.zis.shop.repository.ShopInfoDao;
 import com.zis.shop.repository.ShopItemMappingDao;
 import com.zis.shop.service.ShopService;
 import com.zis.shop.util.ShopUtil;
+import com.zis.storage.entity.StorageRepoInfo;
+import com.zis.storage.service.StorageService;
 import com.zis.trade.dto.CreateTradeOrderDTO;
 import com.zis.trade.dto.CreateTradeOrderDTO.SubOrder;
 import com.zis.trade.dto.ExpressNumberDTO;
@@ -117,6 +119,9 @@ public class ShopServiceImpl implements ShopService {
 	@Autowired
 	private OrderOuterDao orderOuterDao;
 
+	@Autowired
+	private StorageService storageService;
+
 	private SimpleMailSender mailSender = MailSenderFactory.getSender();
 
 	/**
@@ -131,12 +136,16 @@ public class ShopServiceImpl implements ShopService {
 	public void stockChangeToShopUPdateItem(Integer companyId, Integer bookId, Integer amount) {
 		List<ShopInfo> shopList = this.shopInfoDao.findByCompanyId(companyId);
 		for (ShopInfo shop : shopList) {
-			ShopItemMapping mapping = this.shopItemMappingDao.findByShopIdAndBookId(shop.getShopId(), bookId);
-			if (mapping != null) {
-				this.ShopBo.stockChangeToUpdateOrAddItems(mapping, shop, amount);
-			} else {
-				Bookinfo book = this.bookService.findNormalBookById(bookId);
-				saveShopMappingStatusWait(book, shop);
+			try {
+				ShopItemMapping mapping = this.shopItemMappingDao.findByShopIdAndBookId(shop.getShopId(), bookId);
+				if (mapping != null) {
+					this.ShopBo.stockChangeToUpdateOrAddItems(mapping, shop, amount);
+				} else {
+					Bookinfo book = this.bookService.findNormalBookById(bookId);
+					saveShopMappingStatusWait(book, shop);
+				}
+			} catch (Exception e) {
+				throw new RuntimeException(shop.getShopName() + e.getMessage());
 			}
 		}
 	}
@@ -977,6 +986,10 @@ public class ShopServiceImpl implements ShopService {
 		if (shop == null) {
 			throw new RuntimeException("店铺不存在");
 		}
+		List<StorageRepoInfo> storageList = this.storageService.findStorageRepoInfoByCompanyId(shop.getCompanyId());
+		if (storageList.isEmpty()) {
+			throw new RuntimeException("仓库不存在");
+		}
 		ApiTransfer api = factory.getInstance(shop.getpName());
 		List<CreateTradeOrderDTO> list = api.queryTradeForDate(shop, startTime, endTime);
 		if (CollectionUtils.isEmpty(list)) {
@@ -985,7 +998,10 @@ public class ShopServiceImpl implements ShopService {
 		List<CreateTradeOrderDTO> newList = buildCreateTradeOrderDTOList(shop, list);
 		for (CreateTradeOrderDTO dto : newList) {
 			Order order = this.orderService.createOrder(dto);
+			// 支付
 			this.orderService.payOrder(order.getId(), dto.getOrderMoney(), 0);
+			// 分配仓库
+			this.orderService.arrangeOrderToRepo(order.getId(), 0, storageList.get(0).getRepoId());
 		}
 	}
 
@@ -1011,7 +1027,7 @@ public class ShopServiceImpl implements ShopService {
 	public Map<String, Object> prcessCreateOrderData(List<CreateTradeOrderDTO> createList, ShopInfo shop) {
 		List<CreateTradeOrderDTO> orderList = new ArrayList<CreateTradeOrderDTO>();
 		List<CreateOrderFailDTO> failList = new ArrayList<CreateOrderFailDTO>();
-		//订单错误下标
+		// 订单错误下标
 		Set<Integer> successIndex = new HashSet<>();
 		for (int i = 0; i < createList.size(); i++) {
 			// 如果有错误删除整个订单
@@ -1034,9 +1050,9 @@ public class ShopServiceImpl implements ShopService {
 				}
 			}
 		}
-		
-		//移除错误订单数据
-		if(!successIndex.isEmpty()){
+
+		// 移除错误订单数据
+		if (!successIndex.isEmpty()) {
 			for (Integer i : successIndex) {
 				int j = i;
 				orderList.add(createList.get(j));
@@ -1119,8 +1135,12 @@ public class ShopServiceImpl implements ShopService {
 			return;
 		}
 		for (ApplyRefundDTO dto : list) {
-			this.orderService.applyRefund(shop.getShopId(), dto.getOutOrderNumber(), 0, dto.getApplyTime(),
-					dto.getRefundMemo());
+			try {
+				this.orderService.applyRefund(shop.getShopId(), dto.getOutOrderNumber(), 0, dto.getApplyTime(),
+						dto.getRefundMemo());
+			} catch (Exception e) {
+				throw new RuntimeException(e.getMessage() + " 订单号 " + dto.getOutOrderNumber());
+			}
 		}
 	}
 
@@ -1156,5 +1176,10 @@ public class ShopServiceImpl implements ShopService {
 	@Override
 	public List<ShopInfo> queryAllShop() {
 		return (List<ShopInfo>) this.shopInfoDao.findAll();
+	}
+
+	@Override
+	public List<Company> queryAllCompany() {
+		return (List<Company>) this.companyDao.findAll();
 	}
 }

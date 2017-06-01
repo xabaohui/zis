@@ -22,6 +22,9 @@ import com.zis.bookinfo.dto.BookInfoAndDetailDTO;
 import com.zis.purchase.bean.InwarehouseDetail;
 import com.zis.purchase.bean.PurchasePlan;
 import com.zis.purchase.biz.DoPurchaseService;
+import com.zis.storage.entity.StorageProduct;
+import com.zis.storage.service.StorageService;
+import com.zis.storage.util.StorageUtil;
 
 /**
  * 导出淘宝数据包-从入库记录中导出
@@ -36,8 +39,11 @@ public class TaobaoCsvDataExportControllerInwarehouseImpl extends TaobaoCsvDataE
 	@Autowired
 	private DoPurchaseService doPurchaseService;
 
+	@Autowired
+	private StorageService storageService;
+
 	private static final Logger logger = LoggerFactory.getLogger(TaobaoCsvDataExportControllerInwarehouseImpl.class);
-	
+
 	@RequiresPermissions(value = { "stock:output" })
 	@RequestMapping(value = "/exportTaobaoItemDataByInwarehouse")
 	public String export(HttpServletRequest request, ModelMap map) {
@@ -104,12 +110,20 @@ public class TaobaoCsvDataExportControllerInwarehouseImpl extends TaobaoCsvDataE
 			BeanUtils.copyProperties(book, infoAndDetail);
 			BeanUtils.copyProperties(detail, infoAndDetail);
 			// 查询库存量
-			PurchasePlan plan = this.doPurchaseService.findPurchasePlanByBookId(book.getId());
-			if (plan == null || plan.getStockAmount() == null || plan.getStockAmount() <= 0) {
+			PurchasePlan plan = this.doPurchaseService.findPurchasePlanByBookId(book.getId(), StorageUtil.getRepoId());
+			StorageProduct storageProduct = this.storageService.findBySkuIdAndRepoId(book.getId(),
+					StorageUtil.getRepoId());
+			Integer stockAmount = null;
+			if (storageProduct == null) {
+				stockAmount = 0;
+			} else {
+				stockAmount = storageProduct.getStockAmt();
+			}
+			if (plan == null || stockAmount == null || stockAmount <= 0) {
 				continue; // 跳过没有库存的记录
 			}
 			if (plan != null) {
-				infoAndDetail.setStockBalance(plan.getStockAmount());
+				infoAndDetail.setStockBalance(stockAmount);
 			}
 			resultList.add(infoAndDetail);
 		}

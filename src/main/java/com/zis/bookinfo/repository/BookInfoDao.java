@@ -102,6 +102,13 @@ public interface BookInfoDao extends PagingAndSortingRepository<Bookinfo, Intege
 	 * @return
 	 */
 	Page<Bookinfo> findByBookStatus(String status, Pageable page);
+	
+	/**
+	 * 书名like查询
+	 * @param bookName
+	 * @return
+	 */
+	List<Bookinfo> findByBookNameLike(String bookName);
 
 	/**
 	 * 查询待审核的记录数

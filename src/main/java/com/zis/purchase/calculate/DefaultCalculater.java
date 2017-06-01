@@ -12,7 +12,7 @@ public class DefaultCalculater implements BookAmountCalculateInterface {
 	@Autowired
 	private SysVarCache sysVarCache;
 
-	public Integer calculate(int bookId) {
+	public Integer calculate(int bookId,Integer repoId) {
 		return sysVarCache.getSystemVar(SysVarConstant.PURCHASE_DEFAULT_REQURIE_AMT.getKeyName());
 	}
 }

@@ -28,7 +28,24 @@
 							<spring:errors delimiter="," path="memo" cssStyle="color:red" />
 						</td>
 					</tr>
+					<tr>
+						<td>入库类型</td>
+						<td>
+							<select name = "bizType" id = "bizType" onchange="changeBizType()">
+								<option value = "batch">批量入库</option>
+								<option value = "purchase">采购入库</option>
+							</select>
+						</td>
+					</tr>
 				</table>
+				<div id = "purchaseDiv" style="display: none;">
+				<table>
+					<tr>
+						<td>采购员</td>
+						<td><input type="text" name = "purchaseOperator"/></td>
+					</tr>				
+				</table>
+				</div>
 			</td>
 		</tr>
 		<tr>

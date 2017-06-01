@@ -5,6 +5,7 @@
 				<td>${order.id}</td>
 				<td>
 					<fmt:formatDate value="${order.createTime}" pattern="yyyy-MM-dd"/>
+					<fmt:formatDate value="${order.createTime}" pattern="HH:mm:ss"/>
 				</td>
 				<td>
 					${order.shopName}
@@ -34,4 +35,11 @@
 							<font color="green">${order.buyerMessage}</font>
 						</c:if>
 					</div>
+				</td>
+				<td>
+					<c:set var="sum" value = "0"/>
+					<c:forEach items="${details}" var="detail" >
+						<c:set var="sum" value = "${sum + detail.itemCount}"/>
+					</c:forEach>
+					${sum}
 				</td>

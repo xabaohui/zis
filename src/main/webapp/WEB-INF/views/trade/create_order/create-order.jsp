@@ -13,7 +13,7 @@
 window.onload = function() {
 	checkedShopId();
 	checkedCreateOrderType();
-	checkedOrderType();
+// 	checkedOrderType();
 };
 </script>
 <style type="text/css">
@@ -130,7 +130,8 @@ window.onload = function() {
 						<th>ISBN</th>
 						<th>书名</th>
 						<th>数量</th>
-						<th>标价</th>
+						<th>售价</th>
+						<th>原价</th>
 						<th>操作</th>
 					</tr>
 					<c:forEach items="${dto.skus}" var="sku" varStatus="i" >
@@ -150,8 +151,14 @@ window.onload = function() {
 							</td>
 							<td>
 								<div id = "itemPriceDiv_${sku.skuId}">
-								${sku.itemPrice}<input type="hidden" name = "skus[${i.index}].itemPrice" id = "itemPrice_${sku.skuId}" value = "${sku.itemPrice}" />
+								<fmt:formatNumber type="number" value="${sku.itemPrice}" maxFractionDigits="2"  />
+								<input type="hidden" name = "skus[${i.index}].itemPrice" id = "itemPrice_${sku.skuId}" value = "${sku.itemPrice}" />
 								</div>
+							</td>
+							<td>
+								${sku.zisPrice}<br/>
+								<font color="#A9A9A9" size="1px">(店铺折扣${dto.discount * 10}折)</font>
+								<input type="hidden" name = "skus[${i.index}].zisPrice" id = "zisPrice_${sku.skuId}" value = "${sku.zisPrice}" />
 							</td>
 							<td>
 								<input type="button" onclick="updateSkuItemCount('${sku.skuId}')" value="修改数量">
@@ -215,7 +222,7 @@ window.onload = function() {
 			</tr>
 			<tr>
 				<td>订单总费用</td>
-				<td><input type="text" id = "orderMoney" name = "orderMoney" value = "${dto.orderMoney}" onchange = "updateOrderMoney()" onkeyup="this.value=this.value.replace(/[^\d\.]/g,'')" /></td>
+				<td><input type="text" id = "orderMoney" name = "orderMoney" value = '<fmt:formatNumber type="number" value="${dto.orderMoney}" maxFractionDigits="2"  />' onchange = "updateOrderMoney()" onkeyup="this.value=this.value.replace(/[^\d\.]/g,'')" /></td>
 				<td>
 					<c:forEach items="${errors}" var = "item">
 						<c:if test="${item.field eq 'orderMoney'}">

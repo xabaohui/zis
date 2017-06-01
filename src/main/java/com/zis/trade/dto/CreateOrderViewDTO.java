@@ -187,8 +187,17 @@ public class CreateOrderViewDTO {
 		private String isbn;
 		private String itemName; // 商品名称
 		private Integer itemCount; // 数量
+		private Double zisPrice;
 		private Double itemPrice; // 单价 计算后
 		private Integer resultInt;// 返回的第几行记录
+		
+		public Double getZisPrice() {
+			return zisPrice;
+		}
+
+		public void setZisPrice(Double zisPrice) {
+			this.zisPrice = zisPrice;
+		}
 
 		public Integer getResultInt() {
 			return resultInt;

@@ -103,8 +103,10 @@ function inwarehouse(bookId, bookIntro) {
 	var ioBatchId = $('ioBatchId').value;
 	var curPosition = $('curPosition').value;
 	var amount = $('userInputAmount').value;
+	var purchaseOperator = document.getElementById("purchaseOperator").value;
+	var bizType = document.getElementById("bizType").value;
 	storageInwarehouseBO.doStorageInwarehouse(ioBatchId, curPosition, bookId,
-			amount, showInwarehouseResult);
+			amount, purchaseOperator, bizType, showInwarehouseResult);
 }
 
 // (3-3)执行入库操作
@@ -149,9 +151,9 @@ function showInwarehouseResult(result) {
 		$('passVoice').play();
 		// 清空输入
 		var inuser = $('userInput').value;
-		inuser = "";
-		document.getElementById('userInput').value = "";
-		alert(inuser);
+//		inuser = "";
+//		document.getElementById('userInput').value = "";
+//		alert(inuser);
 		$('userInputAmount').value = 1;
 	} else {
 		alert('操作失败，' + result.failReason);
@@ -176,15 +178,18 @@ function checkAllOId() {
 	}
 }
 
-//动态设置sku
+// 动态设置sku
 function addSku() {
 	var i = document.getElementById('skuNo').value;
 	var origPos = document.getElementById('createSkuDiv').innerHTML;
-	document.getElementById('createSkuDiv').innerHTML = origPos + '图书Id:<input type="text" name="dList['+i+'].skuId" size="15" />&nbsp;图书数量：<input type="text" name="dList['+i+'].amount" size="3" /><p/>';
+	document.getElementById('createSkuDiv').innerHTML = origPos
+			+ '图书Id:<input type="text" name="dList[' + i
+			+ '].skuId" size="15" />&nbsp;图书数量：<input type="text" name="dList['
+			+ i + '].amount" size="3" /><p/>';
 	i++;
 	document.getElementById('skuNo').value = i;
 }
-//动态设置sku清空使用
+// 动态设置sku清空使用
 function clearSku() {
 	var i = document.getElementById('skuNo').value = 1;
 	var origPos = document.getElementById('createSkuDiv').innerHTML = "";
@@ -216,7 +221,7 @@ function checkStatusAndType() {
 			break;
 		}
 	}
-	
+
 	var type = document.getElementById("selectType");
 	var checkTypeValue = document.getElementById("checkType").value;
 	for ( var i = 0; i < type.options.length; i++) {
@@ -295,6 +300,45 @@ function cancelOrders() {
 }
 
 /**
+ * 入库单导出
+ */
+function exportWangqubaoInwarehouse(){
+	document.getElementById("batchForm").action = "storage/exportWangqubaoInwarehouse";
+	document.getElementById("batchForm").submit();
+}
+
+/**
+ * 商品明细导出
+ */
+function exportWangqubaoItemByInwarehouse(){
+	document.getElementById("batchForm").action = "storage/exportWangqubaoItemByInwarehouse";
+	document.getElementById("batchForm").submit();
+}
+
+/**
+ * 出库单导出
+ */
+function exportWangqubaoSendOut(){
+	document.getElementById("batchForm").action = "storage/exportWangqubaoSendOut";
+	document.getElementById("batchForm").submit();
+}
+
+/**
+ * 批次全选
+ */
+function checkAllBatchId() {
+	var orderIds = document.getElementsByName('batchId');
+	var checkAll = document.getElementById('checkAll');
+	for ( var i = 0; i < orderIds.length; i++) {
+		if (checkAll.checked) {
+			orderIds[i].checked = true;
+		} else {
+			orderIds[i].checked = false;
+		}
+	}
+}
+
+/**
  * 部分缺货
  */
 function lackPart() {
@@ -317,12 +361,12 @@ function lackPart() {
  * 全部缺货
  */
 function lackAll() {
-	  var result = confirm('此库位是否全部缺货');  
-	    if(result){  
-	    	document.getElementById('takeGoodsForm').action = "storage/lackAll";
-	    	document.getElementById('takeGoodsForm').submit();
-	    }else{  
-	    } 
+	var result = confirm('此库位是否全部缺货');
+	if (result) {
+		document.getElementById('takeGoodsForm').action = "storage/lackAll";
+		document.getElementById('takeGoodsForm').submit();
+	} else {
+	}
 }
 
 /**

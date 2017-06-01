@@ -34,7 +34,7 @@ public class RequirementCalculater implements BookAmountCalculateInterface {
 	@Autowired
 	private BookService bookService;
 
-	public Integer calculate(int bookId) {
+	public Integer calculate(int bookId,Integer repoId) {
 		Integer portio = sysVarCache.getSystemVar(SysVarConstant.PURCHASE_REQUIREMENT_PORTIO.getKeyName());
 		return getRequirementAmount(bookId) * portio / 100;
 	}

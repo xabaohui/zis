@@ -26,6 +26,9 @@ import com.zis.purchase.bean.PurchasePlan;
 import com.zis.purchase.bean.PurchasePlanStatus;
 import com.zis.purchase.biz.DoPurchaseService;
 import com.zis.purchase.dto.PurchasePlanView;
+import com.zis.storage.entity.StorageProduct;
+import com.zis.storage.service.StorageService;
+import com.zis.storage.util.StorageUtil;
 
 /**
  * 查看采购计划列表
@@ -41,6 +44,9 @@ public class PurchasePlanViewController extends PaginationQueryController<Purcha
 	private BookService bookService;
 	@Autowired
 	private DoPurchaseService doPurchaseService;
+
+	@Autowired
+	private StorageService storageService;
 
 	@RequiresPermissions(value = { "purchase:view", "purchase:management" }, logical = Logical.OR)
 	@RequestMapping(value = "/queryPurchasePlan")
@@ -118,10 +124,10 @@ public class PurchasePlanViewController extends PaginationQueryController<Purcha
 		String maxPlanAmountStr = request.getParameter("minPlanAmount");
 		if (StringUtils.isNotBlank(isbn)) {
 			String[] isbnStr = isbn.split(",");
-			if(isbnStr.length > 1){
+			if (isbnStr.length > 1) {
 				throw new RuntimeException("采购计划查询isbn不能输入多个");
 			}
-			if(!StringUtils.isNumeric(isbn.trim())){
+			if (!StringUtils.isNumeric(isbn.trim())) {
 				throw new RuntimeException("isbn存在非法字符");
 			}
 			// dc.add(Restrictions.eq("isbn", isbn));
@@ -185,8 +191,17 @@ public class PurchasePlanViewController extends PaginationQueryController<Purcha
 			if (record.getManualDecision() > 0 && doPurchaseService.isAllowManualDecisionForPurchasePlan()) {
 				view.setManualDecisionFlag(true);
 			}
+			StorageProduct storageProduct = this.storageService.findBySkuIdAndRepoId(record.getBookId(),
+					StorageUtil.getRepoId());
+			Integer stockAmount = null;
+			if (storageProduct == null) {
+				stockAmount = 0;
+			} else {
+				stockAmount = storageProduct.getStockAmt();
+			}
+			view.setStockAmount(stockAmount);
 			// 计算仍需采购量
-			view.setStillRequireAmount(doPurchaseService.calculateStillRequireAmount(record));
+			view.setStillRequireAmount(doPurchaseService.calculateStillRequireAmount(record, stockAmount));
 			view.setPublishDate(book.getPublishDate());
 			if (book.getBookPrice() != null && book.getBookPrice() > 0) {
 				view.setBookPrice((float) Math.ceil(book.getBookPrice() * 0.2f));

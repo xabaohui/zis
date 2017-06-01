@@ -33,7 +33,19 @@
 		<table>
 			<tr>
 				<td>ISBN</td>
-				<td colspan="3"><input type="text" name="isbn" value="${isbn}" /></td>
+				<td colspan="3"><input type="text" name="isbn" value="${param.isbn}" /></td>
+			</tr>
+			<tr>
+				<td>书名</td>
+				<td colspan="3"><input type="text" name="bookName" value="${param.bookName}" /></td>
+			</tr>
+			<tr>
+				<td>作者</td>
+				<td colspan="3"><input type="text" name="bookAuthor" value="${param.bookAuthor}" /></td>
+			</tr>
+			<tr>
+				<td>出版社</td>
+				<td colspan="3"><input type="text" name="bookPublisher" value="${param.bookPublisher}" /></td>
 			</tr>
 			<tr>
 				<td><input type="submit" value="查询" /></td>

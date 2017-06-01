@@ -19,6 +19,7 @@ import com.zis.bookinfo.service.BookService;
 import com.zis.common.mvc.ext.QueryUtil;
 import com.zis.common.util.ZisUtils;
 import com.zis.purchase.biz.DoPurchaseService;
+import com.zis.storage.util.StorageUtil;
 
 @Controller
 @RequestMapping(value = "/purchase")
@@ -33,8 +34,8 @@ public class DoPurchaseController {
 	@SuppressWarnings("deprecation")
 	@RequiresPermissions(value = { "toolkit:toolkit" })
 	@RequestMapping(value = "/batchUpdatePurchasePlanForPurchaseAmount")
-	public String batchUpdatePurchasePlanForPurchaseAmount() {
-		this.doPurchaseService.batchUpdatePurchasePlanForPurchaseAmount();
+	public String batchUpdatePurchasePlanForPurchaseAmount(Integer repoId) {
+		this.doPurchaseService.batchUpdatePurchasePlanForPurchaseAmount(repoId);
 		return "success";
 	}
 
@@ -51,7 +52,7 @@ public class DoPurchaseController {
 			// DetachedCriteria dc = DetachedCriteria.forClass(Bookinfo.class);
 			// dc.add(Restrictions.eq("isbn", isbn));
 			List<Bookinfo> list = this.bookService.findBySpecificationAll(spec);
-			doPurchaseService.addPurchasePlanForBatch(list);
+			doPurchaseService.addPurchasePlanForBatch(list, StorageUtil.getRepoId());
 			return "success";
 		}
 		// 考虑到服务器压力，分批处理采购计划
@@ -63,7 +64,7 @@ public class DoPurchaseController {
 			logger.info("采购计划开始，from=" + beginIndex + ", to=" + (beginIndex + batchSize));
 			try {
 				plist = this.bookService.findAll(page);
-				doPurchaseService.addPurchasePlanForBatch(plist.getContent());
+				doPurchaseService.addPurchasePlanForBatch(plist.getContent(), StorageUtil.getRepoId());
 				page = plist.nextPageable();
 			} catch (Exception e) {
 				logger.error("执行采购计划过程中出错" + e);
@@ -93,7 +94,7 @@ public class DoPurchaseController {
 	@RequiresPermissions(value = "toolkit:toolkit")
 	@RequestMapping(value = "/clearOnwayStock")
 	public String clearOnwayStock(String purchaseOperator) {
-		this.doPurchaseService.deleteOnwayStock(purchaseOperator);
+		this.doPurchaseService.deleteOnwayStock(purchaseOperator, StorageUtil.getRepoId());
 		return "success";
 	}
 
@@ -122,7 +123,7 @@ public class DoPurchaseController {
 		List<Bookinfo> list = this.bookService.findBySpecificationAll(spec);
 		for (Bookinfo obj : list) {
 			Integer bookId = obj.getId();
-			doPurchaseService.addBlackList(bookId);
+			doPurchaseService.addBlackList(bookId, StorageUtil.getRepoId());
 		}
 		return "success";
 	}

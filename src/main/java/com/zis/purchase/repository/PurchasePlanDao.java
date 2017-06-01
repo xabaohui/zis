@@ -22,8 +22,8 @@ public interface PurchasePlanDao extends PagingAndSortingRepository<PurchasePlan
 	@Modifying
 	@Query(value = "update PurchasePlan set status='" + PurchasePlanStatus.USELESS
 			+ "', version=version+1, gmtModify = now() where status='" + PurchasePlanStatus.NORMAL
-			+ "' and bookId=:bookId")
-	void updateToUselessByBookId(@Param(value = "bookId") Integer bookId);
+			+ "' and bookId=:bookId and repoId = :repoId")
+	void updateToUselessByBookId(@Param(value = "bookId") Integer bookId, @Param(value = "repoId") Integer repoId);
 
 	/**
 	 * 按照bookId查询采购计划，限定有效的记录
@@ -31,8 +31,9 @@ public interface PurchasePlanDao extends PagingAndSortingRepository<PurchasePlan
 	 * @param bookId
 	 * @return
 	 */
-	@Query(value = "from PurchasePlan where bookId=:bookId and status='" + PurchasePlanStatus.NORMAL + "'")
-	PurchasePlan findByBookId(@Param(value = "bookId") Integer bookId);
+	@Query(value = "from PurchasePlan where bookId=:bookId and repoId = :repoId and status='"
+			+ PurchasePlanStatus.NORMAL + "'")
+	PurchasePlan findByBookId(@Param(value = "bookId") Integer bookId, @Param(value = "repoId") Integer repoId);
 
 	/**
 	 * 按照bookId查询采购计划，查询所有状态
@@ -40,16 +41,18 @@ public interface PurchasePlanDao extends PagingAndSortingRepository<PurchasePlan
 	 * @param bookId
 	 * @return
 	 */
-	@Query(value = "from PurchasePlan where bookId=:bookId")
-	List<PurchasePlan> findByBookIdForAll(@Param(value = "bookId") Integer bookId);
+	@Query(value = "from PurchasePlan where bookId=:bookId and repoId = :repoId")
+	List<PurchasePlan> findByBookIdForAll(@Param(value = "bookId") Integer bookId,
+			@Param(value = "repoId") Integer repoId);
 
 	/**
 	 * 按照ISBN查询采购计划，限定有效的记录
 	 * 
 	 * @return
 	 */
-	@Query(value = "from PurchasePlan where isbn = :isbn and status='" + PurchasePlanStatus.NORMAL + "'")
-	List<PurchasePlan> findByIsbn(@Param(value = "isbn") String isbn);
+	@Query(value = "from PurchasePlan where isbn = :isbn and repoId = :repoId and status='" + PurchasePlanStatus.NORMAL
+			+ "'")
+	List<PurchasePlan> findByIsbn(@Param(value = "isbn") String isbn, @Param(value = "repoId") Integer repoId);
 
 	/**
 	 * 查询采购计划，方便重新计算在途库存
@@ -58,7 +61,8 @@ public interface PurchasePlanDao extends PagingAndSortingRepository<PurchasePlan
 	 * 
 	 * @return
 	 */
-	@Query(value = "from PurchasePlan where purchasedAmount > 0 and status='" + PurchasePlanStatus.NORMAL + "'")
-	List<PurchasePlan> findForRecalcOnwayStock();
+	@Query(value = "from PurchasePlan where purchasedAmount > 0 and repoId = :repoId and status='"
+			+ PurchasePlanStatus.NORMAL + "'")
+	List<PurchasePlan> findForRecalcOnwayStock(@Param(value = "repoId") Integer repoId);
 
 }

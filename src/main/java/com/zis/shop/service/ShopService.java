@@ -245,4 +245,11 @@ public interface ShopService {
 	 * @return
 	 */
 	public List<ShopInfo> queryAllShop();
+	
+	/**
+	 * 查询所有公司
+	 * @return
+	 */
+	public List<Company> queryAllCompany();
+	
 }

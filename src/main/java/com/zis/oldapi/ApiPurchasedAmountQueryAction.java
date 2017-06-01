@@ -8,8 +8,6 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts2.ServletActionContext;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.BeanUtils;
 
 import com.alibaba.fastjson.JSON;
@@ -22,18 +20,19 @@ import com.zis.api.response.RequiredAmountQueryResponseV2;
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.service.BookService;
 import com.zis.purchase.bean.PurchasePlan;
-import com.zis.purchase.bean.PurchasePlanStatus;
 import com.zis.purchase.biz.DoPurchaseService;
 
 public class ApiPurchasedAmountQueryAction extends ActionSupport {
 
 	private static final long serialVersionUID = 1L;
-	private static Logger logger = Logger
-			.getLogger(ApiPurchasedAmountQueryAction.class);
+	private static Logger logger = Logger.getLogger(ApiPurchasedAmountQueryAction.class);
 
 	private DoPurchaseService doPurchaseService;
 	private BookService bookService;
 	private String isbn;
+
+	// ZIS 仓库Id
+	private final Integer ZIS_STORAGE_REPO_ID = 2;
 
 	@Deprecated
 	/**
@@ -49,7 +48,7 @@ public class ApiPurchasedAmountQueryAction extends ActionSupport {
 			renderResult(response);
 			return SUCCESS;
 		}
-		List<PurchasePlan> list = doPurchaseService.findPurchasePlanByIsbn(isbn);
+		List<PurchasePlan> list = doPurchaseService.findPurchasePlanByIsbn(isbn, ZIS_STORAGE_REPO_ID);
 		List<RequiredAmountQueryData> resultList = new ArrayList<RequiredAmountQueryData>();
 		// 如果采购计划中无此记录，提示系统无此记录
 		if (list == null || list.isEmpty()) {
@@ -75,9 +74,10 @@ public class ApiPurchasedAmountQueryAction extends ActionSupport {
 		renderResult(response);
 		return SUCCESS;
 	}
-	
+
 	/**
 	 * 采购查询接口
+	 * 
 	 * @return
 	 */
 	public String queryRequiredAmountV2() {
@@ -89,7 +89,7 @@ public class ApiPurchasedAmountQueryAction extends ActionSupport {
 			renderResult(response);
 			return SUCCESS;
 		}
-		List<PurchasePlan> list = doPurchaseService.findPurchasePlanByIsbn(isbn);
+		List<PurchasePlan> list = doPurchaseService.findPurchasePlanByIsbn(isbn, ZIS_STORAGE_REPO_ID);
 		List<RequiredAmountQueryDataV2> resultList = new ArrayList<RequiredAmountQueryDataV2>();
 		// 如果采购计划中无此记录，提示系统无此记录
 		if (list == null || list.isEmpty()) {
@@ -107,7 +107,7 @@ public class ApiPurchasedAmountQueryAction extends ActionSupport {
 				RequiredAmountQueryDataV2 dq = new RequiredAmountQueryDataV2();
 				BeanUtils.copyProperties(plan, dq);
 				Bookinfo book = this.bookService.findBookById(plan.getBookId());
-				if(book != null) {
+				if (book != null) {
 					dq.setNewEdition(book.getIsNewEdition());
 				}
 				dq.setRequireAmount(doPurchaseService.calculateStillRequireAmount(plan));
@@ -123,8 +123,7 @@ public class ApiPurchasedAmountQueryAction extends ActionSupport {
 	private void renderResult(Object obj) {
 		// json序列化
 		String content = JSON.toJSONString(obj);
-		ServletActionContext.getResponse().setContentType(
-				"text/html;charset=utf-8");
+		ServletActionContext.getResponse().setContentType("text/html;charset=utf-8");
 		try {
 			PrintWriter out = ServletActionContext.getResponse().getWriter();
 			out.print(content);
@@ -138,7 +137,7 @@ public class ApiPurchasedAmountQueryAction extends ActionSupport {
 	public void setDoPurchaseService(DoPurchaseService doPurchaseService) {
 		this.doPurchaseService = doPurchaseService;
 	}
-	
+
 	public void setBookService(BookService bookService) {
 		this.bookService = bookService;
 	}

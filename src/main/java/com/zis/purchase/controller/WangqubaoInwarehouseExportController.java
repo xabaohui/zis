@@ -30,7 +30,6 @@ import com.zis.purchase.biz.DoPurchaseService;
 @RequestMapping(value = "/purchase")
 public class WangqubaoInwarehouseExportController extends CommonExcelExportController<InwarehouseDetail> {
 
-	// private Integer[] batchSelectedItem;
 	@Autowired
 	private BookService bookService;
 	@Autowired

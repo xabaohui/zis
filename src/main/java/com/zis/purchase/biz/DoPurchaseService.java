@@ -54,7 +54,7 @@ public class DoPurchaseService {
 	@Autowired
 	private InwarehouseBO inwarehouseBO;
 	@Autowired
-	private PurchaseInwarehouseBO purchaseInwarehouseBO;
+	private PurchaseInwarehouseBOV2 purchaseInwarehouseBO;
 	@Autowired
 	private PurchaseDetailDao purchaseDetailDao;
 	@Autowired
@@ -63,8 +63,36 @@ public class DoPurchaseService {
 	private static final Logger logger = Logger.getLogger(DoPurchaseService.class);
 
 	@Deprecated
-	public void batchUpdatePurchasePlanForPurchaseAmount() {
-		this.purchaseBO.batchUpdatePurchasePlanForPurchaseAmount();
+	public void batchUpdatePurchasePlanForPurchaseAmount(Integer repoId) {
+		this.purchaseBO.batchUpdatePurchasePlanForPurchaseAmount(repoId);
+	}
+
+	public List<PurchaseDetail> findPurchaseDetailByBatchId(Integer batchId) {
+		return this.purchaseDetailDao.findByBatchId(batchId);
+	}
+
+	/**
+	 * 入库前检查
+	 * 
+	 * @param purchaseOperator
+	 * @param bookId
+	 * @param amount
+	 * @return
+	 */
+	public String checkForDoInwarehouse(String purchaseOperator, Integer bookId, Integer amount) {
+		return this.purchaseInwarehouseBO.checkForDoInwarehouseNew(purchaseOperator, bookId, amount);
+	}
+
+	/**
+	 * 入库完成后的后续操作，由子类进行扩展
+	 * 
+	 * @param purchaseOperator
+	 * @param bookId
+	 * @param amount
+	 * @param repoId
+	 */
+	public void afterPut(String purchaseOperator, Integer bookId, Integer amount, Integer repoId, Integer batchId) {
+		this.purchaseInwarehouseBO.afterPutNew(purchaseOperator, bookId, amount, repoId, batchId);
 	}
 
 	/**
@@ -73,9 +101,9 @@ public class DoPurchaseService {
 	 * @param bookId
 	 * @return 操作失败原因，如果成功，返回空字符串
 	 */
-	public String addBlackList(Integer bookId) {
+	public String addBlackList(Integer bookId, Integer repoId) {
 		try {
-			purchaseBO.addBlackList(bookId);
+			purchaseBO.addBlackList(bookId, repoId);
 			return "";
 		} catch (Exception e) {
 			String msg = "加入黑名单失败," + e.getMessage();
@@ -89,9 +117,9 @@ public class DoPurchaseService {
 	 * 
 	 * @return 操作失败原因，如果成功，返回空字符串
 	 */
-	public String addWhiteList(Integer bookId) {
+	public String addWhiteList(Integer bookId, Integer repoId) {
 		try {
-			purchaseBO.addWhiteList(bookId);
+			purchaseBO.addWhiteList(bookId, repoId);
 			return "";
 		} catch (Exception e) {
 			String msg = "加入白名单失败," + e.getMessage();
@@ -106,9 +134,9 @@ public class DoPurchaseService {
 	 * @param bookId
 	 * @return 操作失败原因，如果成功，返回空字符串
 	 */
-	public String deleteBlackOrWhiteList(Integer bookId) {
+	public String deleteBlackOrWhiteList(Integer bookId, Integer repoId) {
 		try {
-			purchaseBO.deleteBlackOrWhiteList(bookId);
+			purchaseBO.deleteBlackOrWhiteList(bookId, repoId);
 			return "";
 		} catch (Exception e) {
 			String msg = "删除黑名单或白名单失败," + e.getMessage();
@@ -123,8 +151,8 @@ public class DoPurchaseService {
 	 * @param plan
 	 * @return
 	 */
-	public Integer calculateStillRequireAmount(PurchasePlan plan) {
-		return purchaseBO.calculateStillRequireAmount(plan);
+	public Integer calculateStillRequireAmount(PurchasePlan plan, Integer stockAmount) {
+		return purchaseBO.calculateStillRequireAmount(plan, stockAmount);
 	}
 
 	/**
@@ -132,13 +160,13 @@ public class DoPurchaseService {
 	 * 
 	 * @param importList
 	 */
-	public void addBookStock(List<StockDTO> importList) {
+	public void addBookStock(List<StockDTO> importList, Integer repoId) {
 		if (importList == null || importList.isEmpty()) {
 			return;
 		}
 		// 批量保存
 		for (StockDTO record : importList) {
-			String errMsg = updateBookStock(record.getBookId(), record.getStockBalance());
+			String errMsg = updateBookStock(record.getBookId(), record.getStockBalance(), repoId);
 			if (StringUtils.isNotBlank(errMsg)) {
 				logger.error("更新采购计划中的库存失败:" + errMsg);
 			}
@@ -152,8 +180,8 @@ public class DoPurchaseService {
 	 * @param amount
 	 * @return
 	 */
-	public String updateBookStock(Integer bookId, Integer amount) {
-		return purchaseBO.updateBookStock(bookId, amount);
+	public String updateBookStock(Integer bookId, Integer amount, Integer repoId) {
+		return purchaseBO.updateBookStock(bookId, amount, repoId);
 	}
 
 	/**
@@ -174,8 +202,8 @@ public class DoPurchaseService {
 	 *            数量
 	 * @return
 	 */
-	public String addManualDecision(Integer bookId, Integer amount) {
-		return purchaseBO.addManualDecision(bookId, amount);
+	public String addManualDecision(Integer bookId, Integer amount, Integer repoId) {
+		return purchaseBO.addManualDecision(bookId, amount, repoId);
 	}
 
 	/**
@@ -185,9 +213,9 @@ public class DoPurchaseService {
 	 *            图书ID
 	 * @return 操作失败原因，如果成功，返回空字符串
 	 */
-	public String removeManualDecision(Integer bookId) {
+	public String removeManualDecision(Integer bookId, Integer repoId) {
 		try {
-			purchaseBO.removeManualDecision(bookId);
+			purchaseBO.removeManualDecision(bookId, repoId);
 			return "";
 		} catch (Exception e) {
 			String msg = "去除人工定量失败," + e.getMessage();
@@ -202,9 +230,9 @@ public class DoPurchaseService {
 	 * @param bookId
 	 * @return 操作失败原因，如果成功，返回空字符串
 	 */
-	public String recalculateRequireAmount(Integer bookId) {
+	public String recalculateRequireAmount(Integer bookId, Integer repoId) {
 		try {
-			purchaseBO.recalculateRequireAmount(bookId);
+			purchaseBO.recalculateRequireAmount(bookId, repoId);
 			return "";
 		} catch (Exception e) {
 			String msg = "重新计算计划采购量失败," + e.getMessage();
@@ -218,8 +246,8 @@ public class DoPurchaseService {
 	 * 
 	 * @param bookList
 	 */
-	public void addPurchasePlanForBatch(List<Bookinfo> bookList) {
-		purchaseBO.addPurchasePlanForBatch(bookList);
+	public void addPurchasePlanForBatch(List<Bookinfo> bookList, Integer repoId) {
+		purchaseBO.addPurchasePlanForBatch(bookList, repoId);
 	}
 
 	/**
@@ -232,8 +260,9 @@ public class DoPurchaseService {
 	 * @param memo
 	 * @return 返回失败原因，如果添加成功，返回空字符串
 	 */
-	public String addPurchaseDetail(int bookId, int purchasedAmount, String operator, String position, String memo) {
-		return purchaseBO.addPurchaseDetail(bookId, purchasedAmount, operator, position, memo);
+	public String addPurchaseDetail(int bookId, int purchasedAmount, String operator, String position, String memo,
+			Integer repoId, Integer stockAmount) {
+		return purchaseBO.addPurchaseDetail(bookId, purchasedAmount, operator, position, memo, repoId, stockAmount);
 	}
 
 	/**
@@ -242,8 +271,8 @@ public class DoPurchaseService {
 	 * @param dc
 	 * @return
 	 */
-	public List<PurchasePlan> findPurchasePlanByIsbn(String isbn) {
-		return purchasePlanDao.findByIsbn(isbn);
+	public List<PurchasePlan> findPurchasePlanByIsbn(String isbn, Integer repoId) {
+		return purchasePlanDao.findByIsbn(isbn, repoId);
 	}
 
 	/**
@@ -252,8 +281,8 @@ public class DoPurchaseService {
 	 * @param bookId
 	 * @return
 	 */
-	public PurchasePlan findPurchasePlanByBookId(int bookId) {
-		return purchaseBO.findPurchasePlanByBookId(bookId);
+	public PurchasePlan findPurchasePlanByBookId(int bookId, Integer repoId) {
+		return purchaseBO.findPurchasePlanByBookId(bookId, repoId);
 	}
 
 	/**
@@ -345,7 +374,8 @@ public class DoPurchaseService {
 		}
 		// 采购入库
 		if (InwarehouseBizType.PURCHASE.equals(inwarehouse.getBizType())) {
-			return this.purchaseInwarehouseBO.createInwarehouse(inwarehouse);
+			// return this.purchaseInwarehouseBO.createInwarehouse(inwarehouse);
+			return null;
 		}
 		// 其他入库
 		else {
@@ -381,7 +411,9 @@ public class DoPurchaseService {
 		}
 		// 采购入库
 		if (InwarehouseBizType.PURCHASE.equals(in.getBizType())) {
-			return this.purchaseInwarehouseBO.doInwarehouse(in, posLabel, bookId, amount);
+			// return this.purchaseInwarehouseBO.doInwarehouse(in, posLabel,
+			// bookId, amount);
+			return null;
 		}
 		// 退货入库或直接入库
 		else {
@@ -469,11 +501,11 @@ public class DoPurchaseService {
 		return this.inwarehouseDetailDao.findByInwarehouseIds(inwarehouseIds);
 	}
 
-	public void deleteOnwayStock(String purchaseOperator) {
+	public void deleteOnwayStock(String purchaseOperator, Integer repoId) {
 		if (StringUtils.isBlank(purchaseOperator)) {
 			return;
 		}
-		this.purchaseBO.deleteOnwayStock(purchaseOperator);
+		this.purchaseBO.deleteOnwayStock(purchaseOperator, repoId);
 	}
 
 	/**

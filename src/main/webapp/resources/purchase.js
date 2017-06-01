@@ -222,3 +222,13 @@ function showDeleteInwarehouseResult(result) {
 /** 
  * 采购入库 --END------
  */
+
+//--选择入库类型
+function changeBizType(){
+	var bizTypeValue = document.getElementById("bizType").value;
+	if (bizTypeValue == 'purchase') {
+		document.getElementById('purchaseDiv').style = "display:block;";
+	}else{
+		document.getElementById('purchaseDiv').style = "display:none;";
+	}
+}

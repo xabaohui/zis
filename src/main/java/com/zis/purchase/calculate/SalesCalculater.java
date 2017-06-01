@@ -10,7 +10,7 @@ import com.zis.common.cache.SysVarConstant;
 import com.zis.purchase.bean.Storesales;
 import com.zis.purchase.repository.StoreSalesDao;
 
-@Component(value="salesCalculater")
+@Component(value = "salesCalculater")
 public class SalesCalculater implements BookAmountCalculateInterface {
 
 	@Autowired
@@ -18,9 +18,8 @@ public class SalesCalculater implements BookAmountCalculateInterface {
 	@Autowired
 	private SysVarCache sysVarCache;
 
-	public Integer calculate(int bookId) {
-		Integer portio = sysVarCache
-				.getSystemVar(SysVarConstant.PURCHASE_SALES_PORTIO.getKeyName());
+	public Integer calculate(int bookId, Integer repoId) {
+		Integer portio = sysVarCache.getSystemVar(SysVarConstant.PURCHASE_SALES_PORTIO.getKeyName());
 		return getSalesAmount(bookId) * portio / 100;
 	}
 

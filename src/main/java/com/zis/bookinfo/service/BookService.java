@@ -637,6 +637,10 @@ public class BookService {
 		// .findByBookStatus(ConstantString.WAITCHECK);
 		// return list;
 	}
+	
+	public List<Bookinfo> findBookInfoByBookNameLike(String bookName){
+		return this.bookinfoDao.findByBookNameLike(bookName);
+	}
 
 	/**
 	 * 分析哪些图书相同
@@ -881,6 +885,10 @@ public class BookService {
 	 */
 	public Page<Bookinfo> findBySpecification(Specification<Bookinfo> spec, Pageable pageable) {
 		return this.bookinfoDao.findAll(spec, pageable);
+	}
+	
+	public List<Bookinfo> findBySpecification(Specification<Bookinfo> spec){
+		return this.bookinfoDao.findAll(spec);
 	}
 
 	/**

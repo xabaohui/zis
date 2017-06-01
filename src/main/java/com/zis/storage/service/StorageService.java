@@ -1,5 +1,6 @@
 package com.zis.storage.service;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -71,7 +72,7 @@ public interface StorageService {
 	 * </ol>
 	 */
 	int arrangeOrder(Integer repoId, List<Integer> outOrderIds, Integer operator);
-	
+
 	/**
 	 * 取件-完成操作
 	 * <p/>
@@ -152,7 +153,8 @@ public interface StorageService {
 	/**
 	 * 取消订单
 	 * 
-	 * @param orderId 注意是仓储订单Id，而不是订单Id
+	 * @param orderId
+	 *            注意是仓储订单Id，而不是订单Id
 	 */
 	void cancelOrder(Integer orderId);
 
@@ -256,7 +258,7 @@ public interface StorageService {
 	 * @return
 	 */
 	List<StorageProduct> findStorageProductBySkuIdsAndRepoId(List<Integer> skuIds, Integer repoId);
-	
+
 	/**
 	 * 按照仓库Id和skuId查询库存商品
 	 * 
@@ -331,29 +333,54 @@ public interface StorageService {
 	 * @return
 	 */
 	List<StorageProduct> findByPosStockList(List<StoragePosStock> posStockList);
-	
+
 	/**
 	 * 根据库位Id 查询StoragePosStock表
+	 * 
 	 * @param posId
 	 * @param page
 	 * @return
 	 */
 	Page<StoragePosStock> findByPosId(Integer posId, Pageable page);
-	
+
 	/**
 	 * 根据公司Id查找仓库
+	 * 
 	 * @param companyId
 	 * @return
 	 */
 	List<StorageRepoInfo> findStorageRepoInfoByCompanyId(Integer companyId);
-	
+
 	/**
 	 * 根据skuId 和仓库Id 查找商品
+	 * 
 	 * @param skuId
 	 * @param repoId
 	 * @return
 	 */
-	StorageProduct findBySkuIdAndRepoId(Integer skuId,Integer repoId);
-	
+	StorageProduct findBySkuIdAndRepoId(Integer skuId, Integer repoId);
+
 	StorageIoDetail findByIoDetailId(Integer ioDetailId);
+
+	/**
+	 * 根据批次Id 状态 类型查找 StorageIoDetail
+	 * 
+	 * @param batchId
+	 * @param ioDetailType
+	 * @param DetailStatusList
+	 * @return
+	 */
+	List<StorageIoDetail> findStorageIoDetailByRepoIdAndBatchIdInAndIoDetailTypeAndDetailStatusIn(Integer repoId,
+			List<Integer> batchIds, String ioDetailType, List<String> DetailStatusList);
+
+	/**
+	 * 查询某一时间段的库存变动量
+	 * 
+	 * @param startTime
+	 * @param endTime
+	 * @param repoId
+	 * @return
+	 */
+	List<StorageProduct> findByUpdateTimeBetweenStartTimeAndEndTimeAndRepoId(Date startTime, Date endTime,
+			Integer repoId);
 }

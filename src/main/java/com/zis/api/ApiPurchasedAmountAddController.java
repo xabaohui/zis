@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.zis.api.response.BaseApiResponse;
 import com.zis.purchase.biz.DoPurchaseService;
+import com.zis.storage.entity.StorageProduct;
+import com.zis.storage.service.StorageService;
 
 /**
  * 教材采购量保存API
@@ -28,6 +30,12 @@ public class ApiPurchasedAmountAddController extends BaseApiController {
 
 	@Autowired
 	private DoPurchaseService doPurchaseService;
+
+	@Autowired
+	private StorageService storageService;
+
+	// ZIS 仓库Id
+	private final Integer ZIS_STORAGE_REPO_ID = 2;
 
 	// private String bookId;
 	// private String purchasedAmount;
@@ -68,8 +76,15 @@ public class ApiPurchasedAmountAddController extends BaseApiController {
 		int intBookId = (Integer) map.get("bookId");
 		int intPurchasedAmount = (Integer) map.get("purchasedAmount");
 		try {
-			String result = doPurchaseService
-					.addPurchaseDetail(intBookId, intPurchasedAmount, operator, position, memo);
+			StorageProduct storageProduct = this.storageService.findBySkuIdAndRepoId(intBookId, ZIS_STORAGE_REPO_ID);
+			Integer stockAmount = null;
+			if (storageProduct == null) {
+				stockAmount = 0;
+			} else {
+				stockAmount = storageProduct.getStockAmt();
+			}
+			String result = doPurchaseService.addPurchaseDetail(intBookId, intPurchasedAmount, operator, position,
+					memo, ZIS_STORAGE_REPO_ID, stockAmount);
 			if (StringUtils.isNotBlank(result)) {
 				// 渲染结果
 				renderResponse(BaseApiResponse.CODE_INNER_ERROR, result, response);

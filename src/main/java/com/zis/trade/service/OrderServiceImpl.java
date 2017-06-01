@@ -1,6 +1,7 @@
 package com.zis.trade.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -26,8 +27,8 @@ import com.zis.common.util.StringUtil;
 import com.zis.shiro.bean.User;
 import com.zis.shiro.service.SysService;
 import com.zis.storage.dto.CreateOrderDTO;
-import com.zis.storage.dto.StorageLacknessOpDTO;
 import com.zis.storage.dto.CreateOrderDTO.CreateOrderDetail;
+import com.zis.storage.dto.StorageLacknessOpDTO;
 import com.zis.storage.entity.StorageIoDetail;
 import com.zis.storage.entity.StorageOrder;
 import com.zis.storage.service.StorageService;
@@ -67,15 +68,22 @@ public class OrderServiceImpl implements OrderService {
 	private OrderOuterDao orderOuterDao;
 	@Autowired
 	private OrderLogDao orderLogDao;
-	
+
 	@Autowired
 	private BookService bookService;
 	@Autowired
 	private SysService sysService;
 	@Autowired
 	private StorageService storageService;
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
+
+	// 等待分配仓库3种形态
+	private final String[] STORAGE_WAIT_ARRANGES = { StorageStatus.WAIT_ARRANGE.getValue(),
+			StorageStatus.WAIT_ARRANGE_BY_LACKNESS.getValue(), StorageStatus.WAIT_ARRANGE_BY_MANUAL.getValue() };
+
+	// 订单关闭的两种形态
+	private final String[] CANCELLED_ORDER = { PayStatus.CANCELLED.getValue(), PayStatus.REFUND_FINISH.getValue() };
 
 	@Override
 	public Order createOrder(CreateTradeOrderDTO orderDTO) {
@@ -93,12 +101,12 @@ public class OrderServiceImpl implements OrderService {
 
 	private void cancelOrder(Order order, Integer operator) {
 		Assert.notNull(order, "订单不存在");
-		if(!OrderHelper.canCancelOrder(order)) {
+		if (!OrderHelper.canCancelOrder(order)) {
 			throw new RuntimeException("取消订单失败，当前状态不允许取消");
 		}
 		order.setPayStatus(PayStatus.CANCELLED.getValue());
 		this.orderDao.save(order);
-		
+
 		logger.info("取消订单, orderId={}, operator={}", order.getId(), operator);
 		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.CANCEL, "");
 		orderLogDao.save(log);
@@ -109,7 +117,7 @@ public class OrderServiceImpl implements OrderService {
 	public void cancelOrder(Integer shopId, String outOrderNumber, Integer operator) {
 		logger.info("取消订单, shopId={}, outOrderNumber={}, operator={}", shopId, outOrderNumber, operator);
 		List<Order> orders = findOrdersByShopIdAndOutOrderNumber(shopId, outOrderNumber);
-		if(CollectionUtils.isEmpty(orders)) {
+		if (CollectionUtils.isEmpty(orders)) {
 			throw new RuntimeException("订单不存在");
 		}
 		for (Order od : orders) {
@@ -120,7 +128,7 @@ public class OrderServiceImpl implements OrderService {
 	@SuppressWarnings("unchecked")
 	private List<Order> findOrdersByShopIdAndOutOrderNumber(Integer shopId, String outOrderNumber) {
 		OrderOuter outOrder = orderOuterDao.findByShopIdAndOutOrderNumber(shopId, outOrderNumber);
-		if(outOrder == null) {
+		if (outOrder == null) {
 			return Collections.EMPTY_LIST;
 		}
 		return orderDao.findByShopIdAndOrderGroupNumber(outOrder.getShopId(), outOrder.getOrderGroupNumber());
@@ -138,16 +146,18 @@ public class OrderServiceImpl implements OrderService {
 
 	private void payOrder(Order order, Double paymentAmount, Integer operator) {
 		Assert.notNull(order, "订单不存在");
-		if(!OrderHelper.canPay(order)) {
+		if (!OrderHelper.canPay(order)) {
 			throw new RuntimeException("支付订单失败，当前状态不允许支付");
 		}
-		// TODO 金额检查
+		if (paymentAmount < order.getOrderMoney()) {
+			throw new RuntimeException("支付订单失败，支付金额不能小于订单金额");
+		}
+		order.setOrderMoney(paymentAmount);
 		order.setPayStatus(PayStatus.PAID.getValue());
 		order.setPayTime(new Date());
 		this.orderDao.save(order);
-		
-		logger.info("支付订单, orderId={}, paymentAmount={}, operator={}",
-				order.getId(), paymentAmount, operator);
+
+		logger.info("支付订单, orderId={}, paymentAmount={}, operator={}", order.getId(), paymentAmount, operator);
 		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.PAY, "支付金额:" + paymentAmount);
 		orderLogDao.save(log);
 	}
@@ -155,10 +165,10 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	@Transactional
 	public void payOrder(Integer shopId, String outOrderNumber, Double paymentAmount, Integer operator) {
-		logger.info("支付订单, shopId={}, outOrderNumber={}, paymentAmount={}, operator={}",
-				shopId, outOrderNumber, paymentAmount, operator);
+		logger.info("支付订单, shopId={}, outOrderNumber={}, paymentAmount={}, operator={}", shopId, outOrderNumber,
+				paymentAmount, operator);
 		List<Order> orders = findOrdersByShopIdAndOutOrderNumber(shopId, outOrderNumber);
-		if(CollectionUtils.isEmpty(orders)) {
+		if (CollectionUtils.isEmpty(orders)) {
 			throw new RuntimeException("订单不存在");
 		}
 		for (Order od : orders) {
@@ -178,18 +188,18 @@ public class OrderServiceImpl implements OrderService {
 
 	private OrderVO applyRefund(Order order, Integer operator, Date applyTime, String refundMemo) {
 		Assert.notNull(order, "订单不存在");
-		if(!OrderHelper.canApplyRefund(order)) {
+		if (!OrderHelper.canApplyRefund(order)) {
 			throw new RuntimeException("操作失败，当前状态不允许退款");
 		}
 		order.setRefundApplyTime(applyTime);
 		order.setPayStatus(PayStatus.REFUNDING.getValue());
-		if(StringUtils.isNotBlank(refundMemo)) {
+		if (StringUtils.isNotBlank(refundMemo)) {
 			order.setBuyerMessage(order.getBuyerMessage() + "<br/>发起退款:" + refundMemo);
 		}
 		this.orderDao.save(order);
-		
-		logger.info("申请订单退款, orderId={}, operator={}, applyTime={}, refundMemo={}",
-				order.getId(), operator, applyTime, refundMemo);
+
+		logger.info("申请订单退款, orderId={}, operator={}, applyTime={}, refundMemo={}", order.getId(), operator, applyTime,
+				refundMemo);
 		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.APPLY_REFUND, refundMemo);
 		orderLogDao.save(log);
 		return createOrderVO(order);
@@ -198,10 +208,10 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	@Transactional
 	public void applyRefund(Integer shopId, String outOrderNumber, Integer operator, Date applyTime, String refundMemo) {
-		logger.info("申请订单退款, shopId={}, outOrderNumber={}, operator={}, applyTime={}, refundMemo={}",
-				shopId, outOrderNumber, operator, applyTime, refundMemo);
+		logger.info("申请订单退款, shopId={}, outOrderNumber={}, operator={}, applyTime={}, refundMemo={}", shopId,
+				outOrderNumber, operator, applyTime, refundMemo);
 		List<Order> orders = findOrdersByShopIdAndOutOrderNumber(shopId, outOrderNumber);
-		if(CollectionUtils.isEmpty(orders)) {
+		if (CollectionUtils.isEmpty(orders)) {
 			throw new RuntimeException("订单不存在");
 		}
 		for (Order od : orders) {
@@ -217,15 +227,15 @@ public class OrderServiceImpl implements OrderService {
 		Assert.notNull(operator, "operator不能为空");
 		Order order = orderDao.findOne(orderId);
 		Assert.notNull(order, "订单不存在orderId=" + orderId);
-		if(!OrderHelper.canAgreeRefund(order)) {
+		if (!OrderHelper.canAgreeRefund(order)) {
 			throw new RuntimeException("操作失败，当前状态不允许同意退款");
 		}
-		
+
 		order.setPayStatus(PayStatus.REFUND_FINISH.getValue());
 		order.setRefundFinishTime(new Date());
 		this.orderDao.save(order);
 		this.orderDetailDao.updateStatusToInvalidByOrderId(orderId);
-		
+
 		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.AGREE_REFUND, memo);
 		orderLogDao.save(log);
 	}
@@ -238,13 +248,13 @@ public class OrderServiceImpl implements OrderService {
 		Assert.notNull(operator, "operator不能为空");
 		Order order = orderDao.findOne(orderId);
 		Assert.notNull(order, "订单不存在orderId=" + orderId);
-		if(!OrderHelper.canCancelRefund(order)) {
+		if (!OrderHelper.canCancelRefund(order)) {
 			throw new RuntimeException("操作失败，当前状态不允许取消退款");
 		}
-		
+
 		order.setPayStatus(PayStatus.PAID.getValue());
 		this.orderDao.save(order);
-		
+
 		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.CANCEL_REFUND, memo);
 		orderLogDao.save(log);
 	}
@@ -252,29 +262,32 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	@Transactional
 	public OrderVO changeOrderAddress(Integer orderId, Integer operator, ChangeAddressDTO newAddress) {
-		logger.info("修改收货地址, orderId={}, operator={}, newAddress={}", orderId, operator, JSONObject.toJSONString(newAddress));
+		logger.info("修改收货地址, orderId={}, operator={}, newAddress={}", orderId, operator,
+				JSONObject.toJSONString(newAddress));
 		Assert.notNull(orderId, "orderId不能为空");
 		Assert.notNull(operator, "operator不能为空");
 		Assert.notNull(newAddress, "newAddress不能为空");
 		Order order = orderDao.findOne(orderId);
 		Assert.notNull(order, "订单不存在orderId=" + orderId);
-		if(!OrderHelper.canChangeOrderAddress(order)) {
+		if (!OrderHelper.canChangeOrderAddress(order)) {
 			throw new RuntimeException("操作失败，当前状态不允许修改地址");
 		}
 
 		String message = getChangeAddrMessage(newAddress, order);
-		
+
 		BeanUtils.copyProperties(newAddress, order);
 		this.orderDao.save(order);
-		
+
 		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.CHANGE_ADDR, message);
 		orderLogDao.save(log);
 		return createOrderVO(order);
 	}
 
 	private String getChangeAddrMessage(ChangeAddressDTO newAddress, Order order) {
-		String oldAddr = StringUtil.conjunction(",", order.getReceiverName(), order.getReceiverPhone(), order.getReceiverAddr());
-		String newAddr = StringUtil.conjunction(",", newAddress.getReceiverName(), newAddress.getReceiverPhone(), newAddress.getReceiverAddr());
+		String oldAddr = StringUtil.conjunction(",", order.getReceiverName(), order.getReceiverPhone(),
+				order.getReceiverAddr());
+		String newAddr = StringUtil.conjunction(",", newAddress.getReceiverName(), newAddress.getReceiverPhone(),
+				newAddress.getReceiverAddr());
 		StringBuilder builder = new StringBuilder(100);
 		builder.append("原地址：").append(oldAddr).append("，新地址：").append(newAddr);
 		return builder.toString();
@@ -284,7 +297,7 @@ public class OrderServiceImpl implements OrderService {
 	@Transactional
 	public void changeItems() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -296,7 +309,7 @@ public class OrderServiceImpl implements OrderService {
 		Assert.notNull(blockReason, "blockReason不能为空");
 		Order order = orderDao.findOne(orderId);
 		Assert.notNull(order, "订单不存在orderId=" + orderId);
-		if(!OrderHelper.canBlock(order)) {
+		if (!OrderHelper.canBlock(order)) {
 			throw new RuntimeException("操作失败，当前状态不允许拦截");
 		}
 
@@ -304,7 +317,7 @@ public class OrderServiceImpl implements OrderService {
 		String reason = String.format("%s%s%s", order.getBlockReason(), NEW_LINE, blockReason);
 		order.setBlockReason(reason);
 		this.orderDao.save(order);
-		
+
 		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.BLOCK, blockReason);
 		orderLogDao.save(log);
 		return createOrderVO(order);
@@ -319,7 +332,7 @@ public class OrderServiceImpl implements OrderService {
 		Assert.notNull(repoId, "repoId不能为空");
 		Order order = orderDao.findOne(orderId);
 		Assert.notNull(order, "订单不存在orderId=" + orderId);
-		if(!OrderHelper.canArrangeOrderToRepo(order)) {
+		if (!OrderHelper.canArrangeOrderToRepo(order)) {
 			throw new RuntimeException("操作失败，当前状态不允许分配仓库");
 		}
 
@@ -327,10 +340,10 @@ public class OrderServiceImpl implements OrderService {
 		order.setArrangeTime(new Date());
 		order.setRepoId(repoId);
 		this.orderDao.save(order);
-		
+
 		CreateOrderDTO request = buildStorageCreateOrderDTO(order);
 		storageService.createOrder(request);
-		
+
 		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.ARRANGE_TO_REPO, "");
 		orderLogDao.save(log);
 	}
@@ -343,7 +356,8 @@ public class OrderServiceImpl implements OrderService {
 		request.setOutOrderId(order.getId());
 		request.setRepoId(order.getRepoId());
 		request.setShopId(order.getShopId());
-		List<OrderDetail> details = this.orderDetailDao.findByOrderIdAndStatus(order.getId(), DetailStatus.VALID.getValue());
+		List<OrderDetail> details = this.orderDetailDao.findByOrderIdAndStatus(order.getId(),
+				DetailStatus.VALID.getValue());
 		List<CreateOrderDetail> detailList = new ArrayList<CreateOrderDetail>();
 		for (OrderDetail orderDetail : details) {
 			CreateOrderDetail record = new CreateOrderDetail();
@@ -359,15 +373,15 @@ public class OrderServiceImpl implements OrderService {
 	@Transactional
 	public int arrangeOrderToPos(Integer repoId, List<Integer> orderIds, Integer operator) {
 		logger.info("开始配货, repoId={}, orderIds={}, operator={}", repoId, orderIds, operator);
-		
+
 		Assert.notNull(orderIds, "orderIds不能为空");
 		Assert.notNull(operator, "operator不能为空");
 		Assert.notNull(repoId, "repoId不能为空");
 		List<Integer> outTradeNos = new ArrayList<Integer>(orderIds.size());
 		for (Integer orderId : orderIds) {
 			Order order = this.orderDao.findOne(orderId);
-			if(order != null) {
-				if(!OrderHelper.canArrangeOrderToPos(order)) {
+			if (order != null) {
+				if (!OrderHelper.canArrangeOrderToPos(order)) {
 					throw new RuntimeException("操作失败，当前状态不允许配货，orderId=" + orderId);
 				}
 				order.setStorageStatus(StorageStatus.PICKUP.getValue());
@@ -393,14 +407,14 @@ public class OrderServiceImpl implements OrderService {
 		Assert.notNull(memo, "memo不能为空");
 		Order order = orderDao.findOne(orderId);
 		Assert.notNull(order, "订单不存在orderId=" + orderId);
-		if(!OrderHelper.canCancelArrangeOrder(order)) {
+		if (!OrderHelper.canCancelArrangeOrder(order)) {
 			throw new RuntimeException("操作失败，当前状态不允许取消配货");
 		}
 		order.setStorageStatus(StorageStatus.WAIT_ARRANGE_BY_MANUAL.getValue());
 		orderDao.save(order);
-		
+
 		storageService.cancelOrder(order.getRepoId(), order.getId());
-		
+
 		// 生成日志
 		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.CANCEL_ARRANGE, memo);
 		orderLogDao.save(log);
@@ -421,11 +435,11 @@ public class OrderServiceImpl implements OrderService {
 		Assert.notNull(ioDetailId, "ioDetailId不能为空");
 		Assert.notNull(operator, "operator不能为空");
 		StorageLacknessOpDTO lacknessDTO = storageService.lackAll(ioDetailId, operator);
-		if(!lacknessDTO.getLacknessMatchNewPos()) {
+		if (!lacknessDTO.getLacknessMatchNewPos()) {
 			// 缺货且未匹配到
 			doOrderLacknesss(lacknessDTO.getLackOutOrderId(), operator);
 		}
-		if(lacknessDTO.isHasNext()) {
+		if (lacknessDTO.isHasNext()) {
 			return (StorageIoDetail) lacknessDTO;
 		} else {
 			return null;
@@ -444,23 +458,23 @@ public class OrderServiceImpl implements OrderService {
 		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.LACKNESS, "");
 		this.orderLogDao.save(log);
 	}
-	
+
 	@Override
 	public StorageIoDetail lackPart(Integer ioDetailId, Integer actualAmt, Integer operator) {
 		Assert.notNull(ioDetailId, "ioDetailId不能为空");
 		Assert.notNull(operator, "operator不能为空");
 		StorageLacknessOpDTO lacknessDTO = storageService.lackPart(ioDetailId, operator, actualAmt);
-		if(!lacknessDTO.getLacknessMatchNewPos()) {
+		if (!lacknessDTO.getLacknessMatchNewPos()) {
 			// 缺货且未匹配到
 			doOrderLacknesss(lacknessDTO.getLackOutOrderId(), operator);
 		}
-		if(lacknessDTO.isHasNext()) {
+		if (lacknessDTO.isHasNext()) {
 			return (StorageIoDetail) lacknessDTO;
 		} else {
 			return null;
 		}
 	}
-	
+
 	@Override
 	@Transactional
 	public OrderVO printExpress(Integer orderId, Integer operator) {
@@ -476,17 +490,17 @@ public class OrderServiceImpl implements OrderService {
 		logger.info("打印快递单, orderIds={}, operator={}", orderIds, operator);
 		Assert.notEmpty(orderIds, "orderIds不能为空");
 		Assert.notNull(operator, "operator不能为空");
-		
+
 		List<OrderVO> list = new ArrayList<OrderVO>();
 		for (Integer orderId : orderIds) {
 			Order order = orderDao.findOne(orderId);
-			if(order != null) {
-				if(!OrderHelper.canPrint(order)) {
+			if (order != null) {
+				if (!OrderHelper.canPrint(order)) {
 					throw new RuntimeException("操作失败，该状态不允许打印，orderId=" + orderId);
 				}
 				order.setExpressStatus(ExpressStatus.PRINTED.getValue());
 				orderDao.save(order);
-				
+
 				// 生成日志
 				OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.PRINT, "");
 				orderLogDao.save(log);
@@ -496,7 +510,7 @@ public class OrderServiceImpl implements OrderService {
 		}
 		return list;
 	}
-	
+
 	private OrderVO createOrderVO(Order order) {
 		List<String> outOrderNumbers = orderOuterDao.findOutOrderNumbersByOrderId(order.getOrderGroupNumber());
 		List<OrderDetail> details = orderDetailDao.findByOrderIdAndStatus(order.getId(), DetailStatus.VALID.getValue());
@@ -504,7 +518,7 @@ public class OrderServiceImpl implements OrderService {
 		for (OrderDetail detail : details) {
 			OrderDetailVO dvo = new OrderDetailVO();
 			Bookinfo book = this.bookService.findBookById(detail.getSkuId());
-			if(book == null) {
+			if (book == null) {
 				throw new RuntimeException("图书不存在，bookId=" + detail.getSkuId());
 			}
 			BeanUtils.copyProperties(book, dvo);
@@ -527,8 +541,8 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	@Transactional
 	public void fillExpressNumber(Integer orderId, String expressNumber, String expressCompany, Integer operator) {
-		logger.info("回填快递单号, orderId={}, expressNumber={}, expressCompany={}, operator={}",
-				orderId, expressNumber, expressCompany, operator);
+		logger.info("回填快递单号, orderId={}, expressNumber={}, expressCompany={}, operator={}", orderId, expressNumber,
+				expressCompany, operator);
 		Assert.notNull(orderId, "orderId不能为空");
 		Assert.notNull(expressNumber, "expressNumber不能为空");
 		Assert.notNull(expressCompany, "expressCompany不能为空");
@@ -536,31 +550,32 @@ public class OrderServiceImpl implements OrderService {
 		fillExpressNumber(orderId, null, expressNumber, expressCompany, operator);
 	}
 
-	private void fillExpressNumber(Integer orderId, String receiverName, String expressNumber, String expressCompany, Integer operator) {
+	private void fillExpressNumber(Integer orderId, String receiverName, String expressNumber, String expressCompany,
+			Integer operator) {
 		Order order = orderDao.findOne(orderId);
 		Assert.notNull(order, "订单不存在orderId=" + orderId);
-		if(!OrderHelper.canFillExpressNumber(order)) {
+		if (!OrderHelper.canFillExpressNumber(order)) {
 			throw new RuntimeException("操作失败，当前状态不允许填写单号");
 		}
-		if(StringUtils.isNotBlank(receiverName) && !order.getReceiverName().equals(receiverName)) {
+		if (StringUtils.isNotBlank(receiverName) && !order.getReceiverName().equals(receiverName)) {
 			throw new RuntimeException("操作失败，收件人信息不符");
 		}
-		if(isInvalidAddr(order)) {
+		if (isInvalidAddr(order)) {
 			throw new RuntimeException("操作失败，请导入收件人地址（坑爹的淘宝开放平台）");
 		}
-		
+
 		order.setExpressCompany(expressCompany);
 		order.setExpressNumber(expressNumber);
 		order.setExpressStatus(ExpressStatus.FILLED_EX_NUM.getValue());
 		this.orderDao.save(order);
-		
-		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.FILL_EX_NUM, expressCompany + expressNumber);
+
+		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.FILL_EX_NUM, expressCompany
+				+ expressNumber);
 		orderLogDao.save(log);
 	}
 
 	private boolean isInvalidAddr(Order order) {
-		return order.getReceiverName().contains("*") 
-				&& order.getReceiverPhone().contains("*") 
+		return order.getReceiverName().contains("*") && order.getReceiverPhone().contains("*")
 				&& order.getReceiverAddr().contains("*");
 	}
 
@@ -571,13 +586,14 @@ public class OrderServiceImpl implements OrderService {
 		Assert.notEmpty(numbers, "numbers不能为空");
 		Assert.notNull(operator, "operator不能为空");
 		for (ExpressNumberDTO ex : numbers) {
-			fillExpressNumber(ex.getOrderId(), ex.getReceiverName(), ex.getExpressNumber(), ex.getExpressCompany(), operator);
+			fillExpressNumber(ex.getOrderId(), ex.getReceiverName(), ex.getExpressNumber(), ex.getExpressCompany(),
+					operator);
 		}
 	}
-	
+
 	// 页面换行符
 	private static final String NEW_LINE = "&#10;";
-	
+
 	@Override
 	public String appendSellerRemark(Integer orderId, Integer operator, String remark) {
 		logger.info("添加备注, orderId={}, remark={}, operator={}", orderId, remark, operator);
@@ -587,7 +603,7 @@ public class OrderServiceImpl implements OrderService {
 		Order order = orderDao.findOne(orderId);
 		Assert.notNull(order, "订单不存在orderId=" + orderId);
 		User user = sysService.findtUserById(operator);
-		String newRemark = String.format("%s：%s%s", user==null ? "" : user.getRealName(), remark, NEW_LINE);
+		String newRemark = String.format("%s：%s%s", user == null ? "" : user.getRealName(), remark, NEW_LINE);
 		order.setSalerRemark(order.getSalerRemark() + newRemark);
 		orderDao.save(order);
 		return order.getSalerRemark();
@@ -600,25 +616,36 @@ public class OrderServiceImpl implements OrderService {
 		Assert.notNull(repoId, "repoId不能为空");
 		Assert.notNull(operator, "operator不能为空");
 		Assert.notNull(expressNumber, "expressNumber不能为空");
-		
+
 		// 按照快递单号查找已填写单号的订单，要求有且只有一个
-		List<Order> orders = orderDao.findByRepoIdAndExpressNumberAndExpressStatus(
-				repoId, expressNumber, ExpressStatus.FILLED_EX_NUM.getValue());
-		if(CollectionUtils.isEmpty(orders)) {
+		List<Order> orders = orderDao.findByRepoIdAndExpressNumber(repoId, expressNumber);
+		if (orders.isEmpty()) {
+			throw new RuntimeException("订单未找到");
+		}
+		if (orders.size() > 1) {
+			throw new RuntimeException("订单存在多条记录，请联系管理员");
+		}
+		if (ExpressStatus.SEND_OUT.getValue().equals(orders.get(0).getExpressStatus())) {
+			return createOrderVO(orders.get(0));
+		}
+		if(!ExpressStatus.FILLED_EX_NUM.getValue().equals(orders.get(0).getExpressStatus())){
+			throw new RuntimeException("此订单未回填单号不能出库");
+		}
+		if (CollectionUtils.isEmpty(orders)) {
 			throw new RuntimeException("快递单号未找到订单");
 		}
-		if(orders.size() > 1) {
+		if (orders.size() > 1) {
 			throw new RuntimeException("快递单号对应多个订单");
 		}
 		Order order = orders.get(0);
 		String msg = OrderHelper.canSendOutWithMessage(order);
-		if(msg != null) {
+		if (msg != null) {
 			throw new RuntimeException("操作失败，" + msg);
 		}
 		order.setExpressStatus(ExpressStatus.SEND_OUT.getValue());
 		order.setExpressTime(new Date());
 		this.orderDao.save(order);
-		
+
 		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.SEND_OUT, "");
 		orderLogDao.save(log);
 		return createOrderVO(order);
@@ -627,38 +654,50 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	public Page<OrderVO> findOrdersByStatus(Integer companyId, PayStatus payStatus, ExpressStatus expressStatus,
 			StorageStatus storageStatus, Pageable page) {
+		List<String> storageWaitList = Arrays.asList(STORAGE_WAIT_ARRANGES);
+		List<String> cancelledList = Arrays.asList(CANCELLED_ORDER);
 		// arg check
 		checkForFindOrdersByStatus(companyId, payStatus, expressStatus, storageStatus);
-		
+
 		Page<Order> rs = null;
-		if(payStatus != null) {
-			rs = this.orderDao.findByCompanyIdAndPayStatus(companyId, payStatus.getValue(), page);
+		if (payStatus != null) {
+			rs = this.orderDao.findByCompanyIdAndPayStatusOrderByUpdateTimeDesc(companyId, payStatus.getValue(), page);
 		}
-		if(expressStatus != null) {
-			rs = this.orderDao.findByCompanyIdAndExpressStatus(companyId, expressStatus.getValue(), page);
+		if (expressStatus != null) {
+			rs = this.orderDao.findByCompanyIdAndExpressStatusAndStorageStatusNotInAndPayStatusNotInOrderByUpdateTimeDesc(companyId,
+					expressStatus.getValue(), storageWaitList, cancelledList, page);
 		}
-		if(storageStatus != null) {
-			rs = this.orderDao.findByCompanyIdAndStorageStatus(companyId, storageStatus.getValue(), page);
+		if (storageStatus != null) {
+			if (storageStatus.getValue().equals(StorageStatus.WAIT_ARRANGE.getValue())) {
+				rs = this.orderDao.findByCompanyIdAndStorageStatusInAndPayStatusNotInOrderByUpdateTimeDesc(companyId, storageWaitList,
+						cancelledList, page);
+			} else {
+				rs = this.orderDao.findByCompanyIdAndStorageStatusAndPayStatusNotInOrderByUpdateTimeDesc(companyId,
+						storageStatus.getValue(), cancelledList, page);
+			}
 		}
-		if(CollectionUtils.isEmpty(rs.getContent())) {
+		if (CollectionUtils.isEmpty(rs.getContent())) {
 			return emptyOrderVOPage(page);
 		}
-		List<OrderVO> list = new ArrayList<OrderVO>((int)rs.getContent().size());
+		List<OrderVO> list = new ArrayList<OrderVO>((int) rs.getContent().size());
 		for (Order order : rs.getContent()) {
 			OrderVO vo = buildOrderVO(order);
 			list.add(vo);
 		}
 		return new PageImpl<OrderVO>(list, page, rs.getTotalElements());
 	}
-	
+
 	private void checkForFindOrdersByStatus(Integer companyId, PayStatus payStatus, ExpressStatus expressStatus,
 			StorageStatus storageStatus) {
 		Assert.notNull(companyId, "companyId不能为空");
 		int statusCount = 0;
-		if(payStatus != null) statusCount ++;
-		if(expressStatus != null)  statusCount ++;
-		if(storageStatus != null)  statusCount ++;
-		switch(statusCount) {
+		if (payStatus != null)
+			statusCount++;
+		if (expressStatus != null)
+			statusCount++;
+		if (storageStatus != null)
+			statusCount++;
+		switch (statusCount) {
 		case 0:
 			throw new IllegalArgumentException("状态不能为空");
 		case 1:
@@ -682,7 +721,7 @@ public class OrderServiceImpl implements OrderService {
 		for (OrderDetail od : order.getOrderDetails()) {
 			OrderDetailVO odvo = new OrderDetailVO();
 			Bookinfo book = this.bookService.findBookById(od.getSkuId());
-			if(book != null) {
+			if (book != null) {
 				BeanUtils.copyProperties(book, odvo);
 			}
 			BeanUtils.copyProperties(od, odvo);
@@ -691,20 +730,21 @@ public class OrderServiceImpl implements OrderService {
 		vo.setOrderDetailVOs(odvos);
 		return vo;
 	}
-	
+
 	@Override
 	public Page<OrderVO> findOrdersByCondition(Integer companyId, OrderQueryCondition cond, Pageable page) {
 		// check arg
 		checkForFindOrdersByCondition(companyId, cond);
-		
+
 		// 按照网店订单号查询
-		if(StringUtils.isNotBlank(cond.getOutOrderNumber())) {
-			List<String> groupNumbers = this.orderOuterDao.findOrderGroupNumberByOutOrderNumber(cond.getOutOrderNumber());
-			if(CollectionUtils.isEmpty(groupNumbers)) {
+		if (StringUtils.isNotBlank(cond.getOutOrderNumber())) {
+			List<String> groupNumbers = this.orderOuterDao.findOrderGroupNumberByOutOrderNumber(cond
+					.getOutOrderNumber());
+			if (CollectionUtils.isEmpty(groupNumbers)) {
 				return emptyOrderVOPage(page);
 			}
-			List<Order> orders = this.orderDao.findByCompanyIdAndOrderGroupNumberIn(companyId, groupNumbers);
-			if(CollectionUtils.isEmpty(orders)) {
+			List<Order> orders = this.orderDao.findByCompanyIdAndOrderGroupNumberInOrderByUpdateTimeDesc(companyId, groupNumbers);
+			if (CollectionUtils.isEmpty(orders)) {
 				return emptyOrderVOPage(page);
 			}
 			List<OrderVO> list = new ArrayList<OrderVO>(orders.size());
@@ -717,20 +757,20 @@ public class OrderServiceImpl implements OrderService {
 		// 按照其他信息查询
 		else {
 			QueryUtil<Order> qUtil = new QueryUtil<Order>();
-			if(cond.getOrderId() != null) {
+			if (cond.getOrderId() != null) {
 				qUtil.eq("id", cond.getOrderId());
 			}
-			if(StringUtils.isNotBlank(cond.getExpressNumber())) {
+			if (StringUtils.isNotBlank(cond.getExpressNumber())) {
 				qUtil.eq("expressNumber", cond.getExpressNumber());
 			}
-			if(StringUtils.isNotBlank(cond.getReceiverName())) {
+			if (StringUtils.isNotBlank(cond.getReceiverName())) {
 				qUtil.eq("receiverName", cond.getReceiverName());
 			}
-			if(StringUtils.isNotBlank(cond.getReceiverPhone())) {
+			if (StringUtils.isNotBlank(cond.getReceiverPhone())) {
 				qUtil.eq("receiverPhone", cond.getReceiverPhone());
 			}
 			Page<Order> orders = orderDao.findAll(qUtil.getSpecification(), page);
-			if(CollectionUtils.isEmpty(orders.getContent())) {
+			if (CollectionUtils.isEmpty(orders.getContent())) {
 				return emptyOrderVOPage(page);
 			}
 			List<OrderVO> list = new ArrayList<OrderVO>(orders.getContent().size());
@@ -752,16 +792,20 @@ public class OrderServiceImpl implements OrderService {
 		Assert.notNull(cond, "OrderQueryCondition不能为空");
 		// 网店订单号为空，其他参数必须不为空；网店订单号不为空，其他参数必须为空
 		int argCount = 0;
-		if(cond.getOrderId() != null) argCount ++;
-		if(StringUtils.isNotBlank(cond.getExpressNumber())) argCount ++;
-		if(StringUtils.isNotBlank(cond.getReceiverName())) argCount ++;
-		if(StringUtils.isNotBlank(cond.getReceiverPhone())) argCount ++;
-		if(StringUtils.isNotBlank(cond.getOutOrderNumber())) {
-			if(argCount > 0) {
+		if (cond.getOrderId() != null)
+			argCount++;
+		if (StringUtils.isNotBlank(cond.getExpressNumber()))
+			argCount++;
+		if (StringUtils.isNotBlank(cond.getReceiverName()))
+			argCount++;
+		if (StringUtils.isNotBlank(cond.getReceiverPhone()))
+			argCount++;
+		if (StringUtils.isNotBlank(cond.getOutOrderNumber())) {
+			if (argCount > 0) {
 				throw new IllegalArgumentException("网店订单号和其他查询条件不能同时输入");
 			}
 		} else {
-			if(argCount == 0) {
+			if (argCount == 0) {
 				throw new IllegalArgumentException("请输入查询条件");
 			}
 		}
@@ -780,7 +824,7 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public void importReceiverAddr(List<OrderAddressImportDTO> addrs) {
-		if(CollectionUtils.isEmpty(addrs)) {
+		if (CollectionUtils.isEmpty(addrs)) {
 			throw new RuntimeException("导入地址失败，参数为空");
 		}
 		for (OrderAddressImportDTO addr : addrs) {
@@ -793,5 +837,19 @@ public class OrderServiceImpl implements OrderService {
 			}
 			orderDao.save(orders);
 		}
+	}
+
+	@Override
+	public Page<OrderVO> findOrdersByCondition(Integer companyId, Pageable page) {
+		List<Order> orders = this.orderDao.findByCompanyIdOrderByUpdateTimeDesc(companyId);
+		if (CollectionUtils.isEmpty(orders)) {
+			return emptyOrderVOPage(page);
+		}
+		List<OrderVO> list = new ArrayList<OrderVO>(orders.size());
+		for (Order order : orders) {
+			OrderVO vo = buildOrderVO(order);
+			list.add(vo);
+		}
+		return new PageImpl<OrderVO>(list, page, orders.size());
 	}
 }

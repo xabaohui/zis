@@ -39,16 +39,16 @@
 	<form id="orderForm" action="" method="post" target="_blank">
 		<table class="common-table-new">
 			<tr>
-				<th><a href="order/getWaitPickUpList">等待配货</a></th>
-				<th><a href="order/getPickupList">配货中</a></th>
+				<th><a href="order/getWaitPickUpList?sort=updateTime&direction=desc">等待配货</a></th>
+				<th><a href="order/getPickupList?sort=updateTime&direction=desc">配货中</a></th>
 				<th style="background-color: #A7C942"><font color="#00000">等待打印</font></th>
-				<th><a href="order/getPrintedList">已打印</a></th>
-				<th><a href="order/getAllStorageOrderList">全部订单</a></th>
+				<th><a href="order/getPrintedList?sort=updateTime&direction=desc">已打印</a></th>
+				<th><a href="order/getAllStorageOrderList?sort=updateTime&direction=desc">全部订单</a></th>
 			</tr>
 		</table>
 		<table id="common-table">
 			<tr>
-				<td colspan="10" align="left" height="60px"><input style="margin-left: 800px;" type="button" value="下载打印数据"
+				<td colspan="11" align="left" height="60px"><input style="margin-left: 800px;" type="button" value="下载打印数据"
 					onclick="printExpressList()" /></td>
 			</tr>
 			<tr>
@@ -59,6 +59,7 @@
 				<th>网店订单号</th>
 				<th>收件人</th>
 				<th>商品清单</th>
+				<th>商品总数</th>
 				<th>状态</th>
 				<th>物流信息</th>
 				<th>操作</th>
@@ -107,11 +108,11 @@
 <div align="center">
 	<!-- 分页查询start-->
 	<c:if test="${not empty prePage}">
-		<a href="order/getWaitForPrintList?${queryCondition}page=${prePage}">上一页</a>&nbsp;
+		<a href="order/getWaitForPrintList?${queryCondition}page=${prePage}&sort=updateTime&direction=desc">上一页</a>&nbsp;
 	</c:if>
 	${page} &nbsp;
 	<c:if test="${not empty nextPage}">
-		<a href="order/getWaitForPrintList?${queryCondition}page=${nextPage}">下一页</a>&nbsp;
+		<a href="order/getWaitForPrintList?${queryCondition}page=${nextPage}&sort=updateTime&direction=desc">下一页</a>&nbsp;
 	</c:if>
 	<!-- 分页查询end -->
 </div>

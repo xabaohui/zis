@@ -11,6 +11,24 @@ public class InwarehouseCreateDto{
 	private Integer[] stockPosCapacity;
 	@NotNull(message = "备注必须输入")
 	private String memo;
+	private String bizType;
+	private String purchaseOperator;
+	
+	public String getPurchaseOperator() {
+		return purchaseOperator;
+	}
+
+	public void setPurchaseOperator(String purchaseOperator) {
+		this.purchaseOperator = purchaseOperator;
+	}
+
+	public String getBizType() {
+		return bizType;
+	}
+
+	public void setBizType(String bizType) {
+		this.bizType = bizType;
+	}
 
 	public Integer getIoBatchId() {
 		return ioBatchId;

@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.zis.common.controllertemplate.ViewTips;
 import com.zis.common.util.ZisUtils;
 import com.zis.purchase.bean.InwarehousePosition;
+import com.zis.purchase.bean.PurchaseDetail;
+import com.zis.purchase.biz.DoPurchaseService;
 import com.zis.purchase.dto.InwarehouseCreateResult;
 import com.zis.purchase.repository.InwarehousePositionDao;
 import com.zis.shop.util.ShopUtil;
@@ -37,7 +39,7 @@ import com.zis.storage.util.StorageUtil;
  */
 @Controller
 @RequestMapping(value = "/storage")
-public class StorageInwarehouseCreateController implements ViewTips{
+public class StorageInwarehouseCreateController implements ViewTips {
 
 	@Autowired
 	private StorageService storageService;
@@ -51,10 +53,17 @@ public class StorageInwarehouseCreateController implements ViewTips{
 	@Autowired
 	private StorageIoBatchDao storageIoBatchDao;
 
+	@Autowired
+	private DoPurchaseService doPurchaseService;
+
 	private Logger logger = Logger.getLogger(StorageInwarehouseCreateController.class);
 
+	private final String PURCHASE_TYPE = "purchase";// 采购入库
+
+	private final String ZH_CN_PURCHASE = "采购入库";
+
 	/**
-	 * 继续扫描之前未完成的入库单
+	 * 继续扫描之前未完成的入库单 查询不到采购员会取消此批次入库
 	 * 
 	 * @return
 	 */
@@ -72,10 +81,22 @@ public class StorageInwarehouseCreateController implements ViewTips{
 			context.put("ioBatchId", view.getBatchId());
 			context.put("stockPosLabel", positionLabels);
 			context.put("inwarehouseOperator", StorageUtil.getUserName());
+			if (view.getMemo().contains(ZH_CN_PURCHASE)) {
+				// 如果备注中包含采购入库，执行下面逻辑
+				List<PurchaseDetail> list = this.doPurchaseService.findPurchaseDetailByBatchId(ioBatchId);
+				if (list.isEmpty()) {
+					// 如果没有采购明细，查询不到采购员，则取消此次入库
+					this.storageService.cancelInStorage(ioBatchId, StorageUtil.getUserId());
+					throw new RuntimeException("查询不到采购员，此批次取消，批次号 " + ioBatchId);
+				}
+				context.put("purchaseOperator", list.get(0).getOperator());
+				context.put("bizType", PURCHASE_TYPE);
+			}
 			context.put("curPosition", positionLabels[0]);
 			context.put("memo", view.getMemo());
 			return "storage/inwarehouse/inwarehouseScanner";
 		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
 			context.put("actionError", e.getMessage());
 			return "error";
 		}
@@ -89,7 +110,6 @@ public class StorageInwarehouseCreateController implements ViewTips{
 	@RequestMapping(value = "/inWarehouse")
 	public String createBatch(@Valid @ModelAttribute("inwarehouseCreateDto") InwarehouseCreateDto inwarehouseCreateDto,
 			BindingResult br, ModelMap context) {
-
 		if (br.hasErrors()) {
 			return "storage/inwarehouse/inwarehouse";
 		}
@@ -105,15 +125,26 @@ public class StorageInwarehouseCreateController implements ViewTips{
 
 			String inwarehouseOperator = ShopUtil.getUserName(); // 入库操作员
 			String memo = inwarehouseCreateDto.getMemo(); // 备注
-
+			String purchaseOperator = inwarehouseCreateDto.getPurchaseOperator();
+			String bizType = inwarehouseCreateDto.getBizType();
+			boolean purchaseInwarehouse = StringUtils.isNotBlank(purchaseOperator) && PURCHASE_TYPE.equals(bizType);
+			if (purchaseInwarehouse) {
+				inwarehouseCreateDto.setMemo(ZH_CN_PURCHASE + " " + memo);
+			}
 			// 新建入库批次
 			InwarehouseCreateResult result = this.createInwarehouse(inwarehouseCreateDto);
 			// 参数传递到下一个页面，展示用
+			if (purchaseInwarehouse) {
+				context.put("purchaseOperator", purchaseOperator);
+				context.put("bizType", bizType);
+				context.put("memo", ZH_CN_PURCHASE + " " + memo);
+			} else {
+				context.put("memo", memo);
+			}
 			context.put("ioBatchId", result.getInwarehouseId());
 			context.put("stockPosLabel", stockPosLabel);
 			context.put("inwarehouseOperator", inwarehouseOperator);
 			context.put("curPosition", stockPosLabel[0]);
-			context.put("memo", memo);
 			return "storage/inwarehouse/inwarehouseScanner";
 		} catch (Exception e) {
 			context.put("actionError", e.getMessage());
@@ -132,7 +163,8 @@ public class StorageInwarehouseCreateController implements ViewTips{
 	@RequestMapping(value = "/fastInWarehouse")
 	public String createFastBatch(String stockPosLabel, ModelMap context) {
 		try {
-			StoragePosition position = this.storagePositionDao.findByLabelAndRepoId(stockPosLabel, StorageUtil.getRepoId());
+			StoragePosition position = this.storagePositionDao.findByLabelAndRepoId(stockPosLabel,
+					StorageUtil.getRepoId());
 			if (position == null) {
 				context.put("actionError", stockPosLabel + "库位不存在请新建库位后创建入库单");
 				return "storage/inwarehouse/fast-inwarehouse";

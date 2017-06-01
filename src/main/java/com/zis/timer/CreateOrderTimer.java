@@ -15,6 +15,8 @@ public class CreateOrderTimer extends CommntOrderTimer {
 
 	private static Logger logger = Logger.getLogger(CreateOrderTimer.class);
 
+	private static final String HAS_ORDER = "订单已存在";
+
 	public void createOrderForNet() {
 		Date endTime = new Date();
 		Date startTime = new Date(endTime.getTime() - 600000);
@@ -26,11 +28,13 @@ public class CreateOrderTimer extends CommntOrderTimer {
 				this.doShopService.createOrderForShopIdAndDate(shop.getShopId(), startTime, endTime);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
-				String[] email = { shop.getEmails() };
-				String msg = String.format("%s %s %s %s \n %s %s", "开始时间",
-						ZisUtils.getDateString("yyyy-MM-dd HH:mm:ss", startTime), "结束时间",
-						ZisUtils.getDateString("yyyy-MM-dd HH:mm:ss", endTime), "错误原因", e.getMessage());
-				sendFailEmail(email, shop.getShopName() + " 同步订单失败", msg, shop);
+				if (!HAS_ORDER.equals(e.getMessage())) {
+					String[] email = { shop.getEmails() };
+					String msg = String.format("%s %s %s %s \n %s %s", "开始时间",
+							ZisUtils.getDateString("yyyy-MM-dd HH:mm:ss", startTime), "结束时间",
+							ZisUtils.getDateString("yyyy-MM-dd HH:mm:ss", endTime), "错误原因", e.getMessage());
+					sendFailEmail(email, shop.getShopName() + " 同步订单失败", msg, shop);
+				}
 			}
 		}
 	}

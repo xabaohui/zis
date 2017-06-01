@@ -37,13 +37,13 @@
 		<table class = "common-table-new">
 		<tr>
 			<th>
-				<a href="order/getUnpaidList">未支付</a>
+				<a href="order/getUnpaidList?sort=updateTime&direction=desc">未支付</a>
 			</th>
 			<th>
-				<a href="order/getRefundingList">退款中</a>
+				<a href="order/getRefundingList?sort=updateTime&direction=desc">退款中</a>
 			</th>
 			<th>
-				<a href="order/getWaitArrangeHeaderList">未分配</a>
+				<a href="order/getWaitArrangeHeaderList?sort=updateTime&direction=desc">未分配</a>
 			</th>
 			<th style="background-color: #A7C942">
 				<font color="#00000">全部订单</font>
@@ -52,14 +52,17 @@
 		</table>
 		<table id = "common-table">
 			<tr>
-				<td colspan="9" align="left" height="60px">
+				<td colspan="10" align="left" height="60px">
 					<spring:form action="order/getAllShopOrderList" method="post" modelAttribute="cond">
 						<table>
 							<tr>
 								<td style="border: hidden;">网店订单号&nbsp;<input type="text" name = "outOrderNumber" value = "${param.outOrderNumber}"/></td>
 								<td style="border: hidden;">收件人&nbsp;<input type="text" name = "receiverName" value = "${param.receiverName}"/></td>
 								<td style="border: hidden;">收件人电话&nbsp;<input type="text" name = "receiverPhone" value = "${param.receiverPhone}"/></td>
-								<td style="border: hidden;">快递单号&nbsp;<input type="text" name = "expressNumber" value = "${param.expressNumber}"/></td>
+								<td style="border: hidden;">快递单号&nbsp;<input type="text" name = "expressNumber" value = "${param.expressNumber}"/>
+									<input type="hidden" name = "sort"  value = "updateTime"/>
+									<input type="hidden" name = "direction"  value = "desc"/>
+								</td>
 								<td style="border: hidden;"><input type="submit" value="查询"/></td>
 							</tr>
 						</table>					
@@ -73,6 +76,7 @@
 				<th>网店订单号</th>
 				<th>收件人</th>
 				<th>商品清单</th>
+				<th>商品总数</th>
 				<th>状态</th>
 				<th>物流信息</th>
 				<th>操作</th>
@@ -114,7 +118,7 @@
 					</c:if>
 					
 					<c:if test="${order.canApplyRefund()}">
-						<input type="button" value = "申请退款" onclick="showApplyRefundView('${order.id}')" />
+						<input type="button" id = "applyRefundView_${order.id}" value = "申请退款" onclick="showApplyRefundView('${order.id}')" />
 						&nbsp;
 						<% count++; %>
 						<% if(count % 2 ==0){%>
@@ -123,7 +127,7 @@
 					</c:if>
 					
 					<c:if test="${order.canAgreeRefund()}">
-						<input type="button" value = "同意退款" onclick="agreeRefund'${order.id}','getAllShopOrderList')" />
+						<input type="button" value = "同意退款" onclick="agreeRefund('${order.id}','getAllShopOrderList')" />
 						&nbsp;
 						<% count++; %>
 						<% if(count % 2 ==0){%>
@@ -186,11 +190,11 @@
 <div align="center">
 	<!-- 分页查询start-->
 	<c:if test="${not empty prePage}">
-		<a href="order/getAllShopOrderList?page=${prePage}">上一页</a>&nbsp;
+		<a href="order/getAllShopOrderList?${queryCondition}page=${prePage}&sort=updateTime&direction=desc">上一页</a>&nbsp;
 	</c:if>
 	${page} &nbsp;
 	<c:if test="${not empty nextPage}">
-		<a href="order/getAllShopOrderList?page=${nextPage}">下一页</a>&nbsp;
+		<a href="order/getAllShopOrderList?${queryCondition}page=${nextPage}&sort=updateTime&direction=desc">下一页</a>&nbsp;
 	</c:if>
 	<!-- 分页查询end -->
 </div>
