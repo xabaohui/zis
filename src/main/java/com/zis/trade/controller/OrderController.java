@@ -33,7 +33,7 @@ import com.zis.common.controllertemplate.ViewTips;
 import com.zis.common.excel.ExcelImporter;
 import com.zis.common.excel.FileImporter;
 import com.zis.common.mvc.ext.Token;
-import com.zis.common.mvc.ext.WebHelper;
+import com.zis.common.mvc.ext.WebHelperForOrder;
 import com.zis.common.util.ZisUtils;
 import com.zis.shop.bean.ShopInfo;
 import com.zis.shop.service.ShopService;
@@ -73,8 +73,6 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@Autowired
 	private BookService bookService;
 	
-	private final Integer DEFAULT_SIZE = 50;
-
 	private final String CREATE_OREDER_VIEW_MAP = "createOrderViewMap";
 
 	private final String Apply_PAID = "买家已付款，等待卖家发货";
@@ -93,12 +91,11 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	public String getAllStorageOrderList(@Valid @ModelAttribute("cond") OrderQueryCondition cond,
 			HttpServletRequest request, ModelMap map) {
 		try {
-			request.setAttribute("size", DEFAULT_SIZE);
 			boolean condIsEmpty = cond == null
 					|| (StringUtils.isBlank(cond.getExpressNumber()) && StringUtils.isBlank(cond.getOutOrderNumber())
 							&& StringUtils.isBlank(cond.getReceiverName()) && StringUtils.isBlank(cond
 							.getReceiverPhone()));
-			Pageable page = WebHelper.buildPageRequest(request);
+			Pageable page = WebHelperForOrder.buildPageRequest(request);
 			Page<OrderVO> orderList = null;
 			if (condIsEmpty) {
 				orderList = this.orderService.findOrdersByCondition(StorageUtil.getCompanyId(), page);
@@ -124,8 +121,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@RequestMapping(value = "/getWaitPickUpList")
 	public String getWaitPickUpList(HttpServletRequest request, ModelMap map) {
 		try {
-			request.setAttribute("size", DEFAULT_SIZE);
-			Pageable page = WebHelper.buildPageRequest(request);
+			Pageable page = WebHelperForOrder.buildPageRequest(request);
 			Page<OrderVO> orderList = this.orderService.findOrdersByStatus(StorageUtil.getCompanyId(), null, null,
 					StorageStatus.ARRANGED, page);
 			pageInfo(orderList, page, map);
@@ -146,8 +142,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@RequestMapping(value = "/getPickupList")
 	public String getPickupList(HttpServletRequest request, ModelMap map) {
 		try {
-			request.setAttribute("size", DEFAULT_SIZE);
-			Pageable page = WebHelper.buildPageRequest(request);
+			Pageable page = WebHelperForOrder.buildPageRequest(request);
 			Page<OrderVO> orderList = this.orderService.findOrdersByStatus(StorageUtil.getCompanyId(), null, null,
 					StorageStatus.PICKUP, page);
 			pageInfo(orderList, page, map);
@@ -168,8 +163,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@RequestMapping(value = "/getWaitForPrintList")
 	public String getWaitForPrintList(HttpServletRequest request, ModelMap map) {
 		try {
-			request.setAttribute("size", DEFAULT_SIZE);
-			Pageable page = WebHelper.buildPageRequest(request);
+			Pageable page = WebHelperForOrder.buildPageRequest(request);
 			Page<OrderVO> orderList = this.orderService.findOrdersByStatus(StorageUtil.getCompanyId(), null,
 					ExpressStatus.WAIT_FOR_PRINT, null, page);
 			pageInfo(orderList, page, map);
@@ -190,8 +184,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@RequestMapping(value = "/getPrintedList")
 	public String getPrintedList(HttpServletRequest request, ModelMap map) {
 		try {
-			request.setAttribute("size", DEFAULT_SIZE);
-			Pageable page = WebHelper.buildPageRequest(request);
+			Pageable page = WebHelperForOrder.buildPageRequest(request);
 			Page<OrderVO> orderList = this.orderService.findOrdersByStatus(StorageUtil.getCompanyId(), null,
 					ExpressStatus.PRINTED, null, page);
 			pageInfo(orderList, page, map);
@@ -214,11 +207,10 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	public String getAllShopOrderList(@Valid @ModelAttribute("cond") OrderQueryCondition cond,
 			HttpServletRequest request, ModelMap map) {
 		try {
-			request.setAttribute("size", DEFAULT_SIZE);
 			boolean condIsEmpty = cond == null || StringUtils.isBlank(cond.getExpressNumber())
 					&& StringUtils.isBlank(cond.getOutOrderNumber()) && StringUtils.isBlank(cond.getReceiverName())
 					&& StringUtils.isBlank(cond.getReceiverPhone());
-			Pageable page = WebHelper.buildPageRequest(request);
+			Pageable page = WebHelperForOrder.buildPageRequest(request);
 			Page<OrderVO> orderList = null;
 			if (condIsEmpty) {
 				orderList = this.orderService.findOrdersByCondition(StorageUtil.getCompanyId(), page);
@@ -244,8 +236,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@RequestMapping(value = "/getUnpaidList")
 	public String getUnpaidList(HttpServletRequest request, ModelMap map) {
 		try {
-			request.setAttribute("size", DEFAULT_SIZE);
-			Pageable page = WebHelper.buildPageRequest(request);
+			Pageable page = WebHelperForOrder.buildPageRequest(request);
 			Page<OrderVO> orderList = this.orderService.findOrdersByStatus(StorageUtil.getCompanyId(),
 					PayStatus.UNPAID, null, null, page);
 			pageInfo(orderList, page, map);
@@ -266,8 +257,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@RequestMapping(value = "/getRefundingList")
 	public String getRefundingList(HttpServletRequest request, ModelMap map) {
 		try {
-			request.setAttribute("size", DEFAULT_SIZE);
-			Pageable page = WebHelper.buildPageRequest(request);
+			Pageable page = WebHelperForOrder.buildPageRequest(request);
 			Page<OrderVO> orderList = this.orderService.findOrdersByStatus(StorageUtil.getCompanyId(),
 					PayStatus.REFUNDING, null, null, page);
 			pageInfo(orderList, page, map);
@@ -288,8 +278,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@RequestMapping(value = "/getWaitArrangeHeaderList")
 	public String getWaitArrangeHeaderList(HttpServletRequest request, ModelMap map) {
 		try {
-			request.setAttribute("size", DEFAULT_SIZE);
-			Pageable page = WebHelper.buildPageRequest(request);
+			Pageable page = WebHelperForOrder.buildPageRequest(request);
 			Page<OrderVO> orderList = this.orderService.findOrdersByStatus(StorageUtil.getCompanyId(), null, null,
 					StorageStatus.WAIT_ARRANGE, page);
 			pageInfo(orderList, page, map);
