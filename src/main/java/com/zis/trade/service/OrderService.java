@@ -367,7 +367,7 @@ public interface OrderService {
 	 * 
 	 * @param addrs
 	 */
-	void importReceiverAddr(List<OrderAddressImportDTO> addrs);
+	List<String> importReceiverAddr(List<OrderAddressImportDTO> addrs);
 
 	// ----------------------------淘宝api调用---------------------------------------
 

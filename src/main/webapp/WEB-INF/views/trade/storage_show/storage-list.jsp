@@ -24,7 +24,7 @@
 				<td>
 					<c:set value = "${order.orderDetailVOs}" var = "details"/>
 						<c:forEach items="${details}" var="detail" >
-							${detail.bookName}&nbsp;*&nbsp;${detail.itemCount}<br/>
+							${detail.bookName}/${detail.bookEdition}&nbsp;*&nbsp;${detail.itemCount}<br/>
 						</c:forEach>
 					<br/>
 					<div id = "buyerMess_${order.id}">

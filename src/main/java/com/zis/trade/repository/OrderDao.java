@@ -18,25 +18,29 @@ public interface OrderDao extends PagingAndSortingRepository<Order, Integer>, Jp
 
 	Page<Order> findByCompanyIdAndExpressStatus(Integer companyId, String expressStatus, Pageable page);
 
-	Page<Order> findByCompanyIdAndExpressStatusAndStorageStatusNotInAndPayStatusNotInOrderByUpdateTimeDesc(Integer companyId,
-			String expressStatus, List<String> storageStatusList, List<String> payStatus, Pageable page);
+	Page<Order> findByCompanyIdAndExpressStatusAndStorageStatusNotInAndPayStatusNotInOrderByUpdateTimeDesc(
+			Integer companyId, String expressStatus, List<String> storageStatusList, List<String> payStatus,
+			Pageable page);
 
-	Page<Order> findByCompanyIdAndStorageStatusAndPayStatusNotInOrderByUpdateTimeDesc(Integer companyId, String storageStatus,
-			List<String> payStatus, Pageable page);
+	Page<Order> findByCompanyIdAndStorageStatusAndPayStatusNotInOrderByUpdateTimeDesc(Integer companyId,
+			String storageStatus, List<String> payStatus, Pageable page);
 
-	Page<Order> findByCompanyIdAndStorageStatusInAndPayStatusNotInOrderByUpdateTimeDesc(Integer companyId, List<String> storageStatusList,
-			List<String> payStatus, Pageable page);
+	Page<Order> findByCompanyIdAndStorageStatusInAndPayStatusNotInOrderByUpdateTimeDesc(Integer companyId,
+			List<String> storageStatusList, List<String> payStatus, Pageable page);
 
 	Order findByIdAndCompanyId(Integer id, Integer companyId);
 
 	List<Order> findByShopIdAndOrderGroupNumber(Integer shopId, String orderGroupNumber);
 
-	List<Order> findByCompanyIdOrderByUpdateTimeDesc(Integer companyId);
+	Page<Order> findByCompanyIdOrderByUpdateTimeDesc(Integer companyId, Pageable page);
 
-	List<Order> findByCompanyIdAndOrderGroupNumberInOrderByUpdateTimeDesc(Integer companyId, List<String> orderGroupNumbers);
+	List<Order> findByCompanyIdAndOrderGroupNumberInOrderByUpdateTimeDesc(Integer companyId,
+			List<String> orderGroupNumbers);
 
 	// XXX 临时方法，如果订单数据模糊化的问题搞定了，此方法可删除
 	List<Order> findByOrderGroupNumberIn(List<String> orderGroupNumbers);
+
+	Order findByOrderGroupNumberAndPayStatusNotIn(String orderGroupNumber, List<String> payStatus);
 
 	List<Order> findByShopIdAndReceiverNameAndReceiverPhoneAndReceiverAddr(Integer shopId, String receiverName,
 			String receiverPhone, String receiverAddr);

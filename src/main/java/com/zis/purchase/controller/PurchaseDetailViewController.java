@@ -111,10 +111,10 @@ public class PurchaseDetailViewController extends PaginationQueryController<Purc
 			QueryUtil<Bookinfo> query = new QueryUtil<Bookinfo>();
 			if (StringUtils.isNotBlank(isbn)) {
 				String[] isbnStr = isbn.split(",");
-				if(isbnStr.length > 1){
+				if (isbnStr.length > 1) {
 					throw new RuntimeException("采购明细查询isbn不能输入多个");
 				}
-				if(!StringUtils.isNumeric(isbn.trim())){
+				if (!StringUtils.isNumeric(isbn.trim())) {
 					throw new RuntimeException("isbn存在非法字符");
 				}
 				query.eq("isbn", isbn.trim());
@@ -131,7 +131,7 @@ public class PurchaseDetailViewController extends PaginationQueryController<Purc
 			for (int i = 0; i < bs.length; i++) {
 				bs[i] = blist.get(i).getId();
 			}
-			queryPD.in("bookId", (Object[])bs);
+			queryPD.in("bookId", (Object[]) bs);
 		}
 		// 附加操作员条件
 		if (StringUtils.isNotBlank(operator)) {
@@ -153,7 +153,8 @@ public class PurchaseDetailViewController extends PaginationQueryController<Purc
 			Bookinfo book = this.bookService.findBookById(record.getBookId());
 			if (book != null) {
 				BeanUtils.copyProperties(book, view);
-				view.setNewEdition(book.getIsNewEdition());
+				boolean isNewEdition = book.getIsNewEdition() == null ? false : book.getIsNewEdition();
+				view.setNewEdition(isNewEdition);
 			}
 			BeanUtils.copyProperties(record, view);
 			view.setStatusDisplay(PurchaseDetailStatus.getDisplay(record.getStatus()));

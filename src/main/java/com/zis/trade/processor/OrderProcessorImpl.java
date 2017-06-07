@@ -1,6 +1,7 @@
 package com.zis.trade.processor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -50,6 +51,9 @@ public class OrderProcessorImpl implements OrderProcessor {
 	@Autowired
 	private ShopService shopService;
 
+	// 订单关闭的两种形态
+	private final String[] CANCELLED_ORDER = { PayStatus.CANCELLED.getValue(), PayStatus.REFUND_FINISH.getValue() };
+
 	private static final Logger logger = LoggerFactory.getLogger(OrderProcessorImpl.class);
 
 	@Override
@@ -62,8 +66,13 @@ public class OrderProcessorImpl implements OrderProcessor {
 		// TODO 幂等性控制
 		OrderOuter orderOuter = this.orderOuterDao.findByShopIdAndOutOrderNumber(orderDTO.getShopId(),
 				orderDTO.getOutOrderNumber());
+
 		if (orderOuter != null) {
-			throw new RuntimeException("订单已存在");
+			Order order = this.orderDao.findByOrderGroupNumberAndPayStatusNotIn(orderOuter.getOrderGroupNumber(),
+					Arrays.asList(CANCELLED_ORDER));
+			if(order != null){
+				 throw new RuntimeException("订单已存在");
+			}
 		}
 		// 按照shopId+地址，查找已存在的订单
 		List<Order> existOrders = orderDao.findByShopIdAndReceiverNameAndReceiverPhoneAndReceiverAddr(

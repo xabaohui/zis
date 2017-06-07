@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 public class OrderInfoDTO {
 
 	private Integer shopId; // 店铺Id
-	private String outOrderNumber; // 店铺订单号
+	private String outTradeNumber; // 店铺订单号
 	private String receiverName;
 	private String receiverPhone;
 	private String receiverAddr;
@@ -43,12 +43,12 @@ public class OrderInfoDTO {
 		this.shopId = shopId;
 	}
 
-	public String getOutOrderNumber() {
-		return outOrderNumber;
+	public String getOutTradeNumber() {
+		return outTradeNumber;
 	}
 
-	public void setOutOrderNumber(String outOrderNumber) {
-		this.outOrderNumber = outOrderNumber;
+	public void setOutTradeNumber(String outTradeNumber) {
+		this.outTradeNumber = outTradeNumber;
 	}
 
 	public String getReceiverName() {

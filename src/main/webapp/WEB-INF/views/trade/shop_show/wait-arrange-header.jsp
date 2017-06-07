@@ -117,6 +117,15 @@
 						<% } %>
 					</c:if>
 					
+					<c:if test="${order.canApplyRefund()}">
+						<input type="button" id = "applyRefundView_${order.id}" value = "申请退款" onclick="showApplyRefundView('${order.id}')" />
+						&nbsp;
+						<% count++; %>
+						<% if(count % 2 ==0){%>
+							<br/>
+						<% } %>
+					</c:if>
+					
 					<c:if test="${order.canBlock()}">
 						<input type="button" value = "拦截" onclick="ifBlockOrder('${order.id}')" />
 						&nbsp;

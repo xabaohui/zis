@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -1199,11 +1200,12 @@ public class StorageController implements ViewTips {
 			if (bookMap.values().size() > 100) {
 				spList = new ArrayList<StorageProductViewDTO>();
 				int i = 0;
-				while (bookMap.values().iterator().hasNext()) {
+				Iterator<StorageProductViewDTO> it = bookMap.values().iterator();
+				while (it.hasNext()) {
 					if (i == 100) {
 						break;
 					}
-					spList.add(bookMap.values().iterator().next());
+					spList.add(it.next());
 					i++;
 				}
 				model.put("storageProducts", spList);

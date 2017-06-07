@@ -84,6 +84,8 @@ public class OrderServiceImpl implements OrderService {
 
 	// 订单关闭的两种形态
 	private final String[] CANCELLED_ORDER = { PayStatus.CANCELLED.getValue(), PayStatus.REFUND_FINISH.getValue() };
+	// 筛选配货中和配货完成的订单状态
+	private final String[] PICKUP_ORDER = { StorageStatus.PICKUP.getValue(), StorageStatus.PICKUP_FINISH.getValue() };
 
 	@Override
 	public Order createOrder(CreateTradeOrderDTO orderDTO) {
@@ -498,6 +500,9 @@ public class OrderServiceImpl implements OrderService {
 				if (!OrderHelper.canPrint(order)) {
 					throw new RuntimeException("操作失败，该状态不允许打印，orderId=" + orderId);
 				}
+				if (isInvalidAddr(order)) {
+					throw new RuntimeException("操作失败，请导入收件人地址（坑爹的淘宝开放平台）");
+				}
 				order.setExpressStatus(ExpressStatus.PRINTED.getValue());
 				orderDao.save(order);
 
@@ -626,9 +631,10 @@ public class OrderServiceImpl implements OrderService {
 			throw new RuntimeException("订单存在多条记录，请联系管理员");
 		}
 		if (ExpressStatus.SEND_OUT.getValue().equals(orders.get(0).getExpressStatus())) {
-			return createOrderVO(orders.get(0));
+			throw new RuntimeException("此订单已出库，请勿重复出库");
+			// return createOrderVO(orders.get(0));
 		}
-		if(!ExpressStatus.FILLED_EX_NUM.getValue().equals(orders.get(0).getExpressStatus())){
+		if (!ExpressStatus.FILLED_EX_NUM.getValue().equals(orders.get(0).getExpressStatus())) {
 			throw new RuntimeException("此订单未回填单号不能出库");
 		}
 		if (CollectionUtils.isEmpty(orders)) {
@@ -664,13 +670,20 @@ public class OrderServiceImpl implements OrderService {
 			rs = this.orderDao.findByCompanyIdAndPayStatusOrderByUpdateTimeDesc(companyId, payStatus.getValue(), page);
 		}
 		if (expressStatus != null) {
-			rs = this.orderDao.findByCompanyIdAndExpressStatusAndStorageStatusNotInAndPayStatusNotInOrderByUpdateTimeDesc(companyId,
-					expressStatus.getValue(), storageWaitList, cancelledList, page);
+			// 等待打印快递单页面只查询配货中和配货完成的订单
+			if (expressStatus.getValue().equals(ExpressStatus.WAIT_FOR_PRINT.getValue())) {
+				rs = this.orderDao.findByCompanyIdAndStorageStatusInAndPayStatusNotInOrderByUpdateTimeDesc(companyId,
+						Arrays.asList(PICKUP_ORDER), cancelledList, page);
+			} else {
+				rs = this.orderDao
+						.findByCompanyIdAndExpressStatusAndStorageStatusNotInAndPayStatusNotInOrderByUpdateTimeDesc(
+								companyId, expressStatus.getValue(), storageWaitList, cancelledList, page);
+			}
 		}
 		if (storageStatus != null) {
 			if (storageStatus.getValue().equals(StorageStatus.WAIT_ARRANGE.getValue())) {
-				rs = this.orderDao.findByCompanyIdAndStorageStatusInAndPayStatusNotInOrderByUpdateTimeDesc(companyId, storageWaitList,
-						cancelledList, page);
+				rs = this.orderDao.findByCompanyIdAndStorageStatusInAndPayStatusNotInOrderByUpdateTimeDesc(companyId,
+						storageWaitList, cancelledList, page);
 			} else {
 				rs = this.orderDao.findByCompanyIdAndStorageStatusAndPayStatusNotInOrderByUpdateTimeDesc(companyId,
 						storageStatus.getValue(), cancelledList, page);
@@ -743,7 +756,8 @@ public class OrderServiceImpl implements OrderService {
 			if (CollectionUtils.isEmpty(groupNumbers)) {
 				return emptyOrderVOPage(page);
 			}
-			List<Order> orders = this.orderDao.findByCompanyIdAndOrderGroupNumberInOrderByUpdateTimeDesc(companyId, groupNumbers);
+			List<Order> orders = this.orderDao.findByCompanyIdAndOrderGroupNumberInOrderByUpdateTimeDesc(companyId,
+					groupNumbers);
 			if (CollectionUtils.isEmpty(orders)) {
 				return emptyOrderVOPage(page);
 			}
@@ -823,12 +837,17 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
-	public void importReceiverAddr(List<OrderAddressImportDTO> addrs) {
+	public List<String> importReceiverAddr(List<OrderAddressImportDTO> addrs) {
 		if (CollectionUtils.isEmpty(addrs)) {
 			throw new RuntimeException("导入地址失败，参数为空");
 		}
+		List<String> list = new ArrayList<>();
 		for (OrderAddressImportDTO addr : addrs) {
 			List<String> outNumbers = orderOuterDao.findOrderGroupNumberByOutOrderNumber(addr.getOutOrderNumber());
+			if (outNumbers.isEmpty()) {
+				list.add("订单编号：" + addr.getOutOrderNumber() + " 不存在");
+				continue;
+			}
 			List<Order> orders = orderDao.findByOrderGroupNumberIn(outNumbers);
 			for (Order order : orders) {
 				order.setReceiverAddr(addr.getReceiverAddr());
@@ -837,19 +856,20 @@ public class OrderServiceImpl implements OrderService {
 			}
 			orderDao.save(orders);
 		}
+		return list;
 	}
 
 	@Override
 	public Page<OrderVO> findOrdersByCondition(Integer companyId, Pageable page) {
-		List<Order> orders = this.orderDao.findByCompanyIdOrderByUpdateTimeDesc(companyId);
-		if (CollectionUtils.isEmpty(orders)) {
+		Page<Order> orders = this.orderDao.findByCompanyIdOrderByUpdateTimeDesc(companyId, page);
+		if (CollectionUtils.isEmpty(orders.getContent())) {
 			return emptyOrderVOPage(page);
 		}
-		List<OrderVO> list = new ArrayList<OrderVO>(orders.size());
+		List<OrderVO> list = new ArrayList<OrderVO>(orders.getContent().size());
 		for (Order order : orders) {
 			OrderVO vo = buildOrderVO(order);
 			list.add(vo);
 		}
-		return new PageImpl<OrderVO>(list, page, orders.size());
+		return new PageImpl<OrderVO>(list, page, orders.getTotalElements());
 	}
 }

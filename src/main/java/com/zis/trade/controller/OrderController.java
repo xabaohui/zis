@@ -13,6 +13,8 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -60,6 +62,8 @@ import com.zis.trade.service.OrderService;
 @RequestMapping(value = "/order")
 public class OrderController extends ExcelExportController<OrderVO> implements ViewTips {
 
+	private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
+
 	@Autowired
 	private OrderService orderService;
 
@@ -68,6 +72,8 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 
 	@Autowired
 	private BookService bookService;
+	
+	private final Integer DEFAULT_SIZE = 50;
 
 	private final String CREATE_OREDER_VIEW_MAP = "createOrderViewMap";
 
@@ -87,9 +93,11 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	public String getAllStorageOrderList(@Valid @ModelAttribute("cond") OrderQueryCondition cond,
 			HttpServletRequest request, ModelMap map) {
 		try {
-			boolean condIsEmpty = cond == null || StringUtils.isBlank(cond.getExpressNumber())
-					&& StringUtils.isBlank(cond.getOutOrderNumber()) && StringUtils.isBlank(cond.getReceiverName())
-					&& StringUtils.isBlank(cond.getReceiverPhone());
+			request.setAttribute("size", DEFAULT_SIZE);
+			boolean condIsEmpty = cond == null
+					|| (StringUtils.isBlank(cond.getExpressNumber()) && StringUtils.isBlank(cond.getOutOrderNumber())
+							&& StringUtils.isBlank(cond.getReceiverName()) && StringUtils.isBlank(cond
+							.getReceiverPhone()));
 			Pageable page = WebHelper.buildPageRequest(request);
 			Page<OrderVO> orderList = null;
 			if (condIsEmpty) {
@@ -116,6 +124,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@RequestMapping(value = "/getWaitPickUpList")
 	public String getWaitPickUpList(HttpServletRequest request, ModelMap map) {
 		try {
+			request.setAttribute("size", DEFAULT_SIZE);
 			Pageable page = WebHelper.buildPageRequest(request);
 			Page<OrderVO> orderList = this.orderService.findOrdersByStatus(StorageUtil.getCompanyId(), null, null,
 					StorageStatus.ARRANGED, page);
@@ -137,6 +146,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@RequestMapping(value = "/getPickupList")
 	public String getPickupList(HttpServletRequest request, ModelMap map) {
 		try {
+			request.setAttribute("size", DEFAULT_SIZE);
 			Pageable page = WebHelper.buildPageRequest(request);
 			Page<OrderVO> orderList = this.orderService.findOrdersByStatus(StorageUtil.getCompanyId(), null, null,
 					StorageStatus.PICKUP, page);
@@ -158,7 +168,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@RequestMapping(value = "/getWaitForPrintList")
 	public String getWaitForPrintList(HttpServletRequest request, ModelMap map) {
 		try {
-			request.setAttribute("size", "100");
+			request.setAttribute("size", DEFAULT_SIZE);
 			Pageable page = WebHelper.buildPageRequest(request);
 			Page<OrderVO> orderList = this.orderService.findOrdersByStatus(StorageUtil.getCompanyId(), null,
 					ExpressStatus.WAIT_FOR_PRINT, null, page);
@@ -180,6 +190,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@RequestMapping(value = "/getPrintedList")
 	public String getPrintedList(HttpServletRequest request, ModelMap map) {
 		try {
+			request.setAttribute("size", DEFAULT_SIZE);
 			Pageable page = WebHelper.buildPageRequest(request);
 			Page<OrderVO> orderList = this.orderService.findOrdersByStatus(StorageUtil.getCompanyId(), null,
 					ExpressStatus.PRINTED, null, page);
@@ -203,6 +214,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	public String getAllShopOrderList(@Valid @ModelAttribute("cond") OrderQueryCondition cond,
 			HttpServletRequest request, ModelMap map) {
 		try {
+			request.setAttribute("size", DEFAULT_SIZE);
 			boolean condIsEmpty = cond == null || StringUtils.isBlank(cond.getExpressNumber())
 					&& StringUtils.isBlank(cond.getOutOrderNumber()) && StringUtils.isBlank(cond.getReceiverName())
 					&& StringUtils.isBlank(cond.getReceiverPhone());
@@ -232,6 +244,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@RequestMapping(value = "/getUnpaidList")
 	public String getUnpaidList(HttpServletRequest request, ModelMap map) {
 		try {
+			request.setAttribute("size", DEFAULT_SIZE);
 			Pageable page = WebHelper.buildPageRequest(request);
 			Page<OrderVO> orderList = this.orderService.findOrdersByStatus(StorageUtil.getCompanyId(),
 					PayStatus.UNPAID, null, null, page);
@@ -253,6 +266,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@RequestMapping(value = "/getRefundingList")
 	public String getRefundingList(HttpServletRequest request, ModelMap map) {
 		try {
+			request.setAttribute("size", DEFAULT_SIZE);
 			Pageable page = WebHelper.buildPageRequest(request);
 			Page<OrderVO> orderList = this.orderService.findOrdersByStatus(StorageUtil.getCompanyId(),
 					PayStatus.REFUNDING, null, null, page);
@@ -274,6 +288,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@RequestMapping(value = "/getWaitArrangeHeaderList")
 	public String getWaitArrangeHeaderList(HttpServletRequest request, ModelMap map) {
 		try {
+			request.setAttribute("size", DEFAULT_SIZE);
 			Pageable page = WebHelper.buildPageRequest(request);
 			Page<OrderVO> orderList = this.orderService.findOrdersByStatus(StorageUtil.getCompanyId(), null, null,
 					StorageStatus.WAIT_ARRANGE, page);
@@ -657,10 +672,18 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 			verifyShopId(shopId);
 			List<OrderInfoDTO> list = buildOrderInfoDTOList(orderFile.getInputStream(), shopId);
 			List<OrderAddressImportDTO> dtoList = buildOrderAddressImportDTO(list);
-			this.orderService.importReceiverAddr(dtoList);
+			List<String> failList = this.orderService.importReceiverAddr(dtoList);
+			if (!failList.isEmpty()) {
+				StringBuilder sb = new StringBuilder();
+				for (String s : failList) {
+					sb.append(s + "<br/>");
+				}
+				throw new RuntimeException(sb.toString());
+			}
 			map.put(ACTION_MESSAGE, "操作成功");
 			return "forward:/order/gotoExcelAddrToOrderUpload";
 		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
 			map.put(ACTION_ERROR, e.getMessage());
 			return "forward:/order/gotoExcelAddrToOrderUpload";
 		}
@@ -671,6 +694,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 		for (OrderInfoDTO dto : list) {
 			OrderAddressImportDTO d = new OrderAddressImportDTO();
 			BeanUtils.copyProperties(dto, d);
+			d.setOutOrderNumber(dto.getOutTradeNumber());
 			dtoList.add(d);
 		}
 		return dtoList;
@@ -1054,7 +1078,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	 */
 	private Map<String, Integer> initPropOrderInfo() {
 		Map<String, Integer> map = new HashMap<String, Integer>();
-		map.put("outOrderNumber", 0);
+		map.put("outTradeNumber", 0);
 		map.put("orderMoney", 3);
 		map.put("status", 10);
 		map.put("buyerMessage", 11);
