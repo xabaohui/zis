@@ -68,12 +68,16 @@ public class OrderProcessorImpl implements OrderProcessor {
 				orderDTO.getOutOrderNumber());
 
 		if (orderOuter != null) {
-			Order order = this.orderDao.findByOrderGroupNumberAndPayStatusNotIn(orderOuter.getOrderGroupNumber(),
-					Arrays.asList(CANCELLED_ORDER));
-			if(order != null){
-				 throw new RuntimeException("订单已存在");
-			}
+			throw new RuntimeException("订单已存在");
 		}
+		// if (orderOuter != null) {
+		// Order order =
+		// this.orderDao.findByOrderGroupNumberAndPayStatusNotIn(orderOuter.getOrderGroupNumber(),
+		// Arrays.asList(CANCELLED_ORDER));
+		// if(order != null){
+		// throw new RuntimeException("订单已存在");
+		// }
+		// }
 		// 按照shopId+地址，查找已存在的订单
 		List<Order> existOrders = orderDao.findByShopIdAndReceiverNameAndReceiverPhoneAndReceiverAddr(
 				orderDTO.getShopId(), orderDTO.getReceiverName(), orderDTO.getReceiverPhone(),

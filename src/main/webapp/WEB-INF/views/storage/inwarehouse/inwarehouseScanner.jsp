@@ -19,7 +19,6 @@
 			// (4-1)查询图书
 				bookService.findBookByISBN(userInput, findBookByIsbn);
 		}
-// 		$('userInput').value = '';
 	};
 </script>
 <!-- 播放器 -->

@@ -833,6 +833,11 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	public boolean existByOutOrderNumber(Integer shopId, String outOrderNumber) {
 		OrderOuter outOrder = orderOuterDao.findByShopIdAndOutOrderNumber(shopId, outOrderNumber);
+//		if (outOrder != null) {
+//			Order order = this.orderDao.findByOrderGroupNumberAndPayStatusNotIn(outOrder.getOrderGroupNumber(),
+//					Arrays.asList(CANCELLED_ORDER));
+//			return order != null;
+//		}
 		return outOrder != null;
 	}
 

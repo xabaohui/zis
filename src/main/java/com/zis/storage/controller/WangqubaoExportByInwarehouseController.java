@@ -1,7 +1,6 @@
 package com.zis.storage.controller;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.service.BookService;
-import com.zis.common.controllertemplate.CommonExcelExportController;
 import com.zis.common.util.ZisUtils;
 import com.zis.storage.entity.StorageIoDetail;
 import com.zis.storage.entity.StorageIoDetail.DetailStatus;
@@ -53,9 +51,8 @@ public class WangqubaoExportByInwarehouseController extends CommonExcelExportCon
 	}
 
 	@Override
-	protected boolean isSkip(StorageIoDetail record) {
+	protected boolean isSkip(StorageIoDetail record,Set<String> uniqueIsbnDealt) {
 		Bookinfo book = this.bookService.findBookById(record.getSkuId());
-		Set<String> uniqueIsbnDealt = new HashSet<String>();// 已处理的记录，导出的时候判断重复项用
 		if (book == null) {
 			throw new RuntimeException("没有找到对应的图书：" + record.getSkuId());
 		}

@@ -150,10 +150,7 @@ function showInwarehouseResult(result) {
 		// 播放声音提示
 		$('passVoice').play();
 		// 清空输入
-		var inuser = $('userInput').value;
-//		inuser = "";
-//		document.getElementById('userInput').value = "";
-//		alert(inuser);
+		$('userInput').value = '';
 		$('userInputAmount').value = 1;
 	} else {
 		alert('操作失败，' + result.failReason);

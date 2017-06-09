@@ -43,7 +43,6 @@ public class InwarehouseStorageBoController {
 	private DoPurchaseService doPurchaseService;
 
 	private final String PURCHASE_TYPE = "purchase";// 采购入库
-	private final String BATCH_TYPE = "batch";// 批量入库
 
 	/**
 	 * 执行入库操作
