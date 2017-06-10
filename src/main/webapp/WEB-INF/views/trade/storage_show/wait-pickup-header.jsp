@@ -41,22 +41,22 @@
 				<font color="#00000">等待配货</font>
 			</th>
 			<th>
-				<a href="order/getPickupList">配货中</a>
+				<a href="order/getPickupList?sort=updateTime&direction=desc">配货中</a>
 			</th>
 			<th>
-				<a href="order/getWaitForPrintList">等待打印</a>
+				<a href="order/getWaitForPrintList?sort=updateTime&direction=desc">等待打印</a>
 			</th>
 			<th>
-				<a href="order/getPrintedList">已打印</a>
+				<a href="order/getPrintedList?sort=updateTime&direction=desc">已打印</a>
 			</th>
 			<th>
-				<a href="order/getAllStorageOrderList">全部订单</a>
+				<a href="order/getAllStorageOrderList?sort=updateTime&direction=desc">全部订单</a>
 			</th>
 		</tr>
 		</table>
 		<table id = "common-table">
 			<tr>
-				<td colspan="10" align="left" height="60px">
+				<td colspan="11" align="left" height="60px">
 					<input style="margin-left: 700px;" type="button" value = "批量配货" onclick="pickingUpOrderList()"/>
 					<input style="margin-left: 100px;" type="button" value = "批量取消" onclick="cancelArrangeOrderList()"/>
 				</td>
@@ -71,6 +71,7 @@
 				<th>网店订单号</th>
 				<th>收件人</th>
 				<th>商品清单</th>
+				<th>商品总数</th>
 				<th>状态</th>
 				<th>物流信息</th>
 				<th>操作</th>
@@ -141,11 +142,11 @@
 <div align="center">
 	<!-- 分页查询start-->
 	<c:if test="${not empty prePage}">
-		<a href="order/getWaitPickUpList?${queryCondition}page=${prePage}">上一页</a>&nbsp;
+		<a href="order/getWaitPickUpList?${queryCondition}page=${prePage}&sort=updateTime&direction=desc">上一页</a>&nbsp;
 	</c:if>
 	${page} &nbsp;
 	<c:if test="${not empty nextPage}">
-		<a href="order/getWaitPickUpList?${queryCondition}page=${nextPage}">下一页</a>&nbsp;
+		<a href="order/getWaitPickUpList?${queryCondition}page=${nextPage}&sort=updateTime&direction=desc">下一页</a>&nbsp;
 	</c:if>
 	<!-- 分页查询end -->
 </div>

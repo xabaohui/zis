@@ -21,6 +21,8 @@ public class PurchasePlanBuildTimer {
 			.getLogger(PurchasePlanBuildTimer.class);
 
 	private DoPurchaseService purchaseService;
+	
+	private final Integer ZIS_STORAGE_REPO_ID = 2;
 
 	/**
 	 * 全量生成采购计划
@@ -39,7 +41,7 @@ public class PurchasePlanBuildTimer {
 				@SuppressWarnings("unchecked")
 				List<Bookinfo> list = PaginationQueryUtil.paginationQuery(dc,
 						page);
-				purchaseService.addPurchasePlanForBatch(list);
+				purchaseService.addPurchasePlanForBatch(list,ZIS_STORAGE_REPO_ID);
 			} catch (Exception e) {
 				logger.error("执行采购计划过程中出错" + e);
 			}

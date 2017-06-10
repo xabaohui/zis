@@ -12,6 +12,15 @@ public class PurchasePlanView extends PurchasePlan {
 	private boolean repeatIsbn;
 	private boolean manualDecisionFlag; // 是否是人工定量
 	private Integer stillRequireAmount; // 还需采购的数量
+	private Integer stockAmount;
+	
+	public Integer getStockAmount() {
+		return stockAmount;
+	}
+
+	public void setStockAmount(Integer stockAmount) {
+		this.stockAmount = stockAmount;
+	}
 
 	public boolean getIsNewEdition() {
 		return isNewEdition;

@@ -43,10 +43,8 @@ width: 150px;
 				<td>
 					<select id = "selectType" name = "bizType" >
 						<option value = "">未选择</option>
-						<option value = "in_batch">批量入库</option>
-						<option value = "in_daily">日常入库</option>
-						<option value = "out_batch">批量出库</option>
-						<option value = "out_daily">日常出库</option>
+						<option value = "in_batch">入库</option>
+						<option value = "out_batch">出库</option>
 					</select>
 					<input type="hidden" id = "checkType" value = "${checkType}"/>
 				</td>
@@ -72,8 +70,26 @@ width: 150px;
 	</form>
 </div>
 <div style="width: 100%;" id="infoDiv" align="center">
+<form action="" method="post" id = "batchForm">
 <table id="common-table">
+	<c:if test="${checkStatus eq 'finish' && checkType eq 'in_batch'}">
 		<tr>
+			<td colspan="8" style="border: hidden; text-align: left;"><input type="button" onclick="exportWangqubaoInwarehouse()" value = "入库单导出"/>
+			<input type="button" onclick="exportWangqubaoItemByInwarehouse()" value = "网渠宝商品资料导出"/>
+			</td>
+		</tr>
+	</c:if>
+	<c:if test="${checkStatus eq 'finish' && checkType eq 'out_batch'}">
+		<tr>
+			<td colspan="8" style="border: hidden; text-align: left;"><input type="button" onclick="exportWangqubaoSendOut()" value = "出库单导出"/></td>
+		</tr>
+	</c:if>
+		<tr>
+			<c:if test="${checkStatus eq 'finish' && (checkType eq 'in_batch' || checkType eq 'out_batch')}">
+				<th>
+					<input type="checkbox" id = "checkAll" onclick = "checkAllBatchId()"/>全选
+				</th>
+			</c:if>
 			<th>批次号</th>
 			<th>创建时间</th>
 			<th>操作类型</th>
@@ -84,6 +100,11 @@ width: 150px;
 		</tr>
 		<c:forEach items="${batchList}" var="batch">
 			<tr>
+				<c:if test="${checkStatus eq 'finish' && (checkType eq 'in_batch' || checkType eq 'out_batch')}">
+					<td>
+						<input name = "batchId" type="checkbox" value="${batch.batchId}"/>
+					</td>
+				</c:if>
 				<td>${batch.batchId}</td>
 				<td>
 					<fmt:formatDate value="${batch.gmtCreate}" pattern="yyyy-MM-dd"/>
@@ -105,14 +126,15 @@ width: 150px;
 				<td>
 				${batch.zhCnStatus}
 				<c:if test="${batch.status eq 'created'&& batch.bizType eq 'in_batch'}">
-					<a href="storage/recoverScan?ioBatch=${batch.batchId}">继续扫描</a>
+					<a href="storage/recoverScan?ioBatchId=${batch.batchId}">继续扫描</a>
 					&nbsp;&nbsp;
-					<a href="storage/cancelOrder?ioBatch=${batch.batchId}">取消</a>
+					<a href="storage/cancelInStorage?ioBatchId=${batch.batchId}">取消</a>
 				</c:if>
 				</td>
 			</tr>
 		</c:forEach>
 	</table>
+</form>
 </div>
 <div align="center">
 	<!-- 分页查询start-->

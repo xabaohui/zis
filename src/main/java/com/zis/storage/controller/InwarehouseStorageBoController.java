@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 
 import com.zis.common.util.ZisUtils;
 import com.zis.purchase.bean.InwarehousePosition;
+import com.zis.purchase.biz.DoPurchaseService;
 import com.zis.purchase.dto.InwarehouseDealtResult;
 import com.zis.purchase.repository.InwarehousePositionDao;
 import com.zis.storage.entity.StorageIoBatch;
@@ -38,6 +39,11 @@ public class InwarehouseStorageBoController {
 	@Autowired
 	private StorageService storageService;
 
+	@Autowired
+	private DoPurchaseService doPurchaseService;
+
+	private final String PURCHASE_TYPE = "purchase";// 采购入库
+
 	/**
 	 * 执行入库操作
 	 * 
@@ -52,13 +58,13 @@ public class InwarehouseStorageBoController {
 	 */
 	@RemoteMethod
 	public InwarehouseDealtResult doStorageInwarehouse(Integer ioBatchId, String posLabel, Integer bookId,
-			Integer amount) {
+			Integer amount, String purchaseOperator, String bizType) {
 		try {
 			StorageIoBatch ioBatch = this.storageIoBatchDao.findOne(ioBatchId);
 			if (ioBatch == null) {
 				throw new RuntimeException("批次Id有误" + ioBatchId);
 			}
-			return this.applyInwarehouse(ioBatch, posLabel, bookId, amount);
+			return this.applyInwarehouse(ioBatch, posLabel, bookId, amount, purchaseOperator, bizType);
 		} catch (Exception e) {
 			InwarehouseDealtResult result = new InwarehouseDealtResult();
 			result.setSuccess(false);
@@ -79,7 +85,7 @@ public class InwarehouseStorageBoController {
 	 */
 	public InwarehouseDealtResult fastStorageInwarehouse(Integer oldAmount, String posLabel, Integer bookId,
 			Integer amount) {
-		if(oldAmount ==null){
+		if (oldAmount == null) {
 			oldAmount = 0;
 		}
 		InwarehouseDealtResult result = new InwarehouseDealtResult();
@@ -113,7 +119,7 @@ public class InwarehouseStorageBoController {
 	 *            入库数量
 	 */
 	private InwarehouseDealtResult applyInwarehouse(StorageIoBatch ioBatch, final String posLabel,
-			final Integer bookId, final Integer amount) {
+			final Integer bookId, final Integer amount, final String purchaseOperator, final String bizType) {
 		// 基本参数检查
 		if (ioBatch == null) {
 			throw new IllegalArgumentException("ioBatch could not be null");
@@ -127,7 +133,14 @@ public class InwarehouseStorageBoController {
 		if (amount == null || amount < 1) {
 			throw new IllegalArgumentException("入库数量必须大于等于1");
 		}
-
+		boolean purchaseInwarehouse = StringUtils.isNotBlank(purchaseOperator) && PURCHASE_TYPE.equals(bizType);
+		// TODO　采购入库调用此方法
+		if (purchaseInwarehouse) {
+			String error = this.doPurchaseService.checkForDoInwarehouse(purchaseOperator, bookId, amount);// 其他检查，由子类进行扩展
+			if (StringUtils.isNotBlank(error)) {
+				throw new RuntimeException(error);
+			}
+		}
 		InwarehouseDealtResult result = new InwarehouseDealtResult();
 
 		// 自动选择可用库位
@@ -148,6 +161,12 @@ public class InwarehouseStorageBoController {
 
 		// 执行入库操作
 		putIntoPosition(ioBatch, pos, bookId, amount);
+		// 入库后操作
+		// TODO　采购入库调用此方法
+		if (purchaseInwarehouse) {
+			this.doPurchaseService.afterPut(purchaseOperator, bookId, amount, StorageUtil.getRepoId(),
+					ioBatch.getBatchId());
+		}
 		result.setSuccess(true);
 		result.setTotalAmount(ioBatch.getAmount());
 		return result;

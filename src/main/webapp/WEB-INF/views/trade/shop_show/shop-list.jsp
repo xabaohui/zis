@@ -4,6 +4,7 @@
 			<td>${order.id}</td>
 				<td>
 					<fmt:formatDate value="${order.createTime}" pattern="yyyy-MM-dd"/>
+					<fmt:formatDate value="${order.createTime}" pattern="HH:mm:ss"/>
 				</td>
 				<td>
 					${order.shopName}
@@ -22,7 +23,7 @@
 				<td>
 					<c:set value = "${order.orderDetailVOs}" var = "details"/>
 						<c:forEach items="${details}" var="detail" >
-							${detail.bookName}&nbsp;*&nbsp;${detail.itemCount}<br/>
+							${detail.bookName}/${detail.bookEdition}&nbsp;*&nbsp;${detail.itemCount}<br/>
 						</c:forEach>
 					<br/>
 					<div id = "buyerMess_${order.id}">
@@ -33,4 +34,11 @@
 							<font color="green">${order.buyerMessage}</font>
 						</c:if>
 					</div>
+				</td>
+				<td>
+					<c:set var="sum" value = "0"/>
+					<c:forEach items="${details}" var="detail" >
+						<c:set var="sum" value = "${sum + detail.itemCount}"/>
+					</c:forEach>
+					${sum}
 				</td>

@@ -1,6 +1,7 @@
 package com.zis.trade.processor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -38,7 +39,7 @@ import com.zis.trade.repository.OrderOuterDao;
 
 @Component
 public class OrderProcessorImpl implements OrderProcessor {
-	
+
 	@Autowired
 	private OrderOuterDao orderOuterDao;
 	@Autowired
@@ -49,7 +50,10 @@ public class OrderProcessorImpl implements OrderProcessor {
 	private OrderLogDao orderLogDao;
 	@Autowired
 	private ShopService shopService;
-	
+
+	// 订单关闭的两种形态
+	private final String[] CANCELLED_ORDER = { PayStatus.CANCELLED.getValue(), PayStatus.REFUND_FINISH.getValue() };
+
 	private static final Logger logger = LoggerFactory.getLogger(OrderProcessorImpl.class);
 
 	@Override
@@ -60,19 +64,32 @@ public class OrderProcessorImpl implements OrderProcessor {
 		ShopInfo shop = shopService.findShopById(orderDTO.getShopId());
 		checkShop(orderDTO.getShopId(), shop);
 		// TODO 幂等性控制
-		
+		OrderOuter orderOuter = this.orderOuterDao.findByShopIdAndOutOrderNumber(orderDTO.getShopId(),
+				orderDTO.getOutOrderNumber());
+
+		if (orderOuter != null) {
+			throw new RuntimeException("订单已存在");
+		}
+		// if (orderOuter != null) {
+		// Order order =
+		// this.orderDao.findByOrderGroupNumberAndPayStatusNotIn(orderOuter.getOrderGroupNumber(),
+		// Arrays.asList(CANCELLED_ORDER));
+		// if(order != null){
+		// throw new RuntimeException("订单已存在");
+		// }
+		// }
 		// 按照shopId+地址，查找已存在的订单
 		List<Order> existOrders = orderDao.findByShopIdAndReceiverNameAndReceiverPhoneAndReceiverAddr(
-				orderDTO.getShopId(), orderDTO.getReceiverName(),
-				orderDTO.getReceiverPhone(), orderDTO.getReceiverAddr());
+				orderDTO.getShopId(), orderDTO.getReceiverName(), orderDTO.getReceiverPhone(),
+				orderDTO.getReceiverAddr());
 		boolean blockNewOrder = false;
 		String orderGroupNumber = null;
-		if(CollectionUtils.isEmpty(existOrders)) {
+		if (CollectionUtils.isEmpty(existOrders)) {
 			// 判断是否可以合并
 			boolean canCombined = false;
 			for (Order existOrder : existOrders) {
 				// 合并到之前的订单
-				if(canCombined) {
+				if (canCombined) {
 					// TODO 合并订单
 					break;
 				}
@@ -85,11 +102,11 @@ public class OrderProcessorImpl implements OrderProcessor {
 				}
 			}
 		}
-		
-		if(orderGroupNumber == null) {
+
+		if (orderGroupNumber == null) {
 			orderGroupNumber = generateOrderGroupNumber();
 		}
-		
+
 		// 生成新订单
 		Order order = new Order();
 		BeanUtils.copyProperties(orderDTO, order);
@@ -129,7 +146,7 @@ public class OrderProcessorImpl implements OrderProcessor {
 		outOrder.setOrderGroupNumber(orderGroupNumber);
 		orderOuterDao.save(outOrder);
 		logger.info("生成网店订单, orderOuter={}", JSONObject.toJSONString(outOrder));
-		
+
 		OrderLog log = OrderHelper.createOrderLog(order, orderDTO.getOperator(), OperateType.CREATE, "");
 		orderLogDao.save(log);
 		return order;
@@ -154,7 +171,7 @@ public class OrderProcessorImpl implements OrderProcessor {
 
 	private void checkShop(Integer shopId, ShopInfo shop) {
 		Assert.notNull(shop, "店铺不存在" + shopId);
-		if(!ShopInfoStatus.NORMAL.getValue().equals(shop.getStatus())) {
+		if (!ShopInfoStatus.NORMAL.getValue().equals(shop.getStatus())) {
 			throw new RuntimeException("该店铺已停用, shopId=" + shopId);
 		}
 	}

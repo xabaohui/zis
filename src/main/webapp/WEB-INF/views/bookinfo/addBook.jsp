@@ -21,7 +21,7 @@
 	<table>
 		<tr>
 			<td>ISBN</td>
-			<td><input type="text" name="isbn" onblur="return checkExistBook()" id="isbn" value="${param.isbn}" /></td>
+			<td><input type="text" name="isbn" onchange="return checkExistBook()" id="isbn" value="${param.isbn}" /></td>
 			<td><spring:errors delimiter="," path="isbn" cssStyle="color:red"/></td>
 		</tr>
 		<tr>

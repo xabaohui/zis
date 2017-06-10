@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Controller;
@@ -28,6 +30,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.alibaba.fastjson.JSONObject;
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.service.BookService;
+import com.zis.bookinfo.util.ConstantString;
 import com.zis.common.controllertemplate.ViewTips;
 import com.zis.common.mvc.ext.QueryUtil;
 import com.zis.common.mvc.ext.Token;
@@ -104,7 +107,7 @@ public class StorageController implements ViewTips {
 
 	@Autowired
 	private ShopServiceImpl shopService;
-	
+
 	@Autowired
 	private OrderService orderService;
 
@@ -113,29 +116,9 @@ public class StorageController implements ViewTips {
 	private final String[] allStatus = { TradeStatus.CREATED.getValue(), TradeStatus.PROCESSING.getValue(),
 			TradeStatus.CANCEL.getValue(), TradeStatus.SENT.getValue() };
 
-	/**
-	 *
-	 * 
-	 * @param map
-	 * @return
-	 */
-	//TODO 测试
-	@RequestMapping(value = "/test")
-	public String test(ModelMap map) {
-		return "trade/create_order/create-order";
-	}
-	/**
-	 *
-	 * 
-	 * @param map
-	 * @return
-	 */
-	//TODO 测试
-	@RequestMapping(value = "/test1")
-	public String test1(ModelMap map) {
-		return "trade/storage_show/all-storage-header";
-	}
-	
+	private final String[] INPUT = { BizType.IN_BATCH.getValue(), BizType.IN_DAILY.getValue() };
+	private final String[] OUTPUT = { BizType.OUT_BATCH.getValue(), BizType.OUT_DAILY.getValue() };
+
 	/**
 	 * 扫描入库跳转
 	 * 
@@ -172,12 +155,17 @@ public class StorageController implements ViewTips {
 			Pageable page = WebHelper.buildPageRequest(request);
 			QueryUtil<StorageIoBatch> query = new QueryUtil<StorageIoBatch>();
 			if (StringUtils.isNotBlank(bizType)) {
-				query.eq("bizType", bizType);
+				if (bizType.equals(BizType.IN_BATCH.getValue())) {
+					query.in("bizType", (Object[]) INPUT);
+				} else if (bizType.equals(BizType.OUT_BATCH.getValue())) {
+					query.in("bizType", (Object[]) OUTPUT);
+				}
 			}
 			if (StringUtils.isNotBlank(status)) {
 				query.eq("status", status);
 			}
 			query.eq("repoId", StorageUtil.getRepoId());
+			query.desc("gmtModify");
 			Page<StorageIoBatch> orderList = this.storageIoBatchDao.findAll(query.getSpecification(), page);
 			if (!orderList.getContent().isEmpty()) {
 				List<StorageIoBatch> list = orderList.getContent();
@@ -298,25 +286,26 @@ public class StorageController implements ViewTips {
 		}
 	}
 
-//	/**
-//	 * 配货
-//	 * 
-//	 * @param orderId
-//	 * @param map
-//	 * @return
-//	 */
-//	@RequestMapping(value = "/pickingUpOrder")
-//	public String pickingUpOrder(Integer[] orderId, ModelMap map) {
-//		try {
-//			List<Integer> orderIds = Arrays.asList(orderId);
-////			Integer i = this.storageService.arrangeOrder(StorageUtil.getRepoId(), orderIds, StorageUtil.getUserId());
-//			map.put("actionMessage", "批次号" + i + "开始配货");
-//			return "forward:/storage/queryStorageOrder";
-//		} catch (Exception e) {
-//			map.put("actionError", e.getMessage());
-//			return "error";
-//		}
-//	}
+	// /**
+	// * 配货
+	// *
+	// * @param orderId
+	// * @param map
+	// * @return
+	// */
+	// @RequestMapping(value = "/pickingUpOrder")
+	// public String pickingUpOrder(Integer[] orderId, ModelMap map) {
+	// try {
+	// List<Integer> orderIds = Arrays.asList(orderId);
+	// // Integer i = this.storageService.arrangeOrder(StorageUtil.getRepoId(),
+	// orderIds, StorageUtil.getUserId());
+	// map.put("actionMessage", "批次号" + i + "开始配货");
+	// return "forward:/storage/queryStorageOrder";
+	// } catch (Exception e) {
+	// map.put("actionError", e.getMessage());
+	// return "error";
+	// }
+	// }
 
 	/**
 	 * 取件
@@ -377,7 +366,7 @@ public class StorageController implements ViewTips {
 	@RequestMapping(value = "/lackPart")
 	public String lackPart(ModelMap map, Integer ioDetailId, Integer actualAmt) {
 		try {
-			StorageIoDetail io = this.storageService.lackPart(ioDetailId, StorageUtil.getUserId(), actualAmt);
+			StorageIoDetail io = this.orderService.lackPart(ioDetailId, StorageUtil.getUserId(), actualAmt);
 			if (io == null) {
 				map.put("actionMessage", "本批次取货完成，请点击对应批次进行完成");
 				return "forward:/storage/querytTakeGoods";
@@ -401,7 +390,7 @@ public class StorageController implements ViewTips {
 	@RequestMapping(value = "/lackAll")
 	public String lackAll(ModelMap map, Integer ioDetailId) {
 		try {
-			StorageIoDetail io = this.storageService.lackAll(ioDetailId, StorageUtil.getUserId());
+			StorageIoDetail io = this.orderService.lackAll(ioDetailId, StorageUtil.getUserId());
 			if (io == null) {
 				map.put("actionMessage", "本批次取货完成，请点击对应批次进行完成");
 				return "forward:/storage/querytTakeGoods";
@@ -997,7 +986,6 @@ public class StorageController implements ViewTips {
 		ShopUtil.clearAllCached();
 	}
 
-
 	/**
 	 * 更新仓库
 	 * 
@@ -1168,14 +1156,22 @@ public class StorageController implements ViewTips {
 	 * @return
 	 */
 	@RequestMapping(value = "stock/listProducts")
-	public String queryStorageProduct(String isbn, ModelMap model) {
+	public String queryStorageProduct(String isbn, String bookName, String bookAuthor, String bookPublisher,
+			ModelMap model) {
 		try {
-			if (StringUtils.isBlank(isbn)) {
-				model.put(ACTION_ERROR, "isbn不能为空");
-				return VIEW_URL_PRODUCT_LIST;
+			List<Bookinfo> books = null;
+			boolean allEmpty = StringUtils.isBlank(isbn) && StringUtils.isBlank(bookName)
+					&& StringUtils.isBlank(bookAuthor) && StringUtils.isBlank(bookPublisher);
+			if (allEmpty) {
+				// 如果条件都为空只查200条
+				Pageable page = new PageRequest(0, 200);
+				books = this.bookService.findAll(page).getContent();
+			} else {
+				Specification<Bookinfo> spec = buildSpec(bookName, isbn, bookAuthor, bookPublisher);
+				// 查询图书
+				books = this.bookService.findBySpecification(spec);
 			}
-			// 查询图书
-			List<Bookinfo> books = this.bookService.findBookByISBN(isbn);
+
 			if (CollectionUtils.isEmpty(books)) {
 				model.put(NO_RESULT, "没有找到相关记录");
 				return VIEW_URL_PRODUCT_LIST;
@@ -1199,13 +1195,60 @@ public class StorageController implements ViewTips {
 				StorageProductViewDTO v = bookMap.get(prod.getSkuId());
 				BeanUtils.copyProperties(prod, v);
 			}
-			model.put("storageProducts", bookMap.values());
+			List<StorageProductViewDTO> spList = null;
+			// 如果结果大于100条只取前100条
+			if (bookMap.values().size() > 100) {
+				spList = new ArrayList<StorageProductViewDTO>();
+				int i = 0;
+				Iterator<StorageProductViewDTO> it = bookMap.values().iterator();
+				while (it.hasNext()) {
+					if (i == 100) {
+						break;
+					}
+					spList.add(it.next());
+					i++;
+				}
+				model.put("storageProducts", spList);
+			} else {
+				model.put("storageProducts", bookMap.values());
+			}
 			model.put("isbn", isbn);
 			return VIEW_URL_PRODUCT_LIST;
 		} catch (Exception e) {
 			model.put(ACTION_ERROR, e.getMessage());
 			return "error";
 		}
+	}
+
+	private Specification<Bookinfo> buildSpec(String bookName, String bookISBN, String bookAuthor, String bookPublisher) {
+		QueryUtil<Bookinfo> query = new QueryUtil<Bookinfo>();
+		if (!StringUtils.isBlank(bookName)) {
+			query.like("bookName", "%" + bookName + "%");
+		}
+		// ISBN不为空则添加条件
+		if (!StringUtils.isBlank(bookISBN)) {
+			String[] isbns = bookISBN.split(",");
+			for (int i = 0; i < isbns.length; i++) {
+				isbns[i] = isbns[i].trim();
+				if (!StringUtils.isNumeric(isbns[i])) {
+					throw new RuntimeException("isbn输入了非法字符");
+				}
+			}
+			if (isbns.length == 1) {
+				query.eq("isbn", isbns[0]);
+			} else {
+				query.in("isbn", (Object[]) isbns);
+			}
+		}
+		// 模糊查询作者
+		if (!StringUtils.isBlank(bookAuthor))
+			query.like("bookAuthor", "%" + bookAuthor + "%");
+		if (!StringUtils.isBlank(bookPublisher)) {
+			query.eq("bookPublisher", bookPublisher);
+		}
+		// 状态为废弃的不查询
+		query.ne("bookStatus", ConstantString.ABANDON);
+		return query.getSpecification();
 	}
 
 	private static final String VIEW_URL_STOCK_DIST = "storage/stock/stock-dist-list";

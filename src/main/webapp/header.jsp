@@ -198,42 +198,126 @@
 			<c:if test="${headerChecked eq '1'}"></c:if>
 			&nbsp;
 			<ul class = "uls" onclick="checked(this);">
-			<font style="font-weight: bolder;">图书管理</font>
+			<font style="font-weight: bolder;">信息管理</font>
 				<ul name = "showListTop" style="display: none" class = "showListTop" >
 					<shiro:hasPermission name="bookInfo:view">
-						<li><a href="<%=basePath%>bookInfo/getAllBooks">图书列表</a></li>
+						<li><a href="<%=basePath%>bookInfo/getAllBooks">商品列表</a></li>
 						<br/>
 					</shiro:hasPermission>
 					<shiro:hasPermission name="bookInfo:saveOrUpdate">
-						<li><a href="<%=basePath%>bookInfo/gotoAddBook">新增图书</a></li>
+						<li><a href="<%=basePath%>bookInfo/gotoAddBook">新增商品</a></li>
 						<br/>
 					</shiro:hasPermission>
 					<shiro:hasPermission name="bookInfo:saveOrUpdate">
 						<li><a href="<%=basePath%>bookInfo/gotoAddYouLuData">批量增加</a></li>
 						<br/>
 					</shiro:hasPermission>
-						<li><a href="<%=basePath%>shop/showCompanyInfo">公司管理</a></li>
+					<shiro:hasPermission name="toolkit:toolkit">
+						<li><a href="https://github.com/xabaohui/zis/issues" target="_blank" onclick="alert('账户名：zisuser，密码：hello1234')">提个建议</a></li>
+						<br/>
+					</shiro:hasPermission>
 				</ul>
 			</ul>
+			<shiro:hasPermission name="order:storageOrder">
 			<ul class = "uls" onclick="checked(this);">
-			<font style="font-weight: bolder;">院校模块</font>
+			<font style="font-weight: bolder;">发货管理</font>
+				<ul name = "showListTop" style="display: none" class = "showListTop" >
+					<br/>
+					<li><a href="order/getWaitPickUpList?sort=updateTime&direction=desc">订单信息</a></li>
+					<br/>
+					<li><a href="storage/querytTakeGoods">开始配货</a></li>
+					<br/>
+					<li><a href="storage/gotoFastTakeGoods">快速出库</a></li>
+<!-- 				<br/> -->
+<!-- 				<li><a href="storage/gotoManualTakeGoods">手动出库</a></li> -->
+					<br/>
+					<li><a href="order/sendOut">出库扫描</a></li>
+					<br/>
+				</ul>
+			</ul>
+			</shiro:hasPermission>
+			
+			<shiro:hasPermission name="order:shopOrder">
+			<ul class = "uls" onclick="checked(this);">
+			<font style="font-weight: bolder;">订单管理</font>
 				<ul name = "showListTop" style="display: none" class = "showListTop">
-					<shiro:hasPermission name="requirement:school:view">
-						<li><a href="<%=basePath%>/requirement/findSchoolInfo">院校信息</a></li>
 						<br/>
-					</shiro:hasPermission>
-					<shiro:hasPermission name="requirement:school:saveOrUpdate">
-						<li><a href="<%=basePath%>/requirement/updateSchoolPre">添加院校</a></li>
+						<li><a href="order/getUnpaidList?sort=updateTime&direction=desc">订单信息</a></li>
 						<br/>
-					</shiro:hasPermission>
-					<shiro:hasPermission name="requirement:books:view or requirement:books:input or requirement:books:output">
-						<li><a href="<%=basePath%>/requirement/getAmountAction">教材使用量</a></li>
+						<li><a href="order/gotoCreateOrder">订单生成</a></li>
 						<br/>
-					</shiro:hasPermission>
 				</ul>
 			</ul>
+			</shiro:hasPermission>
+			
+			<shiro:hasPermission name="order:storageOrder or order:shopOrder">
 			<ul class = "uls" onclick="checked(this);">
-			<font style="font-weight: bolder;">采购模块</font>
+			<font style="font-weight: bolder;">商品管理</font>
+				<ul name = "showListTop" style="display: none" class = "showListTop" >
+					<br/>
+					<li><a href="storage/stock/listProducts">商品查询</a></li>
+					<br/>
+				</ul>
+			</ul>
+			</shiro:hasPermission>
+<!-- 			<ul class = "uls" onclick="checked(this);"> -->
+<!-- 			<font style="font-weight: bolder;">院校模块</font> -->
+<!-- 				<ul name = "showListTop" style="display: none" class = "showListTop"> -->
+<!-- 					<shiro:hasPermission name="requirement:school:view"> -->
+<!-- 						<li><a href="/requirement/findSchoolInfo">院校信息</a></li> -->
+<!-- 						<br/> -->
+<!-- 					</shiro:hasPermission> -->
+<!-- 					<shiro:hasPermission name="requirement:school:saveOrUpdate"> -->
+<!-- 						<li><a href="/requirement/updateSchoolPre">添加院校</a></li> -->
+<!-- 						<br/> -->
+<!-- 					</shiro:hasPermission> -->
+<!-- 					<shiro:hasPermission name="requirement:books:view or requirement:books:input or requirement:books:output"> -->
+<!-- 						<li><a href="/requirement/getAmountAction">教材使用量</a></li> -->
+<!-- 						<br/> -->
+<!-- 					</shiro:hasPermission> -->
+<!-- 				</ul> -->
+<!-- 			</ul> -->
+<!-- 			<ul class = "uls" onclick="checked(this);"> -->
+<!-- 			<font style="font-weight: bolder;">库存管理</font> -->
+<!-- 				<ul name = "showListTop" style="display: none" class = "showListTop"> -->
+<!-- 					<shiro:hasPermission name="stock:input"> -->
+<!-- 						<li><a href="purchase/gotoInWarehouse">扫描入库</a></li> -->
+<!-- 						<br/> -->
+<!-- 					</shiro:hasPermission> -->
+<!-- 					<shiro:hasPermission name="stock:view or stock:input or stock:output or stock:delete"> -->
+<!-- 						<li><a href="purchase/viewInwarehouseList">入库单列表</a></li> -->
+<!-- 					</shiro:hasPermission> -->
+<!-- 				</ul> -->
+<!-- 			</ul> -->
+			<shiro:hasPermission name="order:storageOrder">
+			<ul class = "uls" onclick="checked(this);">
+			<font style="font-weight: bolder;">库存进销存</font>
+				<ul name = "showListTop" style="display: none" class = "showListTop">
+						<br/>
+						<li><a href="<%=basePath%>storage/gotoInwarehouse">批量入库</a></li>
+						<br/>
+						<li><a href="storage/gotoFastInwarehouse">快速入库</a></li>
+						<br/>
+						<li><a href="storage/queryIoBatch">出入库批次</a></li>
+						<br/>
+				</ul>
+			</ul>
+			</shiro:hasPermission>
+			
+			<shiro:hasPermission name="order:storageOrder">
+			<ul class = "uls" onclick="checked(this);">
+			<font style="font-weight: bolder;">库位管理</font>
+				<ul name = "showListTop" style="display: none" class = "showListTop">
+						<br/>
+						<li><a href="storage/findPosition">库位列表</a></li>
+						<br/>
+				</ul>
+			</ul>
+			</shiro:hasPermission>
+			
+			<shiro:hasPermission name="purchase:view or purchase:management or toolkit:toolkit">
+			<ul class = "uls" onclick="checked(this);">
+			<font style="font-weight: bolder;">采购管理</font>
 				<ul name = "showListTop" style="display: none" class = "showListTop">
 					<shiro:hasPermission name="purchase:view or purchase:management">
 						<li><a href="<%=basePath%>purchase/queryPurchasePlan">采购计划</a></li>
@@ -241,9 +325,16 @@
 					</shiro:hasPermission>
 					<shiro:hasPermission name="purchase:view or purchase:management">
 						<li><a href="<%=basePath%>purchase/queryPurchaseDetail">采购明细</a></li>
+						<br/>
+					</shiro:hasPermission>
+					<shiro:hasPermission name="toolkit:toolkit">
+						<li><a href="<%=basePath%>/purchase/gotoSysFunc">采购设置</a></li>
+						<br/>
 					</shiro:hasPermission>
 				</ul>
 			</ul>
+			</shiro:hasPermission>
+			
 			<ul class = "uls" onclick="checked(this);">
 			<font style="font-weight: bolder;">数据处理</font>
 				<ul name = "showListTop" style="display: none" class = "showListTop">
@@ -256,23 +347,12 @@
 					</shiro:hasPermission>
 				</ul>
 			</ul>
-			<ul class = "uls" onclick="checked(this);">
-			<font style="font-weight: bolder;">库存管理</font>
+			
+				<ul class = "uls" onclick="checked(this);">
+			<font style="font-weight: bolder;">系统管理</font>
 				<ul name = "showListTop" style="display: none" class = "showListTop">
-					<shiro:hasPermission name="stock:input">
-						<li><a href="<%=basePath%>purchase/gotoInWarehouse">扫描入库</a></li>
-						<br/>
-					</shiro:hasPermission>
-					<shiro:hasPermission name="stock:view or stock:input or stock:output or stock:delete">
-						<li><a href="purchase/viewInwarehouseList">入库单列表</a></li>
-					</shiro:hasPermission>
-				</ul>
-			</ul>
-			<ul class = "uls" onclick="checked(this);">
-			<font style="font-weight: bolder;">系统功能</font>
-				<ul name = "showListTop" style="display: none" class = "showListTop">
-					<shiro:hasPermission name="toolkit:toolkit">
-						<li><a href="<%=basePath%>/purchase/gotoSysFunc">系统功能</a></li>
+					<shiro:hasPermission name="shop:shopInfo">
+						<li><a href="<%=basePath%>shop/showCompanyInfo">公司管理</a></li>
 						<br/>
 					</shiro:hasPermission>
 					<shiro:hasPermission name="toolkit:toolkit">
@@ -283,14 +363,16 @@
 						<li><a href="<%=basePath%>/toolkit/gotoToolkit">内容修复</a></li>
 						<br/>
 					</shiro:hasPermission>
-					<shiro:hasPermission name="toolkit:toolkit">
-						<li><a href="https://github.com/xabaohui/zis/issues" target="_blank" onclick="alert('账户名：zisuser，密码：hello1234')">提个建议</a></li>
+					<shiro:authenticated>
+						<li><a href="<%=basePath%>shiro/gotoGeneralUserUpdatePassword">密码修改</a></li>
 						<br/>
-					</shiro:hasPermission>
+					</shiro:authenticated>
 				</ul>
 			</ul>
+			
+			<shiro:hasPermission name="shiro:shiro">
 			<ul class = "uls" onclick="checked(this);">
-			<font style="font-weight: bolder;">用户模块</font>
+			<font style="font-weight: bolder;">商家管理</font>
 				<ul name = "showListTop" style="display: none" class = "showListTop">
 					<shiro:hasPermission name="shiro:gotoCreatePermission">
 						<li><a href="<%=basePath%>shiro/gotoCreatePermission">创建权限测试用</a></li>
@@ -313,48 +395,6 @@
 					</shiro:authenticated>
 				</ul>
 			</ul>
-			<ul class = "uls" onclick="checked(this);">
-			<font style="font-weight: bolder;">库存管理(新)</font>
-				<ul name = "showListTop" style="display: none" class = "showListTop">
-						<font size="4px" color="green" style="font-weight: bolder;" >查询相关</font>
-						<br/>
-						<li><a href="storage/stock/listProducts">库存商品</a></li>
-						<br/>
-						<li><a href="storage/findPosition">库位列表</a></li>
-						<br/>
-						<font size="4px" color="green" style="font-weight: bolder;" >入库相关</font>
-						<br/>
-						<li><a href="<%=basePath%>storage/gotoInwarehouse">批量入库</a></li>
-						<br/>
-						<li><a href="storage/gotoFastInwarehouse">快速入库</a></li>
-						<br/>
-						<li><a href="storage/queryIoBatch">出入库批次</a></li>
-						<br/>
-						<font size="4px" color="green" style="font-weight: bolder;" >出库相关</font>
-						<br/>
-						<li><a href="order/getWaitPickUpList">订单列表</a></li>
-						<br/>
-						<li><a href="storage/querytTakeGoods">开始配货</a></li>
-						<br/>
-						<li><a href="storage/gotoFastTakeGoods">快速出库</a></li>
-						<br/>
-						<li><a href="storage/gotoManualTakeGoods">手动出库</a></li>
-						<br/>
-						<li><a href="order/sendOut">出库扫描</a></li>
-						<br/>
-				</ul>
-			</ul>
-			<ul class = "uls" onclick="checked(this);">
-			<font style="font-weight: bolder;">订单管理(新)</font>
-				<ul name = "showListTop" style="display: none" class = "showListTop">
-						<font size="4px" color="green" style="font-weight: bolder;" >查询相关</font>
-						<br/>
-						<li><a href="order/getUnpaidList">订单列表-店铺视角</a></li>
-						<br/>
-						<li><a href="order/gotoCreateOrder">创建订单</a></li>
-						<br/>
-						
-				</ul>
-			</ul>
+			</shiro:hasPermission>
 		</div>
 		<div class="right">

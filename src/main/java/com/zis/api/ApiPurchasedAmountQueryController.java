@@ -24,19 +24,26 @@ import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.service.BookService;
 import com.zis.purchase.bean.PurchasePlan;
 import com.zis.purchase.biz.DoPurchaseService;
+import com.zis.storage.entity.StorageProduct;
+import com.zis.storage.service.StorageService;
 
 @Controller
 @RequestMapping(value = "/api")
 public class ApiPurchasedAmountQueryController {
 
-	private static Logger logger = Logger
-			.getLogger(ApiPurchasedAmountQueryController.class);
-	
+	private static Logger logger = Logger.getLogger(ApiPurchasedAmountQueryController.class);
+
 	@Autowired
 	private DoPurchaseService doPurchaseService;
 	@Autowired
 	private BookService bookService;
-//	private String isbn;
+	@Autowired
+	private StorageService storageService;
+
+	// ZIS 仓库Id
+	private final Integer ZIS_STORAGE_REPO_ID = 2;
+
+	// private String isbn;
 
 	@Deprecated
 	/**
@@ -53,7 +60,7 @@ public class ApiPurchasedAmountQueryController {
 			renderResult(response, resp);
 			return "";
 		}
-		List<PurchasePlan> list = doPurchaseService.findPurchasePlanByIsbn(isbn);
+		List<PurchasePlan> list = doPurchaseService.findPurchasePlanByIsbn(isbn, ZIS_STORAGE_REPO_ID);
 		List<RequiredAmountQueryData> resultList = new ArrayList<RequiredAmountQueryData>();
 		// 如果采购计划中无此记录，提示系统无此记录
 		if (list == null || list.isEmpty()) {
@@ -70,7 +77,22 @@ public class ApiPurchasedAmountQueryController {
 			for (PurchasePlan plan : list) {
 				RequiredAmountQueryData dq = new RequiredAmountQueryData();
 				BeanUtils.copyProperties(plan, dq);
-				dq.setRequireAmount(doPurchaseService.calculateStillRequireAmount(plan));
+				Bookinfo book = this.bookService.findBookById(plan.getBookId());
+				//FIXME 废弃接口还可以使用
+				Integer stockAmount = null;
+				if (book != null) {
+					// dq.setNewEdition(book.getIsNewEdition());
+					StorageProduct storageProduct = this.storageService.findBySkuIdAndRepoId(book.getId(),
+							ZIS_STORAGE_REPO_ID);
+					if (storageProduct == null) {
+						stockAmount = 0;
+					} else {
+						stockAmount = storageProduct.getStockAmt();
+					}
+				} else {
+					stockAmount = 0;
+				}
+				dq.setRequireAmount(doPurchaseService.calculateStillRequireAmount(plan, stockAmount));
 				resultList.add(dq);
 			}
 		}
@@ -79,9 +101,10 @@ public class ApiPurchasedAmountQueryController {
 		renderResult(response, resp);
 		return "";
 	}
-	
+
 	/**
 	 * 采购查询接口
+	 * 
 	 * @return
 	 */
 	@RequestMapping(value = "/queryPurchaseAmountV2", produces = "text/plain; charset=utf-8")
@@ -94,7 +117,8 @@ public class ApiPurchasedAmountQueryController {
 			renderResult(response, resp);
 			return "";
 		}
-		List<PurchasePlan> list = doPurchaseService.findPurchasePlanByIsbn(isbn);
+		// FIXME 采购员看到的采购计划 只为本公司使用
+		List<PurchasePlan> list = doPurchaseService.findPurchasePlanByIsbn(isbn, ZIS_STORAGE_REPO_ID);
 		List<RequiredAmountQueryDataV2> resultList = new ArrayList<RequiredAmountQueryDataV2>();
 		// 如果采购计划中无此记录，提示系统无此记录
 		if (list == null || list.isEmpty()) {
@@ -112,10 +136,20 @@ public class ApiPurchasedAmountQueryController {
 				RequiredAmountQueryDataV2 dq = new RequiredAmountQueryDataV2();
 				BeanUtils.copyProperties(plan, dq);
 				Bookinfo book = this.bookService.findBookById(plan.getBookId());
-				if(book != null) {
+				Integer stockAmount = null;
+				if (book != null) {
 					dq.setNewEdition(book.getIsNewEdition());
+					StorageProduct storageProduct = this.storageService.findBySkuIdAndRepoId(book.getId(),
+							ZIS_STORAGE_REPO_ID);
+					if (storageProduct == null) {
+						stockAmount = 0;
+					} else {
+						stockAmount = storageProduct.getStockAmt();
+					}
+				} else {
+					stockAmount = 0;
 				}
-				dq.setRequireAmount(doPurchaseService.calculateStillRequireAmount(plan));
+				dq.setRequireAmount(doPurchaseService.calculateStillRequireAmount(plan, stockAmount));
 				resultList.add(dq);
 			}
 		}

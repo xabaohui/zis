@@ -489,7 +489,7 @@ public class StorageServiceImpl implements StorageService {
 		StorageIoBatch batch = this.storageIoBatchDao.findOne(detail.getBatchId());
 		boolean available = haveAvailableAmount(detail.getProductId(), detail.getAmount());
 		Integer lackOutOrderId = null;
-		if(available) {
+		if (available) {
 			arrangeOrder(operator, batch, detail.getProductId(), detail.getAmount(), detail.getOrderId());
 		} else {
 			// 没有足够库存，标记为缺货
@@ -498,13 +498,13 @@ public class StorageServiceImpl implements StorageService {
 			order.setGmtModify(new Date());
 			this.storageOrderDao.save(order);
 			lackOutOrderId = order.getOutOrderId();
-			logger.info("[缺货]没有足够的库存，productId={}, amount={}, orderId={}",
-					detail.getProductId(), detail.getAmount(), detail.getOrderId());
+			logger.info("[缺货]没有足够的库存，productId={}, amount={}, orderId={}", detail.getProductId(), detail.getAmount(),
+					detail.getOrderId());
 		}
 		// 返回下一条等待取件的记录
 		StorageIoDetail rs = doPickupLock(batch.getBatchId(), operator);
 		StorageLacknessOpDTO lackDTO = new StorageLacknessOpDTO();
-		if(rs != null) {
+		if (rs != null) {
 			BeanUtils.copyProperties(rs, lackDTO);
 			lackDTO.setHasNext(true);
 		}
@@ -622,13 +622,13 @@ public class StorageServiceImpl implements StorageService {
 		undoOccupy(orderId);
 		undoOccupyPosStock(orderId);
 	}
-	
+
 	@Override
 	@Transactional
 	public void cancelOrder(Integer repoId, Integer outOrderId) {
 		logger.info("[取消订单] repoId={}, outOrderId={}", repoId, outOrderId);
 		StorageOrder order = this.storageOrderDao.findByOutOrderId(outOrderId);
-		Assert.notNull(order, "订单不存在outOrderId="  + outOrderId);
+		Assert.notNull(order, "订单不存在outOrderId=" + outOrderId);
 		cancelOrder(order.getOrderId(), order);
 	}
 
@@ -979,7 +979,7 @@ public class StorageServiceImpl implements StorageService {
 		List<String> sts = new ArrayList<String>();
 		sts.add(DetailStatus.SUCCESS.getValue());
 		sts.add(DetailStatus.LACKNESS.getValue());
-		if(posId == null) {
+		if (posId == null) {
 			return storageIoDetailDao.findByProductIdAndDetailStatusIn(productId, sts, searchPage);
 		} else {
 			return storageIoDetailDao.findByProductIdAndPosIdAndDetailStatusIn(productId, posId, sts, searchPage);
@@ -1020,11 +1020,12 @@ public class StorageServiceImpl implements StorageService {
 
 	@Override
 	public List<StorageProduct> findByPosStockList(List<StoragePosStock> posStockList) {
-		List<Integer> productIds  = new ArrayList<Integer>();
+		List<Integer> productIds = new ArrayList<Integer>();
 		for (StoragePosStock s : posStockList) {
 			productIds.add(s.getProductId());
 		}
-		List<StorageProduct> pList = this.storageProductDao.findByRepoIdAndProductIdInOrderBySkuIdAsc(StorageUtil.getRepoId(), productIds);
+		List<StorageProduct> pList = this.storageProductDao.findByRepoIdAndProductIdInOrderBySkuIdAsc(
+				StorageUtil.getRepoId(), productIds);
 		return pList;
 	}
 
@@ -1043,7 +1044,7 @@ public class StorageServiceImpl implements StorageService {
 		}
 		return storageProductDao.findBySkuIdAndRepoId(skuId, repoId);
 	}
-	
+
 	@Override
 	public List<StorageRepoInfo> findStorageRepoInfoByCompanyId(Integer companyId) {
 		return this.storageRepoInfoDao.findByOwnerIdOrderByGmtCreateAsc(companyId);
@@ -1063,5 +1064,18 @@ public class StorageServiceImpl implements StorageService {
 	@Override
 	public StorageIoDetail findByIoDetailId(Integer ioDetailId) {
 		return storageIoDetailDao.findOne(ioDetailId);
+	}
+
+	@Override
+	public List<StorageProduct> findByUpdateTimeBetweenStartTimeAndEndTimeAndRepoId(Date startTime, Date endTime,
+			Integer repoId) {
+		return this.storageProductDao.findByUpdateTimeBetweenStartTimeAndEndTimeAndRepoId(startTime, endTime, repoId);
+	}
+
+	@Override
+	public List<StorageIoDetail> findStorageIoDetailByRepoIdAndBatchIdInAndIoDetailTypeAndDetailStatusIn(
+			Integer repoId, List<Integer> batchIds, String ioDetailType, List<String> DetailStatusList) {
+		return this.storageIoDetailDao.findByRepoIdAndIoDetailTypeAndDetailStatusInAndBatchIdIn(repoId, ioDetailType,
+				DetailStatusList, batchIds);
 	}
 }

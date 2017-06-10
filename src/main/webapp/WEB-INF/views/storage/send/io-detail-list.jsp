@@ -10,7 +10,7 @@
 <style type="text/css">
 </style>
 <center>
-	<h1>出入库批次</h1>
+	<h1>批次变动明细</h1>
 </center>
 	<br />
 <div style="width: 100%;" id="infoDiv" align="center">

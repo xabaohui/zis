@@ -8,20 +8,20 @@ import com.zis.purchase.calculate.BookAmountCalculateInterface;
 
 @Component
 public class MixedFirstMode implements CalculateModeInterface {
-	
+
 	@Resource
 	private BookAmountCalculateInterface mixedCalculater;
 	@Resource
 	private BookAmountCalculateInterface defaultCalculater;
-	
-	public Integer doCalculate(int bookId) {
+
+	public Integer doCalculate(int bookId, Integer repoId) {
 		Integer result = null;
-		
-		result = mixedCalculater.calculate(bookId);
-		if (result != null && result > 0){
+
+		result = mixedCalculater.calculate(bookId, repoId);
+		if (result != null && result > 0) {
 			return result;
 		}
-		
-		return defaultCalculater.calculate(bookId);
+
+		return defaultCalculater.calculate(bookId, repoId);
 	}
 }

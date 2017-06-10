@@ -38,22 +38,22 @@
 		<table class = "common-table-new">
 		<tr>
 			<th>
-				<a href="order/getUnpaidList">未支付</a>
+				<a href="order/getUnpaidList?sort=updateTime&direction=desc">未支付</a>
 			</th>
 			<th style="background-color: #A7C942">
 				<font color="#00000">退款中</font>
 			</th>
 			<th>
-				<a href="order/getWaitArrangeHeaderList">未分配</a>
+				<a href="order/getWaitArrangeHeaderList?sort=updateTime&direction=desc">未分配</a>
 			</th>
 			<th>
-				<a href="order/getAllShopOrderList">全部订单</a>
+				<a href="order/getAllShopOrderList?sort=updateTime&direction=desc">全部订单</a>
 			</th>
 		</tr>
 		</table>
 		<table id = "common-table">
 			<tr>
-				<td colspan="10" align="left" height="60px">
+				<td colspan="11" align="left" height="60px">
 					<input style="margin-left: 700px;" type="button" value = "批量同意退款" onclick="agreeRefundList()"/>
 					<input style="margin-left: 100px;" type="button" value = "批量取消退款" onclick="cancelRefundList()"/>
 				</td>
@@ -68,6 +68,7 @@
 				<th>网店订单号</th>
 				<th>收件人</th>
 				<th>商品清单</th>
+				<th>商品总数</th>
 				<th>状态</th>
 				<th>物流信息</th>
 				<th>操作</th>
@@ -157,11 +158,11 @@
 <div align="center">
 	<!-- 分页查询start-->
 	<c:if test="${not empty prePage}">
-		<a href="order/getRefundingList?page=${prePage}">上一页</a>&nbsp;
+		<a href="order/getRefundingList?page=${prePage}&sort=updateTime&direction=desc">上一页</a>&nbsp;
 	</c:if>
 	${page} &nbsp;
 	<c:if test="${not empty nextPage}">
-		<a href="order/getRefundingList?page=${nextPage}">下一页</a>&nbsp;
+		<a href="order/getRefundingList?page=${nextPage}&sort=updateTime&direction=desc">下一页</a>&nbsp;
 	</c:if>
 	<!-- 分页查询end -->
 </div>

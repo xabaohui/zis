@@ -13,7 +13,6 @@ import com.zis.purchase.bean.Inwarehouse;
 import com.zis.purchase.bean.InwarehouseDetail;
 import com.zis.purchase.bean.InwarehousePosition;
 import com.zis.purchase.bean.InwarehouseStatus;
-import com.zis.purchase.bean.PurchasePlan;
 import com.zis.purchase.dto.InwarehouseCreateDTO;
 import com.zis.purchase.dto.InwarehouseCreateResult;
 import com.zis.purchase.dto.InwarehouseDealtResult;
@@ -46,7 +45,7 @@ public class InwarehouseBO {
 	@Autowired
 	protected PurchasePlanDao purchasePlanDao;
 
-	protected Logger logger = Logger.getLogger(PurchaseInwarehouseBO.class);
+	protected Logger logger = Logger.getLogger(InwarehouseBO.class);
 
 	/**
 	 * 创建采购入库单
@@ -236,7 +235,7 @@ public class InwarehouseBO {
 		// 执行入库操作
 		putIntoPosition(in, pos, bookId, amount);
 		// 更新采购计划
-		updatePurchasePlanForStock(bookId, amount);
+//		updatePurchasePlanForStock(bookId, amount);
 		// 入库完成后的后续操作，由子类进行扩展
 		afterPut(in, bookId, amount);
 		result.setSuccess(true);
@@ -244,18 +243,18 @@ public class InwarehouseBO {
 		return result;
 	}
 
-	// 更新采购计划中的库存量和在途库存量
-	private void updatePurchasePlanForStock(Integer bookId,
-			Integer amount) {
-		PurchasePlan plan = this.purchasePlanDao.findOne(bookId);
-		if(plan == null) {
-			// 计划不存在，则不更新
-			return;
-		}
-		plan.setStockAmount(plan.getStockAmount() + amount);
-		plan.setGmtModify(ZisUtils.getTS());
-		this.purchasePlanDao.save(plan);
-	}
+//	// 更新采购计划中的库存量和在途库存量
+//	private void updatePurchasePlanForStock(Integer bookId,
+//			Integer amount) {
+//		PurchasePlan plan = this.purchasePlanDao.findOne(bookId);
+//		if(plan == null) {
+//			// 计划不存在，则不更新
+//			return;
+//		}
+//		plan.setStockAmount(plan.getStockAmount() + amount);
+//		plan.setGmtModify(ZisUtils.getTS());
+//		this.purchasePlanDao.save(plan);
+//	}
 
 	/**
 	 * 自动查找可用库位

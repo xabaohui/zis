@@ -38,6 +38,15 @@ public class CreateOrderQuerySkuInfoViewDTO {
 
 		private static final long serialVersionUID = -1583735268136423891L;
 		private Integer bookAmount;
+		private Double zisPrice;
+		
+		public Double getZisPrice() {
+			return zisPrice;
+		}
+
+		public void setZisPrice(Double zisPrice) {
+			this.zisPrice = zisPrice;
+		}
 
 		public Integer getBookAmount() {
 			return bookAmount;

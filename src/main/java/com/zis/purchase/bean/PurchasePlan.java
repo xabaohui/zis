@@ -49,8 +49,10 @@ public class PurchasePlan {
 	@Column(name="manual_decision", nullable=false)
 	private Integer manualDecision; // 人工定义需求量
 	
-	@Column(name="stockAmount", nullable=false)
-	private Integer stockAmount; // 库存量
+//	@Column(name="stockAmount", nullable=false)
+//	private Integer stockAmount; // 库存量
+	@Column(name = "repo_id")
+	private Integer repoId;
 	
 	@Column(name="purchasedAmount", nullable=false)
 	private Integer purchasedAmount; // 在途库存量（已采购未入库）
@@ -80,23 +82,27 @@ public class PurchasePlan {
 	}
 
 	/** full constructor */
-	public PurchasePlan(Integer bookId, Integer requireAmount,
-			Integer purchasedAmount, String bookName, String bookAuthor,
-			String bookPublisher, String isbn, String bookEdition,
-			Date gmtCreate, Date gmtModify, Integer version) {
+	public PurchasePlan(Integer id, Integer bookId, String isbn, String bookName, String bookAuthor,
+			String bookPublisher, String bookEdition, Integer requireAmount, Integer manualDecision, Integer repoId,
+			Integer purchasedAmount, String status, String flag, Date gmtCreate, Date gmtModify, Integer version) {
+		super();
+		this.id = id;
 		this.bookId = bookId;
-		this.requireAmount = requireAmount;
-		this.purchasedAmount = purchasedAmount;
+		this.isbn = isbn;
 		this.bookName = bookName;
 		this.bookAuthor = bookAuthor;
 		this.bookPublisher = bookPublisher;
-		this.isbn = isbn;
 		this.bookEdition = bookEdition;
+		this.requireAmount = requireAmount;
+		this.manualDecision = manualDecision;
+		this.repoId = repoId;
+		this.purchasedAmount = purchasedAmount;
+		this.status = status;
+		this.flag = flag;
 		this.gmtCreate = gmtCreate;
 		this.gmtModify = gmtModify;
 		this.version = version;
 	}
-
 	// Property accessors
 
 	public Integer getId() {
@@ -105,6 +111,14 @@ public class PurchasePlan {
 
 	public void setId(Integer id) {
 		this.id = id;
+	}
+	
+	public Integer getRepoId() {
+		return repoId;
+	}
+
+	public void setRepoId(Integer repoId) {
+		this.repoId = repoId;
 	}
 
 	public Integer getBookId() {
@@ -195,13 +209,13 @@ public class PurchasePlan {
 		this.version = version;
 	}
 
-	public Integer getStockAmount() {
-		return stockAmount;
-	}
-
-	public void setStockAmount(Integer stockAmount) {
-		this.stockAmount = stockAmount;
-	}
+//	public Integer getStockAmount() {
+//		return stockAmount;
+//	}
+//
+//	public void setStockAmount(Integer stockAmount) {
+//		this.stockAmount = stockAmount;
+//	}
 
 	public String getStatus() {
 		return status;

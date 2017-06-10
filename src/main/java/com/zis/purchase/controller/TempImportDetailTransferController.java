@@ -20,6 +20,7 @@ import com.zis.purchase.bean.TempImportTaskBizTypeEnum;
 import com.zis.purchase.biz.DoPurchaseService;
 import com.zis.purchase.dto.StockDTO;
 import com.zis.purchase.dto.TempImportDetailView;
+import com.zis.storage.util.StorageUtil;
 
 /**
  * 临时记录转换为其他类型记录Action<br/>
@@ -44,6 +45,7 @@ public class TempImportDetailTransferController {
 	 */
 	@RequiresPermissions(value = { "data:dataInfo" })
 	@RequestMapping(value = "/transferTempImportDetailForMatched")
+	// FIXME 此处不允许进行库存更改了
 	public String transfer(Integer taskId, ModelMap map) {
 		TempImportTask task = doPurchaseService.findTempImportTaskByTaskId(taskId);
 		if (task == null) {
@@ -92,7 +94,7 @@ public class TempImportDetailTransferController {
 			stock.setStockBalance(Integer.valueOf(view.getData()));
 			stockList.add(stock);
 		}
-		this.doPurchaseService.addBookStock(stockList);
+		this.doPurchaseService.addBookStock(stockList, StorageUtil.getRepoId());
 	}
 
 	/**

@@ -9,14 +9,10 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 
 import com.zis.bookinfo.bean.Bookinfo;
 import com.zis.bookinfo.service.BookService;
-import com.zis.common.mvc.ext.QueryUtil;
 import com.zis.common.util.SequenceCreator;
 import com.zis.common.util.ZisUtils;
 import com.zis.shop.bean.ShopInfo;
@@ -33,6 +29,7 @@ import com.zis.trade.dto.CreateOrderQuerySkuInfoViewDTO;
 import com.zis.trade.dto.CreateOrderQuerySkuInfoViewDTO.SkuInfo;
 import com.zis.trade.dto.CreateOrderViewDTO;
 import com.zis.trade.dto.CreateOrderViewDTO.SkuViewInfo;
+import com.zis.trade.dto.ExpressNumberDTO;
 import com.zis.trade.dto.FillExpressNumberDTO;
 import com.zis.trade.dto.OrderVO;
 import com.zis.trade.dto.RefundMemoDTO;
@@ -273,6 +270,13 @@ public class OrderDwrController {
 			dto.setExpressCompany(expressCompany);
 			dto.setId(orderId);
 			dto.setSuccess(true);
+			// 执行淘宝确认发货
+			List<ExpressNumberDTO> dtoList = new ArrayList<ExpressNumberDTO>();
+			ExpressNumberDTO exDto = new ExpressNumberDTO();
+			BeanUtils.copyProperties(dto, exDto);
+			exDto.setOrderId(dto.getId());
+			dtoList.add(exDto);
+			this.shopsService.logisticsOfflineSend(dtoList);
 			return dto;
 		} catch (Exception e) {
 			dto.setSuccess(false);
@@ -429,25 +433,22 @@ public class OrderDwrController {
 				bookList = this.bookService.findBookByISBN(condition);
 			} else {
 				// 模糊查询只展示前20条
-				QueryUtil<Bookinfo> query = new QueryUtil<Bookinfo>();
-				query.like("bookName", "%" + condition + "%");
-				Pageable page = new PageRequest(0, 20);
-				Page<Bookinfo> pageList = this.bookService.findBySpecification(query.getSpecification(), page);
-				bookList = pageList.getContent();
+				bookList = this.bookService.findBookInfoByBookNameLike("%"+condition+"%");
 			}
 			// 组装信息
 			List<SkuInfo> list = new ArrayList<CreateOrderQuerySkuInfoViewDTO.SkuInfo>();
 			for (Bookinfo book : bookList) {
 				StorageProduct sp = this.storageService.findBySkuIdAndRepoId(book.getId(), StorageUtil.getRepoId());
 				// 可用量不足跳过
-				if(sp == null){
+				if (sp == null) {
 					continue;
 				}
-				if (sp.getStockAvailable() <= 0) {
+				if (sp.getStockAvailable() < 0) {
 					continue;
 				}
 				SkuInfo sku = new SkuInfo();
 				BeanUtils.copyProperties(book, sku);
+				sku.setZisPrice(book.getBookPrice());
 				sku.setBookPrice((book.getBookPrice() * discount));
 				sku.setBookAmount(sp.getStockAvailable());
 				list.add(sku);
@@ -474,7 +475,7 @@ public class OrderDwrController {
 	 * @return
 	 */
 	public CreateOrderViewDTO addSkuInfoToSession(Integer skuId, String isbn, String itemName, Integer itemCount,
-			Double itemPrice, HttpSession session) {
+			Double itemPrice, Double zisPrice, HttpSession session) {
 		CreateOrderViewDTO dto = sessionHasDTO(session);
 		try {
 			if (skuId == null) {
@@ -506,6 +507,7 @@ public class OrderDwrController {
 			sb.setItemName(itemName);
 			sb.setResultInt(dto.getSkuNumber());
 			sb.setItemPrice(itemPrice);
+			sb.setZisPrice(zisPrice);
 			if (list == null || list.isEmpty()) {
 				list = new ArrayList<SkuViewInfo>();
 				dto.setSkus(list);
@@ -670,15 +672,16 @@ public class OrderDwrController {
 			HttpSession session) {
 		CreateOrderViewDTO dto = sessionHasDTO(session);
 		try {
-			if (StringUtils.isBlank(receiverName)) {
-				throw new RuntimeException("收件人不能为空");
-			}
-			if (StringUtils.isBlank(receiverPhone)) {
-				throw new RuntimeException("收件人手机不能为空");
-			}
-			if (StringUtils.isBlank(receiverAddr)) {
-				throw new RuntimeException("收件人地址不能为空");
-			}
+			// TODO 根据乾坤意见，不做效验
+			// if (StringUtils.isBlank(receiverName)) {
+			// throw new RuntimeException("收件人不能为空");
+			// }
+			// if (StringUtils.isBlank(receiverPhone)) {
+			// throw new RuntimeException("收件人手机不能为空");
+			// }
+			// if (StringUtils.isBlank(receiverAddr)) {
+			// throw new RuntimeException("收件人地址不能为空");
+			// }
 			dto.setReceiverName(receiverName);
 			dto.setReceiverPhone(receiverPhone);
 			dto.setReceiverAddr(receiverAddr);

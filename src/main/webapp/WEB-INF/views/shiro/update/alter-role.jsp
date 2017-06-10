@@ -238,6 +238,56 @@
 				</c:forEach>
 			</table>
 		</div>
+		<div id = "shopDiv">
+			<table>
+			<tr>
+			<th colspan="3">公司店铺管理权限</th>
+			</tr>
+			<tr>
+				<td><input type="checkbox" id="check-allShop" onclick="checkAll('shopList', 'check-allShop')" />全选</td>
+				<td>权限名称</td>
+				<td>权限描述</td>
+			</tr>
+				<c:forEach items="${shopList}" var="shop">
+					<tr>
+						<td>
+							<input type="checkbox" name="permissionIds" class="shopList" value="${shop.id}"/>
+						</td>
+						<td>
+							${shop.permissionName}
+						</td>
+						<td>
+							${shop.permissionDescription}
+						</td>
+					</tr>
+				</c:forEach>
+			</table>
+		</div>
+		<div id = "orderDiv">
+			<table>
+			<tr>
+			<th colspan="3">订单及库存管理权限</th>
+			</tr>
+			<tr>
+				<td><input type="checkbox" id="check-allOrder" onclick="checkAll('orderList', 'check-allOrder')" />全选</td>
+				<td>权限名称</td>
+				<td>权限描述</td>
+			</tr>
+				<c:forEach items="${orderList}" var="order">
+					<tr>
+						<td>
+							<input type="checkbox" name="permissionIds" class="orderList" value="${order.id}"/>
+						</td>
+						<td>
+							${order.permissionName}
+						</td>
+						<td>
+							${order.permissionDescription}
+						</td>
+					</tr>
+				</c:forEach>
+			</table>
+		</div>
 	</div>
 	<br>
 	<br>

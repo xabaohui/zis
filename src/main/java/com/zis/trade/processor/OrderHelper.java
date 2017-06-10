@@ -1,20 +1,14 @@
 package com.zis.trade.processor;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 
-import com.zis.trade.dto.OrderVO;
-import com.zis.trade.dto.OrderVO.OrderDetailVO;
 import com.zis.trade.entity.Order;
-import com.zis.trade.entity.OrderLog;
 import com.zis.trade.entity.Order.ExpressStatus;
-import com.zis.trade.entity.Order.OrderType;
 import com.zis.trade.entity.Order.PayStatus;
 import com.zis.trade.entity.Order.StorageStatus;
+import com.zis.trade.entity.OrderLog;
 import com.zis.trade.entity.OrderLog.OperateType;
 
 /**
@@ -353,8 +347,13 @@ public class OrderHelper {
 		if(!expressStatusIsFilledExNumber(order)) {
 			return "未填写单号";
 		}
-		// 资金状态：已支付
-		if(!payStatusIsPaid(order)) {
+		if(payStatusIsClosed(order)){
+			return "订单关闭";
+		}
+		if(payStatusIsRefunding(order)){
+			return "退款中";
+		}
+		if(payStatusIsUnpaid(order)) {
 			return "未完成支付";
 		}
 		if(order.getBlockFlag()) {

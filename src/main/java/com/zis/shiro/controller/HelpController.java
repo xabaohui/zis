@@ -44,6 +44,8 @@ public class HelpController extends ActionHelpUtil {
 		map.put("toolkitList", this.registAndUpdateService.getGroupPermissions(TOOLKIT));
 		map.put("stockList", this.registAndUpdateService.getGroupPermissions(STOCK));
 		map.put("dataList", this.registAndUpdateService.getGroupPermissions(DATA));
+		map.put("orderList", this.registAndUpdateService.getGroupPermissions(ORDER));
+		map.put("shopList", this.registAndUpdateService.getGroupPermissions(SHOP));
 		return "shiro/regist/regist-role";
 	}
 

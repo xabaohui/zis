@@ -19,13 +19,11 @@
 			// (4-1)查询图书
 				bookService.findBookByISBN(userInput, findBookByIsbn);
 		}
-// 		$('userInput').value = '';
 	};
 </script>
 <!-- 播放器 -->
 <div style="display:none">
-	<embed src="/zis/resources/scanPass.wav" autoplay="false" Volume="100"
-		id="passVoice">
+	<audio src="/zis/resources/scanPass.wav" id="passVoice"></audio>
 </div>
 
 <div align="center">
@@ -33,6 +31,24 @@
 	<p />
 	<p />
 	<table>
+		<tr>
+			<td>操作类型</td>
+			<td>
+				<c:if test="${bizType eq 'purchase'}">
+				采购入库
+				</c:if>
+				<c:if test="${bizType != 'purchase'}">
+				批量入库
+				</c:if>
+			</td>
+		</tr>
+		<c:if test = "${bizType eq 'purchase'}">
+			<tr>
+				<td>采购员</td>
+				<td>${purchaseOperator}
+				</td>
+			</tr>
+		</c:if>
 		<tr>
 			<td>操作员</td>
 			<td>${inwarehouseOperator}</td>
@@ -45,6 +61,8 @@
 			<td colspan="2">
 					<input type="hidden" name="curPosition" id="curPosition" value="${curPosition}">
 					<input type="hidden"name="bookinfoStr" id="bookinfoStr" value="${bookinfoStr}">
+					<input type="hidden" name = "bizType" id = "bizType" value = "${bizType}"/>
+				<input name = "purchaseOperator" id = "purchaseOperator" type="hidden" value = "${purchaseOperator}"/>
 				<form action="storage/confirmInStorage" id = "storageForm">
 					<input type="hidden" name="ioBatchId" id="ioBatchId" value="${ioBatchId}">
 					<input type="submit" value="完成">

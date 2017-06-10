@@ -13,6 +13,8 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -31,7 +33,7 @@ import com.zis.common.controllertemplate.ViewTips;
 import com.zis.common.excel.ExcelImporter;
 import com.zis.common.excel.FileImporter;
 import com.zis.common.mvc.ext.Token;
-import com.zis.common.mvc.ext.WebHelper;
+import com.zis.common.mvc.ext.WebHelperForOrder;
 import com.zis.common.util.ZisUtils;
 import com.zis.shop.bean.ShopInfo;
 import com.zis.shop.service.ShopService;
@@ -49,6 +51,7 @@ import com.zis.trade.dto.OrderInfoDTO.SkuInfo;
 import com.zis.trade.dto.OrderQueryCondition;
 import com.zis.trade.dto.OrderVO;
 import com.zis.trade.dto.OrderVO.OrderDetailVO;
+import com.zis.trade.entity.Order;
 import com.zis.trade.entity.Order.ExpressStatus;
 import com.zis.trade.entity.Order.OrderType;
 import com.zis.trade.entity.Order.PayStatus;
@@ -59,6 +62,8 @@ import com.zis.trade.service.OrderService;
 @RequestMapping(value = "/order")
 public class OrderController extends ExcelExportController<OrderVO> implements ViewTips {
 
+	private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
+
 	@Autowired
 	private OrderService orderService;
 
@@ -67,8 +72,12 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 
 	@Autowired
 	private BookService bookService;
-
+	
 	private final String CREATE_OREDER_VIEW_MAP = "createOrderViewMap";
+
+	private final String Apply_PAID = "买家已付款，等待卖家发货";
+
+	private final String FOR_WARD_SORT = "?sort=updateTime&direction=desc";
 
 	/**
 	 * 订单列表-仓库视角-全部订单
@@ -81,16 +90,20 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@RequestMapping(value = "/getAllStorageOrderList")
 	public String getAllStorageOrderList(@Valid @ModelAttribute("cond") OrderQueryCondition cond,
 			HttpServletRequest request, ModelMap map) {
-		if (cond == null || StringUtils.isBlank(cond.getExpressNumber())
-				&& StringUtils.isBlank(cond.getOutOrderNumber()) && StringUtils.isBlank(cond.getReceiverName())
-				&& StringUtils.isBlank(cond.getReceiverPhone())) {
-			map.put(ACTION_ERROR, "请添加查询条件");
-			return "trade/storage_show/all-storage-header";
-		}
 		try {
-			Pageable page = WebHelper.buildPageRequest(request);
-			Page<OrderVO> orderList = this.orderService.findOrdersByCondition(StorageUtil.getCompanyId(), cond, page);
+			boolean condIsEmpty = cond == null
+					|| (StringUtils.isBlank(cond.getExpressNumber()) && StringUtils.isBlank(cond.getOutOrderNumber())
+							&& StringUtils.isBlank(cond.getReceiverName()) && StringUtils.isBlank(cond
+							.getReceiverPhone()));
+			Pageable page = WebHelperForOrder.buildPageRequest(request);
+			Page<OrderVO> orderList = null;
+			if (condIsEmpty) {
+				orderList = this.orderService.findOrdersByCondition(StorageUtil.getCompanyId(), page);
+			} else {
+				orderList = this.orderService.findOrdersByCondition(StorageUtil.getCompanyId(), cond, page);
+			}
 			pageInfo(orderList, page, map);
+			setQueryConditionToPage(map, cond);
 			return "trade/storage_show/all-storage-header";
 		} catch (Exception e) {
 			map.put(ACTION_ERROR, e.getMessage());
@@ -108,7 +121,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@RequestMapping(value = "/getWaitPickUpList")
 	public String getWaitPickUpList(HttpServletRequest request, ModelMap map) {
 		try {
-			Pageable page = WebHelper.buildPageRequest(request);
+			Pageable page = WebHelperForOrder.buildPageRequest(request);
 			Page<OrderVO> orderList = this.orderService.findOrdersByStatus(StorageUtil.getCompanyId(), null, null,
 					StorageStatus.ARRANGED, page);
 			pageInfo(orderList, page, map);
@@ -129,7 +142,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@RequestMapping(value = "/getPickupList")
 	public String getPickupList(HttpServletRequest request, ModelMap map) {
 		try {
-			Pageable page = WebHelper.buildPageRequest(request);
+			Pageable page = WebHelperForOrder.buildPageRequest(request);
 			Page<OrderVO> orderList = this.orderService.findOrdersByStatus(StorageUtil.getCompanyId(), null, null,
 					StorageStatus.PICKUP, page);
 			pageInfo(orderList, page, map);
@@ -150,8 +163,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@RequestMapping(value = "/getWaitForPrintList")
 	public String getWaitForPrintList(HttpServletRequest request, ModelMap map) {
 		try {
-			request.setAttribute("size", "100");
-			Pageable page = WebHelper.buildPageRequest(request);
+			Pageable page = WebHelperForOrder.buildPageRequest(request);
 			Page<OrderVO> orderList = this.orderService.findOrdersByStatus(StorageUtil.getCompanyId(), null,
 					ExpressStatus.WAIT_FOR_PRINT, null, page);
 			pageInfo(orderList, page, map);
@@ -172,7 +184,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@RequestMapping(value = "/getPrintedList")
 	public String getPrintedList(HttpServletRequest request, ModelMap map) {
 		try {
-			Pageable page = WebHelper.buildPageRequest(request);
+			Pageable page = WebHelperForOrder.buildPageRequest(request);
 			Page<OrderVO> orderList = this.orderService.findOrdersByStatus(StorageUtil.getCompanyId(), null,
 					ExpressStatus.PRINTED, null, page);
 			pageInfo(orderList, page, map);
@@ -194,16 +206,19 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@RequestMapping(value = "/getAllShopOrderList")
 	public String getAllShopOrderList(@Valid @ModelAttribute("cond") OrderQueryCondition cond,
 			HttpServletRequest request, ModelMap map) {
-		if (cond == null || StringUtils.isBlank(cond.getExpressNumber())
-				&& StringUtils.isBlank(cond.getOutOrderNumber()) && StringUtils.isBlank(cond.getReceiverName())
-				&& StringUtils.isBlank(cond.getReceiverPhone())) {
-			map.put(ACTION_ERROR, "请添加查询条件");
-			return "trade/shop_show/all-shop-header";
-		}
 		try {
-			Pageable page = WebHelper.buildPageRequest(request);
-			Page<OrderVO> orderList = this.orderService.findOrdersByCondition(StorageUtil.getCompanyId(), cond, page);
+			boolean condIsEmpty = cond == null || StringUtils.isBlank(cond.getExpressNumber())
+					&& StringUtils.isBlank(cond.getOutOrderNumber()) && StringUtils.isBlank(cond.getReceiverName())
+					&& StringUtils.isBlank(cond.getReceiverPhone());
+			Pageable page = WebHelperForOrder.buildPageRequest(request);
+			Page<OrderVO> orderList = null;
+			if (condIsEmpty) {
+				orderList = this.orderService.findOrdersByCondition(StorageUtil.getCompanyId(), page);
+			} else {
+				orderList = this.orderService.findOrdersByCondition(StorageUtil.getCompanyId(), cond, page);
+			}
 			pageInfo(orderList, page, map);
+			setQueryConditionToPage(map, cond);
 			return "trade/shop_show/all-shop-header";
 		} catch (Exception e) {
 			map.put(ACTION_ERROR, e.getMessage());
@@ -221,7 +236,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@RequestMapping(value = "/getUnpaidList")
 	public String getUnpaidList(HttpServletRequest request, ModelMap map) {
 		try {
-			Pageable page = WebHelper.buildPageRequest(request);
+			Pageable page = WebHelperForOrder.buildPageRequest(request);
 			Page<OrderVO> orderList = this.orderService.findOrdersByStatus(StorageUtil.getCompanyId(),
 					PayStatus.UNPAID, null, null, page);
 			pageInfo(orderList, page, map);
@@ -242,7 +257,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@RequestMapping(value = "/getRefundingList")
 	public String getRefundingList(HttpServletRequest request, ModelMap map) {
 		try {
-			Pageable page = WebHelper.buildPageRequest(request);
+			Pageable page = WebHelperForOrder.buildPageRequest(request);
 			Page<OrderVO> orderList = this.orderService.findOrdersByStatus(StorageUtil.getCompanyId(),
 					PayStatus.REFUNDING, null, null, page);
 			pageInfo(orderList, page, map);
@@ -263,7 +278,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@RequestMapping(value = "/getWaitArrangeHeaderList")
 	public String getWaitArrangeHeaderList(HttpServletRequest request, ModelMap map) {
 		try {
-			Pageable page = WebHelper.buildPageRequest(request);
+			Pageable page = WebHelperForOrder.buildPageRequest(request);
 			Page<OrderVO> orderList = this.orderService.findOrdersByStatus(StorageUtil.getCompanyId(), null, null,
 					StorageStatus.WAIT_ARRANGE, page);
 			pageInfo(orderList, page, map);
@@ -286,7 +301,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	public String cancelOrder(Integer[] orderId, String forwardUrl, ModelMap map) {
 		if (orderId == null) {
 			map.put(ACTION_ERROR, "请选择订单");
-			return "forward:/order/" + forwardUrl;
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
 		}
 		try {
 			List<Integer> oIds = Arrays.asList(orderId);
@@ -294,10 +309,10 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 				this.orderService.cancelOrder(i, StorageUtil.getUserId());
 			}
 			map.put(ACTION_MESSAGE, "操作成功");
-			return "forward:/order/" + forwardUrl;
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
 		} catch (Exception e) {
 			map.put(ACTION_ERROR, e.getMessage());
-			return "forward:/order/" + forwardUrl;
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
 		}
 	}
 
@@ -313,15 +328,15 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	public String payOrder(Integer orderId, String forwardUrl, Double paymentAmount, ModelMap map) {
 		if (orderId == null) {
 			map.put(ACTION_ERROR, "请选择订单");
-			return "forward:/order/" + forwardUrl;
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
 		}
 		try {
 			this.orderService.payOrder(orderId, paymentAmount, StorageUtil.getUserId());
 			map.put(ACTION_MESSAGE, "操作成功");
-			return "forward:/order/" + forwardUrl;
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
 		} catch (Exception e) {
 			map.put(ACTION_ERROR, e.getMessage());
-			return "forward:/order/" + forwardUrl;
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
 		}
 	}
 
@@ -338,7 +353,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	public String agreeRefund(Integer[] orderId, String forwardUrl, String memo, ModelMap map) {
 		if (orderId == null) {
 			map.put(ACTION_ERROR, "请选择订单");
-			return "forward:/order/" + forwardUrl;
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
 		}
 		try {
 			List<Integer> list = Arrays.asList(orderId);
@@ -346,11 +361,11 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 				this.orderService.agreeRefund(i, StorageUtil.getUserId(), memo);
 			}
 			map.put(ACTION_MESSAGE, "操作成功");
-			return "forward:/order/" + forwardUrl;
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
 		} catch (Exception e) {
 			e.printStackTrace();
 			map.put(ACTION_ERROR, e.getMessage());
-			return "forward:/order/" + forwardUrl;
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
 		}
 	}
 
@@ -367,7 +382,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	public String cancelRefund(Integer[] orderId, String forwardUrl, String memo, ModelMap map) {
 		if (orderId == null) {
 			map.put(ACTION_ERROR, "请选择订单");
-			return "forward:/order/" + forwardUrl;
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
 		}
 		try {
 			List<Integer> list = Arrays.asList(orderId);
@@ -375,10 +390,10 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 				this.orderService.cancelRefund(i, StorageUtil.getUserId(), memo);
 			}
 			map.put(ACTION_MESSAGE, "操作成功");
-			return "forward:/order/" + forwardUrl;
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
 		} catch (Exception e) {
 			map.put(ACTION_ERROR, e.getMessage());
-			return "forward:/order/" + forwardUrl;
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
 		}
 	}
 
@@ -395,7 +410,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	public String arrangeOrderToPos(Integer[] orderId, String forwardUrl, Integer repoId, ModelMap map) {
 		if (orderId == null) {
 			map.put(ACTION_ERROR, "请选择订单");
-			return "forward:/order/" + forwardUrl;
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
 		}
 		try {
 			List<Integer> orderIds = Arrays.asList(orderId);
@@ -403,10 +418,10 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 				this.orderService.arrangeOrderToRepo(i, StorageUtil.getUserId(), repoId);
 			}
 			map.put(ACTION_MESSAGE, "操作成功");
-			return "forward:/order/" + forwardUrl;
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
 		} catch (Exception e) {
 			map.put(ACTION_ERROR, e.getMessage());
-			return "forward:/order/" + forwardUrl;
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
 		}
 	}
 
@@ -422,17 +437,17 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	public String pickingUpOrder(Integer[] orderId, String forwardUrl, ModelMap map) {
 		if (orderId == null) {
 			map.put(ACTION_ERROR, "请选择订单");
-			return "forward:/order/" + forwardUrl;
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
 		}
 		try {
 			List<Integer> orderIds = Arrays.asList(orderId);
 			this.orderService.arrangeOrderToPos(StorageUtil.getRepoId(), orderIds, StorageUtil.getUserId());
 			map.put(ACTION_MESSAGE, "操作成功");
-			return "forward:/order/" + forwardUrl;
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
 		} catch (Exception e) {
 			map.put(ACTION_ERROR, e.getMessage());
 			e.printStackTrace();
-			return "forward:/order/" + forwardUrl;
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
 		}
 	}
 
@@ -449,7 +464,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	public String cancelArrangeOrder(Integer[] orderId, String forwardUrl, String memo, ModelMap map) {
 		if (orderId == null) {
 			map.put(ACTION_ERROR, "请选择订单");
-			return "forward:/order/" + forwardUrl;
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
 		}
 		try {
 			List<Integer> orderIds = Arrays.asList(orderId);
@@ -457,39 +472,40 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 				this.orderService.cancelArrangeOrder(oId, StorageUtil.getUserId(), memo);
 			}
 			map.put(ACTION_MESSAGE, "操作成功");
-			return "forward:/order/" + forwardUrl;
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
 		} catch (Exception e) {
 			map.put(ACTION_ERROR, e.getMessage());
-			return "forward:/order/" + forwardUrl;
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
 		}
 	}
 
-//	/**
-//	 * 缺货
-//	 * 
-//	 * @param orderId
-//	 * @param forwardUrl
-//	 * @param map
-//	 * @return
-//	 */
-//	@RequestMapping(value = "/lackness")
-//	public String lackness(Integer[] orderId, String forwardUrl, ModelMap map) {
-//		if (orderId == null) {
-//			map.put(ACTION_ERROR, "请选择订单");
-//			return "forward:/order/" + forwardUrl;
-//		}
-//		try {
-//			List<Integer> orderIds = Arrays.asList(orderId);
-//			for (Integer oId : orderIds) {
-//				this.orderService.lackness(oId, StorageUtil.getUserId());
-//			}
-//			map.put(ACTION_MESSAGE, "操作成功");
-//			return "forward:/order/" + forwardUrl;
-//		} catch (Exception e) {
-//			map.put(ACTION_ERROR, e.getMessage());
-//			return "forward:/order/" + forwardUrl;
-//		}
-//	}
+	// /**
+	// * 缺货
+	// *
+	// * @param orderId
+	// * @param forwardUrl
+	// * @param map
+	// * @return
+	// */
+	// @RequestMapping(value = "/lackness")
+	// public String lackness(Integer[] orderId, String forwardUrl, ModelMap
+	// map) {
+	// if (orderId == null) {
+	// map.put(ACTION_ERROR, "请选择订单");
+	// return "forward:/order/" + forwardUrl;
+	// }
+	// try {
+	// List<Integer> orderIds = Arrays.asList(orderId);
+	// for (Integer oId : orderIds) {
+	// this.orderService.lackness(oId, StorageUtil.getUserId());
+	// }
+	// map.put(ACTION_MESSAGE, "操作成功");
+	// return "forward:/order/" + forwardUrl;
+	// } catch (Exception e) {
+	// map.put(ACTION_ERROR, e.getMessage());
+	// return "forward:/order/" + forwardUrl;
+	// }
+	// }
 
 	/**
 	 * 批量回填单号
@@ -509,11 +525,12 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 				list.add(dto);
 			}
 			this.orderService.fillExpressNumbers(list, StorageUtil.getUserId());
+			this.shopService.logisticsOfflineSend(list);
 			map.put(ACTION_MESSAGE, "操作成功");
-			return "forward:/order/getPrintedList";
+			return "forward:/order/getPrintedList" + FOR_WARD_SORT;
 		} catch (Exception e) {
 			map.put(ACTION_ERROR, e.getMessage());
-			return "forward:/order/getPrintedList";
+			return "forward:/order/getPrintedList" + FOR_WARD_SORT;
 		}
 	}
 
@@ -528,8 +545,8 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@RequestMapping(value = "/gotoCreateOrder")
 	public String gotoCreateOrder(ModelMap map, HttpSession session) {
 		List<ShopInfo> shopList = this.shopService.findCompanyShop(StorageUtil.getCompanyId());
-		CreateOrderViewDTO dto = (CreateOrderViewDTO) session.getAttribute(CREATE_OREDER_VIEW_MAP);
-		map.put("dto", dto);
+		CreateOrderViewDTO dtos = (CreateOrderViewDTO) session.getAttribute(CREATE_OREDER_VIEW_MAP);
+		map.put("dto", dtos);
 		map.put("shopList", shopList);
 		return "trade/create_order/create-order";
 	}
@@ -546,25 +563,28 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	@Token(checking = true)
 	@RequestMapping(value = "/createOrder")
 	public String createOrder(@Valid @ModelAttribute("dto") CreateOrderViewDTO dto, BindingResult br, ModelMap map,
-			HttpSession session) {
+			HttpSession session, String token) {
 		List<ShopInfo> shopList = this.shopService.findCompanyShop(StorageUtil.getCompanyId());
 		map.put("dto", dto);
 		map.put("shopList", shopList);
 		if (br.hasErrors()) {
-			return "trade/create_order/create-order";
+			map.put("errors", br.getAllErrors());
+			return "forward:/order/gotoCreateOrder";
 		}
 		try {
 			verifyShopId(dto.getShopId());
-			//设置为自发
+			// 设置为自发
 			dto.setOrderType(OrderType.SELF.getValue());
 			CreateTradeOrderDTO orderDTO = buildCreateTradeOrderDTO(dto);
-			this.orderService.createOrder(orderDTO);
+			Order order = this.orderService.createOrder(orderDTO);
+			this.orderService.arrangeOrderToRepo(order.getId(), StorageUtil.getUserId(), StorageUtil.getRepoId());
 			map.put(ACTION_MESSAGE, "操作成功");
 			// 创建成功移除标签
 			session.setAttribute(CREATE_OREDER_VIEW_MAP, null);
 			map.put(ACTION_MESSAGE, "订单号 " + orderDTO.getOutOrderNumber() + " 创建成功");
-			return "forward:/order/getUnpaidList";
+			return "forward:/order/getUnpaidList" + FOR_WARD_SORT;
 		} catch (Exception e) {
+			e.printStackTrace();
 			map.put(ACTION_ERROR, e.getMessage());
 			return "forward:/order/gotoCreateOrder";
 		}
@@ -613,7 +633,6 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 		}
 	}
 
-	
 	/**
 	 * 批量地址导入辅助跳转类
 	 * 
@@ -642,32 +661,42 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 			verifyShopId(shopId);
 			List<OrderInfoDTO> list = buildOrderInfoDTOList(orderFile.getInputStream(), shopId);
 			List<OrderAddressImportDTO> dtoList = buildOrderAddressImportDTO(list);
-			this.orderService.importReceiverAddr(dtoList);
+			List<String> failList = this.orderService.importReceiverAddr(dtoList);
+			if (!failList.isEmpty()) {
+				StringBuilder sb = new StringBuilder();
+				for (String s : failList) {
+					sb.append(s + "<br/>");
+				}
+				throw new RuntimeException(sb.toString());
+			}
 			map.put(ACTION_MESSAGE, "操作成功");
 			return "forward:/order/gotoExcelAddrToOrderUpload";
 		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
 			map.put(ACTION_ERROR, e.getMessage());
 			return "forward:/order/gotoExcelAddrToOrderUpload";
 		}
 	}
-	
-	private List<OrderAddressImportDTO> buildOrderAddressImportDTO(List<OrderInfoDTO> list){
+
+	private List<OrderAddressImportDTO> buildOrderAddressImportDTO(List<OrderInfoDTO> list) {
 		List<OrderAddressImportDTO> dtoList = new ArrayList<OrderAddressImportDTO>();
 		for (OrderInfoDTO dto : list) {
 			OrderAddressImportDTO d = new OrderAddressImportDTO();
 			BeanUtils.copyProperties(dto, d);
+			d.setOutOrderNumber(dto.getOutTradeNumber());
 			dtoList.add(d);
 		}
 		return dtoList;
 	}
-	
+
 	/**
 	 * 出库扫描辅助跳转类
+	 * 
 	 * @param map
 	 * @return
 	 */
 	@RequestMapping(value = "/sendOut")
-	public String sendOut(ModelMap map){
+	public String sendOut(ModelMap map) {
 		return "trade/send_out/send-out";
 	}
 
@@ -683,19 +712,19 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 			ModelMap map, Integer[] orderId) {
 		if (orderId == null) {
 			map.put(ACTION_ERROR, "订单Id为空");
-			return "forward:/order/" + forwardUrl;
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
 		}
 		try {
 			return super.export(request, response, forwardUrl, map);
 		} catch (Exception e) {
 			map.put(ACTION_ERROR, e.getMessage());
-			return "forward:/order/" + forwardUrl;
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
 		}
 	}
 
 	@Override
 	protected String getSuccessPage(String forwardUrl) {
-		return "forward:/order/" + forwardUrl;
+		return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
 	}
 
 	@Override
@@ -790,7 +819,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 创建 CreateTradeOrderDTO List
 	 * 
@@ -976,6 +1005,10 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 				throw new RuntimeException("导入失败，文件为空");
 			}
 			for (OrderInfoDTO dto : list) {
+				// 只拿买家已付款数据
+				if (!dto.getStatus().equals(Apply_PAID)) {
+					continue;
+				}
 				dto.setShopId(shopId);
 				dto.setOperator(StorageUtil.getUserId());
 			}
@@ -994,6 +1027,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	private String subCheckOrderInfoFileFormat(List<String> factHeader) {
 		String outOrderNumber = "订单编号";
 		String orderMoney = "买家应付货款";
+		String status = "订单状态";
 		String buyerMessage = "买家留言";
 		String receiverName = "收货人姓名";
 		String receiverAddr = "收货地址";
@@ -1004,6 +1038,9 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 		}
 		if (!factHeader.get(3).equals(orderMoney)) {
 			return "格式错误，D列必须是:" + orderMoney;
+		}
+		if (!factHeader.get(10).equals(status)) {
+			return "格式错误，K列必须是:" + status;
 		}
 		if (!factHeader.get(11).equals(buyerMessage)) {
 			return "格式错误，L列必须是:" + buyerMessage;
@@ -1030,8 +1067,9 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 	 */
 	private Map<String, Integer> initPropOrderInfo() {
 		Map<String, Integer> map = new HashMap<String, Integer>();
-		map.put("outOrderNumber", 0);
+		map.put("outTradeNumber", 0);
 		map.put("orderMoney", 3);
+		map.put("status", 10);
 		map.put("buyerMessage", 11);
 		map.put("receiverName", 12);
 		map.put("receiverAddr", 13);
@@ -1062,6 +1100,9 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 			List<FillExpressNumberUploadDTO> list = im.parse(instance, propMapping);
 			if (list.isEmpty()) {
 				throw new RuntimeException("导入失败，文件为空");
+			}
+			for (FillExpressNumberUploadDTO dto : list) {
+				dto.setExpressCompany(dto.getExpressCompany());
 			}
 			return list;
 		} catch (Exception e) {
@@ -1131,6 +1172,26 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 		} else {
 			map.put("notResult", "未找到需要的结果");
 		}
+	}
+
+	private void setQueryConditionToPage(ModelMap map, OrderQueryCondition cond) {
+		if (cond == null) {
+			return;
+		}
+		StringBuilder condition = new StringBuilder();
+		if (StringUtils.isNotBlank(cond.getOutOrderNumber())) {
+			condition.append("outOrderNumber=" + cond.getOutOrderNumber() + "&");
+		}
+		if (StringUtils.isNotBlank(cond.getReceiverName())) {
+			condition.append("receiverName=" + cond.getReceiverName() + "&");
+		}
+		if (StringUtils.isNotBlank(cond.getReceiverPhone())) {
+			condition.append("receiverPhone=" + cond.getReceiverPhone() + "&");
+		}
+		if (StringUtils.isNotBlank(cond.getExpressNumber())) {
+			condition.append("expressNumber=" + cond.getExpressNumber() + "&");
+		}
+		map.put("queryCondition", condition.toString());
 	}
 
 	/**

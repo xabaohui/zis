@@ -123,12 +123,7 @@ function showOperate(bookId) {
 					</shiro:lacksPermission>
 				</td>
 				<td>
-					<shiro:hasPermission name="purchase:management">
-						<a href="#" onclick="return editPurchasePlanStock(${purchasedPlan.bookId});">${purchasedPlan.stockAmount}</a>
-					</shiro:hasPermission>
-					<shiro:lacksPermission name="purchase:management">
-						${purchasedPlan.stockAmount}
-					</shiro:lacksPermission>
+					${purchasedPlan.stockAmount}
 				</td>
 				<td>
 					<shiro:hasPermission name="purchase:management">

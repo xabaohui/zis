@@ -22,18 +22,68 @@
 		<!-- 是否允许任务并发执行。当值为false时，表示必须等到前一个线程处理完毕后才再启一个新的线程 -->
 		<property name="concurrent" value="false" />
 	</bean>
-	<bean id="purchasePlanBuildAllTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+
+	<bean id="purchasePlanBuildAllTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail" ref="purchasePlanBuildAllJob" />
 		<!-- 每天凌晨3:00 触发一次 -->
 		<property name="cronExpression" value="0 0 3 * * ?" />
 	</bean>
-	
+
+	<!-- 退款定时器 -->
+	<bean id="refundsTimer" class="com.zis.timer.RefundsTimer">
+		<property name="doShopService" ref="shopServiceImpl" />
+	</bean>
+	<bean id="refundsJob"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<!-- targetObject 业务类 -->
+		<property name="targetObject" ref="refundsTimer" />
+		<!-- targetMethod 业务类执行的方法 -->
+		<property name="targetMethod" value="createRefunds" />
+		<!-- 是否允许任务并发执行。当值为false时，表示必须等到前一个线程处理完毕后才再启一个新的线程 -->
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<bean id="refundsTrigger"
+		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+		<property name="jobDetail" ref="refundsJob" />
+		<!-- 每10分钟 触发一次 -->
+		<property name="startDelay" value="0" /><!-- 调度工厂实例化后，经过0秒开始执行调度 -->
+		<property name="repeatInterval" value="600000" /><!-- 每10MIN调度一次 -->
+	</bean>
+
+	<!-- 创建订单定时器 -->
+	<bean id="createOrderTimer" class="com.zis.timer.CreateOrderTimer">
+		<property name="doShopService" ref="shopServiceImpl" />
+	</bean>
+	<bean id="createOrderJob"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<!-- targetObject 业务类 -->
+		<property name="targetObject" ref="createOrderTimer" />
+		<!-- targetMethod 业务类执行的方法 -->
+		<property name="targetMethod" value="createOrderForNet" />
+		<!-- 是否允许任务并发执行。当值为false时，表示必须等到前一个线程处理完毕后才再启一个新的线程 -->
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<bean id="createOrderTrigger"
+		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+		<property name="jobDetail" ref="createOrderJob" />
+		<!-- 每10分钟 触发一次 -->
+		<property name="startDelay" value="0" /><!-- 调度工厂实例化后，经过0秒开始执行调度 -->
+		<property name="repeatInterval" value="600000" /><!-- 每10MIN调度一次 -->
+	</bean>
+
+
+	<!-- 调用定时器 -->
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="triggers">
 			<list>
+				<ref bean="createOrderTrigger" />
+				<ref bean="refundsTrigger" />
 				<ref bean="purchasePlanBuildAllTrigger" />
 			</list>
 		</property>
-		<property name="autoStartup" value="false" />
+		<property name="autoStartup" value="true" />
 	</bean>
 </beans>
