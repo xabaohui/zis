@@ -180,6 +180,18 @@ public interface OrderService {
 	 *            拦截原因
 	 */
 	OrderVO blockOrder(Integer orderId, Integer operator, String blockReason);
+	
+	/**
+	 * 取消拦截订单
+	 * 
+	 * @param orderId
+	 *            主订单Id
+	 * @param operator
+	 *            操作员Id
+	 * @param unblockReason
+	 *            取消拦截原因
+	 */
+	OrderVO unblockOrder(Integer orderId, Integer operator, String unblockReason);
 
 	/**
 	 * 分配订单到仓库，配货状态：未分配仓库->已分配仓库

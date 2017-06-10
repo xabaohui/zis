@@ -373,6 +373,17 @@ public class OrderHelper {
 		// 物流状态：未出库
 		return !expressStatusIsSendOut(order);
 	}
+	
+	/**
+	 * 能否取消拦截
+	 * @param order
+	 * @return
+	 */
+	public static boolean canUnblock(Order order) {
+		checkOrder(order);
+		// 状态：已拦截
+		return order.getBlockFlag();
+	}
 
 	private static void checkOrder(Order order) {
 		if (order == null) {

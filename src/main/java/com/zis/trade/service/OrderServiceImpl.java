@@ -108,6 +108,8 @@ public class OrderServiceImpl implements OrderService {
 		}
 		order.setPayStatus(PayStatus.CANCELLED.getValue());
 		this.orderDao.save(order);
+		// 取消仓库订单，结束库存占用
+		this.storageService.cancelOrder(order.getRepoId(), order.getId());
 
 		logger.info("取消订单, orderId={}, operator={}", order.getId(), operator);
 		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.CANCEL, "");
@@ -237,6 +239,9 @@ public class OrderServiceImpl implements OrderService {
 		order.setRefundFinishTime(new Date());
 		this.orderDao.save(order);
 		this.orderDetailDao.updateStatusToInvalidByOrderId(orderId);
+		
+		// 取消仓库订单，结束库存占用
+		this.storageService.cancelOrder(order.getRepoId(), orderId);
 
 		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.AGREE_REFUND, memo);
 		orderLogDao.save(log);
@@ -321,6 +326,27 @@ public class OrderServiceImpl implements OrderService {
 		this.orderDao.save(order);
 
 		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.BLOCK, blockReason);
+		orderLogDao.save(log);
+		return createOrderVO(order);
+	}
+	
+	@Override
+	@Transactional
+	public OrderVO unblockOrder(Integer orderId, Integer operator, String unblockReason) {
+		logger.info("取消拦截订单, orderId={}, operator={}, unblockReason={}", orderId, operator, unblockReason);
+		Assert.notNull(orderId, "orderId不能为空");
+		Assert.notNull(operator, "operator不能为空");
+		Assert.notNull(unblockReason, "unblockReason不能为空");
+		Order order = orderDao.findOne(orderId);
+		Assert.notNull(order, "订单不存在orderId=" + orderId);
+		if (!order.getBlockFlag()) {
+			throw new RuntimeException("操作失败，订单必须是拦截状态");
+		}
+		
+		order.setBlockFlag(false);
+		this.orderDao.save(order);
+		
+		OrderLog log = OrderHelper.createOrderLog(order, operator, OperateType.UNBLOCK, unblockReason);
 		orderLogDao.save(log);
 		return createOrderVO(order);
 	}
@@ -414,7 +440,8 @@ public class OrderServiceImpl implements OrderService {
 		}
 		order.setStorageStatus(StorageStatus.WAIT_ARRANGE_BY_MANUAL.getValue());
 		orderDao.save(order);
-
+		
+		// 取消仓库订单，结束库存占用
 		storageService.cancelOrder(order.getRepoId(), order.getId());
 
 		// 生成日志

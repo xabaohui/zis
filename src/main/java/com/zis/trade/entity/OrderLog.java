@@ -191,7 +191,9 @@ public class OrderLog  {
 		//
 		SEND_OUT("send_out", "出库"),
 		//
-		BLOCK("block", "拦截");
+		BLOCK("block", "拦截"),
+		//
+		UNBLOCK("unblock", "取消拦截");
 
 		private String value;
 		private String display;
