@@ -321,6 +321,20 @@ function cancelRefund(orderId, forwardUrl) {
 	}
 }
 
+//取消拦截
+function unblockOrder(orderId, forwardUrl) {
+	var memo = prompt("请填写取消原因:", "");
+	if (memo) {
+		if (memo == null || memo.replace(/(^s*)|(s*$)/g, "").length == 0) {
+			alert("请填写取消原因");
+		} else {
+			window.location.href = "order/unblockOrder?orderId=" + orderId
+					+ "&forwardUrl=" + forwardUrl + "&memo=" + memo;
+		}
+	} else {
+	}
+}
+
 // 批量取消退款
 function cancelRefundList() {
 	var memo = prompt("请填写取消原因:", "");

@@ -16,12 +16,12 @@
 </h2>
 <p />
 <div id="showExistBook" style="font-weight: bold;color: green"></div>
-<spring:form action="bookInfo/saveOrUpdate" method="post" modelAttribute="bookInfoDTO">
+<spring:form action="bookInfo/saveOrUpdate" method="post" modelAttribute="bookInfoDTO" id = "addBookForm">
 	<input type="hidden" name="urlType" value="addBook" />
 	<table>
 		<tr>
 			<td>ISBN</td>
-			<td><input type="text" name="isbn" onchange="return checkExistBook()" id="isbn" value="${param.isbn}" /></td>
+			<td><input type="text" name="isbn" onchange="checkExistBook()" id="isbn" value="${param.isbn}" /></td>
 			<td><spring:errors delimiter="," path="isbn" cssStyle="color:red"/></td>
 		</tr>
 		<tr>
@@ -85,7 +85,9 @@
 	</table>
 	<br>
 	<br>
-	<input type="submit" value="提交">&nbsp;&nbsp;&nbsp; <input type="reset" value="取消">
+	<input type="button" onclick="addBookFormSubmit()" value="提交">
+	&nbsp;&nbsp;&nbsp; 
+	<input type="reset" value="取消">
 </spring:form>
 
 <div id="float-to-be-show">

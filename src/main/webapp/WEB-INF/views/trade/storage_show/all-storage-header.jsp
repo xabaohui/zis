@@ -123,10 +123,6 @@
 <!-- 					<c:if test="${order.canLackness()}"> -->
 <!-- 						<input type="button" value = "缺货" onclick="lackness('${order.id}','getAllStorageOrderList')"/> -->
 <!-- 						&nbsp; -->
-<!-- 						<%count++;%> -->
-<!-- 						<% if(count % 2 ==0){%> -->
-<!-- 							<br/> -->
-<!-- 						<%}%> -->
 <!-- 					</c:if> -->
 					
 					<c:if test="${order.canPrint()}">

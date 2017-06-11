@@ -144,6 +144,15 @@
 						<% } %>
 					</c:if>
 					
+					<c:if test="${order.canUnblock()}">
+						<input type="button" value = "取消拦截" onclick="unblockOrder('${order.id}','getAllShopOrderList')" />
+						&nbsp;
+						<% count++; %>
+						<% if(count % 2 ==0){%>
+							<br/>
+						<% } %>
+					</c:if>
+					
 					<c:if test="${order.canChangeOrderAddress()}">
 						<input type="button" value = "改地址" onclick="showOrderAddress('${order.id}','${order.receiverName}','${order.receiverPhone}','${order.receiverAddr}')" />
 						&nbsp;

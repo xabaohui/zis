@@ -371,7 +371,7 @@ public class OrderHelper {
 	public static boolean canBlock(Order order) {
 		checkOrder(order);
 		// 物流状态：未出库
-		return !expressStatusIsSendOut(order);
+		return !expressStatusIsSendOut(order) && !order.getBlockFlag();
 	}
 	
 	/**

@@ -67,6 +67,10 @@ function showCapturedData(bookCaptured) {
 	$("bookEdition").value = bookCaptured.edition;
 }
 
+function addBookFormSubmit(){
+	document.getElementById("addBookForm").submit();
+}
+
 // 迁移图书使用量
 function immigrate(oldBookId) {
 	var newBookId = prompt('要迁移到哪本图书，请输入bookId');

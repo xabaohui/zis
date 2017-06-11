@@ -72,7 +72,7 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 
 	@Autowired
 	private BookService bookService;
-	
+
 	private final String CREATE_OREDER_VIEW_MAP = "createOrderViewMap";
 
 	private final String Apply_PAID = "买家已付款，等待卖家发货";
@@ -389,6 +389,31 @@ public class OrderController extends ExcelExportController<OrderVO> implements V
 			for (Integer i : list) {
 				this.orderService.cancelRefund(i, StorageUtil.getUserId(), memo);
 			}
+			map.put(ACTION_MESSAGE, "操作成功");
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
+		} catch (Exception e) {
+			map.put(ACTION_ERROR, e.getMessage());
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
+		}
+	}
+
+	/**
+	 * 取消拦截
+	 * 
+	 * @param orderId
+	 * @param forwardUrl
+	 * @param memo
+	 * @param map
+	 * @return
+	 */
+	@RequestMapping(value = "/unblockOrder")
+	public String unblockOrder(Integer orderId, String forwardUrl, String memo, ModelMap map) {
+		if (orderId == null) {
+			map.put(ACTION_ERROR, "请选择订单");
+			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
+		}
+		try {
+			this.orderService.unblockOrder(orderId, StorageUtil.getUserId(), memo);
 			map.put(ACTION_MESSAGE, "操作成功");
 			return "forward:/order/" + forwardUrl + FOR_WARD_SORT;
 		} catch (Exception e) {

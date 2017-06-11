@@ -196,6 +196,15 @@ public class OrderVO extends Order {
 	public boolean canBlock() {
 		return OrderHelper.canBlock(this);
 	}
+	
+	/**
+	 * 能否取消拦截
+	 * 
+	 * @return
+	 */
+	public boolean canUnblock() {
+		return OrderHelper.canUnblock(this);
+	}
 
 	/**
 	 * 返回状态展示（所有tab页统一调用）

@@ -48,7 +48,7 @@
 		</table>
 		<table id="common-table">
 			<tr>
-				<td colspan="11" align="left" height="60px"><input style="margin-left: 800px;" type="button" value="下载打印数据"
+				<td colspan="11" align="left" height="60px"><a href="order/gotoExcelAddrToOrderUpload">地址导入</a><input style="margin-left: 800px;" type="button" value="下载打印数据"
 					onclick="printExpressList()" /></td>
 			</tr>
 			<tr>

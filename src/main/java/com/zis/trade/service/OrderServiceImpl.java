@@ -697,10 +697,9 @@ public class OrderServiceImpl implements OrderService {
 			rs = this.orderDao.findByCompanyIdAndPayStatusOrderByUpdateTimeDesc(companyId, payStatus.getValue(), page);
 		}
 		if (expressStatus != null) {
-			// 等待打印快递单页面只查询配货中和配货完成的订单
+			// 等待打印快递单页面只查询配货中和配货完成的订单,并且订单状态为等待打印快递单
 			if (expressStatus.getValue().equals(ExpressStatus.WAIT_FOR_PRINT.getValue())) {
-				rs = this.orderDao.findByCompanyIdAndStorageStatusInAndPayStatusNotInOrderByUpdateTimeDesc(companyId,
-						Arrays.asList(PICKUP_ORDER), cancelledList, page);
+				rs = this.orderDao.findByCompanyIdAndExpressStatusAndStorageStatusInAndPayStatusNotInOrderByUpdateTimeDesc(companyId, expressStatus.getValue(), Arrays.asList(PICKUP_ORDER), cancelledList, page);
 			} else {
 				rs = this.orderDao
 						.findByCompanyIdAndExpressStatusAndStorageStatusNotInAndPayStatusNotInOrderByUpdateTimeDesc(

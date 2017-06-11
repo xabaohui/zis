@@ -32,7 +32,7 @@ import com.zis.storage.service.StorageService;
 public class XlsUtil {
 
 	private static final String FAIL_URL = "E:/360data/重要数据/桌面/zis相关/zis/fail.csv";
-	private static final String FILE_NAME = "E:/360data/重要数据/桌面/zis相关/zis/库位商品明细e.xls";// 表格文件路径
+	private static final String FILE_NAME = "E:/360data/重要数据/桌面/zis相关/zis/库位商品明细.xls";// 表格文件路径
 
 	private List<FailDto> failList = new ArrayList<FailDto>();
 
@@ -42,17 +42,18 @@ public class XlsUtil {
 	@Autowired
 	private StorageService storageService;
 
-	private Integer sheetCount = 0;
-
 	@Test
 	public void ssss() {
-		testPosInput();
+		for (int i = 1; i < 6; i++) {
+			String fileName = "E:/360data/重要数据/桌面/zis相关/zis/库位商品明细" + i + ".xls";
+			testPosInput(fileName);
+		}
 	}
 
-	private void testPosInput() {
+	private void testPosInput(String fileName) {
 		// 设置模板文件，用于检验导入文件是否合法
 		Integer headerRownums = 1;
-		File file = new File(FILE_NAME);
+		File file = new File(fileName);
 		// if (sheetCount == null) {
 		// sheetCount = 0;
 		// }

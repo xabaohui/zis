@@ -135,6 +135,15 @@
 						<% } %>
 					</c:if>
 					
+					<c:if test="${order.canUnblock()}">
+						<input type="button" value = "取消拦截" onclick="unblockOrder('${order.id}','getRefundingList')" />
+						&nbsp;
+						<% count++; %>
+						<% if(count % 2 ==0){%>
+							<br/>
+						<% } %>
+					</c:if>
+					
 					<div id = "desc_${order.id}">
 						<c:if test="${not empty order.salerRemark}">
 							<span title="${order.salerRemark}" onclick="showAppendSellerRemarkView('${order.id}')"><font color="red">备注</font></span>

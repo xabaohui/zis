@@ -22,6 +22,10 @@ public interface OrderDao extends PagingAndSortingRepository<Order, Integer>, Jp
 			Integer companyId, String expressStatus, List<String> storageStatusList, List<String> payStatus,
 			Pageable page);
 
+	Page<Order> findByCompanyIdAndExpressStatusAndStorageStatusInAndPayStatusNotInOrderByUpdateTimeDesc(
+			Integer companyId, String expressStatus, List<String> storageStatusList, List<String> payStatus,
+			Pageable page);
+
 	Page<Order> findByCompanyIdAndStorageStatusAndPayStatusNotInOrderByUpdateTimeDesc(Integer companyId,
 			String storageStatus, List<String> payStatus, Pageable page);
 
