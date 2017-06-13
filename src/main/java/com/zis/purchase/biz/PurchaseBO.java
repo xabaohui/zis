@@ -257,6 +257,9 @@ public class PurchaseBO {
 		if (manualFirst && plan.getManualDecision() > 0) {
 			requireAmount = plan.getManualDecision();
 		}
+		if (PurchasePlanFlag.BLACK.equals(plan.getFlag())) {
+			requireAmount = 0;
+		}
 		// TODO 查询库存量，通过repoId 以及 skuId
 		Integer still = requireAmount - stockAmount - plan.getPurchasedAmount();
 		return still > 0 ? still : 0;
